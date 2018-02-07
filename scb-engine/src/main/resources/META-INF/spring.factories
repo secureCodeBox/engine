@@ -1,0 +1,2 @@
+org.springframework.context.ApplicationContextInitializer=\
+io.securecodebox.engine.sdk.EntryPointLookup

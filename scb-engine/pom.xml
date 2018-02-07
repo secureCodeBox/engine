@@ -13,9 +13,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.securecodebox.core</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>sdk</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>testos</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- Enable the camunda webapp's (tasklist, cockpit, admin) -->
