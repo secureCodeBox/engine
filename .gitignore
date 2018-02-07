@@ -1,0 +1,63 @@
+#################
+## Eclipse
+#################
+
+.project
+.classpath
+.loadpath
+.settings
+.gradle
+.groovy
+.idea
+.metadata
+*.tmp
+*.bak
+*.class
+*.log
+
+# exclude the following folder in the top project and all submodules
+.settings/
+bin/
+tmp/
+build/
+
+# External tool builders (in top folder and all submodules)
+target/
+
+################
+## Intermediate
+################
+MANIFEST.MF
+
+############
+## Windows
+############
+
+# Windows image file caches
+Thumbs.db
+
+# Folder config file
+Desktop.ini
+
+############
+## Mac
+############
+
+# Folder config file
+.DS_Store
+*.iml
+/target/
+/target/
+/target/
+/target/
+/target/
+/target/
+/target/
+/target/
+/target/
+/target/
+/target/
+/target/
+/target/
+/target/
+/target/
