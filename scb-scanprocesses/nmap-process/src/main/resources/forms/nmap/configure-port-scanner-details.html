@@ -1,0 +1,168 @@
+<form role="form" name="configure-port-scanner">
+
+    <script cam-script type="text/form-script">
+    	camForm.on('form-loaded', function() {
+      		camForm.variableManager.fetchVariable('targetName');
+    	});
+    	camForm.on('variables-restored', function() {
+      		$scope.targetName = camForm.variableManager.variableValue('targetName');
+      		console.log("setting variables to scope");
+    	});
+  	</script>
+
+    <h2>Please configure the Port Scanner Details for "{{ targetName }}"</h2>
+
+    <div class="row">
+
+        <div class="col-xs-12">
+            <h3>Port Scanner advanced configuration</h3>
+
+            <!-- Port Scanner Target -->
+            <div class="form-group">
+                <label for="inputPortScannerTarget">Target Host</label>
+                <div class="controls">
+                    <input required class="form-control"
+                           cam-variable-type="String"
+                           cam-variable-name="nmap_target"
+                           type="text"
+                           ng-minlength="1"
+                           ng-maxlength="100"
+                           name="portScannerTarget" />
+                </div>
+            </div>
+
+            <!-- Port Scanner Parameter -->
+            <div class="form-group">
+                <label for="inputPortScannerParams">Advanced Parameter</label>
+                <div class="controls">
+                    <input required class="form-control"
+                           cam-variable-type="String"
+                           cam-variable-name="nmap_parameter"
+                           type="text"
+                           ng-required="false"
+                           ng-maxlength="100"
+                           name="portScannerParameter" />
+                </div>
+            </div>
+            
+			<h3>Nmap Parameter Description ( https://nmap.org )</h3>
+			<code>
+				<p><strong>TARGET SPECIFICATION:</strong><br>
+				  Can pass hostnames, IP addresses, networks, etc.<br>
+				  Ex: scanme.nmap.org, microsoft.com/24, 192.168.0.1; 10.0.0-255.1-254<br>
+				  -iL &lt;inputfilename&gt;: Input from list of hosts/networks<br>
+				  -iR &lt;num hosts&gt;: Choose random targets<br>
+				  --exclude &lt;host1[,host2][,host3],...&gt;: Exclude hosts/networks<br>
+				  --excludefile &lt;exclude_file&gt;: Exclude list from file</p>
+				<p><strong>HOST DISCOVERY:</strong><br>
+				  -sL: List Scan - simply list targets to scan<br>
+				  -sn: Ping Scan - disable port scan<br>
+				  -Pn: Treat all hosts as online -- skip host discovery<br>
+				  -PS/PA/PU/PY[portlist]: TCP SYN/ACK, UDP or SCTP discovery to given ports<br>
+				  -PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes<br>
+				  -PO[protocol list]: IP Protocol Ping<br>
+				  -n/-R: Never do DNS resolution/Always resolve [default: sometimes]<br>
+				  --dns-servers &lt;serv1[,serv2],...&gt;: Specify custom DNS servers<br>
+				  --system-dns: Use OS's DNS resolver<br>
+				  --traceroute: Trace hop path to each host<br></p>
+				<p><strong>SCAN TECHNIQUES:</strong><br>
+				  -sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans<br>
+				  -sU: UDP Scan<br>
+				  -sN/sF/sX: TCP Null, FIN, and Xmas scans<br>
+				  --scanflags &lt;flags&gt;: Customize TCP scan flags<br>
+				  -sI &lt;zombie host[:probeport]&gt;: Idle scan<br>
+				  -sY/sZ: SCTP INIT/COOKIE-ECHO scans<br>
+				  -sO: IP protocol scan<br>
+				  -b &lt;FTP relay host&gt;: FTP bounce scan</p>
+				<p><strong>PORT SPECIFICATION AND SCAN ORDER:</strong><br>
+				  -p &lt;port ranges&gt;: Only scan specified ports<br>
+				    Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080,S:9<br>
+				  --exclude-ports &lt;port ranges&gt;: Exclude the specified ports from scanning<br>
+				  -F: Fast mode - Scan fewer ports than the default scan<br>
+				  -r: Scan ports consecutively - don't randomize<br>
+				  --top-ports &lt;number&gt;: Scan &lt;number&gt; most common ports<br>
+				  --port-ratio &lt;ratio&gt;: Scan ports more common than &lt;ratio&gt;</p>
+				<p><strong>SERVICE/VERSION DETECTION:</strong><br>
+				  -sV: Probe open ports to determine service/version info<br>
+				  --version-intensity &lt;level&gt;: Set from 0 (light) to 9 (try all probes)<br>
+				  --version-light: Limit to most likely probes (intensity 2)<br>
+				  --version-all: Try every single probe (intensity 9)<br>
+				  --version-trace: Show detailed version scan activity (for debugging)</p>
+				<p><strong>SCRIPT SCAN:</strong><br>
+				  -sC: equivalent to --script=default<br>
+				  --script=&lt;Lua scripts&gt;: &lt;Lua scripts&gt; is a comma separated list of<br>
+				           directories, script-files or script-categories<br>
+				  --script-args=&lt;n1=v1,[n2=v2,...]&gt;: provide arguments to scripts<br>
+				  --script-args-file=filename: provide NSE script args in a file<br>
+				  --script-trace: Show all data sent and received<br>
+				  --script-updatedb: Update the script database.<br>
+				  --script-help=&lt;Lua scripts&gt;: Show help about scripts.
+				           &lt;Lua scripts&gt; is a comma-separated list of script-files or
+				           script-categories.</p>
+				<p><strong>OS DETECTION:</strong><br>
+				  -O: Enable OS detection<br>
+				  --osscan-limit: Limit OS detection to promising targets<br>
+				  --osscan-guess: Guess OS more aggressively</p>
+				<p><strong>TIMING AND PERFORMANCE:</strong><br>
+				  Options which take &lt;time&gt; are in seconds, or append 'ms' (milliseconds),<br>
+				  's' (seconds), 'm' (minutes), or 'h' (hours) to the value (e.g. 30m).<br>
+				  -T&lt;0-5&gt;: Set timing template (higher is faster)<br>
+				  --min-hostgroup/max-hostgroup &lt;size&gt;: Parallel host scan group sizes<br>
+				  --min-parallelism/max-parallelism &lt;numprobes&gt;: Probe parallelization<br>
+				  --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;time&gt;: Specifies<br>
+				      probe round trip time.<br>
+				  --max-retries &lt;tries&gt;: Caps number of port scan probe retransmissions.<br>
+				  --host-timeout &lt;time&gt;: Give up on target after this long<br>
+				  --scan-delay/--max-scan-delay &lt;time&gt;: Adjust delay between probes<br>
+				  --min-rate &lt;number&gt;: Send packets no slower than &lt;number&gt; per second<br>
+				  --max-rate &lt;number&gt;: Send packets no faster than &lt;number&gt; per second</p>
+				<p><strong>FIREWALL/IDS EVASION AND SPOOFING:</strong><br>
+				  -f; --mtu &lt;val&gt;: fragment packets (optionally w/given MTU)<br>
+				  -D &lt;decoy1,decoy2[,ME],...&gt;: Cloak a scan with decoys<br>
+				  -S &lt;IP_Address&gt;: Spoof source address<br>
+				  -e &lt;iface&gt;: Use specified interface<br>
+				  -g/--source-port &lt;portnum&gt;: Use given port number<br>
+				  --proxies &lt;url1,[url2],...&gt;: Relay connections through HTTP/SOCKS4 proxies<br>
+				  --data &lt;hex string&gt;: Append a custom payload to sent packets<br>
+				  --data-string &lt;string&gt;: Append a custom ASCII string to sent packets<br>
+				  --data-length &lt;num&gt;: Append random data to sent packets<br>
+				  --ip-options &lt;options&gt;: Send packets with specified ip options<br>
+				  --ttl &lt;val&gt;: Set IP time-to-live field<br>
+				  --spoof-mac &lt;mac address/prefix/vendor name&gt;: Spoof your MAC address<br>
+				  --badsum: Send packets with a bogus TCP/UDP/SCTP checksum</p>
+				<p><strong>OUTPUT:</strong><br>
+				  -oN/-oX/-oS/-oG &lt;file&gt;: Output scan in normal, XML, s|&lt;rIpt kIddi3,<br>
+				     and Grepable format, respectively, to the given filename.<br>
+				  -oA &lt;basename&gt;: Output in the three major formats at once<br>
+				  -v: Increase verbosity level (use -vv or more for greater effect)<br>
+				  -d: Increase debugging level (use -dd or more for greater effect)<br>
+				  --reason: Display the reason a port is in a particular state<br>
+				  --open: Only show open (or possibly open) ports<br>
+				  --packet-trace: Show all packets sent and received<br>
+				  --iflist: Print host interfaces and routes (for debugging)<br>
+				  --append-output: Append to rather than clobber specified output files<br>
+				  --resume &lt;filename&gt;: Resume an aborted scan<br>
+				  --stylesheet &lt;path/URL&gt;: XSL stylesheet to transform XML output to HTML<br>
+				  --webxml: Reference stylesheet from Nmap.Org for more portable XML<br>
+				  --no-stylesheet: Prevent associating of XSL stylesheet w/XML output</p>
+				<p><strong>MISC:</strong><br>
+				  -6: Enable IPv6 scanning<br>
+				  -A: Enable OS detection, version detection, script scanning, and traceroute<br>
+				  --datadir &lt;dirname&gt;: Specify custom Nmap data file location<br>
+				  --send-eth/--send-ip: Send using raw ethernet frames or IP packets<br>
+				  --privileged: Assume that the user is fully privileged<br>
+				  --unprivileged: Assume the user lacks raw socket privileges<br>
+				  -V: Print version number<br>
+				  -h: Print this help summary page.</p>
+				<p><strong>EXAMPLES:</strong><br>
+				  nmap -v -A scanme.nmap.org<br>
+				  nmap -v -sn 192.168.0.0/16 10.0.0.0/8<br>
+				  nmap -v -iR 10000 -Pn -p 80</p>
+				
+				<p><strong>SEE THE MAN PAGE (https://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES</strong></p>		
+			</code>
+
+        </div>
+
+    </div>
+</form>

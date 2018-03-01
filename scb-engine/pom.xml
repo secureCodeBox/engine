@@ -17,11 +17,6 @@
             <artifactId>sdk</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>testos</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
         <!-- Enable the camunda webapp's (tasklist, cockpit, admin) -->
         <dependency>
@@ -45,6 +40,14 @@
             <groupId>org.camunda.bpm.springboot</groupId>
             <artifactId>camunda-bpm-spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <!-- default scan process collection -->
+        <dependency>
+            <groupId>io.securecodebox.scanprocesses</groupId>
+            <artifactId>nmap-process</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 

@@ -17,20 +17,23 @@
  * /
  */
 
-package io.securecodebox.engine;
+package io.securecodebox.sdk;
 
-import org.camunda.bpm.spring.boot.starter.annotation.EnableProcessApplication;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 
-@SpringBootApplication
-@EnableProcessApplication
-@ComponentScan(basePackages = { "io.securecodebox.engine", "io.securecodebox.sdk", "io.securecodebox.scanprocess" })
-public class SecureCodeBoxEngine {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-    public static void main(String... args) {
-        SpringApplication application = new SpringApplication(SecureCodeBoxEngine.class);
-        application.run(args);
-    }
+/**
+ * @author Rüdiger Heins - iteratec GmbH
+ * @since 07.02.18
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Configuration
+@ComponentScan
+public @interface ProcessEntryPoint {
 }

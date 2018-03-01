@@ -4,3 +4,5 @@ camunda.bpm:
   admin-user:
     id: kermit
     password: superSecret
+
+logging.level.io.securecodebox: INFO

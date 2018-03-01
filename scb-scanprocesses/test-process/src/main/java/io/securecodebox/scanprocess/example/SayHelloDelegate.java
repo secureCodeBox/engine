@@ -1,12 +1,12 @@
-package io.securecodebox.scanner.example;
+package io.securecodebox.scanprocess.example;
 
-import io.securecodebox.sdk.ScannerEntryPoint;
+import io.securecodebox.sdk.ProcessEntryPoint;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ScannerEntryPoint
+@ProcessEntryPoint
 public class SayHelloDelegate implements JavaDelegate {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SayHelloDelegate.class);

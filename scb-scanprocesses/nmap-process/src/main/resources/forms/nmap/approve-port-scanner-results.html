@@ -1,0 +1,116 @@
+<form role="form" name="configure-reporting">
+
+    <script cam-script type="text/form-script">
+        camForm.on('form-loaded', function () {
+            camForm.variableManager.fetchVariable('targetName');
+            camForm.variableManager.fetchVariable('context');
+
+            camForm.variableManager.fetchVariable('nmap_target');
+            camForm.variableManager.fetchVariable('nmap_parameter');
+            camForm.variableManager.fetchVariable('result');
+            camForm.variableManager.fetchVariable('microserviceId');
+        });
+
+        camForm.on('variables-restored', function () {
+            $scope.targetName = camForm.variableManager.variableValue('targetName');
+            $scope.context = camForm.variableManager.variableValue('context');
+
+            $scope.portScannerId = camForm.variableManager.variableValue('microserviceId');
+            $scope.portScannerTarget = camForm.variableManager.variableValue('nmap_target');
+            $scope.portScannerParameter = camForm.variableManager.variableValue('nmap_parameter');
+            $scope.portScannerResult = JSON.parse(camForm.variableManager.variableValue('result'));
+
+            $scope.groupedResults = $scope.portScannerResult.content.reduce(
+                    function (carry, item) {
+                        if (!carry.hasOwnProperty(item.hostname)) {
+                            carry[item.hostname] = [];
+                        }
+                        carry[item.hostname].push(item);
+                        return carry;
+                    },
+                    {}
+            );
+        });
+    </script>
+
+    <h2>Portscan results for "{{ targetName }}"</h2>
+
+    <div class="row">
+        <div class="col-xs-12">
+
+            <div>
+                <div>
+                    <label>Port scanner Id:</label>
+                    <a href="{{ nmap_target }}">{{ portScannerId }}</a>
+                </div>
+                <div>
+                    <label>Target Host:</label>
+                    <a href="{{ nmap_target }}">{{ portScannerTarget.trim().split(' ').join(', ') }}</a>
+                </div>
+                <div>
+                    <label>Business Context:</label>
+                    <code>{{ context }}</code>
+                </div>
+            </div>
+
+            <div class="form-group hidden">
+                <label>Result:</label>
+                <code>{{ portScannerResult }}</code>
+            </div>
+
+            <div class="well well-sm"
+                 style="color: inherit;"
+                 ng-repeat="(address, host) in groupedResults">
+                <strong>Results for Host: {{ address }}</strong>
+                <table class="table table-striped">
+                    <tr>
+                        <th>Host:</th>
+                        <th>Port:</th>
+                        <th>Name:</th>
+                        <th>Protocol:</th>
+                        <th>State:</th>
+                        <th>Action:</th>
+                    </tr>
+                    <tr class="danger" ng-repeat="port in host">
+                        <td>{{ port.hostname }}</td>
+                        <td>{{ port.port }}</td>
+                        <td>{{ port.service }}</td>
+                        <td>{{ port.protocol }}</td>
+                        <td>
+                            <span class="label label-danger">
+                                <i aria-hidden="true"
+                                   class="glyphicon glyphicon-fire"></i>
+                                Open
+                            </span>
+                        </td>
+                        <td>
+                            <span class="label label-success ng-binding">
+                                <i aria-hidden="true"
+                                   class="glyphicon glyphicon-ok"></i>
+                                Ignore
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <h2>Approve Result</h2>
+            <!-- reporting configuration -->
+            <div class="form-group">
+                <label for="selectResultApproved">Approve Result</label>
+                <div id="selectResultApproved" class="controls">
+                    <!--select box -->
+                    <select required
+                            class="form-control"
+                            name="resultApproved"
+                            cam-variable-name="resultApproved"
+                            cam-variable-type="String">
+                        <option value="approved" checked>Approved (Finished)</option>
+                        <option value="dissapproved">Not Approved (Restart Scan)</option>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>

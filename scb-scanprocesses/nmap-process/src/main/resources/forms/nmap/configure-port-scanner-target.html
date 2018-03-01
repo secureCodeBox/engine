@@ -1,0 +1,149 @@
+<h2>Please configure the Port Scan</h2>
+
+<form role="form" name="configure-target">
+
+    <script cam-script type="text/form-script">
+        camForm.on('form-loaded', function () {
+            camForm.variableManager.fetchVariable('nmap_target');
+        });
+
+        camForm.on('variables-fetched', function () {
+            $scope.targetList = ['bodgeit'];
+            var previousTargetName = camForm.variableManager.variableValue('nmap_target');
+            if (previousTargetName !== null && previousTargetName !== undefined && previousTargetName !== '') {
+                $scope.targetList = previousTargetName.split(' ');
+                //console.log('TargetName was already set to: ', previousTargetName);
+                //console.log('Splitted the string into', $scope.targetList);
+            }
+            $scope.addTarget = function () {
+                $scope.targetList.push('');
+                //console.log($scope.targetList);
+            };
+
+            $scope.checkForEnter = function ($event) {
+                if ($event.key === 'Enter') {
+                    $scope.addTarget();
+                    $event.stopPropagation();
+                    $event.preventDefault();
+                }
+            };
+        });
+
+        camForm.on('submit', function () {
+            var targetString = $scope.targetList.join(' ');
+
+            camForm.variableManager.destroyVariable('nmap_target');
+            camForm.variableManager.createVariable({
+                name: 'nmap_target',
+                type: 'string',
+                value: targetString
+            });
+        });
+    </script>
+
+    <div class="row">
+
+        <div class="col-xs-12">
+            <h3>Portscan Target</h3>
+
+            <!-- Target Name -->
+            <div class="form-group">
+                <label for="inputTargetName">Target Name</label>
+                <div class="controls">
+                    <input required class="form-control"
+                           id="inputTargetName"
+                           cam-variable-type="String"
+                           cam-variable-name="targetName"
+                           type="text"
+                           placeholder="Public Site Name"
+                           ng-minlength="2"
+                           ng-maxlength="30"
+                           name="targetName"
+                           value="BodgeIT Public Host"/>
+                </div>
+            </div>
+
+            <!-- Target Hosts -->
+            <div class="form-group">
+                <strong for="inputTargetUrl">Target Hosts</strong>
+                <span>Hostname/ IP-Address</span>
+                <code class="hidden">{{ targetList }}</code>
+                <div class="controls row"
+                     ng-repeat="target in targetList track by $index"
+                >
+                    <div class="col-xs-12">
+
+                        <input required class="form-control"
+                               type="text"
+                               placeholder="bodgeit"
+                               ng-minlength="3"
+                               ng-maxlength="100"
+                               ng-model="targetList[$index]"
+                               ng-keydown="checkForEnter($event)"
+                        />
+                        <button
+                                class="btn btn-danger"
+                                ng-click="targetList.splice($index, 1)"
+                                ng-disabled="targetList.length === 1"
+                                style="position: absolute; right: 15px; top: 0;"
+                        >
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </button>
+                    </div>
+                </div>
+                <button
+                        class="btn btn-primary"
+                        ng-click="addTarget()"
+                >
+                    Add Host
+                </button>
+            </div>
+
+            <!-- Context (Project/Team/System...) -->
+            <div class="form-group">
+                <label for="inputContext">Business Context (Project/Team/System)</label>
+                <div class="controls">
+                    <input class="form-control"
+                           id="inputContext"
+                           cam-variable-type="String"
+                           cam-variable-name="context"
+                           type="text"
+                           placeholder="Project/Team/System"
+                           ng-required="false"
+                           ng-maxlength="50"
+                           name="context"
+                           value="BodgeIT"/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="controls">
+                    <label for="inputFalsePositiveFilter">Enable False/Positive Filtering?</label>
+                    <input class="form-control"
+                           id="inputFalsePositiveFilter"
+                           cam-variable-type="Boolean"
+                           cam-variable-name="markFalsePositive"
+                           type="checkbox"
+                           name="falsePositiveFilter"/>
+                </div>
+            </div>
+
+            <!-- port scanner configuration -->
+            <div class="form-group">
+                <label for="selectPortScannerConfigurationType">Type of the port scanner configuration</label>
+                <div class="controls">
+                    <!--select box -->
+                    <select required id="selectPortScannerConfigurationType"
+                            class="form-control"
+                            name="configurationType"
+                            cam-variable-name="nmap_configuration_type"
+                            cam-variable-type="String">
+                        <option value="default" checked>Default</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>

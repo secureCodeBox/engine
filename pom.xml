@@ -7,25 +7,30 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+
     <properties>
-        <spring.boot.version>1.5.10.RELEASE</spring.boot.version>
         <camunda.spring.boot.starter.version>2.3.0</camunda.spring.boot.starter.version>
+        <spring-boot.version>1.5.8.RELEASE</spring-boot.version>
     </properties>
 
     <modules>
         <module>scb-sdk</module>
         <module>scb-engine</module>
+        <module>scb-scanprocesses</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
+            <!-- import dependencies from camunda spring boot starter -->
             <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring.boot.version}</version>
-                <type>pom</type>
+
+                <groupId>org.camunda.bpm.springboot.project</groupId>
+                <artifactId>camunda-bpm-spring-boot-starter-root</artifactId>
+                <version>${camunda.spring.boot.starter.version}</version>
                 <scope>import</scope>
+                <type>pom</type>
             </dependency>
+
             <!-- Enable the camunda webapp's (tasklist, cockpit, admin) -->
             <dependency>
                 <groupId>org.camunda.bpm.springboot</groupId>
@@ -54,6 +59,7 @@
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
                     <configuration>
                         <layout>ZIP</layout>
                     </configuration>
