@@ -19,18 +19,21 @@
 
 package io.securecodebox.sdk;
 
-import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
- * @since 01.03.18
+ * @since 07.02.18
  */
-
-public interface ScanProcessExecutionFactory {
-
-    public ScanProcessExecution build(DelegateExecution execution);
-
-    public <P extends ScanProcessExecution> P build(DelegateExecution execution, Class<P> customProcess);
-
-    public <P extends ScanProcessExecution> ScanProcessExecution register(Class<P> customProcess);
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Configuration
+@ComponentScan
+public @interface ScanProcessEntryPoint {
 }

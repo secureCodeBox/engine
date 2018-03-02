@@ -22,8 +22,6 @@ package io.securecodebox.scanprocess;
 import io.securecodebox.constants.CommonConstants;
 import io.securecodebox.constants.CommonReportFields;
 import io.securecodebox.constants.NmapConstants;
-import io.securecodebox.sdk.ScanProcessExecution;
-import io.securecodebox.sdk.ScanProcessExecutionFactory;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.camunda.bpm.engine.impl.util.json.JSONObject;
@@ -58,7 +56,7 @@ public class TransformNmapResultsDelegate implements JavaDelegate {
     public void execute(DelegateExecution delegateExecution) throws Exception {
         LOG.debug("TransformNmapResultsDelegate execute");
 
-        process = processExecutionFactory.build(delegateExecution);
+        process = processExecutionFactory.build(delegateExecution, NmapScanProcessExecution.class);
 
         LOG.debug("VARS: {}", delegateExecution.getVariables());
 
@@ -102,32 +100,6 @@ public class TransformNmapResultsDelegate implements JavaDelegate {
 
                 findingsList.add(finding);
             });
-            //            issues.each {
-            //
-            //                // build a new generic (common reporting) result entry, based on the NMAP scanner specific raw results
-            //                Map finding = new HashMap()
-            //
-            //                // reusing the existing meta data fields and adding them to each single result entry
-            //                finding.put(Variables.DOCUMENT_UUID, it[Variables.DOCUMENT_UUID]);
-            //                finding.put(CommonReportFields.SCANNER_NAME, it[Variables.MICROSERVICE])
-            //                finding.put(Variables.MICROSERVICE_ID, it[Variables.MICROSERVICE_ID])
-            //                finding.put(Variables.MICROSERVICE, it[Variables.MICROSERVICE])
-            //                finding.put(Variables.PROCESS_UUID, it[Variables.PROCESS_UUID])
-            //                finding.put(Variables.TENAND_ID, it[Variables.TENAND_ID])
-            //                finding.put(Variables.CONTEXT, it[Variables.CONTEXT])
-            //
-            //                // for each finding transform the raw data fields into generic field
-            //                finding.put(CommonReportFields.NAME, it['service'])
-            //                finding.put(CommonReportFields.CATEGORY, "Open Port") finding.put(CommonReportFields.TIER, "Network")
-            //                finding.put(CommonReportFields.PORT, it['port'])
-            //                def description = "Port ${it['port']} is open using ${it['protocol']} protocol.".toString()
-            //                finding.put(CommonReportFields.DESCRIPTION, description)
-            //
-            //                finding.put(CommonReportFields.URL, it['ip']) finding.put(CommonReportFields.IP_ADDRESS, it['ip'])
-            //                finding.put(CommonReportFields.SEVERITY, 'informational')
-            //
-            //                findingsList.add(finding)
-            //            }
 
             LOG.debug("Found {} findings", findingsList.size());
 

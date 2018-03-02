@@ -17,11 +17,12 @@
  * /
  */
 
-package io.securecodebox.sdk;
+package io.securecodebox.scanprocess;
 
 import org.camunda.bpm.engine.variable.value.FileValue;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.UUID;
 
@@ -29,7 +30,7 @@ import java.util.UUID;
  * @author Robert Seedorff - iteratec GmbH
  * @since 27.09.15
  */
-public interface ScanProcessExecution {
+public interface ScanProcessExecution extends Serializable {
 
     /**
      * @return the context
@@ -390,29 +391,9 @@ public interface ScanProcessExecution {
      String getTargetUrl();
 
     /**
-     * @return the portScannerParameter
-     */
-     String getNmapParameter();
-
-    /**
-     * @return the portScannerTarget
-     */
-     String getPortScannerTarget();
-
-    /**
      * @return the spiderTargetUrl
      */
      String getSpiderTargetUrl();
-
-    /**
-     * @param portScannerParameter the portScannerParameter
-     */
-     void setNmapParameter(String portScannerParameter);
-
-    /**
-     * @param portScannerTarget the portScannerTarget
-     */
-     void setPortScannerTarget(String portScannerTarget);
 
     /**
      * @param spiderTargetUrl the spiderTargetUrl

@@ -19,29 +19,17 @@
 
 package io.securecodebox.scanprocess;
 
-import io.securecodebox.sdk.ScanProcessExecution;
-import io.securecodebox.sdk.ScanProcessExecutionFactory;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.springframework.stereotype.Component;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
  * @since 01.03.18
  */
-@Component
-public class DefaultScanProcessFactory implements ScanProcessExecutionFactory {
-    @Override
-    public ScanProcessExecution build(DelegateExecution execution) {
-        return new DefaultScanProcess(execution);
-    }
+public interface ScanProcessExecutionFactory {
 
-    @Override
-    public <P extends ScanProcessExecution> P build(DelegateExecution execution, Class<P> customProcess) {
-        throw new UnsupportedOperationException("Not implemented yet!");
-    }
+    public ScanProcessExecution build(DelegateExecution execution);
 
-    @Override
-    public <P extends ScanProcessExecution> ScanProcessExecution register(Class<P> customProcess) {
-        throw new UnsupportedOperationException("Not implemented yet!");
-    }
+    public <P extends ScanProcessExecution> P build(DelegateExecution execution, Class<P> customProcess);
+
+    public <P extends ScanProcessExecution> ScanProcessExecution register(Class<P> customProcess);
 }

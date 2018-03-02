@@ -3,6 +3,7 @@ camunda.bpm:
     index-redirect-enabled: true
   admin-user:
     id: kermit
-    password: superSecret
+    password: a
 
-logging.level.io.securecodebox: INFO
+logging.level: DEBUG
+logging.level.io.securecodebox: TRACE
