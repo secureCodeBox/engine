@@ -19,7 +19,7 @@
 
 package io.securecodebox.scanprocess;
 
-import io.securecodebox.sdk.ScanProcessExecution;
+import io.securecodebox.constants.CommonConstants;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.variable.value.BooleanValue;
 import org.camunda.bpm.engine.variable.value.FileValue;
@@ -35,12 +35,12 @@ import java.util.UUID;
 /**
  * @since 01.09.15
  */
-class DefaultScanProcess implements ScanProcessExecution {
+public class DefaultScanProcessExcecution implements ScanProcessExecution {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultScanProcess.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultScanProcessExcecution.class);
 
     public static final String CLIENT_TYPE = "clientType";
-    public static final String CONTEXT = "context";
+    public static final String CONTEXT = CommonConstants.CONTEXT;
     public static final String JENKINS_JOB_LINK = "jenkinsJobLink";
     public static final String JENKINS_LOGIN_DATA = "jenkinsLoginData";
     public static final String JENKINS_REPORTING_TYPE = "jenkinsReportingType";
@@ -52,8 +52,6 @@ class DefaultScanProcess implements ScanProcessExecution {
     public static final String MAX_RISK = "maxRisk";
     public static final String MAX_VULNERABILITY_COUNT = "maxVulnerabilityCount";
     public static final String PASSWORD_FIELD_ID = "passwordFieldId";
-    public static final String NMAP_PARAMETER = "nmap_parameter";
-    public static final String NMAP_TARGET = "nmap_target";
     public static final String ALTERNATE_DASHBOARD_URL = "alternateDashboardUrl";
     public static final String REPORTING_API_KEY = "reportingApiKey";
     public static final String REPORTING_APP_ID = "reportingAppId";
@@ -65,12 +63,12 @@ class DefaultScanProcess implements ScanProcessExecution {
     public static final String REPORTING_SERVICE_HOST = "reportingServiceHost";
     public static final String REPORTING_URL = "reportingUrl";
     public static final String REPORTING_UUID = "reportingUuid";
-    public static final String SCANNER_EXCLUDE_REGEXES = "scannerExcludeRegexes";
-    public static final String SCANNER_INCLUDE_REGEXES = "scannerIncludeRegexes";
-    public static final String SCANNER_MICROSERVICE_ID = "scannerMicroserviceId";
-    public static final String SCANNER_MICROSERVICE_RUN_ID = "scannerMicroserviceRunId";
-    public static final String SCANNER_TARGET_URL = "scannerTargetUrl";
-    public static final String SCANNER_TYPE = "scannerType";
+    public static final String SCANNER_EXCLUDE_REGEXES = CommonConstants.SCANNER_REGEX_EXCLUDE;
+    public static final String SCANNER_INCLUDE_REGEXES = CommonConstants.SCANNER_REGEX_INCLUDE;
+    public static final String SCANNER_MICROSERVICE_ID = CommonConstants.SCANNER_MICROSERVICE_ID;
+    public static final String SCANNER_MICROSERVICE_RUN_ID = CommonConstants.SCANNER_RUN_ID;
+    public static final String SCANNER_TARGET_URL = CommonConstants.SCANNER_TARGET;
+    public static final String SCANNER_TYPE = CommonConstants.SCANNER_MICROSERVICE_TYPE;
     public static final String SCANNER_UUID = "scannerUuid";
     public static final String SPIDER_EXCLUDE_DUPLICATES = "spiderExcludeDuplicates";
     public static final String SPIDER_API_SPEC_URL = "spiderApiSpecUrl";
@@ -78,26 +76,26 @@ class DefaultScanProcess implements ScanProcessExecution {
     public static final String SPIDER_EXCLUDE_REGEXES = "spiderExcludeRegexes";
     public static final String SPIDER_INCLUDE_REGEXES = "spiderIncludeRegexes";
     public static final String SPIDER_MAX_DEPTH = "spiderMaxDepth";
-    public static final String SPIDER_MICROSERVICE_ID = "spiderMicroserviceId";
-    public static final String SPIDER_MICROSERVICE_RUN_ID = "spiderMicroserviceRunId";
-    public static final String SPIDER_TARGET_URL = "spiderTargetUrl";
-    public static final String SPIDER_TYPE = "spiderType";
+    public static final String SPIDER_MICROSERVICE_ID = CommonConstants.SPIDER_MICROSERVICE_ID;
+    public static final String SPIDER_MICROSERVICE_RUN_ID = CommonConstants.SPIDER_MICROSERVICE_RUN_ID;
+    public static final String SPIDER_TARGET_URL = CommonConstants.SPIDER_TARGET;
+    public static final String SPIDER_TYPE = CommonConstants.SPIDER_TYPE;
     public static final String SPIDER_UUID = "spiderUuid";
     public static final String TARGET_NAME = "targetName";
     public static final String TARGET_URL = "targetUrl";
     public static final String USERNAME_FIELD_ID = "usernameFieldId";
-    public static final String PROCESS_UUID = "processUuid";
+    public static final String PROCESS_UUID = CommonConstants.PROCESS_UUID;
     public static final String AUTHENTICATION = "authentication";
-    public static final String TENANT_ID = "tenantId";
+    public static final String TENANT_ID = CommonConstants.TENAND_ID;
     public static final String CSRF_TOKEN_ID = "csrfTokenId";
     public static final String CSRF_AUTH_PAYLOAD = "csrfAuthPayload";
 
-    private DelegateExecution execution;
+    protected DelegateExecution execution;
 
     /**
      * @param execution
      */
-    public DefaultScanProcess(DelegateExecution execution) {
+    DefaultScanProcessExcecution(DelegateExecution execution) {
         this.execution = execution;
     }
 
@@ -167,15 +165,6 @@ class DefaultScanProcess implements ScanProcessExecution {
     @Override
     public String getPasswordFieldId() {
         return getStringOrEmpty(this.execution.getVariableTyped(PASSWORD_FIELD_ID));
-    }
-
-    public String getNmapParameter() {
-        return getStringOrEmpty(this.execution.getVariableTyped(NMAP_PARAMETER));
-    }
-
-    @Override
-    public String getPortScannerTarget() {
-        return getStringOrEmpty(this.execution.getVariableTyped(NMAP_TARGET));
     }
 
     @Override
@@ -399,7 +388,7 @@ class DefaultScanProcess implements ScanProcessExecution {
 
     @Override
     public void setClientType(String clientType) {
-        this.execution.setVariable(DefaultScanProcess.CLIENT_TYPE, clientType);
+        this.execution.setVariable(DefaultScanProcessExcecution.CLIENT_TYPE, clientType);
     }
 
     @Override
@@ -458,15 +447,6 @@ class DefaultScanProcess implements ScanProcessExecution {
     @Override
     public void setPasswordFieldId(String passwordFieldId) {
         this.execution.setVariable(PASSWORD_FIELD_ID, passwordFieldId);
-    }
-
-    public void setNmapParameter(String nmapParameter) {
-        this.execution.setVariable(NMAP_PARAMETER, nmapParameter);
-    }
-
-    @Override
-    public void setPortScannerTarget(String portScannerTarget) {
-        this.execution.setVariable(NMAP_TARGET, portScannerTarget);
     }
 
     @Override
@@ -653,11 +633,11 @@ class DefaultScanProcess implements ScanProcessExecution {
         return this.execution.getVariables();
     }
 
-    private String getStringOrEmpty(String o) {
+    protected String getStringOrEmpty(String o) {
         return o != null ? o : "";
     }
 
-    private UUID convertToUuidOrGenerateRandom(Object inputUuid) {
+    protected UUID convertToUuidOrGenerateRandom(Object inputUuid) {
         try {
             return UUID.fromString(inputUuid.toString());
         } catch (IllegalArgumentException | NullPointerException e) {

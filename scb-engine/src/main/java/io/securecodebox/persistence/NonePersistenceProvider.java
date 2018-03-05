@@ -22,7 +22,6 @@ package io.securecodebox.persistence;
 import io.securecodebox.scanprocess.ScanProcessExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -35,7 +34,6 @@ import java.util.Map;
  * @date 14.03.2017
  */
 @Component
-@ConditionalOnMissingBean(PersistenceProvider.class)
 class NonePersistenceProvider implements PersistenceProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(NonePersistenceProvider.class);

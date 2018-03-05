@@ -3,9 +3,6 @@
   <bpmn:process id="SecureBoxExternalPortscan" name="Port Scan" isExecutable="true" camunda:versionTag="3">
     <bpmn:startEvent id="StartEvent_ConfigurePortscan" name="target configured" camunda:formKey="embedded:app:forms/nmap/configure-port-scanner-target.html">
       <bpmn:extensionElements>
-        <camunda:executionListener class="de.iteratec.securebox.engine.listener.CheckForAutomatedRunListener" event="start" />
-        <camunda:executionListener class="de.iteratec.securebox.engine.listener.EnsureProcessUuidListener" event="end" />
-        <camunda:executionListener class="de.iteratec.securebox.engine.listener.ScanJobStartedTaskListener" event="end" />
       </bpmn:extensionElements>
       <bpmn:outgoing>SequenceFlow_TargetConfigured</bpmn:outgoing>
     </bpmn:startEvent>

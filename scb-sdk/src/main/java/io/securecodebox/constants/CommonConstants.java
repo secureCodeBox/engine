@@ -39,8 +39,21 @@ public class CommonConstants {
     public static final String TARGET_NAME = "target_name";
     public static final String TARGET_URL = "target_url";
     public static final String SCANNER_NAME = "scanner_name";
-    public static final String SCANNER_TYPE = "scannerType";
     public static final String AUTOMATED_RUN = "automatedRun";
     public static final String REPORTING_TYPES = "reporting_types";
     public static final String CURRENT_SCANNER_NAME = "current_scanner_name";
+
+    // SPIDER
+    public static final String SPIDER_MICROSERVICE_ID = "spiderMicroserviceId";
+    public static final String SPIDER_MICROSERVICE_RUN_ID = "spiderMicroserviceRunId";
+    public static final String SPIDER_TARGET ="spiderTargetUrl";
+    public static final String SPIDER_TYPE ="spiderType";
+
+    // SCANNER
+    public static final String SCANNER_MICROSERVICE_ID = "scannerMicroserviceId";
+    public static final String SCANNER_MICROSERVICE_TYPE = "scannerType";
+    public static final String SCANNER_RUN_ID = "scannerMicroserviceRunId";
+    public static final String SCANNER_REGEX_EXCLUDE = "scannerExcludeRegexes";
+    public static final String SCANNER_REGEX_INCLUDE = "scannerIncludeRegexes";
+    public static final String SCANNER_TARGET ="scannerTargetUrl";
 }
