@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.InvocationTargetException;
+
 /**
  * @author Rüdiger Heins - iteratec GmbH
  * @since 01.03.18
@@ -31,32 +33,21 @@ import org.springframework.stereotype.Component;
 @Component
 public class DefaultScanProcessExcecutionFactory implements ScanProcessExecutionFactory {
 
-    private static final String SCAN_PROCESS_EXECUTION = "scanProcessExecution";
-
     private static final Logger LOG = LoggerFactory.getLogger(DefaultScanProcessExcecutionFactory.class);
 
     @Override
-    public ScanProcessExecution build(DelegateExecution execution) {
-        return build(execution, DefaultScanProcessExecution.class);
+    public ScanProcessExecution get(DelegateExecution execution) {
+        return get(execution, DefaultScanProcessExcecution.class);
     }
 
     @Override
-    public <P extends ScanProcessExecution> P build(DelegateExecution execution, Class<P> customProcess) {
-        if (execution.hasVariable(SCAN_PROCESS_EXECUTION)) {
-            return (P) execution.getVariable(SCAN_PROCESS_EXECUTION);
-        }
+    public <P extends ScanProcessExecution> P get(DelegateExecution execution, Class<P> customProcess) {
+
         try {
-            P scanProcessExecution = customProcess.newInstance();
-            execution.setVariable(SCAN_PROCESS_EXECUTION, scanProcessExecution);
-            return scanProcessExecution;
-        } catch (InstantiationException | IllegalAccessException e) {
+            return customProcess.getConstructor(DelegateExecution.class).newInstance(execution);
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             LOG.error("Error creating custom process execution", e);
             throw new IllegalStateException("Error creating custom process execution", e);
         }
-    }
-
-    @Override
-    public <P extends ScanProcessExecution> ScanProcessExecution register(Class<P> customProcess) {
-        throw new UnsupportedOperationException("Not implemented yet!");
     }
 }

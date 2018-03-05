@@ -56,7 +56,7 @@ public class TransformNmapResultsDelegate implements JavaDelegate {
     public void execute(DelegateExecution delegateExecution) throws Exception {
         LOG.debug("TransformNmapResultsDelegate execute");
 
-        process = processExecutionFactory.build(delegateExecution, NmapScanProcessExecution.class);
+        process = processExecutionFactory.get(delegateExecution, NmapScanProcessExecution.class);
 
         LOG.debug("VARS: {}", delegateExecution.getVariables());
 

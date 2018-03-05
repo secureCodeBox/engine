@@ -27,9 +27,8 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
  */
 public interface ScanProcessExecutionFactory {
 
-    public ScanProcessExecution build(DelegateExecution execution);
+    public ScanProcessExecution get(DelegateExecution execution);
 
-    public <P extends ScanProcessExecution> P build(DelegateExecution execution, Class<P> customProcess);
+    public <P extends ScanProcessExecution> P get(DelegateExecution execution, Class<P> customProcess);
 
-    public <P extends ScanProcessExecution> ScanProcessExecution register(Class<P> customProcess);
 }

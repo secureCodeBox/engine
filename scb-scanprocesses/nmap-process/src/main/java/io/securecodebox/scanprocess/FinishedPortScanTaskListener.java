@@ -35,16 +35,12 @@ class FinishedPortScanTaskListener extends PersistenceAwareTaskListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(FinishedPortScanTaskListener.class);
 
-    public FinishedPortScanTaskListener() {
-        LOG.info("TEST\nTEST\nTEST");
-    }
-
     @Override
     public void notify(DelegateExecution execution) throws Exception {
 
         LOG.debug("FinishedPortscanTaskListener start");
 
-        ScanProcessExecution process = factory.build(execution);
+        ScanProcessExecution process = factory.get(execution);
 
         // TODO: workaround - should be defined by the nmap microservice itself, not here
         process.setScannerType("nmap");

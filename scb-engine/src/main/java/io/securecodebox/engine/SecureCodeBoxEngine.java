@@ -26,7 +26,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @EnableProcessApplication
-@ComponentScan(basePackages = { "io.securecodebox.engine", "io.securecodebox.sdk", "io.securecodebox.scanprocess" })
+@ComponentScan(basePackages = { "io.securecodebox.engine", "io.securecodebox.sdk", "io.securecodebox.scanprocess", "io.securecodebox.persistence", "io.securecodebox.reporting" })
 public class SecureCodeBoxEngine {
 
     public static void main(String... args) {

@@ -16,38 +16,37 @@
  *  limitations under the License.
  * /
  */
-package io.securecodebox.engine;
 
-import io.securecodebox.scanprocess.ScanProcessExecution;
-import io.securecodebox.scanprocess.ScanProcessExecutionFactory;
+/**
+ *
+ */
+package io.securecodebox.engine.listener;
+
+import io.securecodebox.constants.CommonConstants;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
 
 /**
  * @author Robert Seedorff - iteratec GmbH
  */
 @Component
-class EnsureProcessUuidListener implements ExecutionListener {
-
-    private static final Logger LOG = LoggerFactory.getLogger(EnsureProcessUuidListener.class);
-
-    @Autowired
-    ScanProcessExecutionFactory factory;
+class CheckForAutomatedRunListener implements ExecutionListener {
+    private static final Logger LOG = LoggerFactory.getLogger(CheckForAutomatedRunListener.class);
 
     @Override
-    public void notify(DelegateExecution execution) {
-        LOG.debug("EnsureProcessUuidListener running...");
+    public void notify(DelegateExecution execution) throws Exception {
+        LOG.trace("Checking for automated run");
 
-        ScanProcessExecution scanProcessExecution = factory.build(execution);
-
-        if (scanProcessExecution.getProcessUuid() == null) {
-            scanProcessExecution.setProcessUuid(UUID.fromString(execution.getId()));
+        // Define default values if the current process is not
+        // started by another automated process (Jenkins, Bamboo) with
+        // already defined process variables.
+        if (!execution.hasVariable(CommonConstants.AUTOMATED_RUN)) {
+            execution.setVariable(CommonConstants.AUTOMATED_RUN, false);
+            LOG.trace("No automated run detected");
         }
+
     }
 }

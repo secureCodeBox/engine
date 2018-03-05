@@ -35,102 +35,102 @@ public interface ScanProcessExecution extends Serializable {
     /**
      * @return the context
      */
-     String getContext();
+    String getContext();
 
     /**
      * @param the context to set
      */
-     void setContext(String context);
+    void setContext(String context);
 
     /**
      * @return the authentication
      */
-     boolean getAuthentication();
+    boolean getAuthentication();
 
     /**
      * @param the authentication to set
      */
-     void setAuthentication(boolean authentication);
+    void setAuthentication(boolean authentication);
 
     /**
      * @return the loginSite
      */
-     String getLoginSite();
+    String getLoginSite();
 
     /**
      * @param the loginSite to set
      */
-     void setLoginSite(String loginSite);
+    void setLoginSite(String loginSite);
 
     /**
      * @return the loginUser name
      */
-     String getLoginUserName();
+    String getLoginUserName();
 
     /**
      * @param the loginUser to set
      */
-     void setLoginUserName(String loginUser);
+    void setLoginUserName(String loginUser);
 
     /**
      * @return the loginPassword
      */
-     String getLoginPassword();
+    String getLoginPassword();
 
     /**
      * @param the loginPassword to set
      */
-     void setLoginPassword(String loginPassword);
+    void setLoginPassword(String loginPassword);
 
     /**
      * @return the passwordFieldId
      */
-     String getPasswordFieldId();
+    String getPasswordFieldId();
 
     /**
      * @param the passwordFieldId to set
      */
-     void setPasswordFieldId(String passwordFieldId);
+    void setPasswordFieldId(String passwordFieldId);
 
     /**
      * @return the usernameFieldId
      */
-     String getUsernameFieldId();
+    String getUsernameFieldId();
 
     /**
      * @param the usernameFieldId to set
      */
-     void setUsernameFieldId(String usernameFieldId);
+    void setUsernameFieldId(String usernameFieldId);
 
     /**
      * @return the logged in indicator
      */
-     String getLoggedInIndicator();
+    String getLoggedInIndicator();
 
     /**
      * @param the logged in indicator to set
      */
-     void setLoggedInIndicator(String loggedInIndicator);
+    void setLoggedInIndicator(String loggedInIndicator);
 
     /**
      * @return the logged out indicator
      */
-     String getLoggedOutIndicator();
+    String getLoggedOutIndicator();
 
     /**
      * @param the logged out indicator to set
      */
-     void setLoggedOutIndicator(String loggedOutIndicator);
+    void setLoggedOutIndicator(String loggedOutIndicator);
 
     /**
      * @return the spiderType
      */
-     String getSpiderType();
+    String getSpiderType();
 
     /**
      * @param the spiderType to set
      */
-     void setSpiderType(String spiderType);
+    void setSpiderType(String spiderType);
 
     /**
      * URL wrapper for "spiderApiSpecFile". It's used in e.g. Zap Scanner as transferring the file itself wasn't possible.
@@ -149,308 +149,308 @@ public interface ScanProcessExecution extends Serializable {
     /**
      * @return the spiderIncludeRegexes
      */
-     String getSpiderIncludeRegexes();
+    String getSpiderIncludeRegexes();
 
     /**
      * @param the spiderIncludeRegexes to set
      */
-     void setSpiderIncludeRegexes(String spiderIncludeRegexes);
+    void setSpiderIncludeRegexes(String spiderIncludeRegexes);
 
     /**
      * @return the spiderExcludeRegexes
      */
-     String getSpiderExcludeRegexes();
+    String getSpiderExcludeRegexes();
 
     /**
      * @param the spiderExcludeRegexes to set
      */
-     void setSpiderExcludeRegexes(String spiderExcludeRegexes);
+    void setSpiderExcludeRegexes(String spiderExcludeRegexes);
 
     /**
      * @return the spiderExcludeDuplicates
      */
-     String getSpiderExcludeDuplicates();
+    String getSpiderExcludeDuplicates();
 
     /**
      * @param the spiderExcludeDuplicates to set
      */
-     void setSpiderExcludeDuplicates(String spiderExcludeDuplicates);
+    void setSpiderExcludeDuplicates(String spiderExcludeDuplicates);
 
     /**
      * @return the spiderMaxDepth
      */
-     String getSpiderMaxDepth();
+    String getSpiderMaxDepth();
 
     /**
      * @param the spiderMaxDepth to set
      */
-     void setSpiderMaxDepth(String spiderMaxDepth);
+    void setSpiderMaxDepth(String spiderMaxDepth);
 
     /**
      * @return the spiderUuid
      */
-     UUID getSpiderUuid();
+    UUID getSpiderUuid();
 
     /**
      * @param spiderUuid the spiderUuid to set
      */
-     void setSpiderUuid(UUID spiderUuid);
+    void setSpiderUuid(UUID spiderUuid);
 
     /**
      * @return the spiderMicroserviceRunId
      */
-     String getSpiderMicroserviceRunId();
+    String getSpiderMicroserviceRunId();
 
     /**
      * @param spiderMicroserviceRunId the spiderMicroserviceRunId to set
      */
-     void setSpiderMicroserviceRunId(String spiderMicroserviceRunId);
+    void setSpiderMicroserviceRunId(String spiderMicroserviceRunId);
 
     /**
      * @return the spiderMicroserviceId
      */
-     String getSpiderMicroserviceId();
+    String getSpiderMicroserviceId();
 
     /**
      * @param spiderMicroserviceId the spiderMicroserviceId to set
      */
-     void setSpiderMicroserviceId(String spiderMicroserviceId);
+    void setSpiderMicroserviceId(String spiderMicroserviceId);
 
     /**
      * @return the scannerType
      */
-     String getScannerType();
+    String getScannerType();
 
     /**
      * @param scannerType the scannerType to set
      */
-     void setScannerType(String scannerType);
+    void setScannerType(String scannerType);
 
     /**
      * @return the scannerIncludeRegexes
      */
-     String getScannerIncludeRegexes();
+    String getScannerIncludeRegexes();
 
     /**
      * @param the scannerIncludeRegexes to set
      */
-     void setScannerIncludeRegexes(String scannerIncludeRegexes);
+    void setScannerIncludeRegexes(String scannerIncludeRegexes);
 
     /**
      * @return the scannerExcludeRegexes
      */
-     String getScannerExcludeRegexes();
+    String getScannerExcludeRegexes();
 
     /**
      * @param the scannerExcludeRegexes to set
      */
-     void setScannerExcludeRegexes(String scannerExcludeRegexes);
+    void setScannerExcludeRegexes(String scannerExcludeRegexes);
 
     /**
      * @return the scannerUuid
      */
-     UUID getScannerUuid();
+    UUID getScannerUuid();
 
     /**
      * @param scannerUuid the scannerUuid to set
      */
-     void setScannerUuid(UUID scannerUuid);
+    void setScannerUuid(UUID scannerUuid);
 
     /**
      * @return the scanMicroserviceRunId
      */
-     String getScannerMicroserviceRunId();
+    String getScannerMicroserviceRunId();
 
     /**
      * @param scannerMicroserviceRunId the scannerMicroserviceRunId to set
      */
-     void setScannerMicroserviceRunId(String scannerMicroserviceRunId);
+    void setScannerMicroserviceRunId(String scannerMicroserviceRunId);
 
     /**
      * @return the scanMicroserviceId
      */
-     String getScannerMicroserviceId();
+    String getScannerMicroserviceId();
 
     /**
      * @param scannerMicroserviceId the scannerMicroserviceId to set
      */
-     void setScannerMicroserviceId(String scannerMicroserviceId);
+    void setScannerMicroserviceId(String scannerMicroserviceId);
 
     /**
      * @return the reportingTypes
      */
-     String[] getReportingTypes();
+    String[] getReportingTypes();
 
     /**
      * @param the reportingType to set
      */
-     void setReportingTypes(String[] reportingTypes);
+    void setReportingTypes(String[] reportingTypes);
 
     /**
      * @return the reportingApiKey
      */
-     String getReportingApiKey();
+    String getReportingApiKey();
 
     /**
      * @param the reportingApiKey to set
      */
-     void setReportingApiKey(String apiKey);
+    void setReportingApiKey(String apiKey);
 
     /**
      * @return the reportingAppId
      */
-     String getReportingAppId();
+    String getReportingAppId();
 
     /**
      * @param the reportingAppId to set
      */
-     void setReportingAppId(String appId);
+    void setReportingAppId(String appId);
 
     /**
      * @return the reportingMicroserviceRunId
      */
-     String getReportingMicroserviceRunId();
+    String getReportingMicroserviceRunId();
 
     /**
      * @param reportingMicroserviceRun the reportingMicroserviceRun to set
      */
-     void setReportingMicroserviceRunId(String reportingMicroserviceRun);
+    void setReportingMicroserviceRunId(String reportingMicroserviceRun);
 
     /**
      * @return the reportingUuid
      */
-     UUID getReportingUuid();
+    UUID getReportingUuid();
 
     /**
      * @return the reportingServiceHost
      */
-     String getReportingServiceHost();
+    String getReportingServiceHost();
 
     /**
      * @param reportingServiceHost the reportingServiceHost
      */
-     void setReportingServiceHost(String reportingServiceHost);
+    void setReportingServiceHost(String reportingServiceHost);
 
     /**
      * @return the reportingDashboardUrl
      */
-     String getReportingDashboardUrl();
+    String getReportingDashboardUrl();
 
     /**
      * @param reportingDashboardUrl the reportingDashboardUrl
      */
-     void setReportingDashboardUrl(String reportingDashboardUrl);
+    void setReportingDashboardUrl(String reportingDashboardUrl);
 
     /**
      * @param reportingUuid the reportingUuid to set
      */
-     void setReportingUuid(UUID reportingUuid);
+    void setReportingUuid(UUID reportingUuid);
 
     /**
      * @return the reportingMicroserviceId
      */
-     String getReportingMicroserviceId();
+    String getReportingMicroserviceId();
 
     /**
      * @param reportingMicroservicId the reportingMicroservicId to set
      */
-     void setReportingMicroserviceId(String reportingMicroservicId);
+    void setReportingMicroserviceId(String reportingMicroservicId);
 
     /**
      * @return the reportingFalsePositive
      */
-     String getReportingFalsePositives();
+    String getReportingFalsePositives();
 
     /**
      * @param reportingFalsePositive the reportingFalsePositive to set
      */
-     void setReportingFalsePositives(String reportingFalsePositive);
+    void setReportingFalsePositives(String reportingFalsePositive);
 
-     String getReportingUrl();
+    String getReportingUrl();
 
-     void setReportingUrl(String reportingUrl);
+    void setReportingUrl(String reportingUrl);
 
     /**
      * @return the isRunning
      */
-     boolean isRunning();
+    boolean isRunning();
 
     /**
      * @return the uuid
      */
-     UUID getProcessUuid();
+    UUID getProcessUuid();
 
     /**
      * @param uuid the uuid to set
      */
-     void setProcessUuid(UUID uuid);
+    void setProcessUuid(UUID uuid);
 
     /**
      * @return the targetUrl
      */
-     String getTargetUrl();
+    String getTargetUrl();
 
     /**
      * @return the spiderTargetUrl
      */
-     String getSpiderTargetUrl();
+    String getSpiderTargetUrl();
 
     /**
      * @param spiderTargetUrl the spiderTargetUrl
      */
-     void setSpiderTargetUrl(String spiderTargetUrl);
+    void setSpiderTargetUrl(String spiderTargetUrl);
 
     /**
      * @return the targetUrl
      */
-     String getScannerTargetUrl();
+    String getScannerTargetUrl();
 
     /**
      * @param scannerTargetUrl the scannerTargetUrl
      */
-     void setScannerTargetUrl(String scannerTargetUrl);
+    void setScannerTargetUrl(String scannerTargetUrl);
 
     /**
      * @return the targetName
      */
-     String getTargetName();
+    String getTargetName();
 
     /**
      * Contains all internal fields as JSON Object
      *
      * @return
      */
-     String toJsonString();
+    String toJsonString();
 
     /**
      * @return the type of client who invoked the scan (automated scans only)
      */
-     String getClientType();
+    String getClientType();
 
     /**
      * @param clientType who invoked scan
      */
-     void setClientType(String clientType);
+    void setClientType(String clientType);
 
     /**
      * @return link to jenkins job which the scan results are reported to (in direct mode)
      */
-     String getJenkinsJobLink();
+    String getJenkinsJobLink();
 
     /**
      * @param jenkinsJobLink for returning scan results (in direct mode)
      */
-     void setJenkinsJobLink(String jenkinsJobLink);
+    void setJenkinsJobLink(String jenkinsJobLink);
 
     /**
      * @return correct parser for the report needed or null
      */
-     String getReportingParser();
+    String getReportingParser();
 
     /**
      * @param parser for scanning results and formatting them
      */
-     void setReportingParser(String reportingParser);
+    void setReportingParser(String reportingParser);
 
     /**
      * @return max risk level acceptable for vulnerabilities
@@ -462,43 +462,46 @@ public interface ScanProcessExecution extends Serializable {
     /**
      * @return how often a threat of the maxRiskLevel is allowed to occur within a scan before it breaks.
      */
-     int getMaxVulnerabilityCount();
+    int getMaxVulnerabilityCount();
 
-     void setMaxVulnerabilityCount(int count);
+    void setMaxVulnerabilityCount(int count);
 
     /**
      * @return basic auth login data for jenkins encoded in base64 (only needed for direct reporting type!)
      */
-     String getJenkinsLoginData();
+    String getJenkinsLoginData();
 
-     void setJenkinsLoginData(String jenkinsLoginData);
+    void setJenkinsLoginData(String jenkinsLoginData);
 
     /**
      * @return specifies whether or not camunda should directly push the results back to jenkins via an external job or just persist them in consul KV store
      */
-     String getJenkinsReportingType();
+    String getJenkinsReportingType();
 
-     void setJenkinsReportingType(String jenkinsReportingType);
+    void setJenkinsReportingType(String jenkinsReportingType);
 
     /**
      * @return alternative dashboard url
      */
-     String getAlternateDashboardUrl();
+    String getAlternateDashboardUrl();
 
-     void setAlternateDashboardUrl(String url);
+    void setAlternateDashboardUrl(String url);
 
-     String getTenantId();
+    String getTenantId();
 
-     void setTenantId(String tenantId);
+    void setTenantId(String tenantId);
 
-     String getCSRFTokenId();
+    String getCSRFTokenId();
 
-     void setCSRFTokenId(String tokenId);
+    void setCSRFTokenId(String tokenId);
 
     String getCSRFAuthPayload();
 
     void setCSRFAuthPayload(String payload);
 
-     Map<String, Object> toMap();
+    Map<String, Object> toMap();
 
+    enum State {
+        NOP;
+    }
 }
