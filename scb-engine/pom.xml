@@ -41,20 +41,6 @@
             <artifactId>camunda-bpm-spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- default scan process collection -->
-        <dependency>
-            <groupId>io.securecodebox.scanprocesses</groupId>
-            <artifactId>nmap-process</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.securecodebox.scanprocesses</groupId>
-            <artifactId>test-process</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>runtime</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -82,5 +68,30 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencies>
+                <!-- default scan process collection -->
+                <dependency>
+                    <groupId>io.securecodebox.scanprocesses</groupId>
+                    <artifactId>nmap-process</artifactId>
+                    <version>0.0.1-SNAPSHOT</version>
+                    <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                    <groupId>io.securecodebox.scanprocesses</groupId>
+                    <artifactId>test-process</artifactId>
+                    <version>0.0.1-SNAPSHOT</version>
+                    <scope>runtime</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+
+    </profiles>
 
 </project>
