@@ -19,36 +19,39 @@
 
 package io.securecodebox.scanprocess;
 
+import io.securecodebox.model.DefaultScanProcessExecution;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
  * @since 01.03.18
  */
-public class NmapScanProcessExecution extends DefaultScanProcessExcecution {
-    public static final String NMAP_PARAMETER = "nmap_parameter";
-    public static final String NMAP_TARGET = "nmap_target";
+public class NmapScanProcessExecution extends DefaultScanProcessExecution {
 
     /**
      * @param execution
      */
-    NmapScanProcessExecution(DelegateExecution execution) {
+    public NmapScanProcessExecution(DelegateExecution execution) {
         super(execution);
     }
 
     public String getNmapParameter() {
-        return getStringOrEmpty(this.execution.getVariableTyped(NMAP_PARAMETER));
+        return execution.getVariableTyped(NmapFields.NMAP_PARAMETER.name());
     }
 
     public String getPortScannerTarget() {
-        return getStringOrEmpty(this.execution.getVariableTyped(NMAP_TARGET));
+        return execution.getVariableTyped(NmapFields.NMAP_TARGET.name());
     }
 
     public void setNmapParameter(String nmapParameter) {
-        this.execution.setVariable(NMAP_PARAMETER, nmapParameter);
+        execution.setVariable(NmapFields.NMAP_PARAMETER.name(), nmapParameter);
     }
 
     public void setPortScannerTarget(String portScannerTarget) {
-        this.execution.setVariable(NMAP_TARGET, portScannerTarget);
+        execution.setVariable(NmapFields.NMAP_TARGET.name(), portScannerTarget);
+    }
+
+    public enum NmapFields {
+        NMAP_PARAMETER, NMAP_TARGET;
     }
 }

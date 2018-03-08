@@ -19,7 +19,9 @@
 
 package io.securecodebox.scanprocess;
 
+import io.securecodebox.persistence.PersistenceProvider;
 import io.securecodebox.sdk.ScanProcessEntryPoint;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
@@ -27,4 +29,7 @@ import io.securecodebox.sdk.ScanProcessEntryPoint;
  */
 @ScanProcessEntryPoint
 public class NmapProcessConfiguration {
+
+    NmapProcessConfiguration(@Autowired PersistenceProvider provider) {
+    }
 }

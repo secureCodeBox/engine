@@ -39,13 +39,10 @@ public class DefaultListenerRegistrar extends AbstractBpmnParseListener {
     @Autowired
     CheckForAutomatedRunListener checkForAutomatedRunListener;
     @Autowired
-    EnsureProcessUuidListener processUuidListener;
-    @Autowired
     ScanJobProcessWriter scanprocessWriter;
 
     @Override
     public void parseServiceTask(Element serviceTaskElement, ScopeImpl scope, ActivityImpl activity) {
-        activity.addListener(ExecutionListener.EVENTNAME_START, processUuidListener);
         activity.addListener(ExecutionListener.EVENTNAME_START, scanprocessWriter);
         activity.addListener(ExecutionListener.EVENTNAME_END, scanprocessWriter);
         activity.addListener(ExecutionListener.EVENTNAME_START, checkForAutomatedRunListener);

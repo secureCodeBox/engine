@@ -34,4 +34,13 @@ public class NmapConstants {
 
     public static final String PORT = "port";
     public static final String PROTOCOL = "protocol";
+
+    private void test() {
+        Keks[] values = Keks.values();
+
+    }
+
+    enum Keks {
+        TOLL, TOLLER, AM_TOLLSTEN, NMAP_TARGET_NAME;
+    }
 }

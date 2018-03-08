@@ -22,7 +22,7 @@
  */
 package io.securecodebox.engine.listener;
 
-import io.securecodebox.constants.CommonConstants;
+import io.securecodebox.model.ScanProcessExecution;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.slf4j.Logger;
@@ -43,8 +43,8 @@ class CheckForAutomatedRunListener implements ExecutionListener {
         // Define default values if the current process is not
         // started by another automated process (Jenkins, Bamboo) with
         // already defined process variables.
-        if (!execution.hasVariable(CommonConstants.AUTOMATED_RUN)) {
-            execution.setVariable(CommonConstants.AUTOMATED_RUN, false);
+        if (!execution.hasVariable(ScanProcessExecution.DefaultFields.PROCESS_AUTOMATED.name())) {
+            execution.setVariable(ScanProcessExecution.DefaultFields.PROCESS_AUTOMATED.name(), false);
             LOG.trace("No automated run detected");
         }
 

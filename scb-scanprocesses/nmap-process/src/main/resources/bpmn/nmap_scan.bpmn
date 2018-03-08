@@ -3,6 +3,7 @@
   <bpmn:process id="SecureBoxExternalPortscan" name="Port Scan" isExecutable="true" camunda:versionTag="3">
     <bpmn:startEvent id="StartEvent_ConfigurePortscan" name="target configured" camunda:formKey="embedded:app:forms/nmap/configure-port-scanner-target.html">
       <bpmn:extensionElements>
+        <camunda:executionListener class="io.securecodebox.engine.listener.CheckForAutomatedRunListener" event="start" />
       </bpmn:extensionElements>
       <bpmn:outgoing>SequenceFlow_TargetConfigured</bpmn:outgoing>
     </bpmn:startEvent>
@@ -59,10 +60,10 @@
       <bpmn:outgoing>SequenceFlow_ManualStart</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_AutomatedStart" name="automated start" sourceRef="ExclusiveGateway_AutomatedStart" targetRef="ServiceTask_DoPortscan">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${automatedRun == true}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_AUTOMATED == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_ManualStart" name="manuall start" sourceRef="ExclusiveGateway_AutomatedStart" targetRef="ExclusiveGateway_AdvancedConfiguration">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${automatedRun == false}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_AUTOMATED == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_AutomatedFinish" name="is automated run?">
       <bpmn:incoming>SequenceFlow_SummaryCreated</bpmn:incoming>
@@ -70,19 +71,19 @@
       <bpmn:outgoing>SequenceFlow_AutomatedFinish</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_ManualFinish" name="manuall finish&#10;&#10;" sourceRef="ExclusiveGateway_AutomatedFinish" targetRef="UserTask_ApproveResults">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${automatedRun == false}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_AUTOMATED == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_AutomatedFinish" name="automated finish" sourceRef="ExclusiveGateway_AutomatedFinish" targetRef="EndEvent_FinishedPortscan">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${automatedRun == true}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_AUTOMATED == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_TransformedPersisted" name="transformed and persisted" sourceRef="ServiceTask_TransformResult" targetRef="ExclusiveGateway_MarkFalsePositive" />
-    <bpmn:serviceTask id="ServiceTask_TransformResult" name="Transform generic results" camunda:asyncBefore="true" camunda:class="de.iteratec.securebox.engine.delegates.nmap.TransformNmapResultsDelegate">
+    <bpmn:serviceTask id="ServiceTask_TransformResult" name="Transform generic results" camunda:asyncBefore="true" camunda:class="io.securecodebox.scanprocess.nmap.TransformNmapResultsDelegate">
       <bpmn:incoming>SequenceFlow_PortscanFinisched</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_TransformedPersisted</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="ServiceTask_DoPortscan" name="Run the portscan" camunda:asyncBefore="true" camunda:type="external" camunda:topic="nmap_portscan">
       <bpmn:extensionElements>
-        <camunda:executionListener class="de.iteratec.securebox.engine.listener.portscan.FinishedPortscanTaskListener" event="end" />
+        <camunda:executionListener class="io.securecodebox.scanprocess.nmap.FinishedPortScanTaskListener" event="end" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_PortscanConfigured</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_DefaultConfig</bpmn:incoming>

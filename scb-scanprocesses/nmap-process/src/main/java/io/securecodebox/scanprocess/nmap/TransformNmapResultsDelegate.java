@@ -17,11 +17,14 @@
  * /
  */
 
-package io.securecodebox.scanprocess;
+package io.securecodebox.scanprocess.nmap;
 
 import io.securecodebox.constants.CommonConstants;
 import io.securecodebox.constants.CommonReportFields;
 import io.securecodebox.constants.NmapConstants;
+import io.securecodebox.model.ScanProcessExecution;
+import io.securecodebox.scanprocess.NmapScanProcessExecution;
+import io.securecodebox.scanprocess.ScanProcessExecutionFactory;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.camunda.bpm.engine.impl.util.json.JSONObject;
@@ -72,7 +75,7 @@ public class TransformNmapResultsDelegate implements JavaDelegate {
 
             // split each finding (raw finding list) into a separate result entity and enrich them with meta data
             Stream.of(issues).forEach((issue) -> {
-                // build a new generic (common reporting) result entry, based on the NMAP scanner specific raw results
+                // get a new generic (common reporting) result entry, based on the NMAP scanner specific raw results
                 Map finding = new HashMap();
 
                 //TODO: rhe: What about a lookup pattern or an own Finding Type?

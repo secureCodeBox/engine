@@ -35,9 +35,9 @@ import java.util.UUID;
 /**
  * @since 01.09.15
  */
-public class DefaultScanProcessExcecution implements ScanProcessExecution {
+public class DefaultScanProcessExcecutionOld implements ScanProcessExecutionOld {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultScanProcessExcecution.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultScanProcessExcecutionOld.class);
 
     public static final String CLIENT_TYPE = "clientType";
     public static final String CONTEXT = CommonConstants.CONTEXT;
@@ -95,7 +95,7 @@ public class DefaultScanProcessExcecution implements ScanProcessExecution {
     /**
      * @param execution
      */
-    DefaultScanProcessExcecution(DelegateExecution execution) {
+    public DefaultScanProcessExcecutionOld(DelegateExecution execution) {
         this.execution = execution;
     }
 
@@ -354,11 +354,7 @@ public class DefaultScanProcessExcecution implements ScanProcessExecution {
 
     @Override
     public UUID getProcessUuid() {
-        UUID returnValue = convertToUuidOrGenerateRandom(this.execution.getVariable(PROCESS_UUID));
-
-        setProcessUuid(returnValue);
-
-        return returnValue;
+       return UUID.fromString(execution.getId());
     }
 
     @Override
@@ -388,7 +384,7 @@ public class DefaultScanProcessExcecution implements ScanProcessExecution {
 
     @Override
     public void setClientType(String clientType) {
-        this.execution.setVariable(DefaultScanProcessExcecution.CLIENT_TYPE, clientType);
+        this.execution.setVariable(DefaultScanProcessExcecutionOld.CLIENT_TYPE, clientType);
     }
 
     @Override
@@ -604,8 +600,9 @@ public class DefaultScanProcessExcecution implements ScanProcessExecution {
         this.execution.setVariable(USERNAME_FIELD_ID, usernameFieldId);
     }
 
+    @Deprecated
     public void setProcessUuid(UUID uuid) {
-        this.execution.setVariable(PROCESS_UUID, uuid);
+        throw new IllegalArgumentException("Deprecated State");
     }
 
     @Override

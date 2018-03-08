@@ -17,18 +17,23 @@
  * /
  */
 
-package io.securecodebox.scanprocess;
+package io.securecodebox.scanprocess.nmap;
 
 import io.securecodebox.constants.NmapConstants;
+import io.securecodebox.scanprocess.NmapScanProcessExecution;
+import io.securecodebox.scanprocess.PersistenceAwareTaskListener;
+import io.securecodebox.scanprocess.ScanProcessExecutionFactory;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Robert Seedorff - iteratec GmbH
  */
-class FinishedPortScanTaskListener extends PersistenceAwareTaskListener {
+@Component
+public class FinishedPortScanTaskListener extends PersistenceAwareTaskListener {
 
     @Autowired
     ScanProcessExecutionFactory factory;
@@ -40,7 +45,7 @@ class FinishedPortScanTaskListener extends PersistenceAwareTaskListener {
 
         LOG.debug("FinishedPortscanTaskListener start");
 
-        ScanProcessExecution process = factory.get(execution);
+        NmapScanProcessExecution process = factory.get(execution, NmapScanProcessExecution.class);
 
         // TODO: workaround - should be defined by the nmap microservice itself, not here
         process.setScannerType("nmap");

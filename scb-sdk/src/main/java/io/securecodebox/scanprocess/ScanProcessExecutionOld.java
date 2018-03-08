@@ -30,7 +30,8 @@ import java.util.UUID;
  * @author Robert Seedorff - iteratec GmbH
  * @since 27.09.15
  */
-public interface ScanProcessExecution extends Serializable {
+@Deprecated
+public interface ScanProcessExecutionOld extends Serializable {
 
     /**
      * @return the context
