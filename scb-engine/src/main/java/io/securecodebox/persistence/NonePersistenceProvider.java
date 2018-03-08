@@ -19,7 +19,7 @@
 
 package io.securecodebox.persistence;
 
-import io.securecodebox.scanprocess.ScanProcessExecution;
+import io.securecodebox.model.ScanProcessExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

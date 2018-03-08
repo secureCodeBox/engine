@@ -20,6 +20,7 @@
 package io.securecodebox.scanprocess;
 
 import io.securecodebox.constants.CommonConstants;
+import io.securecodebox.model.ScanProcessExecution;
 import io.securecodebox.persistence.PersistenceProvider;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.slf4j.Logger;
@@ -28,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Robert Seedorff - iteratec GmbH
@@ -49,10 +51,10 @@ public abstract class PersistenceAwareTaskListener implements ExecutionListener 
     protected void addProcessInformationsToResult(Map map, ScanProcessExecution process, String microserviceId) {
 
         // Add additional process informations
-        map.put(CommonConstants.DOCUMENT_UUID, process.getProcessUuid());
-        map.put(CommonConstants.PROCESS_UUID, process.getProcessUuid());
+        map.put(CommonConstants.DOCUMENT_UUID, process.getId());
+        map.put(CommonConstants.PROCESS_UUID, process.getId());
         map.put(CommonConstants.CONTEXT, process.getContext());
-        map.put(CommonConstants.TENAND_ID, process.getTenantId());
+        map.put(CommonConstants.TENAND_ID, UUID.randomUUID());
         map.put(CommonConstants.MICROSERVICE, process.getScannerType());
         map.put(CommonConstants.MICROSERVICE_ID, microserviceId);
     }

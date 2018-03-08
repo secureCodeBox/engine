@@ -22,8 +22,8 @@
  */
 package io.securecodebox.engine.listener;
 
+import io.securecodebox.model.ScanProcessExecution;
 import io.securecodebox.scanprocess.PersistenceAwareTaskListener;
-import io.securecodebox.scanprocess.ScanProcessExecution;
 import io.securecodebox.scanprocess.ScanProcessExecutionFactory;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
@@ -47,7 +47,7 @@ class ScanJobProcessWriter extends PersistenceAwareTaskListener {
     @Override
     public void notify(DelegateExecution execution) throws Exception {
         ScanProcessExecution scanProcessExecution = factory.get(execution);
-        LOG.info("Storing result for process {}", scanProcessExecution.getProcessUuid());
+        LOG.info("Storing result for process {}", scanProcessExecution.getId());
 
         // persist the extended results to the persistence store
         //storeResult(scanProcessExecution.getProcessUuid(), scanProcessExecution.toMap(), .job.indexType, scanProcessExecution.getTenantId(), "")
