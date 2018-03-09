@@ -61,6 +61,45 @@ public class FindingTest {
         assertNotEquals(finding2, finding);
     }
 
+    @Test
+    public void testSeverityEnum() {
+
+        // If you change the ordinal or name of an Enum this can break the Persistence!
+        Severity[] values = Severity.values();
+        assertEquals(values[0].ordinal(), 0);
+        assertEquals(values[0].name(), "INFORMATIONAL");
+        assertEquals(values[1].ordinal(), 1);
+        assertEquals(values[1].name(), "LOW");
+        assertEquals(values[2].ordinal(), 2);
+        assertEquals(values[2].name(), "MEDIUM");
+        assertEquals(values[3].ordinal(), 3);
+        assertEquals(values[3].name(), "HIGH");
+    }
+
+    @Test
+    public void testOsiEnum() {
+
+        // If you change the ordinal or name of an Enum this can break the Persistence!
+        OsiLayer[] values = OsiLayer.values();
+        assertEquals(values[0].ordinal(), 0);
+        assertEquals(values[0].name(), "APPLICATION");
+        assertEquals(values[1].ordinal(), 1);
+        assertEquals(values[1].name(), "PRESENTATION");
+        assertEquals(values[2].ordinal(), 2);
+        assertEquals(values[2].name(), "SESSION");
+        assertEquals(values[3].ordinal(), 3);
+        assertEquals(values[3].name(), "TRANSPORT");
+        assertEquals(values[4].ordinal(), 4);
+        assertEquals(values[4].name(), "NETWORK");
+        assertEquals(values[5].ordinal(), 5);
+        assertEquals(values[5].name(), "DATA_LINK");
+        assertEquals(values[6].ordinal(), 6);
+        assertEquals(values[6].name(), "PHYSICAL");
+        assertEquals(values[7].ordinal(), 7);
+        assertEquals(values[7].name(), "NOT_APPLICABLE");
+
+    }
+
     private Finding createBasicFinding() {
         Finding finding = new Finding();
         finding.setId(UUID.fromString("49bf7fd3-8512-4d73-a28f-608e493cd726"));
