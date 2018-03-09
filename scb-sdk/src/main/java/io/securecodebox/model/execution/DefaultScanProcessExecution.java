@@ -20,6 +20,7 @@
 package io.securecodebox.model.execution;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.findings.Finding;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.variable.value.BooleanValue;

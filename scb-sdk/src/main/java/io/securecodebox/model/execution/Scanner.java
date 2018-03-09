@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.findings.Finding;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.variable.value.StringValue;
@@ -55,29 +56,29 @@ public class Scanner extends ExecutionAware {
 
     @JsonProperty("scannerId")
     public void setScannerId(UUID id) {
-        execution.setVariable(ScanProcessExecution.DefaultFields.PROCESS_SCANNER_ID.name(), id.toString());
+        execution.setVariable(DefaultFields.PROCESS_SCANNER_ID.name(), id.toString());
     }
 
     @JsonProperty("scannerId")
     public UUID getScannerId() {
-        StringValue input = execution.getVariableTyped(ScanProcessExecution.DefaultFields.PROCESS_SCANNER_ID.name());
+        StringValue input = execution.getVariableTyped(DefaultFields.PROCESS_SCANNER_ID.name());
         return input != null ? UUID.fromString(input.getValue()) : null;
     }
 
     @JsonProperty("scannerType")
     public void setScannerType(String type) {
-        execution.setVariable(ScanProcessExecution.DefaultFields.PROCESS_SCANNER_TYPE.name(), type);
+        execution.setVariable(DefaultFields.PROCESS_SCANNER_TYPE.name(), type);
     }
 
     @JsonProperty("scannerType")
     public String getScannerType() {
-        return execution.<StringValue>getVariableTyped(ScanProcessExecution.DefaultFields.PROCESS_SCANNER_TYPE.name()).getValue();
+        return execution.<StringValue>getVariableTyped(DefaultFields.PROCESS_SCANNER_TYPE.name()).getValue();
     }
 
     @JsonIgnore
     public List<Finding> getFindings() {
         StringValue rawFindings = execution.getVariableTyped(
-                ScanProcessExecution.DefaultFields.PROCESS_FINDINGS.name());
+                DefaultFields.PROCESS_FINDINGS.name());
         if (rawFindings != null && !rawFindings.getValue().isEmpty()) {
             try {
                 return objectMapper.readValue(rawFindings.getValue(),
@@ -102,7 +103,7 @@ public class Scanner extends ExecutionAware {
         findings.add(finding);
         try {
             String rawFindingString = objectMapper.writeValueAsString(findings);
-            execution.setVariable(ScanProcessExecution.DefaultFields.PROCESS_FINDINGS.name(), rawFindingString);
+            execution.setVariable(DefaultFields.PROCESS_FINDINGS.name(), rawFindingString);
         } catch (JsonProcessingException e) {
             LOG.error("Can't write findings to process!", e);
             throw new IllegalStateException("Can't write findings to process!", e);

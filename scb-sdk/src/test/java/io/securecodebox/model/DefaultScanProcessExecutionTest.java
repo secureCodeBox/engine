@@ -20,6 +20,7 @@
 package io.securecodebox.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.execution.DefaultScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -53,18 +54,18 @@ public class DefaultScanProcessExecutionTest {
 
     public static DelegateExecution mockDelegateExcecution() {
         DelegateExecution process = mock(DelegateExecution.class);
-        when(process.getVariableTyped(ScanProcessExecution.DefaultFields.PROCESS_CONTEXT.name())).thenReturn(
+        when(process.getVariableTyped(DefaultFields.PROCESS_CONTEXT.name())).thenReturn(
                 new PrimitiveTypeValueImpl.StringValueImpl("TEST_CONTEXT"));
         when(process.getId()).thenReturn("5a4e9d37-09b0-4109-badd-d79dfa8fce2a");
-        when(process.getVariableTyped(ScanProcessExecution.DefaultFields.PROCESS_SPIDER_ID.name())).thenReturn(
+        when(process.getVariableTyped(DefaultFields.PROCESS_SPIDER_ID.name())).thenReturn(
                 new PrimitiveTypeValueImpl.StringValueImpl("5b419056-8907-4f68-8bb5-dc8a93065b6b"));
-        when(process.getVariableTyped(ScanProcessExecution.DefaultFields.PROCESS_SCANNER_TYPE.name())).thenReturn(
+        when(process.getVariableTyped(DefaultFields.PROCESS_SCANNER_TYPE.name())).thenReturn(
                 new PrimitiveTypeValueImpl.StringValueImpl("TestScanner"));
-        when(process.getVariableTyped(ScanProcessExecution.DefaultFields.PROCESS_SCANNER_ID.name())).thenReturn(
+        when(process.getVariableTyped(DefaultFields.PROCESS_SCANNER_ID.name())).thenReturn(
                 new PrimitiveTypeValueImpl.StringValueImpl("b3e2ae19-5660-4af4-9ec8-6ed94eb9b67b"));
-        when(process.getVariableTyped(ScanProcessExecution.DefaultFields.PROCESS_SPIDER_TYPE.name())).thenReturn(
+        when(process.getVariableTyped(DefaultFields.PROCESS_SPIDER_TYPE.name())).thenReturn(
                 new PrimitiveTypeValueImpl.StringValueImpl("TestSpider"));
-        when(process.getVariableTyped(ScanProcessExecution.DefaultFields.PROCESS_FINDINGS.name())).thenReturn(
+        when(process.getVariableTyped(DefaultFields.PROCESS_FINDINGS.name())).thenReturn(
                 new PrimitiveTypeValueImpl.StringValueImpl(
                         "[{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"Some coder has tested this!\",\"category\":\"COOL_TEST_STUFF\",\"osiLayer\":\"NOT_APPLICABLE\",\"serverity\":\"HIGH\",\"reference\":{\"id\":\"UNI_CODE_STUFF\",\"source\":\"RISCOOL\"},\"hint\":\"You might wan't to blame Rüdiger!\",\"attributes\":{\"TEST\":\"Kekse\",\"HORRIBLE\":\"Coke\"},\"location\":\"mett.brot.securecodebox.io\"},{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd716\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"Some coder has tested this!\",\"category\":\"COOL_TEST_STUFF\",\"osiLayer\":\"NOT_APPLICABLE\",\"serverity\":\"LOW\",\"reference\":{\"id\":\"UNI_CODE_STUFF\",\"source\":\"RISCOOL\"},\"hint\":\"You might wan't to blame Rüdiger!\",\"attributes\":{\"TEST\":\"Pudding\",\"HORRIBLE\":\"Coffee\"},\"location\":\"kaese.brot.securecodebox.io\"}]"));
         return process;

@@ -78,9 +78,4 @@ public interface ScanProcessExecution {
     @JsonProperty("automated")
     public abstract boolean isAutomated();
 
-    public enum DefaultFields {
-        PROCESS_CONTEXT, PROCESS_SPIDER_ID, PROCESS_SPIDER_TYPE, PROCESS_SCANNER_ID, PROCESS_SCANNER_TYPE,
-        PROCESS_AUTOMATED, PROCESS_FINDINGS, PROCESS_RAW_FINDINGS;
-    }
-
 }

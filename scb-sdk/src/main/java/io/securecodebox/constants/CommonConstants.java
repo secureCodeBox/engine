@@ -22,6 +22,7 @@ package io.securecodebox.constants;
 /**
  * @since 01.04.17
  */
+@Deprecated
 public class CommonConstants {
 
     // General

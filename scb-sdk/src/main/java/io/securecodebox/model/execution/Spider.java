@@ -22,6 +22,7 @@ package io.securecodebox.model.execution;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.securecodebox.constants.DefaultFields;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.variable.value.StringValue;
 
@@ -40,23 +41,23 @@ public class Spider extends ExecutionAware {
 
     @JsonProperty("spiderId")
     public void setSpiderId(UUID id) {
-        execution.setVariable(ScanProcessExecution.DefaultFields.PROCESS_SPIDER_ID.name(), id.toString());
+        execution.setVariable(DefaultFields.PROCESS_SPIDER_ID.name(), id.toString());
     }
 
     @JsonProperty("spiderId")
     public UUID getSpiderId() {
-        StringValue input = execution.getVariableTyped(ScanProcessExecution.DefaultFields.PROCESS_SPIDER_ID.name());
+        StringValue input = execution.getVariableTyped(DefaultFields.PROCESS_SPIDER_ID.name());
         return input != null ? UUID.fromString(input.getValue()) : null;
     }
 
     @JsonProperty("spiderType")
     public void setSpiderType(String type) {
-        execution.setVariable(ScanProcessExecution.DefaultFields.PROCESS_SPIDER_TYPE.name(), type);
+        execution.setVariable(DefaultFields.PROCESS_SPIDER_TYPE.name(), type);
     }
 
     @JsonProperty("spiderType")
     public String getSpiderType() {
-        return execution.<StringValue>getVariableTyped(ScanProcessExecution.DefaultFields.PROCESS_SPIDER_TYPE.name()).getValue();
+        return execution.<StringValue>getVariableTyped(DefaultFields.PROCESS_SPIDER_TYPE.name()).getValue();
     }
 
 }
