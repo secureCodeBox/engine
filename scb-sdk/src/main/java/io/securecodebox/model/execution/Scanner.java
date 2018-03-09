@@ -41,7 +41,7 @@ import java.util.UUID;
  * @author Rüdiger Heins - iteratec GmbH
  * @since 09.03.18
  */
-@JsonPropertyOrder({"scannerId", "scannerType"})
+@JsonPropertyOrder({ "scannerId", "scannerType" })
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Scanner extends ExecutionAware {
     private static final Logger LOG = LoggerFactory.getLogger(Scanner.class);
@@ -51,7 +51,7 @@ public class Scanner extends ExecutionAware {
 
     public Scanner(DelegateExecution execution) {
         super(execution);
-        objectMapper=new ObjectMapper();
+        objectMapper = new ObjectMapper();
     }
 
     @JsonProperty("scannerId")
@@ -77,8 +77,7 @@ public class Scanner extends ExecutionAware {
 
     @JsonIgnore
     public List<Finding> getFindings() {
-        StringValue rawFindings = execution.getVariableTyped(
-                DefaultFields.PROCESS_FINDINGS.name());
+        StringValue rawFindings = execution.getVariableTyped(DefaultFields.PROCESS_FINDINGS.name());
         if (rawFindings != null && !rawFindings.getValue().isEmpty()) {
             try {
                 return objectMapper.readValue(rawFindings.getValue(),
@@ -88,6 +87,25 @@ public class Scanner extends ExecutionAware {
             }
         }
         return new LinkedList<>();
+    }
+
+    /**
+     * This are the raw findings from a scanner. They can be in different formats.
+     * <p>
+     * For example:
+     * - JSON
+     * - XML
+     * - RAW String Output
+     * - LOG Output
+     * - Base64
+     * - ...
+     *
+     * @return some String representing the findings in a raw format.
+     */
+    @JsonIgnore
+    public String getRawFindings() {
+        StringValue rawFindings = execution.getVariableTyped(DefaultFields.PROCESS_RAW_FINDINGS.name());
+        return rawFindings != null ? rawFindings.getValue() : "";
     }
 
     /**
