@@ -17,19 +17,18 @@
  * /
  */
 
-package io.securecodebox.model;
+package io.securecodebox.model.execution;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
- * @since 09.03.18
+ * @since 01.03.18
  */
-public abstract class ExecutionAware {
+public interface ScanProcessExecutionFactory {
 
-    protected DelegateExecution execution;
+    public ScanProcessExecution get(DelegateExecution execution);
 
-    public ExecutionAware(DelegateExecution execution) {
-        this.execution = execution;
-    }
+    public <P extends ScanProcessExecution> P get(DelegateExecution execution, Class<P> customProcess);
+
 }

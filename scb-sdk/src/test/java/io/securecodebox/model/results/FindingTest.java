@@ -100,7 +100,7 @@ public class FindingTest {
 
     }
 
-    private Finding createBasicFinding() {
+    public static Finding createBasicFinding() {
         Finding finding = new Finding();
         finding.setId(UUID.fromString("49bf7fd3-8512-4d73-a28f-608e493cd726"));
         Reference reference = new Reference();

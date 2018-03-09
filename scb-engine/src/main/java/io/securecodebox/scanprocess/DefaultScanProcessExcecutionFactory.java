@@ -19,8 +19,9 @@
 
 package io.securecodebox.scanprocess;
 
-import io.securecodebox.model.DefaultScanProcessExecution;
-import io.securecodebox.model.ScanProcessExecution;
+import io.securecodebox.model.execution.DefaultScanProcessExecution;
+import io.securecodebox.model.execution.ScanProcessExecution;
+import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.variable.value.StringValue;
 import org.slf4j.Logger;
@@ -50,10 +51,11 @@ public class DefaultScanProcessExcecutionFactory implements ScanProcessExecution
         StringValue value = execution.getVariableTyped(PROCESS_EXECUTION_TYPE.name());
         LOG.debug("Reading {} is {} target is {}", PROCESS_EXECUTION_TYPE.name(),
                 value != null ? value.getValue() : "null", customProcess.getTypeName());
-        if (value != null && customProcess.getTypeName().equals(value.getValue())) {
+        if (value == null || DefaultScanProcessExecution.class.getTypeName().equals(value.getValue())
+                || customProcess.getTypeName().equals(value.getValue())) {
             return getInstance(execution, customProcess);
         } else {
-            return (P) getInstance(execution, DefaultScanProcessExecution.class);
+            throw new IllegalArgumentException("The given process Class does not match the existing!");
         }
     }
 

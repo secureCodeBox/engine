@@ -22,7 +22,7 @@
  */
 package io.securecodebox.engine.listener;
 
-import io.securecodebox.model.ScanProcessExecution;
+import io.securecodebox.model.execution.ScanProcessExecution;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.slf4j.Logger;

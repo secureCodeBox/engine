@@ -17,19 +17,21 @@
  * /
  */
 
-package io.securecodebox.scanprocess;
+package io.securecodebox.model.execution;
 
-import io.securecodebox.model.ScanProcessExecution;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
- * @since 01.03.18
+ * @since 09.03.18
  */
-public interface ScanProcessExecutionFactory {
+abstract class ExecutionAware {
 
-    public ScanProcessExecution get(DelegateExecution execution);
+    @JsonIgnore
+    protected DelegateExecution execution;
 
-    public <P extends ScanProcessExecution> P get(DelegateExecution execution, Class<P> customProcess);
-
+    public ExecutionAware(DelegateExecution execution) {
+        this.execution = execution;
+    }
 }
