@@ -1,0 +1,22 @@
+version: '3'
+services:
+  engine:
+    build: .
+    ports:
+      - "8080:8080"
+    networks:
+      - frontend
+    labels:
+      container_group: core
+
+  scanner-infrastructure-nmap:
+    build: ../scanner-infrastructure-nmap/.
+    depends_on:
+      - engine
+    networks:
+      - frontend
+    labels:
+      container_group: scanner
+
+networks:
+  frontend:
