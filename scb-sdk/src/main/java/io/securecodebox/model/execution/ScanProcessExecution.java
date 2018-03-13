@@ -17,18 +17,23 @@
  * /
  */
 
-package io.securecodebox.model;
+package io.securecodebox.model.execution;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import io.securecodebox.model.findings.Finding;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
  * @since 08.03.18
  */
+@JsonPropertyOrder({"id","context","automated"})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public interface ScanProcessExecution {
 
@@ -47,39 +52,30 @@ public interface ScanProcessExecution {
     @JsonIgnore
     public abstract boolean hasSpider();
 
-    @JsonProperty("spiderId")
-    public abstract void setSpiderId(UUID id);
-
-    @JsonProperty("spiderId")
-    public abstract UUID getSpiderId();
-
-    @JsonProperty("spiderType")
-    public abstract void setSpiderType(String type);
-
-    @JsonProperty("spiderType")
-    public abstract String getSpiderType();
+    @JsonUnwrapped
+    public Spider getSpider();
 
     @JsonIgnore
     public abstract boolean hasScanner();
 
-    @JsonProperty("scannerId")
-    public abstract void setScannerId(UUID id);
+    @JsonUnwrapped
+    public Scanner getScanner();
 
-    @JsonProperty("scannerId")
-    public abstract UUID getScannerId();
+    /**
+     * Convenience Method for getScanner().getFindings();
+     */
+    @JsonIgnore
+    public abstract List<Finding> getFindings();
 
-    @JsonProperty("scannerType")
-    public abstract void setScannerType(String type);
-
-    @JsonProperty("scannerType")
-    public abstract String getScannerType();
+    /**
+     * Convenience Method for getScanner().appendFinding(Finding);
+     *
+     * @param finding
+     */
+    @JsonIgnore
+    public abstract void appendFinding(Finding finding);
 
     @JsonProperty("automated")
     public abstract boolean isAutomated();
-
-    public enum DefaultFields {
-        PROCESS_CONTEXT, PROCESS_SPIDER_ID, PROCESS_SPIDER_TYPE, PROCESS_SCANNER_ID, PROCESS_SCANNER_TYPE,
-        PROCESS_AUTOMATED;
-    }
 
 }

@@ -20,7 +20,7 @@
 package io.securecodebox.scanprocess;
 
 import io.securecodebox.constants.CommonConstants;
-import io.securecodebox.model.ScanProcessExecution;
+import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.persistence.PersistenceProvider;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.slf4j.Logger;
@@ -55,7 +55,7 @@ public abstract class PersistenceAwareTaskListener implements ExecutionListener 
         map.put(CommonConstants.PROCESS_UUID, process.getId());
         map.put(CommonConstants.CONTEXT, process.getContext());
         map.put(CommonConstants.TENAND_ID, UUID.randomUUID());
-        map.put(CommonConstants.MICROSERVICE, process.getScannerType());
+        map.put(CommonConstants.MICROSERVICE, process.getScanner().getScannerType());
         map.put(CommonConstants.MICROSERVICE_ID, microserviceId);
     }
 

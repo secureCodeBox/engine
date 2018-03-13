@@ -19,7 +19,7 @@
 
 package io.securecodebox.scanprocess;
 
-import io.securecodebox.model.DefaultScanProcessExecution;
+import io.securecodebox.model.execution.DefaultScanProcessExecution;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 
 /**

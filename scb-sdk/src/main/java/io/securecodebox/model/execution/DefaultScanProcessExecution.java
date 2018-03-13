@@ -17,25 +17,33 @@
  * /
  */
 
-package io.securecodebox.model;
+package io.securecodebox.model.execution;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.securecodebox.constants.DefaultFields;
+import io.securecodebox.model.findings.Finding;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.variable.value.BooleanValue;
 import org.camunda.bpm.engine.variable.value.StringValue;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
  * @since 08.03.18
  */
-public class DefaultScanProcessExecution implements ScanProcessExecution {
+public class DefaultScanProcessExecution extends ExecutionAware implements ScanProcessExecution {
 
-    protected DelegateExecution execution;
+    @JsonIgnore
+    private final Spider spider;
+    @JsonIgnore
+    private final Scanner scanner;
 
     public DefaultScanProcessExecution(DelegateExecution execution) {
-        super();
-        this.execution = execution;
+        super(execution);
+        scanner = new Scanner(execution);
+        spider = new Spider(execution);
     }
 
     @Override
@@ -50,7 +58,7 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
 
     @Override
     public String getContext() {
-        return execution.getVariableTyped(DefaultFields.PROCESS_CONTEXT.name());
+        return execution.<StringValue>getVariableTyped(DefaultFields.PROCESS_CONTEXT.name()).getValue();
     }
 
     @Override
@@ -60,54 +68,32 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
 
     @Override
     public boolean hasSpider() {
-        return getScannerId() != null;
+        return spider.getSpiderId() != null;
     }
 
     @Override
-    public void setSpiderId(UUID id) {
-        execution.setVariable(DefaultFields.PROCESS_SPIDER_ID.name(), id.toString());
-    }
-
-    @Override
-    public UUID getSpiderId() {
-        StringValue input = execution.getVariableTyped(DefaultFields.PROCESS_SPIDER_ID.name());
-        return input != null ? UUID.fromString(input.getValue()) : null;
-    }
-
-    @Override
-    public void setSpiderType(String type) {
-        execution.setVariable(DefaultFields.PROCESS_SPIDER_TYPE.name(), type);
-    }
-
-    @Override
-    public String getSpiderType() {
-        return execution.getVariableTyped(DefaultFields.PROCESS_SPIDER_TYPE.name());
+    public Spider getSpider() {
+        return spider;
     }
 
     @Override
     public boolean hasScanner() {
-        return getScannerId() != null;
+        return scanner.getScannerId() != null;
     }
 
     @Override
-    public void setScannerId(UUID id) {
-        execution.setVariable(DefaultFields.PROCESS_SCANNER_ID.name(), id.toString());
+    public Scanner getScanner() {
+        return scanner;
     }
 
     @Override
-    public UUID getScannerId() {
-        StringValue input = execution.getVariableTyped(DefaultFields.PROCESS_SCANNER_ID.name());
-        return input != null ? UUID.fromString(input.getValue()) : null;
+    public List<Finding> getFindings() {
+        return scanner.getFindings();
     }
 
     @Override
-    public void setScannerType(String type) {
-        execution.setVariable(DefaultFields.PROCESS_SCANNER_TYPE.name(), type);
-    }
-
-    @Override
-    public String getScannerType() {
-        return execution.getVariableTyped(DefaultFields.PROCESS_SCANNER_TYPE.name());
+    public void appendFinding(Finding finding) {
+        getScanner().appendFinding(finding);
     }
 
     @Override

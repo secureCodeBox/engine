@@ -20,14 +20,20 @@
 package io.securecodebox.scanprocess.nmap;
 
 import io.securecodebox.constants.NmapConstants;
+import io.securecodebox.model.findings.Finding;
+import io.securecodebox.model.findings.OsiLayer;
+import io.securecodebox.model.findings.Reference;
+import io.securecodebox.model.findings.Severity;
 import io.securecodebox.scanprocess.NmapScanProcessExecution;
 import io.securecodebox.scanprocess.PersistenceAwareTaskListener;
-import io.securecodebox.scanprocess.ScanProcessExecutionFactory;
+import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.UUID;
 
 /**
  * @author Robert Seedorff - iteratec GmbH
@@ -47,8 +53,10 @@ public class FinishedPortScanTaskListener extends PersistenceAwareTaskListener {
 
         NmapScanProcessExecution process = factory.get(execution, NmapScanProcessExecution.class);
 
+        Finding finding = createBasicFinding();
+        process.appendFinding(finding);
         // TODO: workaround - should be defined by the nmap microservice itself, not here
-        process.setScannerType("nmap");
+//        process.setScannerType("nmap");
 
         String portScannerResultJson = (String) execution.getVariable(NmapConstants.NMAP_RESULT_JSON);
         //
@@ -123,5 +131,28 @@ public class FinishedPortScanTaskListener extends PersistenceAwareTaskListener {
             LOG.error("Couldn't find any nmap scanner result or process variable named: {}",
                     NmapConstants.NMAP_RESULT_JSON);
         }
+    }
+    /**
+     * TODO: REMOVE ME!!"!!!!!!
+     *
+     * @return
+     */
+    private Finding createBasicFinding() {
+        Finding finding = new Finding();
+        finding.setId(UUID.fromString("49bf7fd3-8512-4d73-a28f-608e493cd726"));
+        Reference reference = new Reference();
+        reference.setId("UNI_CODE_STUFF");
+        reference.setSource("RISCOOL");
+        finding.setReference(reference);
+        finding.setCategory("COOL_TEST_STUFF");
+        finding.setName("BAD_TEST_FINDIG");
+        finding.setDescription("Some coder has tested this!");
+        finding.setHint("You might wan't to blame Rüdiger!");
+        finding.setServerity(Severity.HIGH);
+        finding.setOsiLayer(OsiLayer.NOT_APPLICABLE);
+        finding.setLocation("mett.brot.securecodebox.io");
+        finding.addAttribute("TEST", "Kekse");
+        finding.addAttribute("HORRIBLE", "Coke");
+        return finding;
     }
 }

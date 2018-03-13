@@ -19,7 +19,7 @@
 
 package io.securecodebox.persistence;
 
-import io.securecodebox.model.ScanProcessExecution;
+import io.securecodebox.model.execution.ScanProcessExecution;
 
 import java.util.Map;
 
