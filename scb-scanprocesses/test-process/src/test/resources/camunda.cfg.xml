@@ -5,5 +5,10 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans   http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!-- uses an h2 in-memory database for test execution -->
-    <bean id="processEngineConfiguration" class="org.camunda.bpm.engine.impl.cfg.StandaloneInMemProcessEngineConfiguration"/>
+    <bean id="processEngineConfiguration" class="org.camunda.bpm.engine.impl.cfg.StandaloneInMemProcessEngineConfiguration">
+
+        <!-- This property ensures that the JobExecutor isn't started and therefore
+             asynchronous tasks need to be called explicitly to run-->
+        <property name="jobExecutorActivate" value="false" />
+    </bean>
 </beans>
