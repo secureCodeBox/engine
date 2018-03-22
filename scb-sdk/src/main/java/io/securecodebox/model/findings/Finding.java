@@ -64,9 +64,9 @@ public class Finding {
      * Please always add some specific attributes.
      * <p>
      * For NMAP Example:
-     * Location can be: 162.222.1.3:82
+     * Location can be: ajp://162.222.1.3:82
      * <p>
-     * Attributes:
+     * Attributes: 
      * NMAP_IP: 162.222.1.3
      * NMAP_PORT: 82
      */
