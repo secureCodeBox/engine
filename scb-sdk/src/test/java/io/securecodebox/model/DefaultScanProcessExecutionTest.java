@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
  */
 public class DefaultScanProcessExecutionTest {
 
-    private static final String DEFAULT_EXECUTION = "{\"id\":\"5a4e9d37-09b0-4109-badd-d79dfa8fce2a\",\"context\":\"TEST_CONTEXT\",\"automated\":false,\"spiderId\":\"5b419056-8907-4f68-8bb5-dc8a93065b6b\",\"spiderType\":\"TestSpider\",\"scannerId\":\"b3e2ae19-5660-4af4-9ec8-6ed94eb9b67b\",\"scannerType\":\"TestScanner\"}";
+    private static final String DEFAULT_EXECUTION = "{\"id\":\"5a4e9d37-09b0-4109-badd-d79dfa8fce2a\",\"context\":\"TEST_CONTEXT\",\"automated\":false,\"spider_id\":\"5b419056-8907-4f68-8bb5-dc8a93065b6b\",\"spider_type\":\"TestSpider\",\"scanner_id\":\"b3e2ae19-5660-4af4-9ec8-6ed94eb9b67b\",\"scanner_type\":\"TestScanner\"}";
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -67,7 +67,7 @@ public class DefaultScanProcessExecutionTest {
                 new PrimitiveTypeValueImpl.StringValueImpl("TestSpider"));
         when(process.getVariableTyped(DefaultFields.PROCESS_FINDINGS.name())).thenReturn(
                 new PrimitiveTypeValueImpl.StringValueImpl(
-                        "[{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"Some coder has tested this!\",\"category\":\"COOL_TEST_STUFF\",\"osiLayer\":\"NOT_APPLICABLE\",\"serverity\":\"HIGH\",\"reference\":{\"id\":\"UNI_CODE_STUFF\",\"source\":\"RISCOOL\"},\"hint\":\"You might wan't to blame Rüdiger!\",\"attributes\":{\"TEST\":\"Kekse\",\"HORRIBLE\":\"Coke\"},\"location\":\"mett.brot.securecodebox.io\"},{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd716\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"Some coder has tested this!\",\"category\":\"COOL_TEST_STUFF\",\"osiLayer\":\"NOT_APPLICABLE\",\"serverity\":\"LOW\",\"reference\":{\"id\":\"UNI_CODE_STUFF\",\"source\":\"RISCOOL\"},\"hint\":\"You might wan't to blame Rüdiger!\",\"attributes\":{\"TEST\":\"Pudding\",\"HORRIBLE\":\"Coffee\"},\"location\":\"kaese.brot.securecodebox.io\"}]"));
+                        "[{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"Some coder has tested this!\",\"category\":\"COOL_TEST_STUFF\",\"osi_layer\":\"NOT_APPLICABLE\",\"serverity\":\"HIGH\",\"reference\":{\"id\":\"UNI_CODE_STUFF\",\"source\":\"RISCOOL\"},\"hint\":\"You might wan't to blame Rüdiger!\",\"attributes\":{\"TEST\":\"Kekse\",\"HORRIBLE\":\"Coke\"},\"location\":\"mett.brot.securecodebox.io\"},{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd716\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"Some coder has tested this!\",\"category\":\"COOL_TEST_STUFF\",\"osi_layer\":\"NOT_APPLICABLE\",\"serverity\":\"LOW\",\"reference\":{\"id\":\"UNI_CODE_STUFF\",\"source\":\"RISCOOL\"},\"hint\":\"You might wan't to blame Rüdiger!\",\"attributes\":{\"TEST\":\"Pudding\",\"HORRIBLE\":\"Coffee\"},\"location\":\"kaese.brot.securecodebox.io\"}]"));
         return process;
     }
 

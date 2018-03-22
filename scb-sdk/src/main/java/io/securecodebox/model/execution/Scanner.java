@@ -41,7 +41,7 @@ import java.util.UUID;
  * @author Rüdiger Heins - iteratec GmbH
  * @since 09.03.18
  */
-@JsonPropertyOrder({ "scannerId", "scannerType" })
+@JsonPropertyOrder({ "id", "type" })
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Scanner extends ExecutionAware {
     private static final Logger LOG = LoggerFactory.getLogger(Scanner.class);
@@ -54,23 +54,23 @@ public class Scanner extends ExecutionAware {
         objectMapper = new ObjectMapper();
     }
 
-    @JsonProperty("scannerId")
+    @JsonProperty("id")
     public void setScannerId(UUID id) {
         execution.setVariable(DefaultFields.PROCESS_SCANNER_ID.name(), id.toString());
     }
 
-    @JsonProperty("scannerId")
+    @JsonProperty("id")
     public UUID getScannerId() {
         StringValue input = execution.getVariableTyped(DefaultFields.PROCESS_SCANNER_ID.name());
         return input != null ? UUID.fromString(input.getValue()) : null;
     }
 
-    @JsonProperty("scannerType")
+    @JsonProperty("type")
     public void setScannerType(String type) {
         execution.setVariable(DefaultFields.PROCESS_SCANNER_TYPE.name(), type);
     }
 
-    @JsonProperty("scannerType")
+    @JsonProperty("type")
     public String getScannerType() {
         return execution.<StringValue>getVariableTyped(DefaultFields.PROCESS_SCANNER_TYPE.name()).getValue();
     }
@@ -91,6 +91,8 @@ public class Scanner extends ExecutionAware {
 
     /**
      * This are the raw findings from a scanner. They can be in different formats.
+     * <p>
+     * The raw findings get not persisted in the ScanResult. But can be used to convert it to Findings.
      * <p>
      * For example:
      * - JSON

@@ -32,30 +32,30 @@ import java.util.UUID;
  * @author Rüdiger Heins - iteratec GmbH
  * @since 09.03.18
  */
-@JsonPropertyOrder({"spiderId", "spiderType"})
+@JsonPropertyOrder({"id", "type"})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Spider extends ExecutionAware {
     public Spider(DelegateExecution execution) {
         super(execution);
     }
 
-    @JsonProperty("spiderId")
+    @JsonProperty("id")
     public void setSpiderId(UUID id) {
         execution.setVariable(DefaultFields.PROCESS_SPIDER_ID.name(), id.toString());
     }
 
-    @JsonProperty("spiderId")
+    @JsonProperty("id")
     public UUID getSpiderId() {
         StringValue input = execution.getVariableTyped(DefaultFields.PROCESS_SPIDER_ID.name());
         return input != null ? UUID.fromString(input.getValue()) : null;
     }
 
-    @JsonProperty("spiderType")
+    @JsonProperty("type")
     public void setSpiderType(String type) {
         execution.setVariable(DefaultFields.PROCESS_SPIDER_TYPE.name(), type);
     }
 
-    @JsonProperty("spiderType")
+    @JsonProperty("type")
     public String getSpiderType() {
         return execution.<StringValue>getVariableTyped(DefaultFields.PROCESS_SPIDER_TYPE.name()).getValue();
     }

@@ -20,27 +20,9 @@
 package io.securecodebox.constants;
 
 /**
- * @since 01.03.18
+ * @author Rüdiger Heins - iteratec GmbH
+ * @since 21.03.18
  */
-public class NmapConstants {
-
-    public static final String NMAP_RESULT_RAW = "raw";
-    public static final String NMAP_RESULT_JSON = "result";
-
-    public static final String NMAP_TARGET_URL = "nmap_target";
-    public static final String NMAP_CLI_OPTIONS = "nmap_parameter";
-
-    public static final String NMAP_CONFIGURATION_TYPE = "nmap_configuration_type";
-
-    public static final String PORT = "port";
-    public static final String PROTOCOL = "protocol";
-
-    private void test() {
-        Keks[] values = Keks.values();
-
-    }
-
-    enum Keks {
-        TOLL, TOLLER, AM_TOLLSTEN, NMAP_TARGET_NAME;
-    }
+public enum NmapFields {
+    NMAP_CONFIGURATION_TYPE, NMAP_TARGET_URL, NMAP_CLI_OPTIONS, NMAP_PARAMETER, NMAP_TARGET;
 }

@@ -1,0 +1,40 @@
+```[
+  {
+    "id": "e18cdc5e-6b49-4346-b623-28a4e878e154",
+    "name": "Open mysql Port",
+    "description": "Port 3306 is open using tcp protocol.",
+    "category": "Open Port",
+    "osi_layer": "NETWORK",
+    "serverity": "INFORMATIONAL",
+    "attributes": {
+      "protocol": "tcp",
+      "port": 3306,
+      "service": "mysql",
+      "mac_address": null,
+      "start": "1520606104",
+      "end": "1520606118",
+      "ip_address": "127.0.0.1",
+      "state": "open"
+    },
+    "location": "tcp://127.0.0.1:3306"
+  },
+  {
+    "id": "ec6a4735-5aa9-4895-9ace-b9ea27c79729",
+    "name": "Open interwise Port",
+    "description": "Port 7778 is open using tcp protocol.",
+    "category": "Open Port",
+    "osi_layer": "NETWORK",
+    "serverity": "INFORMATIONAL",
+    "attributes": {
+      "protocol": "tcp",
+      "port": 7778,
+      "service": "interwise",
+      "mac_address": null,
+      "start": "1520606104",
+      "end": "1520606118",
+      "ip_address": "127.0.0.1",
+      "state": "open"
+    },
+    "location": "tcp://127.0.0.1:7778"
+  }
+]``
