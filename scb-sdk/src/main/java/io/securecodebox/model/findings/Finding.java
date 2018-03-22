@@ -52,7 +52,7 @@ public class Finding {
     private String description;
 
     private String category;
-    @JsonProperty("osi_layer")
+    @JsonProperty(value = "osi_layer", required = false)
     private OsiLayer osiLayer;
     private Severity serverity;
 
