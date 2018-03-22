@@ -80,11 +80,24 @@ public class Finding {
 
     /**
      * Adds scanner specific attributes as key value pairs.
-     * @param key the key representation of the object
+     *
+     * @param key   the key representation of the object
      * @param value the value object
      */
     public void addAttribute(String key, Serializable value) {
         attributes.put(key, value);
+    }
+
+    /**
+     * Adds scanner specific attributes as key value pairs.
+     * <p>
+     * Convenience method for addAttribute(keyEnum.name(), value)
+     *
+     * @param key   the enum representation of the key.
+     * @param value the value object
+     */
+    public void addAttribute(Enum<?> key, Serializable value) {
+        addAttribute(key.name(), value);
     }
 
     public Map<String, Object> getAttributes() {

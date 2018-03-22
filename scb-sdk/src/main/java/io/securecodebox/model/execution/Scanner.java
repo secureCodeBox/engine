@@ -92,6 +92,8 @@ public class Scanner extends ExecutionAware {
     /**
      * This are the raw findings from a scanner. They can be in different formats.
      * <p>
+     * The raw findings get not persisted in the ScanResult. But can be used to convert it to Findings.
+     * <p>
      * For example:
      * - JSON
      * - XML
