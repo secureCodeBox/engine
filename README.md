@@ -100,7 +100,7 @@ For demonstration purposes, we added some example targets to scan:
 # Coding Guidelines
 
 ### Attributes
-Attributes / variables for processes are always wrapped in a enum type.
+Attributes / variables for processes are always wrapped in an enum type.
 
 ### JSON
 We're using snake_case (lower case) for json attributes. If an enum type is used as attribute its converted to lower case. If it's an value it's always used UPPERCASE. This is to hold the attribute api consistent, but make shure Enums are recognized as enums.
