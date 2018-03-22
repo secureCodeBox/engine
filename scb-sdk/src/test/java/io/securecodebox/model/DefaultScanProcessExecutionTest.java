@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
  */
 public class DefaultScanProcessExecutionTest {
 
-    private static final String DEFAULT_EXECUTION = "{\"id\":\"5a4e9d37-09b0-4109-badd-d79dfa8fce2a\",\"context\":\"TEST_CONTEXT\",\"automated\":false,\"spiderId\":\"5b419056-8907-4f68-8bb5-dc8a93065b6b\",\"spiderType\":\"TestSpider\",\"scannerId\":\"b3e2ae19-5660-4af4-9ec8-6ed94eb9b67b\",\"scannerType\":\"TestScanner\"}";
+    private static final String DEFAULT_EXECUTION = "{\"id\":\"5a4e9d37-09b0-4109-badd-d79dfa8fce2a\",\"context\":\"TEST_CONTEXT\",\"automated\":false,\"spider_id\":\"5b419056-8907-4f68-8bb5-dc8a93065b6b\",\"spider_type\":\"TestSpider\",\"scanner_id\":\"b3e2ae19-5660-4af4-9ec8-6ed94eb9b67b\",\"scanner_type\":\"TestScanner\"}";
 
     ObjectMapper objectMapper = new ObjectMapper();
 
