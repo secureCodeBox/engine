@@ -34,8 +34,8 @@
     <bpmn:userTask id="UserTask_ApproveResults" name="Review scan results" camunda:formKey="${result_form_url}" camunda:candidateGroups="_securebox_admin, _securebox_productowner, _securebox_developer, approver">
       <bpmn:extensionElements>
         <camunda:formData />
-        <camunda:taskListener class="de.iteratec.securebox.engine.listener.SetBridgeUrlListener" event="create" />
-        <camunda:taskListener class="de.iteratec.securebox.engine.listener.SetFormUrlListener" event="create">
+        <camunda:taskListener delegateExpression="${setBridgeUrlListener}" event="create" />
+        <camunda:taskListener delegateExpression="${setFormUrlListener}" event="create">
           <camunda:field name="scanner_type">
             <camunda:string>nmap</camunda:string>
           </camunda:field>
@@ -78,7 +78,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_AUTOMATED == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_TransformedPersisted" name="transformed and persisted" sourceRef="ServiceTask_TransformResult" targetRef="ExclusiveGateway_MarkFalsePositive" />
-    <bpmn:serviceTask id="ServiceTask_TransformResult" name="Transform generic results" camunda:asyncBefore="true" camunda:class="io.securecodebox.scanprocess.nmap.TransformNmapResultsDelegate">
+    <bpmn:serviceTask id="ServiceTask_TransformResult" name="Transform generic results" camunda:asyncBefore="true" camunda:delegateExpression="${transformNmapResultsDelegate}">
       <bpmn:incoming>SequenceFlow_PortscanFinisched</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_TransformedPersisted</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -92,9 +92,9 @@
       <bpmn:outgoing>SequenceFlow_PortscanFinisched</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_SummaryCreated" name="summary created" sourceRef="ServiceTask_CreateSummary" targetRef="ExclusiveGateway_AutomatedFinish" />
-    <bpmn:serviceTask id="ServiceTask_CreateSummary" name="Create Report Summary" camunda:asyncBefore="true" camunda:class="de.iteratec.securebox.engine.delegates.SummaryGeneratorDelegate">
+    <bpmn:serviceTask id="ServiceTask_CreateSummary" name="Create Report Summary" camunda:asyncBefore="true" camunda:delegateExpression="${summaryGeneratorDelegate}">
       <bpmn:extensionElements>
-        <camunda:executionListener class="de.iteratec.securebox.engine.listener.genericscan.PersistGenericFindings" event="start" />
+        <camunda:executionListener delegateExpression="${persistGenericFindingsListener}" event="start" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_ResultsFiltered</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_NoFilter</bpmn:incoming>
