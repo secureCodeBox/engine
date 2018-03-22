@@ -19,7 +19,9 @@
 
 package io.securecodebox.model.findings;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.io.Serializable;
@@ -44,11 +46,13 @@ public class Finding {
     /**
      * Id of the finding. Must be unique for every finding.
      */
+    @JsonProperty("id")
     private UUID id;
     private String name;
     private String description;
 
     private String category;
+    @JsonProperty("osi_layer")
     private OsiLayer osiLayer;
     private Severity serverity;
 
@@ -96,12 +100,18 @@ public class Finding {
      * @param key   the enum representation of the key.
      * @param value the value object
      */
+    @JsonIgnore
     public void addAttribute(Enum<?> key, Serializable value) {
-        addAttribute(key.name(), value);
+        addAttribute(key.name().toLowerCase(), value);
     }
 
     public Map<String, Object> getAttributes() {
         return Collections.unmodifiableMap(attributes);
+    }
+
+    @JsonIgnore
+    public Object getAttribute(Enum<?> key) {
+        return attributes.get(key.name().toLowerCase());
     }
 
     public String getName() {

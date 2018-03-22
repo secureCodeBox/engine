@@ -20,9 +20,11 @@
 package io.securecodebox.constants;
 
 /**
+ * Enum with corresponding Attributes in the Finding.getAttributes section.
+ *
  * @author Rüdiger Heins - iteratec GmbH
  * @since 22.03.18
  */
 public enum NmapFindingAttributes {
-    PORT, SERVICE, PROTOCOL, HOST, STATE, START, END;
+    PORT, SERVICE, PROTOCOL, STATE, START, END, IP_ADDRESS, MAC_ADDRESS, OPERATING_SYSTEM;
 }

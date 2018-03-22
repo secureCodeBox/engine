@@ -97,6 +97,14 @@ For demonstration purposes, we added some example targets to scan:
 - [Juice Shop][juiceshop]
 
  
+# Coding Guidelines
+
+### Attributes
+Attributes / variables for processes are always wrapped in a enum type.
+
+### JSON
+We're using snake_case (lower case) for json attributes. If an enum type is used as attribute its converted to lower case. If it's an value it's always used UPPERCASE. This is to hold the attribute api consistent, but make shure Enums are recognized as enums.
+ 
 # Spring Boot Web application with Camunda Webapps
 
 This example demonstrates how you can build Spring Boot Web application having following configured:

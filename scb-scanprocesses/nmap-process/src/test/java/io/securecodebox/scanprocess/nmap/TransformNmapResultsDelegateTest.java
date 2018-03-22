@@ -20,6 +20,7 @@
 package io.securecodebox.scanprocess.nmap;
 
 import io.securecodebox.constants.DefaultFields;
+import io.securecodebox.constants.NmapFindingAttributes;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.model.findings.OsiLayer;
@@ -38,8 +39,16 @@ import org.mockito.stubbing.Answer;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import static io.securecodebox.constants.NmapFindingAttributes.END;
+import static io.securecodebox.constants.NmapFindingAttributes.IP_ADDRESS;
+import static io.securecodebox.constants.NmapFindingAttributes.MAC_ADDRESS;
+import static io.securecodebox.constants.NmapFindingAttributes.PORT;
+import static io.securecodebox.constants.NmapFindingAttributes.PROTOCOL;
+import static io.securecodebox.constants.NmapFindingAttributes.START;
+import static io.securecodebox.constants.NmapFindingAttributes.STATE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -98,7 +107,7 @@ public class TransformNmapResultsDelegateTest {
         assertEquals("Open mysql Port", processExecution.getFindings().get(0).getName());
         assertNotNull(processExecution.getFindings().get(0).getId());
         assertEquals("tcp://127.0.0.1:3306", processExecution.getFindings().get(0).getLocation());
-        assertEquals(7, processExecution.getFindings().get(0).getAttributes().size());
+        assertEquals(8, processExecution.getFindings().get(0).getAttributes().size());
 
         // Secound Finding
         assertEquals("Port 7778 is open using tcp protocol.", processExecution.getFindings().get(1).getDescription());
@@ -108,14 +117,16 @@ public class TransformNmapResultsDelegateTest {
         assertEquals("Open interwise Port", processExecution.getFindings().get(1).getName());
         assertNotNull(processExecution.getFindings().get(1).getId());
         assertEquals("tcp://127.0.0.1:7778", processExecution.getFindings().get(1).getLocation());
-        assertEquals(7, processExecution.getFindings().get(1).getAttributes().size());
-        assertEquals("interwise", processExecution.getFindings().get(1).getAttributes().get("SERVICE"));
-        assertEquals(7778, processExecution.getFindings().get(1).getAttributes().get("PORT"));
-        assertEquals("1520606104", processExecution.getFindings().get(1).getAttributes().get("START"));
-        assertEquals("tcp", processExecution.getFindings().get(1).getAttributes().get("PROTOCOL"));
-        assertEquals("127.0.0.1", processExecution.getFindings().get(1).getAttributes().get("HOST"));
-        assertEquals("open", processExecution.getFindings().get(1).getAttributes().get("STATE"));
-        assertEquals("1520606118", processExecution.getFindings().get(1).getAttributes().get("END"));
+        assertEquals(8, processExecution.getFindings().get(1).getAttributes().size());
+
+        assertEquals("interwise", processExecution.getFindings().get(1).getAttribute(NmapFindingAttributes.SERVICE));
+        assertEquals(7778, processExecution.getFindings().get(1).getAttribute(PORT));
+        assertEquals("1520606104", processExecution.getFindings().get(1).getAttribute(START));
+        assertEquals("tcp", processExecution.getFindings().get(1).getAttribute(PROTOCOL));
+        assertEquals("127.0.0.1", processExecution.getFindings().get(1).getAttribute(IP_ADDRESS));
+        assertEquals("open", processExecution.getFindings().get(1).getAttribute(STATE));
+        assertEquals("1520606118", processExecution.getFindings().get(1).getAttribute(END));
+        assertNull(processExecution.getFindings().get(1).getAttribute(MAC_ADDRESS));
     }
 
     private final static String nmapResult = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<!DOCTYPE nmaprun>\n"

@@ -26,6 +26,7 @@ import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.findings.OsiLayer;
 import io.securecodebox.model.findings.Severity;
+import io.securecodebox.scanprocess.nmap.model.Address;
 import io.securecodebox.scanprocess.nmap.model.Host;
 import io.securecodebox.scanprocess.nmap.model.NmapRawResult;
 import io.securecodebox.scanprocess.nmap.model.Port;
@@ -83,12 +84,13 @@ public class TransformNmapResultsDelegate implements JavaDelegate {
                         finding.setDescription(String.format("Port %d is open using %s protocol.", port.getPortid(),
                                 port.getProtocol()));
                         finding.setLocation(
-                                port.getProtocol() + "://" + host.getAdress().getAddr() + ":" + port.getPortid());
+                                port.getProtocol() + "://" + host.getIpAdress().orElse(new Address()).getAddr() + ":" + port.getPortid());
                         finding.setServerity(Severity.INFORMATIONAL);
                         finding.addAttribute(NmapFindingAttributes.PORT, port.getPortid());
                         finding.addAttribute(NmapFindingAttributes.SERVICE, port.getService().getName());
                         finding.addAttribute(NmapFindingAttributes.PROTOCOL, port.getProtocol());
-                        finding.addAttribute(NmapFindingAttributes.HOST, host.getAdress().getAddr());
+                        finding.addAttribute(NmapFindingAttributes.IP_ADDRESS, host.getIpAdress().orElse(new Address()).getAddr());
+                        finding.addAttribute(NmapFindingAttributes.MAC_ADDRESS, host.getMacAdress().orElse(new Address()).getAddr());
                         finding.addAttribute(NmapFindingAttributes.STATE, port.getState().getState());
                         finding.addAttribute(NmapFindingAttributes.START, host.getStarttime());
                         finding.addAttribute(NmapFindingAttributes.END, host.getEndtime());
