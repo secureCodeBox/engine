@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.8.2">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.11.3">
   <bpmn:process id="SecureBoxExternalPortscan" name="Port Scan" isExecutable="true" camunda:versionTag="3">
     <bpmn:startEvent id="StartEvent_ConfigurePortscan" name="target configured" camunda:formKey="embedded:app:forms/nmap/configure-port-scanner-target.html">
       <bpmn:extensionElements>
@@ -36,8 +36,9 @@
         <camunda:formData />
         <camunda:taskListener class="de.iteratec.securebox.engine.listener.SetBridgeUrlListener" event="create" />
         <camunda:taskListener class="de.iteratec.securebox.engine.listener.SetFormUrlListener" event="create">
-          <camunda:field name="scanner_type">          <camunda:string>nmap</camunda:string>
-</camunda:field>
+          <camunda:field name="scanner_type">
+            <camunda:string>nmap</camunda:string>
+          </camunda:field>
         </camunda:taskListener>
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_ManualFinish</bpmn:incoming>
@@ -83,7 +84,7 @@
     </bpmn:serviceTask>
     <bpmn:serviceTask id="ServiceTask_DoPortscan" name="Run the portscan" camunda:asyncBefore="true" camunda:type="external" camunda:topic="nmap_portscan">
       <bpmn:extensionElements>
-        <camunda:executionListener class="io.securecodebox.scanprocess.nmap.FinishedPortScanTaskListener" event="end" />
+        <camunda:executionListener delegateExpression="${finishPortScanListener}" event="end" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_PortscanConfigured</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_DefaultConfig</bpmn:incoming>
@@ -119,11 +120,13 @@
     <bpmn:dataObject id="DataObject_1y6pfeq" />
     <bpmn:dataObjectReference id="DataObjectReference_0vhjx0n" name="nmap_results_json" dataObjectRef="DataObject_0lpf2y8" />
     <bpmn:dataObject id="DataObject_0lpf2y8" />
-    <bpmn:textAnnotation id="TextAnnotation_1mi2hrk">    <bpmn:text>Original results returned by the nmap scanner</bpmn:text>
-</bpmn:textAnnotation>
+    <bpmn:textAnnotation id="TextAnnotation_1mi2hrk">
+      <bpmn:text>Original results returned by the nmap scanner</bpmn:text>
+    </bpmn:textAnnotation>
     <bpmn:association id="Association_0dteat2" sourceRef="DataObjectReference_nmapResultsRaw" targetRef="TextAnnotation_1mi2hrk" />
-    <bpmn:textAnnotation id="TextAnnotation_0lm3esn">    <bpmn:text>Transformed results in a generic format</bpmn:text>
-</bpmn:textAnnotation>
+    <bpmn:textAnnotation id="TextAnnotation_0lm3esn">
+      <bpmn:text>Transformed results in a generic format</bpmn:text>
+    </bpmn:textAnnotation>
     <bpmn:association id="Association_16qrr9w" sourceRef="DataObjectReference_0vhjx0n" targetRef="TextAnnotation_0lm3esn" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">

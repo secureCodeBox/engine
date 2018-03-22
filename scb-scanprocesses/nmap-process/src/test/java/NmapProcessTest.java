@@ -1,11 +1,14 @@
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.scanprocess.NmapScanProcessExecution;
+import org.camunda.bpm.engine.ExternalTaskService;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.ProcessEngineException;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.externaltask.LockedExternalTask;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
+import org.camunda.bpm.engine.test.mock.Mocks;
 import org.camunda.bpm.extension.mockito.mock.FluentExecutionListenerMock;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -17,6 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.camunda.bpm.engine.test.assertions.bpmn.AbstractAssertions.processEngine;
@@ -83,7 +87,12 @@ public class NmapProcessTest {
 
         autoMock("bpmn/nmap_scan.bpmn");
         Map<String, Object> variables = new HashMap<>();
-        variables.put(DefaultFields.PROCESS_AUTOMATED.name(), true);
+        variables.put(DefaultFields.PROCESS_AUTOMATED.name(), false);
+        variables.put("context", "BodgeIT");
+        variables.put("nmap_target", "localhost");
+        variables.put("targetName", "BodgeIT Public Host");
+        variables.put("markFalsePositive", false);
+        variables.put("nmap_configuration_type", "default");
         ProcessInstance processInstance = processEngine().getRuntimeService().startProcessInstanceByKey(PROCESS_ID, variables);
 
         assertThat(processInstance).isStarted();
@@ -92,11 +101,28 @@ public class NmapProcessTest {
 
         //Execute the next job
         execute(job());
+
+        startMockPortscan();
+        assertThat(processInstance).isWaitingAt(TRANSFORM_RESULTS_TASK_ID);
+
 //
 //        //Make sure the next task is the "Transform Generic Results"
 //        assertEquals(Collections.singletonList(TRANSFORM_RESULTS_TASK_ID), runtimeService().getActiveActivityIds(processInstance.getId()));
 
     }
 
+
+    private void startMockPortscan(){
+
+        ExternalTaskService externalTaskService = processEngine().getExternalTaskService();
+        List<LockedExternalTask> lockedExternalTasks = externalTaskService.fetchAndLock(1, "worker")
+                .topic("nmap_portscan", 5000L).execute();
+
+        assertThat(lockedExternalTasks.size()).isEqualTo(1);
+
+        LockedExternalTask task = lockedExternalTasks.get(0);
+        externalTaskService.complete(task.getId(), "worker");
+
+    }
 
 }
