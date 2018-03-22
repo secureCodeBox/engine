@@ -19,27 +19,31 @@
 
 package io.securecodebox.scanprocess.nmap;
 
-import io.securecodebox.constants.CommonConstants;
-import io.securecodebox.constants.CommonReportFields;
-import io.securecodebox.constants.NmapConstants;
+import io.securecodebox.constants.DefaultFields;
+import io.securecodebox.constants.NmapFindingAttributes;
 import io.securecodebox.model.execution.ScanProcessExecution;
-import io.securecodebox.scanprocess.NmapScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
+import io.securecodebox.model.findings.Finding;
+import io.securecodebox.model.findings.OsiLayer;
+import io.securecodebox.model.findings.Severity;
+import io.securecodebox.scanprocess.nmap.model.Address;
+import io.securecodebox.scanprocess.nmap.model.Host;
+import io.securecodebox.scanprocess.nmap.model.NmapRawResult;
+import io.securecodebox.scanprocess.nmap.model.Port;
+import io.securecodebox.scanprocess.nmap.model.Ports;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
-import org.camunda.bpm.engine.impl.util.json.JSONObject;
-import org.camunda.bpm.engine.variable.value.StringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.StringReader;
+import java.util.UUID;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
@@ -53,63 +57,57 @@ public class TransformNmapResultsDelegate implements JavaDelegate {
     @Autowired
     ScanProcessExecutionFactory processExecutionFactory;
 
-    private ScanProcessExecution process;
+    @Autowired
+    DocumentBuilderFactory documentBuilderFactory;
 
     @Override
     public void execute(DelegateExecution delegateExecution) throws Exception {
-        LOG.debug("TransformNmapResultsDelegate execute");
+        ScanProcessExecution process = processExecutionFactory.get(delegateExecution);
 
-        process = processExecutionFactory.get(delegateExecution, NmapScanProcessExecution.class);
+        LOG.trace("VARS: {}", delegateExecution.getVariables());
 
-        LOG.debug("VARS: {}", delegateExecution.getVariables());
+        String rawFindingResultXML = process.getScanner().getRawFindings();
 
-        String portScannerResultJson = delegateExecution.<StringValue>getVariableTyped(
-                NmapConstants.NMAP_RESULT_JSON).getValue();
+        if (!StringUtils.isEmpty(rawFindingResultXML)) {
+            final JAXBContext context = JAXBContext.newInstance(NmapRawResult.class);
+            final Unmarshaller unmarshaller = context.createUnmarshaller();
+            NmapRawResult rawResult = (NmapRawResult) unmarshaller.unmarshal(new StringReader(rawFindingResultXML));
 
-        if (!StringUtils.isEmpty(portScannerResultJson)) {
+            for (Host host : rawResult.getHosts()) {
+                for (Ports ports : host.getPorts()) {
+                    for (Port port : ports.getPort()) {
+                        Finding finding = new Finding();
+                        finding.setId(UUID.randomUUID());
+                        finding.setCategory("Open Port");
+                        finding.setName(String.format("Open %s Port", port.getService().getName()));
+                        finding.setOsiLayer(OsiLayer.NETWORK);
+                        finding.setDescription(String.format("Port %d is open using %s protocol.", port.getPortid(),
+                                port.getProtocol()));
+                        finding.setLocation(
+                                port.getProtocol() + "://" + host.getIpAdress().orElse(new Address()).getAddr() + ":" + port.getPortid());
+                        finding.setServerity(Severity.INFORMATIONAL);
+                        finding.addAttribute(NmapFindingAttributes.PORT, port.getPortid());
+                        finding.addAttribute(NmapFindingAttributes.SERVICE, port.getService().getName());
+                        finding.addAttribute(NmapFindingAttributes.PROTOCOL, port.getProtocol());
+                        finding.addAttribute(NmapFindingAttributes.IP_ADDRESS, host.getIpAdress().orElse(new Address()).getAddr());
+                        finding.addAttribute(NmapFindingAttributes.MAC_ADDRESS, host.getMacAdress().orElse(new Address()).getAddr());
+                        finding.addAttribute(NmapFindingAttributes.STATE, port.getState().getState());
+                        finding.addAttribute(NmapFindingAttributes.START, host.getStarttime());
+                        finding.addAttribute(NmapFindingAttributes.END, host.getEndtime());
+                        process.appendFinding(finding);
+                        LOG.trace("Finding: {}", finding);
+                    }
+                }
+            }
 
-            JSONObject json = new JSONObject(portScannerResultJson);
-            JSONObject issues = json.getJSONObject("content");
-
-            List<Map<String, String>> findingsList = new ArrayList<>();
-
-            // split each finding (raw finding list) into a separate result entity and enrich them with meta data
-            Stream.of(issues).forEach((issue) -> {
-                // get a new generic (common reporting) result entry, based on the NMAP scanner specific raw results
-                Map finding = new HashMap();
-
-                //TODO: rhe: What about a lookup pattern or an own Finding Type?
-                // reusing the existing meta data fields and adding them to each single result entry
-                finding.put(CommonConstants.DOCUMENT_UUID, issue.get(CommonConstants.DOCUMENT_UUID));
-                finding.put(CommonReportFields.SCANNER_NAME, issue.get(CommonConstants.MICROSERVICE));
-                finding.put(CommonConstants.MICROSERVICE_ID, issue.get(CommonConstants.MICROSERVICE_ID));
-                finding.put(CommonConstants.MICROSERVICE, issue.get(CommonConstants.MICROSERVICE));
-                finding.put(CommonConstants.PROCESS_UUID, issue.get(CommonConstants.PROCESS_UUID));
-                finding.put(CommonConstants.TENAND_ID, issue.get(CommonConstants.TENAND_ID));
-                finding.put(CommonConstants.CONTEXT, issue.get(CommonConstants.CONTEXT));
-
-                // for each finding transform the raw data fields into generic field
-                finding.put(CommonReportFields.NAME, issue.get("service"));
-                finding.put(CommonReportFields.CATEGORY, "Open Port");
-                finding.put(CommonReportFields.TIER, "Network");
-                finding.put(CommonReportFields.PORT, issue.get("port"));
-                String description = String.format("Port %d is open using %s protocol.", issue.get(NmapConstants.PORT),
-                        issue.get(NmapConstants.PROTOCOL));
-                finding.put(CommonReportFields.DESCRIPTION, description);
-
-                finding.put(CommonReportFields.URL, issue.get("ip"));
-                finding.put(CommonReportFields.IP_ADDRESS, issue.get("ip"));
-                finding.put(CommonReportFields.SEVERITY, issue.get("informational"));
-
-                findingsList.add(finding);
-            });
-
-            LOG.debug("Found {} findings", findingsList.size());
+            LOG.debug("Found {} findings", process.getFindings().size());
 
             // persist all generic result entries
             //new GenericReporter(delegateExecution).setGenericResultsVariable(findingsList)
         } else {
-            LOG.warn("Couldn't find the process variable or its content is empty: {}", NmapConstants.NMAP_RESULT_JSON);
+            LOG.warn("Couldn't find the process variable or its content is empty: {}",
+                    DefaultFields.PROCESS_RAW_FINDINGS);
         }
     }
+
 }

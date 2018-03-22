@@ -19,14 +19,14 @@
 
 package io.securecodebox.scanprocess.nmap;
 
-import io.securecodebox.constants.NmapConstants;
+import io.securecodebox.constants.DefaultFields;
+import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.findings.OsiLayer;
 import io.securecodebox.model.findings.Reference;
 import io.securecodebox.model.findings.Severity;
 import io.securecodebox.scanprocess.NmapScanProcessExecution;
 import io.securecodebox.scanprocess.PersistenceAwareTaskListener;
-import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,9 +56,9 @@ public class FinishedPortScanTaskListener extends PersistenceAwareTaskListener {
         Finding finding = createBasicFinding();
         process.appendFinding(finding);
         // TODO: workaround - should be defined by the nmap microservice itself, not here
-//        process.setScannerType("nmap");
+        //        process.setScannerType("nmap");
 
-        String portScannerResultJson = (String) execution.getVariable(NmapConstants.NMAP_RESULT_JSON);
+        String portScannerResultJson = (String) execution.getVariable(DefaultFields.PROCESS_RAW_FINDINGS.name());
         //
         //        String microserviceType = (String) execution.getVariable(Variables.MICROSERVICE);
         //        String microserviceId = (String) execution.getVariable(Variables.MICROSERVICE_ID);
@@ -129,9 +129,10 @@ public class FinishedPortScanTaskListener extends PersistenceAwareTaskListener {
             //                    microserviceId);
         } else {
             LOG.error("Couldn't find any nmap scanner result or process variable named: {}",
-                    NmapConstants.NMAP_RESULT_JSON);
+                    DefaultFields.PROCESS_RAW_FINDINGS);
         }
     }
+
     /**
      * TODO: REMOVE ME!!"!!!!!!
      *

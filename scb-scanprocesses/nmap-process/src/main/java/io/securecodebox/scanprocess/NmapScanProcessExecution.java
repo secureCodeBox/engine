@@ -19,6 +19,7 @@
 
 package io.securecodebox.scanprocess;
 
+import io.securecodebox.constants.NmapFields;
 import io.securecodebox.model.execution.DefaultScanProcessExecution;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 
@@ -51,7 +52,4 @@ public class NmapScanProcessExecution extends DefaultScanProcessExecution {
         execution.setVariable(NmapFields.NMAP_TARGET.name(), portScannerTarget);
     }
 
-    public enum NmapFields {
-        NMAP_PARAMETER, NMAP_TARGET;
-    }
 }

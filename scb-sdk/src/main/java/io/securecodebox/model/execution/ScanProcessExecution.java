@@ -52,13 +52,13 @@ public interface ScanProcessExecution {
     @JsonIgnore
     public abstract boolean hasSpider();
 
-    @JsonUnwrapped
+    @JsonUnwrapped(prefix = "spider_")
     public Spider getSpider();
 
     @JsonIgnore
     public abstract boolean hasScanner();
 
-    @JsonUnwrapped
+    @JsonUnwrapped(prefix = "scanner_")
     public Scanner getScanner();
 
     /**
