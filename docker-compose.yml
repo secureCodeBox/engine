@@ -15,7 +15,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://camundadb:3306/${CAMUNDADB_DATABASE}
       - SPRING_DATASOURCE_USERNAME=${CAMUNDADB_USER}
       - SPRING_DATASOURCE_PASSWORD=${CAMUNDADB_PW}
-    restart: on-failure:3
+    restart: on-failure:1
 
   camundadb:
       image: mysql
