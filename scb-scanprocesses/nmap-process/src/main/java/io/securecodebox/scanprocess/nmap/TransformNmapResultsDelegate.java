@@ -57,8 +57,15 @@ public class TransformNmapResultsDelegate implements JavaDelegate {
     @Autowired
     ScanProcessExecutionFactory processExecutionFactory;
 
-    @Autowired
     DocumentBuilderFactory documentBuilderFactory;
+
+    public TransformNmapResultsDelegate() {
+        documentBuilderFactory=DocumentBuilderFactory.newInstance();
+    }
+
+    public TransformNmapResultsDelegate(DocumentBuilderFactory documentBuilderFactory) {
+        this.documentBuilderFactory=documentBuilderFactory;
+    }
 
     @Override
     public void execute(DelegateExecution delegateExecution) throws Exception {
