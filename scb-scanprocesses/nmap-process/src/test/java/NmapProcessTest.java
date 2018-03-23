@@ -1,27 +1,24 @@
 import io.securecodebox.constants.DefaultFields;
-import io.securecodebox.scanprocess.NmapScanProcessExecution;
 import org.camunda.bpm.engine.ExternalTaskService;
-import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.ProcessEngineException;
-import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.delegate.*;
 import org.camunda.bpm.engine.externaltask.LockedExternalTask;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
-import org.camunda.bpm.extension.mockito.mock.FluentExecutionListenerMock;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
+import org.camunda.bpm.scenario.delegate.ExternalTaskDelegate;
+import org.camunda.bpm.scenario.delegate.TaskDelegate;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.Mockito;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +27,6 @@ import static org.camunda.bpm.engine.test.assertions.bpmn.AbstractAssertions.pro
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareAssertions.assertThat;
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.*;
 import static org.camunda.bpm.extension.mockito.CamundaMockito.*;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -66,32 +62,20 @@ public class NmapProcessTest {
         defaultVariables.put("targetName", "BodgeIT Public Host");
         defaultVariables.put("markFalsePositive", false);
         defaultVariables.put("nmap_configuration_type", "default");
+        defaultVariables.put("scanner_type", "nmap");
+
         autoMock("bpmn/nmap_scan.bpmn");
-        when(nmapProcess.waitsAtServiceTask(DO_PORTSCAN_TASK_ID)).thenReturn(task -> {
 
-            startExternalMockProcess("nmap_portscan");
-        });
-        when(nmapProcess.waitsAtServiceTask(TRANSFORM_RESULTS_TASK_ID)).thenReturn(task -> {
-
-            execute(job());
-        });
-        when(nmapProcess.waitsAtServiceTask(CREATE_REPORT_TASK_ID)).thenReturn(task -> {
-
-            execute(job());
-        });
-        when(nmapProcess.waitsAtServiceTask(MARK_FALSE_POSITIVES_TASK_ID)).thenReturn(task -> {
-
-            startExternalMockProcess("mark_falsePositives");
-        });
-        when(nmapProcess.waitsAtUserTask(CONFIGURE_ADVANCED_PORTSCAN_TASK_ID)).thenReturn(task -> {
-
-            executeUserTask(CONFIGURE_ADVANCED_PORTSCAN_TASK_ID);
-        });
-        when(nmapProcess.waitsAtUserTask(APPROVE_RESULTS_TASK_ID)).thenReturn(task -> {
-
-            executeUserTask(APPROVE_RESULTS_TASK_ID);
-        });
-
+        when(nmapProcess.waitsAtUserTask(Mockito.anyString())).thenReturn(
+                task -> executeUserTask(task.getId()));
+        when(nmapProcess.waitsAtServiceTask(Mockito.anyString())).thenReturn(
+                ExternalTaskDelegate::complete);
+        when(nmapProcess.waitsAtServiceTask(DO_PORTSCAN_TASK_ID)).thenReturn(
+                task -> {
+                    startExternalMockProcess("nmap_portscan");
+                });
+        when(nmapProcess.waitsAtServiceTask(MARK_FALSE_POSITIVES_TASK_ID)).thenReturn(
+                task -> startExternalMockProcess("mark_falsepositive"));
     }
 
     @Test
@@ -117,71 +101,49 @@ public class NmapProcessTest {
     }
 
     @Test
-    public void testManualStartWithConfiguration_shouldPass() {
+    public void testManualStartWithDefaultConfiguration_shouldPass() {
         ProcessInstance processInstance = runtimeService().startProcessInstanceByKey(PROCESS_ID, defaultVariables);
         assertThat(processInstance).isStarted();
+        assertThat(processInstance).isWaitingAt(DO_PORTSCAN_TASK_ID);
     }
 
-
-
     @Test
-    public void testAutomatedScanWithoutMarkingFalsePositve() {
-
-        autoMock("bpmn/nmap_scan.bpmn");
-        ProcessInstance processInstance = processEngine().getRuntimeService().startProcessInstanceByKey(PROCESS_ID, defaultVariables);
-
-
-        assertThat(processInstance).isStarted();
-        //Make sure that the next task to execute is "Run Portscan"
-        assertEquals(Collections.singletonList(DO_PORTSCAN_TASK_ID), runtimeService().getActiveActivityIds(processInstance.getId()));
-
-        startExternalMockProcess("nmap_portscan");
-
-        verifyExecutionListenerMock("finishPortScanListener").executed();
-        assertThat(processInstance).isWaitingAt(TRANSFORM_RESULTS_TASK_ID);
-
-        execute(job());
-
-        verifyJavaDelegateMock("transformNmapResultsDelegate").executed();
-        assertThat(processInstance).isWaitingAt(CREATE_REPORT_TASK_ID);
-
-        execute(job());
-
-        verifyJavaDelegateMock("summaryGeneratorDelegate").executed();
-        assertThat(processInstance).isEnded();
-
-        //todo: expand this list with finding variables
-        assertThat(processInstance).hasVariables("context", "nmap_target", "targetName", "markFalsePositive",
-                "nmap_configuration_type");
-
-        assertThat(processInstance).hasPassedInOrder(DO_PORTSCAN_TASK_ID, TRANSFORM_RESULTS_TASK_ID, CREATE_REPORT_TASK_ID);
+    public void testAdvancedConfigurationLetsUserConfigureScan(){
+        Map<String, Object> variables = new HashMap<>(defaultVariables);
+        changeVariable(variables, "nmap_configuration_type", "advanced");
+        changeVariable(variables, DefaultFields.PROCESS_AUTOMATED.name(), false);
+        ProcessInstance processInstance = runtimeService().startProcessInstanceByKey(PROCESS_ID, variables);
+        assertThat(processInstance).isWaitingAt(CONFIGURE_ADVANCED_PORTSCAN_TASK_ID);
     }
 
-    /**
-     * This is for trying out the camunda scenario test library
-     */
     @Test
-    public void testAutomatedScanWithoutMarkingFalsePositives_Scenario() {
+    public void testAfterAdvancedConfigurationPortscanShouldBeStarted(){
+        Map<String, Object> variables = new HashMap<>(defaultVariables);
+        changeVariable(variables, "nmap_configuration_type", "advanced");
+        changeVariable(variables, DefaultFields.PROCESS_AUTOMATED.name(), false);
+
+        when(nmapProcess.waitsAtUserTask(Mockito.anyString())).thenReturn(TaskDelegate::complete);
+        when(nmapProcess.waitsAtServiceTask(Mockito.anyString())).thenReturn(task -> {});
+
+        Scenario scenario = Scenario.run(nmapProcess).startByKey(PROCESS_ID, variables).execute();
+        assertThat(scenario.instance(nmapProcess)).isWaitingAt(DO_PORTSCAN_TASK_ID);
+        assertThat(scenario.instance(nmapProcess)).hasPassedInOrder(CONFIGURE_ADVANCED_PORTSCAN_TASK_ID);
+        assertThat(scenario.instance(nmapProcess)).variables().containsEntry(DefaultFields.PROCESS_AUTOMATED.name(), false)
+                .containsEntry("nmap_configuration_type", "advanced");
+    }
+
+    @Test
+    public void testAutomatedScanWithoutMarkingFalsePositive() {
 
         Scenario scenario = Scenario.run(nmapProcess).startByKey(PROCESS_ID, defaultVariables).execute();
 
         assertThat(scenario.instance(nmapProcess)).isEnded();
-        assertThat(scenario.instance(nmapProcess)).hasVariables("context", "nmap_target", "targetName", "markFalsePositive",
-                "nmap_configuration_type");
-
+        assertThat(scenario.instance(nmapProcess)).hasVariables(
+                "context", "nmap_target", "targetName", "markFalsePositive", "nmap_configuration_type");
         assertThat(scenario.instance(nmapProcess)).hasPassedInOrder(DO_PORTSCAN_TASK_ID, TRANSFORM_RESULTS_TASK_ID, CREATE_REPORT_TASK_ID);
         verifyExecutionListenerMock("finishPortScanListener").executed();
         verifyJavaDelegateMock("transformNmapResultsDelegate").executed();
         verifyJavaDelegateMock("summaryGeneratorDelegate").executed();
-
-    }
-
-    private void changeVariable(Map<String, Object> variables, String key, Object value) {
-
-        if(variables.containsKey(key)){
-            variables.remove(key);
-        }
-        variables.put(key, value);
     }
 
     @Test
@@ -189,35 +151,108 @@ public class NmapProcessTest {
 
         Map<String, Object> variables = new HashMap<>(defaultVariables);
         changeVariable(variables, "markFalsePositive", true);
-        ProcessInstance processInstance = processEngine().getRuntimeService().startProcessInstanceByKey(PROCESS_ID, variables);
+        Scenario scenario = Scenario.run(nmapProcess).startByKey(PROCESS_ID, variables).execute();
 
-        assertThat(processInstance).isStarted();
-        //Make sure that the next task to execute is "Run Portscan"
-        assertEquals(Collections.singletonList(DO_PORTSCAN_TASK_ID), runtimeService().getActiveActivityIds(processInstance.getId()));
-
-        //Execute the next job
-        startExternalMockProcess("nmap_portscan");
-
+        assertThat(scenario.instance(nmapProcess)).isEnded();
+        assertThat(scenario.instance(nmapProcess)).hasVariables(
+                "context", "nmap_target", "targetName", "markFalsePositive", "nmap_configuration_type");
+        assertThat(scenario.instance(nmapProcess)).hasPassedInOrder(DO_PORTSCAN_TASK_ID, TRANSFORM_RESULTS_TASK_ID,
+                MARK_FALSE_POSITIVES_TASK_ID, CREATE_REPORT_TASK_ID);
         verifyExecutionListenerMock("finishPortScanListener").executed();
-        assertThat(processInstance).isWaitingAt(TRANSFORM_RESULTS_TASK_ID);
-
-        execute(job());
-
         verifyJavaDelegateMock("transformNmapResultsDelegate").executed();
-        assertThat(processInstance).isWaitingAt(MARK_FALSE_POSITIVES_TASK_ID);
-
-        startExternalMockProcess("mark_falsepositive");
-
-        execute(job());
-
         verifyJavaDelegateMock("summaryGeneratorDelegate").executed();
-        assertThat(processInstance).isEnded();
+    }
 
-        //todo: expand this list with finding variables
-        assertThat(processInstance).hasVariables("context", "nmap_target", "targetName", "markFalsePositive",
-                "nmap_configuration_type");
+    @Test
+    public void testManualRunWithApprovedTestResults(){
 
-        assertThat(processInstance).hasPassedInOrder(DO_PORTSCAN_TASK_ID, TRANSFORM_RESULTS_TASK_ID, MARK_FALSE_POSITIVES_TASK_ID, CREATE_REPORT_TASK_ID);
+        Map<String, Object> variables = new HashMap<>(defaultVariables);
+        changeVariable(variables, DefaultFields.PROCESS_AUTOMATED.name(), false);
+
+        when(nmapProcess.waitsAtUserTask(APPROVE_RESULTS_TASK_ID)).thenReturn(task -> {
+            variables.put("resultApproved", "approved");
+            task.complete(variables);
+        });
+
+        Mocks.register("setFormUrlListener", new TaskListener() {
+
+            private Expression scanner_type = new Expression() {
+                @Override
+                public Object getValue(VariableScope variableScope) {
+                    return "nmap";
+                }
+
+                @Override
+                public void setValue(Object o, VariableScope variableScope) {
+
+                }
+
+                @Override
+                public String getExpressionText() {
+                    return null;
+                }
+
+                @Override
+                public boolean isLiteralText() {
+                    return false;
+                }
+            };
+
+            @Override
+            public void notify(DelegateTask delegateTask) {}
+        });
+
+        Scenario scenario = Scenario.run(nmapProcess).startByKey(PROCESS_ID, variables).execute();
+
+        assertThat(scenario.instance(nmapProcess)).isEnded();
+        assertThat(scenario.instance(nmapProcess)).hasPassed(APPROVE_RESULTS_TASK_ID);
+        assertThat(scenario.instance(nmapProcess)).variables().containsEntry("resultApproved", "approved");
+    }
+
+    @Test
+    public void testManualRunWithRejectedTestResultsShouldGoBackToConfigureAdvancedScan(){
+
+        Map<String, Object> variables = new HashMap<>(defaultVariables);
+        changeVariable(variables, DefaultFields.PROCESS_AUTOMATED.name(), false);
+
+        when(nmapProcess.waitsAtUserTask(APPROVE_RESULTS_TASK_ID)).thenReturn(task -> {
+            variables.put("resultApproved", "dissapproved");
+            task.complete(variables);
+        });
+
+        Mocks.register("setFormUrlListener", new TaskListener() {
+
+            private Expression scanner_type = new Expression() {
+                @Override
+                public Object getValue(VariableScope variableScope) {
+                    return "nmap";
+                }
+
+                @Override
+                public void setValue(Object o, VariableScope variableScope) {
+
+                }
+
+                @Override
+                public String getExpressionText() {
+                    return null;
+                }
+
+                @Override
+                public boolean isLiteralText() {
+                    return false;
+                }
+            };
+
+            @Override
+            public void notify(DelegateTask delegateTask) {}
+        });
+
+        Scenario scenario = Scenario.run(nmapProcess).startByKey(PROCESS_ID, variables).execute();
+
+        assertThat(scenario.instance(nmapProcess)).hasPassed(APPROVE_RESULTS_TASK_ID);
+        assertThat(scenario.instance(nmapProcess)).variables().containsEntry("resultApproved", "dissapproved");
+        assertThat(scenario.instance(nmapProcess)).isWaitingAt(CONFIGURE_ADVANCED_PORTSCAN_TASK_ID);
     }
 
 
@@ -230,7 +265,6 @@ public class NmapProcessTest {
      */
     private void startExternalMockProcess(String topic) {
 
-        execute(job());
         ExternalTaskService externalTaskService = processEngine().getExternalTaskService();
         List<LockedExternalTask> lockedExternalTasks = externalTaskService.fetchAndLock(1, "worker")
                 .topic(topic, 5000L).execute();
@@ -239,7 +273,6 @@ public class NmapProcessTest {
 
         LockedExternalTask task = lockedExternalTasks.get(0);
         externalTaskService.complete(task.getId(), "worker");
-
     }
 
     /**
@@ -260,5 +293,50 @@ public class NmapProcessTest {
                 break;
         }
     }
+
+    private void changeVariable(Map<String, Object> variables, String key, Object value) {
+
+        if(variables.containsKey(key)){
+            variables.remove(key);
+        }
+        variables.put(key, value);
+    }
+
+
+    /**
+     * This will just stay here for future reference
+     */
+//    @Test
+//    public void testAutomatedScanWithoutMarkingFalsePositve() {
+//
+//        autoMock("bpmn/nmap_scan.bpmn");
+//        ProcessInstance processInstance = processEngine().getRuntimeService().startProcessInstanceByKey(PROCESS_ID, defaultVariables);
+//
+//
+//        assertThat(processInstance).isStarted();
+//        //Make sure that the next task to execute is "Run Portscan"
+//        assertEquals(Collections.singletonList(DO_PORTSCAN_TASK_ID), runtimeService().getActiveActivityIds(processInstance.getId()));
+//
+//        startExternalMockProcess("nmap_portscan");
+//
+//        verifyExecutionListenerMock("finishPortScanListener").executed();
+//        assertThat(processInstance).isWaitingAt(TRANSFORM_RESULTS_TASK_ID);
+//
+//        execute(job());
+//
+//        verifyJavaDelegateMock("transformNmapResultsDelegate").executed();
+//        assertThat(processInstance).isWaitingAt(CREATE_REPORT_TASK_ID);
+//
+//        execute(job());
+//
+//        verifyJavaDelegateMock("summaryGeneratorDelegate").executed();
+//        assertThat(processInstance).isEnded();
+//
+//        //todo: expand this list with finding variables
+//        assertThat(processInstance).hasVariables("context", "nmap_target", "targetName", "markFalsePositive",
+//                "nmap_configuration_type");
+//
+//        assertThat(processInstance).hasPassedInOrder(DO_PORTSCAN_TASK_ID, TRANSFORM_RESULTS_TASK_ID, CREATE_REPORT_TASK_ID);
+//    }
 
 }
