@@ -14,7 +14,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_TargetConfigured" sourceRef="StartEvent_ConfigurePortscan" targetRef="ExclusiveGateway_AutomatedStart" />
     <bpmn:sequenceFlow id="SequenceFlow_DefaultConfig" name="default configuration" sourceRef="ExclusiveGateway_AdvancedConfiguration" targetRef="ServiceTask_DoPortscan">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${nmap_configuration_type == 'default'}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${NMAP_CONFIGURATION_TYPE == 'default'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:endEvent id="EndEvent_FinishedPortscan" name="Port Scan finished">
       <bpmn:incoming>SequenceFlow_ResultApproved</bpmn:incoming>
@@ -27,7 +27,7 @@
       <bpmn:outgoing>SequenceFlow_PortscanConfigured</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="SequenceFlow_AdvancedConfig" name="advanced configuration" sourceRef="ExclusiveGateway_AdvancedConfiguration" targetRef="UserTask_ConfigureAdvancedPortscan">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${nmap_configuration_type == 'advanced'}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${NMAP_CONFIGURATION_TYPE == 'advanced'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_PortscanConfigured" name="portscan configured" sourceRef="UserTask_ConfigureAdvancedPortscan" targetRef="ServiceTask_DoPortscan" />
     <bpmn:sequenceFlow id="SequenceFlow_ResultReviewed" name="result reviewed" sourceRef="UserTask_ApproveResults" targetRef="ExclusiveGateway_ResultApproved" />
@@ -50,10 +50,10 @@
       <bpmn:outgoing>SequenceFlow_ResultRejected</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_ResultApproved" name="result approved" sourceRef="ExclusiveGateway_ResultApproved" targetRef="EndEvent_FinishedPortscan">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${resultApproved == 'approved'}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${NMAP_RESULT_APPROVED == 'approved'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_ResultRejected" name="result rejected" sourceRef="ExclusiveGateway_ResultApproved" targetRef="UserTask_ConfigureAdvancedPortscan">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${resultApproved == 'dissapproved'}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${NMAP_RESULT_APPROVED == 'disapproved'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_AutomatedStart" name="Is automated run?">
       <bpmn:incoming>SequenceFlow_TargetConfigured</bpmn:incoming>
