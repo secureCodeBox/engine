@@ -1,7 +1,10 @@
 import io.securecodebox.constants.DefaultFields;
 import org.camunda.bpm.engine.ExternalTaskService;
 import org.camunda.bpm.engine.ProcessEngineException;
-import org.camunda.bpm.engine.delegate.*;
+import org.camunda.bpm.engine.delegate.DelegateTask;
+import org.camunda.bpm.engine.delegate.Expression;
+import org.camunda.bpm.engine.delegate.TaskListener;
+import org.camunda.bpm.engine.delegate.VariableScope;
 import org.camunda.bpm.engine.externaltask.LockedExternalTask;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.test.Deployment;
@@ -108,7 +111,7 @@ public class NmapProcessTest {
     }
 
     @Test
-    public void testAdvancedConfigurationLetsUserConfigureScan(){
+    public void testAdvancedConfigurationLetsUserConfigureScan() {
         Map<String, Object> variables = new HashMap<>(defaultVariables);
         changeVariable(variables, "nmap_configuration_type", "advanced");
         changeVariable(variables, DefaultFields.PROCESS_AUTOMATED.name(), false);
@@ -117,13 +120,14 @@ public class NmapProcessTest {
     }
 
     @Test
-    public void testAfterAdvancedConfigurationPortscanShouldBeStarted(){
+    public void testAfterAdvancedConfigurationPortscanShouldBeStarted() {
         Map<String, Object> variables = new HashMap<>(defaultVariables);
         changeVariable(variables, "nmap_configuration_type", "advanced");
         changeVariable(variables, DefaultFields.PROCESS_AUTOMATED.name(), false);
 
         when(nmapProcess.waitsAtUserTask(Mockito.anyString())).thenReturn(TaskDelegate::complete);
-        when(nmapProcess.waitsAtServiceTask(Mockito.anyString())).thenReturn(task -> {});
+        when(nmapProcess.waitsAtServiceTask(Mockito.anyString())).thenReturn(task -> {
+        });
 
         Scenario scenario = Scenario.run(nmapProcess).startByKey(PROCESS_ID, variables).execute();
         assertThat(scenario.instance(nmapProcess)).isWaitingAt(DO_PORTSCAN_TASK_ID);
@@ -164,7 +168,7 @@ public class NmapProcessTest {
     }
 
     @Test
-    public void testManualRunWithApprovedTestResults(){
+    public void testManualRunWithApprovedTestResults() {
 
         Map<String, Object> variables = new HashMap<>(defaultVariables);
         changeVariable(variables, DefaultFields.PROCESS_AUTOMATED.name(), false);
@@ -199,7 +203,8 @@ public class NmapProcessTest {
             };
 
             @Override
-            public void notify(DelegateTask delegateTask) {}
+            public void notify(DelegateTask delegateTask) {
+            }
         });
 
         Scenario scenario = Scenario.run(nmapProcess).startByKey(PROCESS_ID, variables).execute();
@@ -210,7 +215,7 @@ public class NmapProcessTest {
     }
 
     @Test
-    public void testManualRunWithRejectedTestResultsShouldGoBackToConfigureAdvancedScan(){
+    public void testManualRunWithRejectedTestResultsShouldGoBackToConfigureAdvancedScan() {
 
         Map<String, Object> variables = new HashMap<>(defaultVariables);
         changeVariable(variables, DefaultFields.PROCESS_AUTOMATED.name(), false);
@@ -245,7 +250,8 @@ public class NmapProcessTest {
             };
 
             @Override
-            public void notify(DelegateTask delegateTask) {}
+            public void notify(DelegateTask delegateTask) {
+            }
         });
 
         Scenario scenario = Scenario.run(nmapProcess).startByKey(PROCESS_ID, variables).execute();
@@ -296,7 +302,7 @@ public class NmapProcessTest {
 
     private void changeVariable(Map<String, Object> variables, String key, Object value) {
 
-        if(variables.containsKey(key)){
+        if (variables.containsKey(key)) {
             variables.remove(key);
         }
         variables.put(key, value);
