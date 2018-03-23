@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.HashMap;
@@ -269,27 +270,8 @@ public class NmapProcessTest {
          */
         Mocks.register("setFormUrlListener", new TaskListener() {
 
-            private Expression scanner_type = new Expression() {
-                @Override
-                public Object getValue(VariableScope variableScope) {
-                    return "nmap";
-                }
-
-                @Override
-                public void setValue(Object o, VariableScope variableScope) {
-
-                }
-
-                @Override
-                public String getExpressionText() {
-                    return null;
-                }
-
-                @Override
-                public boolean isLiteralText() {
-                    return false;
-                }
-            };
+            @Autowired
+            private Expression scanner_type;
 
             @Override
             public void notify(DelegateTask delegateTask) {
@@ -323,27 +305,8 @@ public class NmapProcessTest {
 
         Mocks.register("setFormUrlListener", new TaskListener() {
 
-            private Expression scanner_type = new Expression() {
-                @Override
-                public Object getValue(VariableScope variableScope) {
-                    return "nmap";
-                }
-
-                @Override
-                public void setValue(Object o, VariableScope variableScope) {
-
-                }
-
-                @Override
-                public String getExpressionText() {
-                    return null;
-                }
-
-                @Override
-                public boolean isLiteralText() {
-                    return false;
-                }
-            };
+            @Autowired
+            private Expression scanner_type;
 
             @Override
             public void notify(DelegateTask delegateTask) {
