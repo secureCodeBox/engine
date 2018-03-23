@@ -74,9 +74,7 @@ public class NmapProcessTest {
         when(nmapProcess.waitsAtServiceTask(Mockito.anyString())).thenReturn(
                 ExternalTaskDelegate::complete);
         when(nmapProcess.waitsAtServiceTask(DO_PORTSCAN_TASK_ID)).thenReturn(
-                task -> {
-                    startExternalMockProcess("nmap_portscan");
-                });
+                task -> startExternalMockProcess("nmap_portscan"));
         when(nmapProcess.waitsAtServiceTask(MARK_FALSE_POSITIVES_TASK_ID)).thenReturn(
                 task -> startExternalMockProcess("mark_falsepositive"));
     }
