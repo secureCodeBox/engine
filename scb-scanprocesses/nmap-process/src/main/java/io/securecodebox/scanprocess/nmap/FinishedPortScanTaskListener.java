@@ -58,7 +58,9 @@ public class FinishedPortScanTaskListener extends PersistenceAwareTaskListener {
         // TODO: workaround - should be defined by the nmap microservice itself, not here
         //        process.setScannerType("nmap");
 
-        String portScannerResultJson = (String) execution.getVariable(DefaultFields.PROCESS_RAW_FINDINGS.name());
+        String portScannerResultJson = ""; //(String) execution.getVariable(DefaultFields.PROCESS_RAW_FINDINGS.name());
+
+
         //
         //        String microserviceType = (String) execution.getVariable(Variables.MICROSERVICE);
         //        String microserviceId = (String) execution.getVariable(Variables.MICROSERVICE_ID);
