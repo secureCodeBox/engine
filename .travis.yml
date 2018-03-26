@@ -1,3 +1,15 @@
 ---
+sudo: true
 
 language: java
+
+services:
+  - docker
+
+jobs:
+  include:
+    - stage: java test
+    - stage: build docker image
+      script:
+      - docker build -t securecodebox:oss .
+      - docker images
