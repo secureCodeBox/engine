@@ -21,7 +21,7 @@ package io.securecodebox.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.findings.Severity;
@@ -37,10 +37,10 @@ import static java.util.stream.Collectors.groupingBy;
  * @author Rüdiger Heins - iteratec GmbH
  * @since 09.03.18
  */
+@JsonPropertyOrder({"execution", "findings", "severity_highest", "severity_overview"})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Report {
 
-    @JsonUnwrapped(prefix = "process_")
     private ScanProcessExecution execution;
 
     public Report(ScanProcessExecution execution) {
