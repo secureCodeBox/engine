@@ -89,8 +89,7 @@ public class TransformNmapResultsDelegateTest {
 
     @Test
     public void testRawFindings() throws Exception {
-        when(executionMock.getVariableTyped(DefaultFields.PROCESS_RAW_FINDINGS.name())).thenReturn(
-                new PrimitiveTypeValueImpl.StringValueImpl(nmapResult));
+        when(executionMock.getVariable(DefaultFields.PROCESS_RAW_FINDINGS.name())).thenReturn(nmapResult);
         underTest.execute(executionMock);
 
         Mockito.verify(executionMock, times(2)).setVariable(eq(DefaultFields.PROCESS_FINDINGS.name()), anyString());
