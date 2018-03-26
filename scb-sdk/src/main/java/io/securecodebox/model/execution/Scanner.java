@@ -72,7 +72,8 @@ public class Scanner extends ExecutionAware {
 
     @JsonProperty("type")
     public String getScannerType() {
-        return execution.<StringValue>getVariableTyped(DefaultFields.PROCESS_SCANNER_TYPE.name()).getValue();
+        StringValue valueHolder = execution.getVariableTyped(DefaultFields.PROCESS_SCANNER_TYPE.name());
+        return valueHolder != null ? valueHolder.getValue() : "";
     }
 
     @JsonIgnore
@@ -106,8 +107,8 @@ public class Scanner extends ExecutionAware {
      */
     @JsonIgnore
     public String getRawFindings() {
-        StringValue rawFindings = execution.getVariableTyped(DefaultFields.PROCESS_RAW_FINDINGS.name());
-        return rawFindings != null ? rawFindings.getValue() : "";
+        Object rawFindings = execution.getVariable(DefaultFields.PROCESS_RAW_FINDINGS.name());
+        return rawFindings != null ? (String) rawFindings : "";
     }
 
     /**
