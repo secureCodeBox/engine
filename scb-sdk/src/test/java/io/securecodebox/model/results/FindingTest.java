@@ -111,7 +111,7 @@ public class FindingTest {
         finding.setName("BAD_TEST_FINDIG");
         finding.setDescription("Some coder has tested this!");
         finding.setHint("You might wan't to blame Rüdiger!");
-        finding.setServerity(Severity.HIGH);
+        finding.setSeverity(Severity.HIGH);
         finding.setOsiLayer(OsiLayer.NOT_APPLICABLE);
         finding.setLocation("mett.brot.securecodebox.io");
         finding.addAttribute("TEST", "Kekse");

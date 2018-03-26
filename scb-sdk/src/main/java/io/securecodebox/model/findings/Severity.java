@@ -31,5 +31,7 @@ package io.securecodebox.model.findings;
  * @since 08.03.18
  */
 public enum Severity {
+    // The ordinal order is relevant for criticality detection! See Report class for more information.
+    // Ordinal order: INFORMATIONAL < LOW < MEDIUM < HIGH
     INFORMATIONAL, LOW, MEDIUM, HIGH;
 }

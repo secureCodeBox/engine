@@ -103,7 +103,7 @@ public class TransformNmapResultsDelegateTest {
         assertEquals("Port 3306 is open using tcp protocol.", processExecution.getFindings().get(0).getDescription());
         assertEquals("Open Port", processExecution.getFindings().get(0).getCategory());
         assertEquals(OsiLayer.NETWORK, processExecution.getFindings().get(0).getOsiLayer());
-        assertEquals(Severity.INFORMATIONAL, processExecution.getFindings().get(0).getServerity());
+        assertEquals(Severity.INFORMATIONAL, processExecution.getFindings().get(0).getSeverity());
         assertEquals("Open mysql Port", processExecution.getFindings().get(0).getName());
         assertNotNull(processExecution.getFindings().get(0).getId());
         assertEquals("tcp://127.0.0.1:3306", processExecution.getFindings().get(0).getLocation());
@@ -113,7 +113,7 @@ public class TransformNmapResultsDelegateTest {
         assertEquals("Port 7778 is open using tcp protocol.", processExecution.getFindings().get(1).getDescription());
         assertEquals("Open Port", processExecution.getFindings().get(1).getCategory());
         assertEquals(OsiLayer.NETWORK, processExecution.getFindings().get(1).getOsiLayer());
-        assertEquals(Severity.INFORMATIONAL, processExecution.getFindings().get(1).getServerity());
+        assertEquals(Severity.INFORMATIONAL, processExecution.getFindings().get(1).getSeverity());
         assertEquals("Open interwise Port", processExecution.getFindings().get(1).getName());
         assertNotNull(processExecution.getFindings().get(1).getId());
         assertEquals("tcp://127.0.0.1:7778", processExecution.getFindings().get(1).getLocation());

@@ -19,7 +19,7 @@ We're using snake_case (lower case) for json attributes. If an enum type is used
     "description": "Port 3306 is open using tcp protocol.",
     "category": "Open Port",
     "osi_layer": "NETWORK",
-    "serverity": "INFORMATIONAL",
+    "severity": "INFORMATIONAL",
     "attributes": {
       "protocol": "tcp",
       "port": 3306,
