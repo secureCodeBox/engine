@@ -23,8 +23,8 @@
 package io.securecodebox.scanprocess.listener;
 
 import io.securecodebox.model.execution.ScanProcessExecution;
-import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.scanprocess.PersistenceAwareTaskListener;
+import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

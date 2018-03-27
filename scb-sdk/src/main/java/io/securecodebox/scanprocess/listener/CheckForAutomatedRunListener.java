@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
  * @author Robert Seedorff - iteratec GmbH
  */
 @Component
-public class CheckForAutomatedRunListener implements ExecutionListener {
+class CheckForAutomatedRunListener implements ExecutionListener {
     private static final Logger LOG = LoggerFactory.getLogger(CheckForAutomatedRunListener.class);
 
     @Override

@@ -1,3 +1,22 @@
+/*
+ *
+ *  SecureCodeBox (SCB)
+ *  Copyright 2015-2018 iteratec GmbH
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  	http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ * /
+ */
+
 package io.securecodebox.scanprocess.nmap;
 
 import io.securecodebox.constants.DefaultFields;
@@ -19,10 +38,7 @@ import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
 import org.camunda.bpm.scenario.delegate.ExternalTaskDelegate;
 import org.camunda.bpm.scenario.delegate.TaskDelegate;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -218,7 +234,7 @@ public class NmapProcessTest {
         assertThat(scenario.instance(nmapProcess)).hasVariables(
                 DefaultFields.PROCESS_CONTEXT.name(), NmapFields.NMAP_TARGET.name(), NmapFields.NMAP_TARGET_URL.name(), "markFalsePositive", NmapFields.NMAP_CONFIGURATION_TYPE.name());
         assertThat(scenario.instance(nmapProcess)).hasPassedInOrder(DO_PORTSCAN_TASK_ID, TRANSFORM_RESULTS_TASK_ID, CREATE_REPORT_TASK_ID);
-        verifyExecutionListenerMock("finishPortScanListener").executed();
+        verifyExecutionListenerMock("finishedPortScanTaskListener").executed();
         verifyJavaDelegateMock("transformNmapResultsDelegate").executed();
         verifyJavaDelegateMock("summaryGeneratorDelegate").executed();
     }
@@ -240,7 +256,7 @@ public class NmapProcessTest {
                 DefaultFields.PROCESS_CONTEXT.name(), NmapFields.NMAP_TARGET.name(), NmapFields.NMAP_TARGET_URL.name(), "markFalsePositive", NmapFields.NMAP_CONFIGURATION_TYPE.name());
         assertThat(scenario.instance(nmapProcess)).hasPassedInOrder(DO_PORTSCAN_TASK_ID, TRANSFORM_RESULTS_TASK_ID,
                 MARK_FALSE_POSITIVES_TASK_ID, CREATE_REPORT_TASK_ID);
-        verifyExecutionListenerMock("finishPortScanListener").executed();
+        verifyExecutionListenerMock("finishedPortScanTaskListener").executed();
         verifyJavaDelegateMock("transformNmapResultsDelegate").executed();
         verifyJavaDelegateMock("summaryGeneratorDelegate").executed();
     }
@@ -351,6 +367,7 @@ public class NmapProcessTest {
 
     /**
      * This will just stay here for future reference
+     * This test uses another way to test process models which might be useful in some cases
      */
 //    @Test
 //    public void testAutomatedScanWithoutMarkingFalsePositve() {
@@ -365,7 +382,7 @@ public class NmapProcessTest {
 //
 //        startExternalMockProcess("nmap_portscan");
 //
-//        verifyExecutionListenerMock("finishPortScanListener").executed();
+//        verifyExecutionListenerMock("finishedPortScanListener").executed();
 //        assertThat(processInstance).isWaitingAt(TRANSFORM_RESULTS_TASK_ID);
 //
 //        execute(job());

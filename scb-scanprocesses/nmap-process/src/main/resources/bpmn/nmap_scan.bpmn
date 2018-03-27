@@ -3,7 +3,7 @@
   <bpmn:process id="SecureBoxExternalPortscan" name="Port Scan" isExecutable="true" camunda:versionTag="3">
     <bpmn:startEvent id="StartEvent_ConfigurePortscan" name="target configured" camunda:formKey="embedded:app:forms/nmap/configure-port-scanner-target.html">
       <bpmn:extensionElements>
-        <camunda:executionListener class="io.securecodebox.scanprocess.listener.CheckForAutomatedRunListener" event="start" />
+        <camunda:executionListener delegateExpression="${checkForAutomatedRunListener}" event="start" />
       </bpmn:extensionElements>
       <bpmn:outgoing>SequenceFlow_TargetConfigured</bpmn:outgoing>
     </bpmn:startEvent>
@@ -84,7 +84,7 @@
     </bpmn:serviceTask>
     <bpmn:serviceTask id="ServiceTask_DoPortscan" name="Run the portscan" camunda:asyncBefore="true" camunda:type="external" camunda:topic="nmap_portscan">
       <bpmn:extensionElements>
-        <camunda:executionListener delegateExpression="${finishPortScanListener}" event="end" />
+        <camunda:executionListener delegateExpression="${finishedPortScanTaskListener}" event="end" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_PortscanConfigured</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_DefaultConfig</bpmn:incoming>
