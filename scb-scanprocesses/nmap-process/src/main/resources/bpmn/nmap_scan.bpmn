@@ -91,9 +91,9 @@
       <bpmn:outgoing>SequenceFlow_PortscanFinisched</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_SummaryCreated" name="summary created" sourceRef="ServiceTask_CreateSummary" targetRef="ExclusiveGateway_AutomatedFinish" />
-    <bpmn:serviceTask id="ServiceTask_CreateSummary" name="Create Report Summary" camunda:asyncBefore="true" camunda:class="de.iteratec.securebox.engine.delegates.SummaryGeneratorDelegate">
+    <bpmn:serviceTask id="ServiceTask_CreateSummary" name="Create Report Summary" camunda:asyncBefore="true" camunda:class="io.securecodebox.scanprocess.ReportGenerator">
       <bpmn:extensionElements>
-        <camunda:executionListener class="de.iteratec.securebox.engine.listener.genericscan.PersistGenericFindings" event="start" />
+        <!--<camunda:executionListener class="de.iteratec.securebox.engine.listener.genericscan.PersistGenericFindings" event="start" />-->
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_ResultsFiltered</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_NoFilter</bpmn:incoming>

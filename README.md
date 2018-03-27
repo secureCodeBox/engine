@@ -19,7 +19,7 @@ We're using snake_case (lower case) for json attributes. If an enum type is used
     "description": "Port 3306 is open using tcp protocol.",
     "category": "Open Port",
     "osi_layer": "NETWORK",
-    "serverity": "INFORMATIONAL",
+    "severity": "INFORMATIONAL",
     "attributes": {
       "protocol": "tcp",
       "port": 3306,
@@ -35,7 +35,19 @@ We're using snake_case (lower case) for json attributes. If an enum type is used
 ``` 
 ### Topic Names for External Tasks
 Topics for external tasks use snake_case and the format technology_function, e.g. `nmap_portscan`.
- 
+
+### Naming conventions for git repositories and processes
+
+The scanner repositories are named as follows:
+```
+scanner-$FUNCTION-$TECHNOLOGY
+Example: scanner-infrastructure-nmap
+```
+The process repositories are named as follows:
+```
+$TECHNOLOGY-process
+Bsp.: nmap-process 
+```
  # secureCodeBox – Continuous Secure Delivery Out of the Box
 
 ![secureCodeBox](img/logo.png "secureCodeBox")

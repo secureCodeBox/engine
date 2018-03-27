@@ -31,6 +31,7 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.variable.value.StringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -72,13 +73,14 @@ public class Scanner extends ExecutionAware {
 
     @JsonProperty("type")
     public String getScannerType() {
-        return execution.<StringValue>getVariableTyped(DefaultFields.PROCESS_SCANNER_TYPE.name()).getValue();
+        StringValue valueHolder = execution.getVariableTyped(DefaultFields.PROCESS_SCANNER_TYPE.name());
+        return valueHolder != null ? valueHolder.getValue() : "";
     }
 
     @JsonIgnore
     public List<Finding> getFindings() {
         StringValue rawFindings = execution.getVariableTyped(DefaultFields.PROCESS_FINDINGS.name());
-        if (rawFindings != null && !rawFindings.getValue().isEmpty()) {
+        if (rawFindings != null && !StringUtils.isEmpty(rawFindings.getValue())) {
             try {
                 return objectMapper.readValue(rawFindings.getValue(),
                         objectMapper.getTypeFactory().constructCollectionType(List.class, Finding.class));
@@ -106,8 +108,8 @@ public class Scanner extends ExecutionAware {
      */
     @JsonIgnore
     public String getRawFindings() {
-        StringValue rawFindings = execution.getVariableTyped(DefaultFields.PROCESS_RAW_FINDINGS.name());
-        return rawFindings != null ? rawFindings.getValue() : "";
+        Object rawFindings = execution.getVariable(DefaultFields.PROCESS_RAW_FINDINGS.name());
+        return rawFindings != null ? (String) rawFindings : "";
     }
 
     /**

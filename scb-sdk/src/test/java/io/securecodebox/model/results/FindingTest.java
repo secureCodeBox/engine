@@ -37,8 +37,8 @@ import static org.junit.Assert.assertNotEquals;
  */
 public class FindingTest {
 
-    private String defaultFindingJson = "{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"Some coder has tested this!\",\"category\":\"COOL_TEST_STUFF\",\"osi_layer\":\"NOT_APPLICABLE\",\"serverity\":\"HIGH\",\"reference\":{\"id\":\"UNI_CODE_STUFF\",\"source\":\"RISCOOL\"},\"hint\":\"You might wan't to blame Rüdiger!\",\"attributes\":{\"TEST\":\"Kekse\",\"HORRIBLE\":\"Coke\"},\"location\":\"mett.brot.securecodebox.io\"}";
-    private String defaultFindingJson2 = "{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd126\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"Some coder has tested this!\",\"category\":\"COOL_TEST_STUFF\",\"osi_layer\":\"NOT_APPLICABLE\",\"serverity\":\"HIGH\",\"reference\":{\"id\":\"UNI_CODE_STUFF\",\"source\":\"RISCOOL\"},\"hint\":\"You might wan't to blame Rüdiger!\",\"location\":\"mett.brot.securecodebox.io\"}";
+    private String defaultFindingJson = "{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"Some coder has tested this!\",\"category\":\"COOL_TEST_STUFF\",\"osi_layer\":\"NOT_APPLICABLE\",\"severity\":\"HIGH\",\"reference\":{\"id\":\"UNI_CODE_STUFF\",\"source\":\"RISCOOL\"},\"hint\":\"You might wan't to blame Rüdiger!\",\"attributes\":{\"TEST\":\"Kekse\",\"HORRIBLE\":\"Coke\"},\"location\":\"mett.brot.securecodebox.io\"}";
+    private String defaultFindingJson2 = "{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd126\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"Some coder has tested this!\",\"category\":\"COOL_TEST_STUFF\",\"osi_layer\":\"NOT_APPLICABLE\",\"severity\":\"HIGH\",\"reference\":{\"id\":\"UNI_CODE_STUFF\",\"source\":\"RISCOOL\"},\"hint\":\"You might wan't to blame Rüdiger!\",\"location\":\"mett.brot.securecodebox.io\"}";
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -111,7 +111,7 @@ public class FindingTest {
         finding.setName("BAD_TEST_FINDIG");
         finding.setDescription("Some coder has tested this!");
         finding.setHint("You might wan't to blame Rüdiger!");
-        finding.setServerity(Severity.HIGH);
+        finding.setSeverity(Severity.HIGH);
         finding.setOsiLayer(OsiLayer.NOT_APPLICABLE);
         finding.setLocation("mett.brot.securecodebox.io");
         finding.addAttribute("TEST", "Kekse");

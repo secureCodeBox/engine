@@ -19,15 +19,26 @@
 
 package io.securecodebox.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.findings.Finding;
+import io.securecodebox.model.findings.Severity;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
  * @since 09.03.18
  */
+@JsonPropertyOrder({"execution", "findings", "severity_highest", "severity_overview"})
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Report {
 
     private ScanProcessExecution execution;
@@ -40,8 +51,22 @@ public class Report {
         return execution;
     }
 
+    @JsonProperty("findings")
     public List<Finding> getFindings() {
         return execution.getFindings();
+    }
+
+    @JsonProperty("severity_highest")
+    public Severity getHighestSeverity() {
+        return getFindings().stream()
+                .map(Finding::getSeverity)
+                .max(Comparator.comparing(Enum::ordinal))
+                .orElse(Severity.INFORMATIONAL);
+    }
+
+    @JsonProperty("severity_overview")
+    public Map<Severity, Long> getSeverityOverview() {
+        return getFindings().stream().collect(groupingBy(Finding::getSeverity, counting()));
     }
 
 }

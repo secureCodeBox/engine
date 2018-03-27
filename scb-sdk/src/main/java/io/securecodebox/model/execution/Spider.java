@@ -32,7 +32,7 @@ import java.util.UUID;
  * @author Rüdiger Heins - iteratec GmbH
  * @since 09.03.18
  */
-@JsonPropertyOrder({"id", "type"})
+@JsonPropertyOrder({ "id", "type" })
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Spider extends ExecutionAware {
     public Spider(DelegateExecution execution) {
@@ -57,7 +57,8 @@ public class Spider extends ExecutionAware {
 
     @JsonProperty("type")
     public String getSpiderType() {
-        return execution.<StringValue>getVariableTyped(DefaultFields.PROCESS_SPIDER_TYPE.name()).getValue();
+        StringValue value = execution.<StringValue>getVariableTyped(DefaultFields.PROCESS_SPIDER_TYPE.name());
+        return value != null ? value.getValue() : "";
     }
 
 }
