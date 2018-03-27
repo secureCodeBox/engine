@@ -38,7 +38,7 @@ import java.util.UUID;
  * @since 08.03.18
  */
 @JsonPropertyOrder(
-        { "id", "name", "description", "category", "osiLayer", "serverity", "reference", "hint", "attributes",
+        { "id", "name", "description", "category", "osiLayer", "severity", "reference", "hint", "attributes",
                 "location" })
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Finding {
@@ -54,7 +54,7 @@ public class Finding {
     private String category;
     @JsonProperty(value = "osi_layer", required = false)
     private OsiLayer osiLayer;
-    private Severity serverity;
+    private Severity severity;
 
     private Reference reference;
 
@@ -146,12 +146,12 @@ public class Finding {
         this.osiLayer = osiLayer;
     }
 
-    public Severity getServerity() {
-        return serverity;
+    public Severity getSeverity() {
+        return severity;
     }
 
-    public void setServerity(Severity serverity) {
-        this.serverity = serverity;
+    public void setSeverity(Severity severity) {
+        this.severity = severity;
     }
 
     public Reference getReference() {
@@ -191,12 +191,20 @@ public class Finding {
         Finding finding = (Finding) o;
         return Objects.equals(id, finding.id) && Objects.equals(name, finding.name) && Objects.equals(description,
                 finding.description) && Objects.equals(category, finding.category) && osiLayer == finding.osiLayer
-                && serverity == finding.serverity && Objects.equals(reference, finding.reference) && Objects.equals(
+                && severity == finding.severity && Objects.equals(reference, finding.reference) && Objects.equals(
                 hint, finding.hint) && Objects.equals(attributes, finding.attributes);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, category, osiLayer, serverity, reference, hint, attributes);
+        return Objects.hash(id, name, description, category, osiLayer, severity, reference, hint, attributes);
+    }
+
+    @Override
+    public String toString() {
+        return "Finding{" + "id=" + id + ", name='" + name + '\'' + ", description='" + description + '\''
+                + ", category='" + category + '\'' + ", osiLayer=" + osiLayer + ", severity=" + severity
+                + ", reference=" + reference + ", hint='" + hint + '\'' + ", location='" + location + '\''
+                + ", attributes=" + attributes + '}';
     }
 }

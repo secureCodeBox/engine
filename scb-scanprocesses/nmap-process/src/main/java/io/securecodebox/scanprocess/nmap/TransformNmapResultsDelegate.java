@@ -92,7 +92,7 @@ public class TransformNmapResultsDelegate implements JavaDelegate {
                                 port.getProtocol()));
                         finding.setLocation(
                                 port.getProtocol() + "://" + host.getIpAdress().orElse(new Address()).getAddr() + ":" + port.getPortid());
-                        finding.setServerity(Severity.INFORMATIONAL);
+                        finding.setSeverity(Severity.INFORMATIONAL);
                         finding.addAttribute(NmapFindingAttributes.PORT, port.getPortid());
                         finding.addAttribute(NmapFindingAttributes.SERVICE, port.getService().getName());
                         finding.addAttribute(NmapFindingAttributes.PROTOCOL, port.getProtocol());

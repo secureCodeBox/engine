@@ -51,8 +51,9 @@ public class DefaultScanProcessExcecutionFactory implements ScanProcessExecution
         StringValue value = execution.getVariableTyped(PROCESS_EXECUTION_TYPE.name());
         LOG.debug("Reading {} is {} target is {}", PROCESS_EXECUTION_TYPE.name(),
                 value != null ? value.getValue() : "null", customProcess.getTypeName());
-        if (value == null || DefaultScanProcessExecution.class.getTypeName().equals(value.getValue())
-                || customProcess.getTypeName().equals(value.getValue())) {
+        if (value == null || DefaultScanProcessExecution.class.getTypeName().equals(customProcess.getTypeName())
+                || ScanProcessExecution.class.getTypeName().equals(customProcess.getTypeName()) || customProcess.getTypeName()
+                .equals(value.getValue())) {
             return getInstance(execution, customProcess);
         } else {
             throw new IllegalArgumentException("The given process Class does not match the existing!");

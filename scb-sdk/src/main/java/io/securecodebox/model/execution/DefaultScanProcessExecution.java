@@ -58,7 +58,8 @@ public class DefaultScanProcessExecution extends ExecutionAware implements ScanP
 
     @Override
     public String getContext() {
-        return execution.<StringValue>getVariableTyped(DefaultFields.PROCESS_CONTEXT.name()).getValue();
+        StringValue data = execution.<StringValue>getVariableTyped(DefaultFields.PROCESS_CONTEXT.name());
+        return data != null ? data.getValue() : "";
     }
 
     @Override
