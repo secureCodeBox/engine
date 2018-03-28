@@ -21,23 +21,23 @@
 
     <script cam-script type="text/form-script">
         camForm.on('form-loaded', function () {
-            camForm.variableManager.fetchVariable('targetName');
-            camForm.variableManager.fetchVariable('context');
+            camForm.variableManager.fetchVariable('NMAP_TARGET_NAME');
+            camForm.variableManager.fetchVariable('PROCESS_CONTEXT');
 
-            camForm.variableManager.fetchVariable('nmap_target');
-            camForm.variableManager.fetchVariable('nmap_parameter');
-            camForm.variableManager.fetchVariable('result');
-            camForm.variableManager.fetchVariable('microserviceId');
+            camForm.variableManager.fetchVariable('NMAP_TARGET');
+            camForm.variableManager.fetchVariable('NMAP_PARAMETER');
+            camForm.variableManager.fetchVariable('PROCESS_RESULT');
+            camForm.variableManager.fetchVariable('PROCESS_SCANNER_ID');
         });
 
         camForm.on('variables-restored', function () {
-            $scope.targetName = camForm.variableManager.variableValue('targetName');
-            $scope.context = camForm.variableManager.variableValue('context');
+            $scope.NMAP_TARGET_NAME = camForm.variableManager.variableValue('NMAP_TARGET_NAME');
+            $scope.PROCESS_CONTEXT = camForm.variableManager.variableValue('PROCESS_CONTEXT');
 
-            $scope.portScannerId = camForm.variableManager.variableValue('microserviceId');
-            $scope.portScannerTarget = camForm.variableManager.variableValue('nmap_target');
-            $scope.portScannerParameter = camForm.variableManager.variableValue('nmap_parameter');
-            $scope.portScannerResult = JSON.parse(camForm.variableManager.variableValue('result'));
+            $scope.PROCESS_SCANNER_ID = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
+            $scope.NMAP_TARGET = camForm.variableManager.variableValue('NMAP_TARGET');
+            $scope.NMAP_PARAMETER = camForm.variableManager.variableValue('NMAP_PARAMETER');
+            $scope.PROCESS_RESULT = JSON.parse(camForm.variableManager.variableValue('PROCESS_RESULT'));
 
             $scope.groupedResults = $scope.portScannerResult.content.reduce(
                     function (carry, item) {
@@ -52,7 +52,7 @@
         });
     </script>
 
-    <h2>Portscan results for "{{ targetName }}"</h2>
+    <h2>Portscan results for "{{ NMAP_TARGET_NAME }}"</h2>
 
     <div class="row">
         <div class="col-xs-12">
@@ -60,21 +60,21 @@
             <div>
                 <div>
                     <label>Port scanner Id:</label>
-                    <a href="{{ nmap_target }}">{{ portScannerId }}</a>
+                    <a href="{{ PROCESS_SCANNER_ID }}">{{ PROCESS_SCANNER_ID }}</a>
                 </div>
                 <div>
                     <label>Target Host:</label>
-                    <a href="{{ nmap_target }}">{{ portScannerTarget.trim().split(' ').join(', ') }}</a>
+                    <a href="{{ NMAP_TARGET }}">{{ NMAP_TARGET.trim().split(' ').join(', ') }}</a>
                 </div>
                 <div>
                     <label>Business Context:</label>
-                    <code>{{ context }}</code>
+                    <code>{{ PROCESS_CONTEXT }}</code>
                 </div>
             </div>
 
             <div class="form-group hidden">
                 <label>Result:</label>
-                <code>{{ portScannerResult }}</code>
+                <code>{{ PROCESS_RESULT }}</code>
             </div>
 
             <div class="well well-sm"
@@ -122,7 +122,7 @@
                     <select required
                             class="form-control"
                             name="resultApproved"
-                            cam-variable-name="resultApproved"
+                            cam-variable-name="NMAP_RESULT_APPROVED"
                             cam-variable-type="String">
                         <option value="approved" checked>Approved (Finished)</option>
                         <option value="dissapproved">Not Approved (Restart Scan)</option>
