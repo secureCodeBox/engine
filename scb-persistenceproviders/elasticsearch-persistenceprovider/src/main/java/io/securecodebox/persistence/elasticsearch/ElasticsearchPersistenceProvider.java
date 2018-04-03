@@ -17,36 +17,33 @@
  * /
  */
 
-package io.securecodebox.persistence;
+package io.securecodebox.persistence.elasticsearch;
 
 import io.securecodebox.model.execution.ScanProcessExecution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.securecodebox.persistence.PersistenceProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-/**
- * "Fake" Persistence Provider which will be used if no real Persistence Provider was specified.
- * Following the Null Object Pattern
- *
- * @author Jannik Hollenbach - iteratec GmbH
- * @date 14.03.2017
- */
 @Component
-@ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "none")
-class NonePersistenceProvider implements PersistenceProvider {
+@ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "elasticsearch")
+public class ElasticsearchPersistenceProvider implements PersistenceProvider {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NonePersistenceProvider.class);
+    @Value("${securecodebox.persistence.elasticsearch.host}")
+    private String host;
 
-    public NonePersistenceProvider() {
-        LOG.warn("No persistence available as no concrete persistence provider was configured!");
-    }
+    @Value("${securecodebox.persistence.elasticsearch.port}")
+    private int port;
+
+    @Value("${securecodebox.persistence.elasticsearch.index.prefix}")
+    private String indexPrefix;
+
 
     @Override
     public void initializePersistenceProvider(Object configuration, String persistanceName, String tenantId) {
-        LOG.info("Skipping persistence since no concrete persistence provider was specified!");
+
     }
 
     @Override
