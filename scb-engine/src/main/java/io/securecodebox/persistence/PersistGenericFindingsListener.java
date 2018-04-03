@@ -17,35 +17,34 @@
  * /
  */
 
-package io.securecodebox.scanprocess.nmap;
+package io.securecodebox.persistence;
 
 import io.securecodebox.model.Report;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
-import io.securecodebox.persistence.PersistenceProvider;
-import io.securecodebox.persistence.PersistenceProviderFactory;
-import io.securecodebox.scanprocess.PersistenceAwareTaskListener;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PersistGenericFindingsListener extends PersistenceAwareTaskListener {
+public class PersistGenericFindingsListener implements ExecutionListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(PersistGenericFindingsListener.class);
 
     @Autowired
     private ScanProcessExecutionFactory scanProcessExecutionFactory;
 
+    @Autowired
+    private PersistenceProvider persistenceProvider;
+
     @Override
     public void notify(DelegateExecution delegateExecution) throws Exception {
         LOG.info("PersistGenericFindingsListener called");
 
         ScanProcessExecution execution = scanProcessExecutionFactory.get(delegateExecution);
-
-        PersistenceProvider persistenceProvider = PersistenceProviderFactory.get();
 
         Report report = new Report(execution);
 

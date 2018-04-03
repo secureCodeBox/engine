@@ -31,7 +31,7 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_PortscanConfigured" name="portscan configured" sourceRef="UserTask_ConfigureAdvancedPortscan" targetRef="ServiceTask_DoPortscan" />
     <bpmn:sequenceFlow id="SequenceFlow_ResultReviewed" name="result reviewed" sourceRef="UserTask_ApproveResults" targetRef="ExclusiveGateway_ResultApproved" />
-    <bpmn:userTask id="UserTask_ApproveResults" name="Review scan results" camunda:formKey="${result_form_url}" camunda:candidateGroups="_securebox_admin, _securebox_productowner, _securebox_developer, approver">
+    <bpmn:userTask id="UserTask_ApproveResults" name="Review scan results" camunda:formKey="embedded:app:forms/nmap/approve-port-scanner-results.html" camunda:candidateGroups="_securebox_admin, _securebox_productowner, _securebox_developer, approver">
       <bpmn:extensionElements>
         <camunda:formData />
         <camunda:taskListener delegateExpression="${setBridgeUrlListener}" event="create" />
