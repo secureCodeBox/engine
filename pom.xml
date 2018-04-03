@@ -17,6 +17,7 @@
         <module>scb-sdk</module>
         <module>scb-engine</module>
         <module>scb-scanprocesses</module>
+        <module>scb-persistenceproviders</module>
     </modules>
 
     <dependencyManagement>
