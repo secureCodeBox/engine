@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 
 echo "Docker Login"
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
