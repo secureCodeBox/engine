@@ -12,14 +12,13 @@ jobs:
       script:
       - docker build -t securecodebox/engine:oss .
       - docker images
+      deploy:
+        -  provider: script
+           script: deploy.sh
+           on:
+             branch: develop
 
-deploy:
-  -  provider: script
-     script: deploy.sh
-     on:
-       branch: develop
-
-  -  provider: script
-     script: deploy.sh
-     on:
-       branch: master
+        -  provider: script
+           script: deploy.sh
+           on:
+             branch: master
