@@ -7,3 +7,4 @@ camunda.bpm:
 
 logging.level: DEBUG
 logging.level.io.securecodebox: TRACE
+securecodebox.persistence.provider: none
