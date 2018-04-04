@@ -4,16 +4,19 @@ sudo: true
 language: generic
 
 services:
-- docker
+  - docker
+
 script:
-- docker build -t securecodebox/engine:oss .
-- docker images
+  - docker build -t securecodebox/engine:oss .
+  - docker images
+
 deploy:
--  provider: script
-   script: deploy.sh
-   on:
-     branch: develop
--  provider: script
-   script: deploy.sh
-   on:
-     branch: master
+  skip_cleanup: true
+  -  provider: script
+     script: deploy.sh
+     on:
+       branch: develop
+  -  provider: script
+     script: deploy.sh
+     on:
+       branch: master
