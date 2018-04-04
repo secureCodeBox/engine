@@ -1,6 +1,7 @@
 package io.securecodebox.persistence.elasticsearch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.model.Report;
 import io.securecodebox.model.findings.Finding;
@@ -8,6 +9,7 @@ import io.securecodebox.persistence.PersistenceProvider;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -22,10 +24,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Map;
 
 @Component
 @ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "elasticsearch")
@@ -50,7 +55,8 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     private boolean initialized = false;
     private RestHighLevelClient highLevelClient;
 
-    //todo: Initialize the connection to elasticSearch
+    private boolean deleteBeforeCreate = true;
+
     private void init(){
 
         highLevelClient = new RestHighLevelClient(RestClient.builder(new HttpHost(host, port, "http")));
@@ -61,6 +67,17 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
                 //Indices Exist API is currently not supported in the high level client
                 highLevelClient.getLowLevelClient().performRequest("GET", "/" + indexName);
+
+                //If we get here, the index exists already
+                if(deleteBeforeCreate){
+                    DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(indexName);
+                    highLevelClient.indices().delete(deleteIndexRequest);
+
+                    //This throws the ResponseException everytime
+                    highLevelClient.getLowLevelClient().performRequest("GET", "/" + indexName);
+                }
+
+
             }
             catch (ResponseException e){
                 if(e.getResponse().getStatusLine().getStatusCode() == 404) {
@@ -68,6 +85,13 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     //The index doesn't exist until now, so we create it
                     LOG.info("Index " + indexName + " doesn't exist. Creating it...");
                     CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
+
+                    //todo: maybe declare the mapping file name in the properties
+//                    String mapping = readFileResource("mapping.json");
+//                    LOG.info("Initialize with mapping: " + mapping);
+//                    if(mapping != null) {
+//                        createIndexRequest.mapping("_doc", mapping, XContentType.JSON);
+//                    }
                     CreateIndexResponse createIndexResponse = highLevelClient.indices().create(createIndexRequest);
                     LOG.info("Successfully created index " + indexName);
                 }
@@ -95,21 +119,28 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
                 //Persisting the Report
                 String jsonReport = objectMapper.writeValueAsString(report);
-                IndexRequest indexRequest = new IndexRequest(getElasticIndexName(), TYPE_REPORT);
-                indexRequest.source(jsonReport, XContentType.JSON);
+
+                Map<String, Object> reportAsMap = objectMapper.readValue(jsonReport, new TypeReference<Map<String, Object>>(){});
+                reportAsMap.put("type", TYPE_REPORT);
+
+                IndexRequest indexRequest = new IndexRequest(getElasticIndexName(), "_doc");
+                indexRequest.source(objectMapper.writeValueAsString(reportAsMap), XContentType.JSON);
                 IndexResponse response = highLevelClient.index(indexRequest);
                 LOG.info("Successfully saved report to " + getElasticIndexName());
 
                 //Persisting the Findings
-                //Doesn't work at the moment because there is only one type per index allowed since elasticsearch 6
-//                BulkRequest bulkRequest = new BulkRequest();
-//                for(Finding f : report.getFindings()){
-//                    String jsonFinding = objectMapper.writeValueAsString(f);
-//                    IndexRequest findingIndexRequest = new IndexRequest(getElasticIndexName(), TYPE_FINDING);
-//                    findingIndexRequest.source(jsonFinding, XContentType.JSON);
-//                    bulkRequest.add(findingIndexRequest);
-//                }
-//                BulkResponse bulkResponse = highLevelClient.bulk(bulkRequest);
+                BulkRequest bulkRequest = new BulkRequest();
+                for(Finding f : report.getFindings()){
+                    String jsonFinding = objectMapper.writeValueAsString(f);
+
+                    Map<String, Object> findingAsMap = objectMapper.readValue(jsonFinding, new TypeReference<Map<String, Object>>(){});
+                    findingAsMap.put("type", TYPE_FINDING);
+
+                    IndexRequest findingIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
+                    findingIndexRequest.source(objectMapper.writeValueAsString(findingAsMap), XContentType.JSON);
+                    bulkRequest.add(findingIndexRequest);
+                }
+                BulkResponse bulkResponse = highLevelClient.bulk(bulkRequest);
                 LOG.info("Successfully saved findings to " + getElasticIndexName());
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
@@ -130,5 +161,23 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         String dateAsString = sdf.format(date);
         String indexName = scbIndexPrefix + "_" + dateAsString;
         return indexName.toLowerCase();
+    }
+
+    private String readFileResource(String file){
+
+        StringBuilder result = new StringBuilder();
+        try {
+            BufferedReader reader = new BufferedReader
+                    (new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream(file)));
+            String line;
+            while((line = reader.readLine()) != null){
+                result.append(line);
+            }
+            return result.toString();
+        }
+        catch (IOException ioe){
+            ioe.printStackTrace();
+            return null;
+        }
     }
 }
