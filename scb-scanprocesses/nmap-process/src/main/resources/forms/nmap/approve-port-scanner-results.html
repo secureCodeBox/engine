@@ -39,7 +39,7 @@
             $scope.portScannerParameter = camForm.variableManager.variableValue('nmap_parameter');
             $scope.portScannerResult = JSON.parse(camForm.variableManager.variableValue('result'));
 
-            $scope.groupedResults = $scope.portScannerResult.content.reduce(
+            $scope.groupedResults = $scope.portScannerResult.reduce(
                     function (carry, item) {
                         if (!carry.hasOwnProperty(item.hostname)) {
                             carry[item.hostname] = [];
@@ -91,10 +91,10 @@
                         <th>Action:</th>
                     </tr>
                     <tr class="danger" ng-repeat="port in host">
-                        <td>{{ port.hostname }}</td>
-                        <td>{{ port.port }}</td>
-                        <td>{{ port.service }}</td>
-                        <td>{{ port.protocol }}</td>
+                        <td>{{ port.attributes.hostname }}</td>
+                        <td>{{ port.attributes.port }}</td>
+                        <td>{{ port.attributes.service }}</td>
+                        <td>{{ port.attributes.protocol }}</td>
                         <td>
                             <span class="label label-danger">
                                 <i aria-hidden="true"
