@@ -19,6 +19,7 @@
 
 package io.securecodebox.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -51,7 +52,7 @@ public class Report {
         return execution;
     }
 
-    @JsonProperty("findings")
+    @JsonIgnore
     public List<Finding> getFindings() {
         return execution.getFindings();
     }

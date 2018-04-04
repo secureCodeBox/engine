@@ -68,6 +68,9 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                 //Indices Exist API is currently not supported in the high level client
                 highLevelClient.getLowLevelClient().performRequest("GET", "/" + indexName);
 
+                /**
+                 * The next lines are just for developing purposes and will be removed later
+                 */
                 //If we get here, the index exists already
                 if(deleteBeforeCreate){
                     DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(indexName);
@@ -76,8 +79,6 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     //This throws the ResponseException everytime
                     highLevelClient.getLowLevelClient().performRequest("GET", "/" + indexName);
                 }
-
-
             }
             catch (ResponseException e){
                 if(e.getResponse().getStatusLine().getStatusCode() == 404) {
@@ -86,7 +87,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     LOG.info("Index " + indexName + " doesn't exist. Creating it...");
                     CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
 
-                    //todo: maybe declare the mapping file name in the properties
+                    //todo: maybe declare the mapping file name in the properties (Not sure if we need the mapping anymore)
 //                    String mapping = readFileResource("mapping.json");
 //                    LOG.info("Initialize with mapping: " + mapping);
 //                    if(mapping != null) {
@@ -135,6 +136,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
                     Map<String, Object> findingAsMap = objectMapper.readValue(jsonFinding, new TypeReference<Map<String, Object>>(){});
                     findingAsMap.put("type", TYPE_FINDING);
+                    findingAsMap.put("execution", report.getExecution());
 
                     IndexRequest findingIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
                     findingIndexRequest.source(objectMapper.writeValueAsString(findingAsMap), XContentType.JSON);
