@@ -1,11 +1,12 @@
 ---
 sudo: true
-language: java
 
 jobs:
   include:
     - stage: java test
+      language: java
     - stage: build docker image
+      language: generic
       services:
       - docker
       script:
