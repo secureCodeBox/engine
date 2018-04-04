@@ -11,12 +11,13 @@ script:
   - docker images
 
 deploy:
-  skip_cleanup: true
   -  provider: script
+     skip_cleanup: true
      script: deploy.sh
      on:
        branch: develop
   -  provider: script
+     skip_cleanup: true
      script: deploy.sh
      on:
        branch: master
