@@ -1,6 +1,11 @@
 ---
 sudo: true
 
+cache:
+  directories:
+  - .autoconf
+  - $HOME/.m2
+
 jobs:
   include:
     - stage: java test
