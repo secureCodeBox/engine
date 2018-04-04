@@ -32,6 +32,13 @@
                 <type>pom</type>
             </dependency>
 
+            <!-- Add camunda spring boot stater classes -->
+            <dependency>
+                <groupId>org.camunda.bpm.springboot</groupId>
+                <artifactId>camunda-bpm-spring-boot-starter</artifactId>
+                <version>${camunda.spring.boot.starter.version}</version>
+            </dependency>
+
             <!-- Enable the camunda webapp's (tasklist, cockpit, admin) -->
             <dependency>
                 <groupId>org.camunda.bpm.springboot</groupId>
