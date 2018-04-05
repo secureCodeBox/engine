@@ -7,7 +7,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -qq install \
 
 
 COPY . .
-RUN mvn install -Dmaven.test.skip=true
+RUN mvn install -DskipTests=true -B
 
 
 FROM openjdk:8-jre-alpine
