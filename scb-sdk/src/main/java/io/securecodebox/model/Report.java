@@ -57,7 +57,6 @@ public class Report {
         return execution;
     }
 
-    @JsonIgnore
     public List<Finding> getFindings() {
         return execution.getFindings();
     }
