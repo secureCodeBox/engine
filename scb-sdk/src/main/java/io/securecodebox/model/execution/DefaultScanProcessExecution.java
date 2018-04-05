@@ -102,4 +102,10 @@ public class DefaultScanProcessExecution extends ExecutionAware implements ScanP
         BooleanValue isAutomated = execution.getVariableTyped(DefaultFields.PROCESS_AUTOMATED.name());
         return isAutomated != null ? isAutomated.getValue() : false;
     }
+
+    @Override
+    public String getTenantId(){
+        StringValue tenantId = execution.<StringValue>getVariableTyped(DefaultFields.PROCESS_TENANT_ID.name());
+        return tenantId != null ? tenantId.toString() : null;
+    }
 }

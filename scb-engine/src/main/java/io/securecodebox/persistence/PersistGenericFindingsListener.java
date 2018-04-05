@@ -46,6 +46,8 @@ public class PersistGenericFindingsListener implements ExecutionListener {
 
         ScanProcessExecution execution = scanProcessExecutionFactory.get(delegateExecution);
 
+        persistenceProvider.setTenantId(execution.getTenantId());
+
         Report report = new Report(execution);
 
         if (persistenceProvider != null) {

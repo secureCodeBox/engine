@@ -31,4 +31,6 @@ import java.util.Map;
 public interface PersistenceProvider {
 
     void persist(Report report);
+
+    void setTenantId(String tenantId);
 }

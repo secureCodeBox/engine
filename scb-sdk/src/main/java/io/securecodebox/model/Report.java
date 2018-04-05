@@ -30,6 +30,7 @@ import io.securecodebox.model.findings.Severity;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
@@ -44,6 +45,9 @@ public class Report {
 
     private ScanProcessExecution execution;
 
+    @JsonIgnore
+    private UUID id = UUID.randomUUID();
+
     public Report(ScanProcessExecution execution) {
         this.execution = execution;
     }
@@ -55,6 +59,16 @@ public class Report {
     @JsonIgnore
     public List<Finding> getFindings() {
         return execution.getFindings();
+    }
+
+    @JsonProperty("report_id")
+    public UUID getId(){
+        return id;
+    }
+
+    @JsonIgnore
+    public void setId(UUID id){
+        this.id = id;
     }
 
     @JsonProperty("severity_highest")

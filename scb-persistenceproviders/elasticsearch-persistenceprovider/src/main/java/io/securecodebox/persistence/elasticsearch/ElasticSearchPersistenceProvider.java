@@ -7,17 +7,22 @@ import io.securecodebox.model.Report;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.persistence.PersistenceProvider;
 import org.apache.http.HttpHost;
+import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +36,10 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
+
+
+//Todo: Add Error Handling to the ES Operations
 
 @Component
 @ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "elasticsearch")
@@ -54,82 +63,161 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
     private boolean initialized = false;
     private RestHighLevelClient highLevelClient;
+    private boolean connected = false;
 
-    private boolean deleteBeforeCreate = true;
+    private String tenantId = null;
+
+    /**
+     * For developing convenience
+     * If this is true then the index, where the data will be saved will be deleted and freshly recreated before
+     * saving anything
+     * TODO: REMOVE THIS BEFORE GOING INTO PRODUCTION
+     */
+    private boolean deleteBeforeCreate = false;
+
+    @Override
+    public void setTenantId(String tenantId){
+        this.tenantId = tenantId;
+    }
 
     private void init(){
 
+        LOG.info("Initializing ElasticSearchPersistenceProvider");
         highLevelClient = new RestHighLevelClient(RestClient.builder(new HttpHost(host, port, "http")));
         String indexName = getElasticIndexName();
 
         try {
-            try {
 
-                //Indices Exist API is currently not supported in the high level client
-                highLevelClient.getLowLevelClient().performRequest("GET", "/" + indexName);
+            connected = highLevelClient.ping();
 
-                /**
-                 * The next lines are just for developing purposes and will be removed later
-                 */
-                //If we get here, the index exists already
-                if(deleteBeforeCreate){
-                    DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(indexName);
-                    highLevelClient.indices().delete(deleteIndexRequest);
+            LOG.info("ElasticSearch connected?: " + connected);
+            if (connected) {
+                try {
 
-                    //This throws the ResponseException everytime
+                    //Indices Exist API is currently not supported in the high level client
                     highLevelClient.getLowLevelClient().performRequest("GET", "/" + indexName);
+
+                    /**
+                     * The next lines are just for developing purposes and will be removed later
+                     * TODO: REMOVE THESE LINES BEFORE GOING INTO PRODUCTION
+                     */
+                    //If we get here, the index exists already
+                    if (deleteBeforeCreate) {
+
+                        LOG.info("Deleting Index " + indexName);
+                        DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(indexName);
+                        highLevelClient.indices().delete(deleteIndexRequest);
+
+                        //This throws the ResponseException everytime
+                        highLevelClient.getLowLevelClient().performRequest("GET", "/" + indexName);
+                    }
+                    initialized = true;
                 }
-            }
-            catch (ResponseException e){
-                if(e.getResponse().getStatusLine().getStatusCode() == 404) {
+                catch (ResponseException e) {
+                    if (e.getResponse().getStatusLine().getStatusCode() == 404) {
 
-                    //The index doesn't exist until now, so we create it
-                    LOG.info("Index " + indexName + " doesn't exist. Creating it...");
-                    CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
+                        //The index doesn't exist until now, so we create it
+                        LOG.info("Index " + indexName + " doesn't exist. Creating it...");
+                        CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
 
-                    //todo: maybe declare the mapping file name in the properties (Not sure if we need the mapping anymore)
+                        //todo: maybe declare the mapping file name in the properties (Not sure if we need the mapping anymore)
 //                    String mapping = readFileResource("mapping.json");
 //                    LOG.info("Initialize with mapping: " + mapping);
 //                    if(mapping != null) {
 //                        createIndexRequest.mapping("_doc", mapping, XContentType.JSON);
 //                    }
-                    CreateIndexResponse createIndexResponse = highLevelClient.indices().create(createIndexRequest);
-                    LOG.info("Successfully created index " + indexName);
+                        highLevelClient.indices().createAsync(createIndexRequest, new ActionListener<CreateIndexResponse>() {
+                            @Override
+                            public void onResponse(CreateIndexResponse createIndexResponse) {
+                                LOG.info("Successfully created index " + indexName);
+                                initialized = true;
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                LOG.error("Error creating index " + indexName + ". Reason: " + e);
+                                e.printStackTrace();
+                                initialized = false;
+                            }
+                        });
+                    }
                 }
             }
-            finally {
-                initialized = true;
+            else {
+                LOG.error("ElasticSearch doesn't respond. Please check if it is up and running");
             }
         }
-        catch (IOException e){
+        catch (IOException e) {
             e.printStackTrace();
+            initialized = false;
         }
     }
 
     @Override
     public void persist(Report report) {
 
+        if(report == null){
+            LOG.info("Report is null, nothing to persist.");
+            return;
+        }
+
         if(!initialized){
             init();
         }
 
+        try {
+            connected = highLevelClient.ping();
+        }
+        catch (IOException ioe){
+            LOG.error("Error pinging ElasticSearch: " + ioe.getMessage());
+            ioe.printStackTrace();
+            connected = false;
+        }
+
         //Second check because, if the initialization wasn't successful, it's still false
-        if(initialized) {
+        if(initialized && connected) {
             ObjectMapper objectMapper = new ObjectMapper();
             try {
 
-                //Persisting the Report
+                boolean uuidAlreadyExists = true;
+
+                /*
+                This is typically executed only once because we create random UUIDs which are very unlikely to ever be
+                the same (if not impossible)
+                Anyway, we want to make sure that we don't save the same Report Id twice
+                 */
+                while (uuidAlreadyExists){
+                    SearchRequest searchRequest = new SearchRequest();
+                    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+                    searchSourceBuilder.query(QueryBuilders.matchQuery("report_id", report.getId()));
+                    searchRequest.source(searchSourceBuilder);
+                    SearchResponse searchResponse = highLevelClient.search(searchRequest);
+                    LOG.info("Search Response Status: " + searchResponse.status());
+                    boolean searchFailure = searchResponse.isTimedOut() || (searchResponse.status() != RestStatus.OK);
+                    if(searchFailure){
+                        LOG.error("Searching the index failed. Skipping persisting...");
+                        return;
+                    }
+
+                    LOG.info("SearchResponse from UUID Search: " + searchResponse);
+                    if(searchResponse.getHits().totalHits > 0 ){
+                        report.setId(UUID.randomUUID());
+                        uuidAlreadyExists = true;
+                    }
+                    else {
+                        uuidAlreadyExists = false;
+                    }
+                }
+
+                //Persisting the Report and the Findings
                 String jsonReport = objectMapper.writeValueAsString(report);
 
                 Map<String, Object> reportAsMap = objectMapper.readValue(jsonReport, new TypeReference<Map<String, Object>>(){});
                 reportAsMap.put("type", TYPE_REPORT);
 
-                IndexRequest indexRequest = new IndexRequest(getElasticIndexName(), "_doc");
-                indexRequest.source(objectMapper.writeValueAsString(reportAsMap), XContentType.JSON);
-                IndexResponse response = highLevelClient.index(indexRequest);
-                LOG.info("Successfully saved report to " + getElasticIndexName());
+                IndexRequest reportIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
+                reportIndexRequest.source(objectMapper.writeValueAsString(reportAsMap), XContentType.JSON);
 
-                //Persisting the Findings
                 BulkRequest bulkRequest = new BulkRequest();
                 for(Finding f : report.getFindings()){
                     String jsonFinding = objectMapper.writeValueAsString(f);
@@ -137,18 +225,40 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     Map<String, Object> findingAsMap = objectMapper.readValue(jsonFinding, new TypeReference<Map<String, Object>>(){});
                     findingAsMap.put("type", TYPE_FINDING);
                     findingAsMap.put("execution", report.getExecution());
+                    findingAsMap.put("report_id", report.getId());
 
                     IndexRequest findingIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
                     findingIndexRequest.source(objectMapper.writeValueAsString(findingAsMap), XContentType.JSON);
                     bulkRequest.add(findingIndexRequest);
                 }
-                BulkResponse bulkResponse = highLevelClient.bulk(bulkRequest);
-                LOG.info("Successfully saved findings to " + getElasticIndexName());
+                bulkRequest.add(reportIndexRequest);
+
+                LOG.info("Persisting Report and Findings...");
+                highLevelClient.bulkAsync(bulkRequest, new ActionListener<BulkResponse>() {
+                    @Override
+                    public void onResponse(BulkResponse bulkItemResponses) {
+                        if(bulkItemResponses.hasFailures()){
+                            LOG.warn("Warning: Some findings may not have been persisted correctly!");
+                        }
+                        else {
+                            LOG.info("Successfully saved findings to " + getElasticIndexName());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        LOG.error("Error persisting findings. Reason: " + e);
+                        e.printStackTrace();
+                    }
+                });
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+        else {
+            LOG.error("Could not persist data. It seems like ElasticSearch is not reachable.");
         }
     }
 
@@ -161,10 +271,15 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
         SimpleDateFormat sdf = new SimpleDateFormat(dateTimeFormat);
         String dateAsString = sdf.format(date);
-        String indexName = scbIndexPrefix + "_" + dateAsString;
+        String indexName = scbIndexPrefix + "_" + ((tenantId != null) ? tenantId + "_" : "") + dateAsString;
         return indexName.toLowerCase();
     }
 
+    /**
+     * This was initially created for reading the mapping file
+     * @param file the file to read
+     * @return a string containing the file content
+     */
     private String readFileResource(String file){
 
         StringBuilder result = new StringBuilder();
