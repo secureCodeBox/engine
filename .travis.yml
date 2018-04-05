@@ -12,8 +12,12 @@ cache:
   - $HOME/.m2
 
 script:
+  - echo -en "travis_fold:start:Test\r"
   - mvn test
+  - echo -en "travis_fold:end:Test\r"
+  - echo -en "travis_fold:start:Docker_Build\r"
   - docker build -t securecodebox/engine:oss .
+  - echo -en "travis_fold:end:Docker_Build\r"
   - docker images
 
 deploy:
