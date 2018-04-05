@@ -24,12 +24,12 @@
       		camForm.variableManager.fetchVariable('NMAP_TARGET_NAME');
     	});
     	camForm.on('variables-restored', function() {
-      		$scope.NMAP_TARGET_NAME = camForm.variableManager.variableValue('NMAP_TARGET_NAME');
+      		$scope.targetName = camForm.variableManager.variableValue('targetName');
       		console.log("setting variables to scope");
     	});
   	</script>
 
-    <h2>Please configure the Port Scanner Details for "{{ NMAP_TARGET_NAME }}"</h2>
+    <h2>Please configure the Port Scanner Details for "{{ targetName }}"</h2>
 
     <div class="row">
 

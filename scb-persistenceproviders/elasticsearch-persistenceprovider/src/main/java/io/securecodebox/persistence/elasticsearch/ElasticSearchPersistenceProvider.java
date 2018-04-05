@@ -14,6 +14,7 @@ import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.ResponseException;
@@ -73,7 +74,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
      * saving anything
      * TODO: REMOVE THIS BEFORE GOING INTO PRODUCTION
      */
-    private boolean deleteBeforeCreate = false;
+    private boolean deleteBeforeCreate = true;
 
     private void init(){
 
@@ -87,55 +88,34 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
             LOG.info("ElasticSearch connected?: " + connected);
             if (connected) {
-                try {
-
-                    //Indices Exist API is currently not supported in the high level client
-                    highLevelClient.getLowLevelClient().performRequest("GET", "/" + indexName);
-
+                if(indexExists(indexName) && deleteBeforeCreate){
                     /**
                      * The next lines are just for developing purposes and will be removed later
                      * TODO: REMOVE THESE LINES BEFORE GOING INTO PRODUCTION
                      */
-                    //If we get here, the index exists already
-                    if (deleteBeforeCreate) {
 
-                        LOG.info("Deleting Index " + indexName);
-                        DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(indexName);
-                        highLevelClient.indices().delete(deleteIndexRequest);
-
-                        //This throws the ResponseException everytime
-                        highLevelClient.getLowLevelClient().performRequest("GET", "/" + indexName);
-                    }
-                    initialized = true;
+                    LOG.info("Deleting Index " + indexName);
+                    DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(indexName);
+                    highLevelClient.indices().delete(deleteIndexRequest);
                 }
-                catch (ResponseException e) {
-                    if (e.getResponse().getStatusLine().getStatusCode() == 404) {
+                if (!indexExists(indexName)){
 
-                        //The index doesn't exist until now, so we create it
-                        LOG.info("Index " + indexName + " doesn't exist. Creating it...");
-                        CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
+                    //The index doesn't exist until now, so we create it
+                    LOG.info("Index " + indexName + " doesn't exist. Creating it...");
+                    CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
 
-                        //todo: maybe declare the mapping file name in the properties (Not sure if we need the mapping anymore)
+                    //todo: maybe declare the mapping file name in the properties (Not sure if we need the mapping anymore)
 //                    String mapping = readFileResource("mapping.json");
 //                    LOG.info("Initialize with mapping: " + mapping);
 //                    if(mapping != null) {
 //                        createIndexRequest.mapping("_doc", mapping, XContentType.JSON);
 //                    }
-                        highLevelClient.indices().createAsync(createIndexRequest, new ActionListener<CreateIndexResponse>() {
-                            @Override
-                            public void onResponse(CreateIndexResponse createIndexResponse) {
-                                LOG.info("Successfully created index " + indexName);
-                                initialized = true;
-                            }
+                    highLevelClient.indices().create(createIndexRequest);
+                }
 
-                            @Override
-                            public void onFailure(Exception e) {
-                                LOG.error("Error creating index " + indexName + ". Reason: " + e);
-                                e.printStackTrace();
-                                initialized = false;
-                            }
-                        });
-                    }
+                //Checking once more, in case anything went wrong during index creation
+                if(indexExists(indexName)){
+                    initialized = true;
                 }
             }
             else {
@@ -143,7 +123,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
             }
         }
         catch (IOException e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage());
             initialized = false;
         }
     }
@@ -167,7 +147,6 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         }
         catch (IOException ioe){
             LOG.error("Error pinging ElasticSearch: " + ioe.getMessage());
-            ioe.printStackTrace();
             connected = false;
         }
 
@@ -245,13 +224,13 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     @Override
                     public void onFailure(Exception e) {
                         LOG.error("Error persisting findings. Reason: " + e);
-                        e.printStackTrace();
+                        LOG.error(e.getMessage());
                     }
                 });
             } catch (JsonProcessingException e) {
-                e.printStackTrace();
+                LOG.error(e.getMessage());
             } catch (IOException e) {
-                e.printStackTrace();
+                LOG.error(e.getMessage());
             }
         }
         else {
@@ -270,6 +249,26 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         String dateAsString = sdf.format(date);
         String indexName = scbIndexPrefix + "_" + ((tenantId != null) ? tenantId + "_" : "") + dateAsString;
         return indexName.toLowerCase();
+    }
+    
+    private boolean indexExists(String indexName){
+        
+        try {
+            //Indices Exist API is currently not supported in the high level client
+            highLevelClient.getLowLevelClient().performRequest("GET", "/" + indexName);
+            return true;
+        }
+        catch (ResponseException e){
+            if (e.getResponse().getStatusLine().getStatusCode() == 404) {
+                return false;
+            }
+            LOG.error(e.getMessage());
+            return false;
+        }
+        catch (IOException ioe){
+            LOG.error(ioe.getMessage());
+            return false;
+        }
     }
 
     /**
@@ -290,7 +289,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
             return result.toString();
         }
         catch (IOException ioe){
-            ioe.printStackTrace();
+            LOG.error(ioe.getMessage());
             return null;
         }
     }

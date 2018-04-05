@@ -63,10 +63,7 @@ public class Scanner extends ExecutionAware {
     @JsonProperty("id")
     public UUID getScannerId() {
         StringValue input = execution.getVariableTyped(DefaultFields.PROCESS_SCANNER_ID.name());
-
-        //todo: Change this back, when scanner has a valid UUID
-        //return input != null ? UUID.fromString(input.getValue()) : null;
-        return UUID.randomUUID();
+        return input != null ? UUID.fromString(input.getValue()) : null;
     }
 
     @JsonProperty("type")

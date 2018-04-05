@@ -31,15 +31,15 @@
         });
 
         camForm.on('variables-restored', function () {
-            $scope.NMAP_TARGET_NAME = camForm.variableManager.variableValue('NMAP_TARGET_NAME');
-            $scope.PROCESS_CONTEXT = camForm.variableManager.variableValue('PROCESS_CONTEXT');
+            $scope.targetName = camForm.variableManager.variableValue('NMAP_TARGET_NAME');
+            $scope.context = camForm.variableManager.variableValue('PROCESS_CONTEXT');
 
-            $scope.PROCESS_SCANNER_ID = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
-            $scope.NMAP_TARGET = camForm.variableManager.variableValue('NMAP_TARGET');
-            $scope.NMAP_PARAMETER = camForm.variableManager.variableValue('NMAP_PARAMETER');
-            $scope.PROCESS_FINDINGS = JSON.parse(camForm.variableManager.variableValue('PROCESS_FINDINGS'));
+            $scope.portScannerId = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
+            $scope.portScannerTarget = camForm.variableManager.variableValue('NMAP_TARGET');
+            $scope.portScannerParameter = camForm.variableManager.variableValue('NMAP_PARAMETER');
+            $scope.portScannerResult = JSON.parse(camForm.variableManager.variableValue('PROCESS_FINDINGS'));
 
-            $scope.groupedResults = $scope.PROCESS_FINDINGS.reduce(
+            $scope.groupedResults = $scope.portScannerResult.reduce(
                     function (carry, item) {
                     console.log(item.attributes.ip_address);
                         if (!carry.hasOwnProperty(item.attributes.ip_address)) {
@@ -53,7 +53,7 @@
         });
     </script>
 
-    <h2>Portscan results for "{{ NMAP_TARGET_NAME }}"</h2>
+    <h2>Portscan results for "{{ targetName }}"</h2>
 
     <div class="row">
         <div class="col-xs-12">
@@ -61,21 +61,21 @@
             <div>
                 <div>
                     <label>Port scanner Id:</label>
-                    <a href="{{ PROCESS_SCANNER_ID }}">{{ PROCESS_SCANNER_ID }}</a>
+                    <a href="{{ PROCESS_SCANNER_ID }}">{{ portScannerId }}</a>
                 </div>
                 <div>
                     <label>Target Host:</label>
-                    <a href="{{ NMAP_TARGET }}">{{ NMAP_TARGET.trim().split(' ').join(', ') }}</a>
+                    <a href="{{ NMAP_TARGET }}">{{ portScannerTarget.trim().split(' ').join(', ') }}</a>
                 </div>
                 <div>
                     <label>Business Context:</label>
-                    <code>{{ PROCESS_CONTEXT }}</code>
+                    <code>{{ context }}</code>
                 </div>
             </div>
 
             <div class="form-group hidden">
                 <label>Result:</label>
-                <code>{{ PROCESS_FINDINGS }}</code>
+                <code>{{ portScannerResult }}</code>
             </div>
 
             <div class="well well-sm"
