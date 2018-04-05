@@ -24,8 +24,8 @@
             camForm.variableManager.fetchVariable('targetName');
             camForm.variableManager.fetchVariable('PROCESS_CONTEXT');
 
-            camForm.variableManager.fetchVariable('nmap_target');
-            camForm.variableManager.fetchVariable('nmap_parameter');
+            camForm.variableManager.fetchVariable('NMAP_TARGET');
+            camForm.variableManager.fetchVariable('NMAP_PARAMETER');
             camForm.variableManager.fetchVariable('PROCESS_FINDINGS');
             camForm.variableManager.fetchVariable('PROCESS_SCANNER_ID');
         });
@@ -35,8 +35,8 @@
             $scope.context = camForm.variableManager.variableValue('PROCESS_CONTEXT');
 
             $scope.portScannerId = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
-            $scope.portScannerTarget = camForm.variableManager.variableValue('nmap_target');
-            $scope.portScannerParameter = camForm.variableManager.variableValue('nmap_parameter');
+            $scope.portScannerTarget = camForm.variableManager.variableValue('NMAP_TARGET');
+            $scope.portScannerParameter = camForm.variableManager.variableValue('NMAP_PARAMETER');
             $scope.portScannerResult = JSON.parse(camForm.variableManager.variableValue('PROCESS_FINDINGS'));
 
             $scope.groupedResults = $scope.portScannerResult.reduce(
@@ -60,11 +60,11 @@
             <div>
                 <div>
                     <label>Port scanner Id:</label>
-                    <a href="{{ nmap_target }}">{{ portScannerId }}</a>
+                    <a href="{{ NMAP_TARGET }}">{{ portScannerId }}</a>
                 </div>
                 <div>
                     <label>Target Host:</label>
-                    <a href="{{ nmap_target }}">{{ portScannerTarget.trim().split(' ').join(', ') }}</a>
+                    <a href="{{ NMAP_TARGET }}">{{ portScannerTarget.trim().split(' ').join(', ') }}</a>
                 </div>
                 <div>
                     <label>Business Context:</label>

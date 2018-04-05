@@ -23,12 +23,12 @@
 
     <script cam-script type="text/form-script">
         camForm.on('form-loaded', function () {
-            camForm.variableManager.fetchVariable('nmap_target');
+            camForm.variableManager.fetchVariable('NMAP_TARGET');
         });
 
         camForm.on('variables-fetched', function () {
             $scope.targetList = ['bodgeit'];
-            var previousTargetName = camForm.variableManager.variableValue('nmap_target');
+            var previousTargetName = camForm.variableManager.variableValue('NMAP_TARGET');
             if (previousTargetName !== null && previousTargetName !== undefined && previousTargetName !== '') {
                 $scope.targetList = previousTargetName.split(' ');
                 //console.log('TargetName was already set to: ', previousTargetName);
@@ -51,9 +51,9 @@
         camForm.on('submit', function () {
             var targetString = $scope.targetList.join(' ');
 
-            camForm.variableManager.destroyVariable('nmap_target');
+            camForm.variableManager.destroyVariable('NMAP_TARGET');
             camForm.variableManager.createVariable({
-                name: 'nmap_target',
+                name: 'NMAP_TARGET',
                 type: 'string',
                 value: targetString
             });

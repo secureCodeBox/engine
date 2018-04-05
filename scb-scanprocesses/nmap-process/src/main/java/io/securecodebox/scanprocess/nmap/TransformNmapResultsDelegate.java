@@ -60,16 +60,24 @@ public class TransformNmapResultsDelegate implements JavaDelegate {
     DocumentBuilderFactory documentBuilderFactory;
 
     public TransformNmapResultsDelegate() {
-        documentBuilderFactory=DocumentBuilderFactory.newInstance();
+        documentBuilderFactory = DocumentBuilderFactory.newInstance();
     }
 
     public TransformNmapResultsDelegate(DocumentBuilderFactory documentBuilderFactory) {
-        this.documentBuilderFactory=documentBuilderFactory;
+        this.documentBuilderFactory = documentBuilderFactory;
+    }
+
+    private void clearFindings(ScanProcessExecution process) {
+        if (process.hasScanner()) {
+            LOG.debug("Clearing findings. The process had {}", process.getScanner().getFindings().size());
+            process.getScanner().clearFindings();
+        }
     }
 
     @Override
     public void execute(DelegateExecution delegateExecution) throws Exception {
         ScanProcessExecution process = processExecutionFactory.get(delegateExecution);
+        clearFindings(process);
 
         LOG.trace("VARS: {}", delegateExecution.getVariables());
 
@@ -91,13 +99,16 @@ public class TransformNmapResultsDelegate implements JavaDelegate {
                         finding.setDescription(String.format("Port %d is open using %s protocol.", port.getPortid(),
                                 port.getProtocol()));
                         finding.setLocation(
-                                port.getProtocol() + "://" + host.getIpAdress().orElse(new Address()).getAddr() + ":" + port.getPortid());
+                                port.getProtocol() + "://" + host.getIpAdress().orElse(new Address()).getAddr() + ":"
+                                        + port.getPortid());
                         finding.setSeverity(Severity.INFORMATIONAL);
                         finding.addAttribute(NmapFindingAttributes.PORT, port.getPortid());
                         finding.addAttribute(NmapFindingAttributes.SERVICE, port.getService().getName());
                         finding.addAttribute(NmapFindingAttributes.PROTOCOL, port.getProtocol());
-                        finding.addAttribute(NmapFindingAttributes.IP_ADDRESS, host.getIpAdress().orElse(new Address()).getAddr());
-                        finding.addAttribute(NmapFindingAttributes.MAC_ADDRESS, host.getMacAdress().orElse(new Address()).getAddr());
+                        finding.addAttribute(NmapFindingAttributes.IP_ADDRESS,
+                                host.getIpAdress().orElse(new Address()).getAddr());
+                        finding.addAttribute(NmapFindingAttributes.MAC_ADDRESS,
+                                host.getMacAdress().orElse(new Address()).getAddr());
                         finding.addAttribute(NmapFindingAttributes.STATE, port.getState().getState());
                         finding.addAttribute(NmapFindingAttributes.START, host.getStarttime());
                         finding.addAttribute(NmapFindingAttributes.END, host.getEndtime());

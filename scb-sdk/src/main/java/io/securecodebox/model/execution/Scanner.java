@@ -79,6 +79,11 @@ public class Scanner extends ExecutionAware {
 
     @JsonIgnore
     public List<Finding> getFindings() {
+
+        if (!execution.hasVariable(DefaultFields.PROCESS_FINDINGS.name())) {
+            return new LinkedList<>();
+        }
+
         StringValue rawFindings = execution.getVariableTyped(DefaultFields.PROCESS_FINDINGS.name());
         if (rawFindings != null && !StringUtils.isEmpty(rawFindings.getValue())) {
             try {
@@ -89,6 +94,26 @@ public class Scanner extends ExecutionAware {
             }
         }
         return new LinkedList<>();
+    }
+
+    /**
+     * Clears all {@link Finding}s in this Scanner.
+     * <p>
+     * After invoking this method, {@link Scanner#getFindings()} will return zero elements.
+     */
+    @JsonIgnore
+    public void clearFindings() {
+        saveFindingsToProcess(new LinkedList<>());
+    }
+
+    /**
+     * Clears the raw findings in this Scanner.
+     * <p>
+     * After invoking this method, {@link Scanner#getRawFindings()} ()} will return an empty string.
+     */
+    @JsonIgnore
+    public void clearRawFindings() {
+        execution.setVariable(DefaultFields.PROCESS_RAW_FINDINGS.name(), null);
     }
 
     /**
@@ -123,6 +148,10 @@ public class Scanner extends ExecutionAware {
     public synchronized void appendFinding(Finding finding) {
         List<Finding> findings = getFindings();
         findings.add(finding);
+        saveFindingsToProcess(findings);
+    }
+
+    private void saveFindingsToProcess(List<Finding> findings) {
         try {
             String rawFindingString = objectMapper.writeValueAsString(findings);
             execution.setVariable(DefaultFields.PROCESS_FINDINGS.name(), rawFindingString);
