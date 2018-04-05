@@ -21,7 +21,7 @@
 
     <script cam-script type="text/form-script">
         camForm.on('form-loaded', function () {
-            camForm.variableManager.fetchVariable('targetName');
+            camForm.variableManager.fetchVariable('NMAP_TARGET_NAME');
             camForm.variableManager.fetchVariable('PROCESS_CONTEXT');
 
             camForm.variableManager.fetchVariable('NMAP_TARGET');
@@ -31,7 +31,7 @@
         });
 
         camForm.on('variables-restored', function () {
-            $scope.targetName = camForm.variableManager.variableValue('targetName');
+            $scope.targetName = camForm.variableManager.variableValue('NMAP_TARGET_NAME');
             $scope.context = camForm.variableManager.variableValue('PROCESS_CONTEXT');
 
             $scope.portScannerId = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
@@ -41,6 +41,7 @@
 
             $scope.groupedResults = $scope.portScannerResult.reduce(
                     function (carry, item) {
+                    console.log(item.attributes.ip_address);
                         if (!carry.hasOwnProperty(item.attributes.ip_address)) {
                             carry[item.attributes.ip_address] = [];
                         }
@@ -121,7 +122,7 @@
                     <!--select box -->
                     <select required
                             class="form-control"
-                            name="NMAP_RESULT_APPROVED"
+                            name="resultApproved"
                             cam-variable-name="NMAP_RESULT_APPROVED"
                             cam-variable-type="String">
                         <option value="approved" checked>Approved (Finished)</option>

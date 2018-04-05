@@ -79,8 +79,6 @@ public class TransformNmapResultsDelegate implements JavaDelegate {
         ScanProcessExecution process = processExecutionFactory.get(delegateExecution);
         clearFindings(process);
 
-        LOG.trace("VARS: {}", delegateExecution.getVariables());
-
         String rawFindingResultXML = process.getScanner().getRawFindings();
 
         if (!StringUtils.isEmpty(rawFindingResultXML)) {

@@ -62,12 +62,13 @@ public class SummaryGeneratorDelegate implements JavaDelegate {
         LOG.trace("starting scan report persistence. {}", report);
 
         try {
-            LOG.warn("the report should be persisted here. Report: {}", report);
+
+            if (persistenceProvider != null) {
+                persistenceProvider.persist(report);
+            }
         } catch (Exception e) {
             LOG.error("Unexpected Error while trying to init a persistence provider!", e);
         }
-
-        LOG.debug("scan report persisted");
     }
 
 }
