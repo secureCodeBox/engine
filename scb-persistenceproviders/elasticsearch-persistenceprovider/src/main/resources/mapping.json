@@ -1,0 +1,47 @@
+{
+  "_doc" :
+  {
+    "properties" : {
+      "type":         { "type": "keyword"},
+      "attributes": {
+        "properties": {
+          "hostname": { "type": "text"},
+          "ip_address": { "type": "ip"},
+          "mac_address": { "type": "text"},
+          "method": { "type": "text"},
+          "operating_system": { "type": "text"},
+          "port": { "type": "integer"},
+          "protocol": { "type": "text"},
+          "service": { "type": "text"}
+        }
+      },
+      "category": { "type": "text"},
+      "description": { "type": "text"},
+      "execution": {
+        "properties": {
+          "automated": { "type": "boolean"},
+          "context": { "type": "text"},
+          "id": { "type": "text"},
+          "scanner_id": { "type": "text"},
+          "scanner_type": { "type": "text"}
+        }
+      },
+      "id": { "type": "text"},
+      "location": { "type": "text"},
+      "name": { "type": "text"},
+      "osi_layer": { "type": "text"},
+      "severity_highest": { "type": "text"},
+      "severity_overview": {
+        "properties": {
+          "INFORMATIONAL": { "type": "integer"},
+          "LOW": { "type": "integer"},
+          "MEDIUM": { "type": "integer"},
+          "HIGH": { "type": "integer"}
+        }
+      },
+      "report_id": { "type": "text"},
+      "@version": 	{ "type": "text"},
+      "@timestamp": 	{ "type": "date", "format": "dateOptionalTime" }
+    }
+  }
+}

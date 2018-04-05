@@ -21,10 +21,10 @@
 
     <script cam-script type="text/form-script">
     	camForm.on('form-loaded', function() {
-      		camForm.variableManager.fetchVariable('targetName');
+      		camForm.variableManager.fetchVariable('NMAP_TARGET_NAME');
     	});
     	camForm.on('variables-restored', function() {
-      		$scope.targetName = camForm.variableManager.variableValue('targetName');
+      		$scope.targetName = camForm.variableManager.variableValue('NMAP_TARGET_NAME');
       		console.log("setting variables to scope");
     	});
   	</script>
@@ -42,7 +42,8 @@
                 <div class="controls">
                     <input required class="form-control"
                            cam-variable-type="String"
-                           cam-variable-name="nmap_target"
+						   id="inputPortScannerTarget"
+                           cam-variable-name="NMAP_TARGET"
                            type="text"
                            ng-minlength="1"
                            ng-maxlength="100"
@@ -56,7 +57,8 @@
                 <div class="controls">
                     <input required class="form-control"
                            cam-variable-type="String"
-                           cam-variable-name="nmap_parameter"
+						   id="inputPortScannerParams"
+                           cam-variable-name="NMAP_PARAMETER"
                            type="text"
                            ng-required="false"
                            ng-maxlength="100"

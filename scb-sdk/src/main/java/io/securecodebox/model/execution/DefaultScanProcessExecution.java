@@ -105,6 +105,12 @@ public class DefaultScanProcessExecution extends ExecutionAware implements ScanP
     }
 
     @Override
+    public String getTenantId(){
+        StringValue tenantId = execution.<StringValue>getVariableTyped(DefaultFields.PROCESS_TENANT_ID.name());
+        return tenantId != null ? tenantId.toString() : null;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o)
             return true;

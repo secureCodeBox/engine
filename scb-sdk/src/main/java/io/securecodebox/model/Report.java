@@ -19,6 +19,7 @@
 
 package io.securecodebox.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -29,6 +30,7 @@ import io.securecodebox.model.findings.Severity;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.Objects;
 
 import static java.util.stream.Collectors.counting;
@@ -44,6 +46,9 @@ public class Report {
 
     private ScanProcessExecution execution;
 
+    @JsonIgnore
+    private UUID id = UUID.randomUUID();
+
     public Report(ScanProcessExecution execution) {
         this.execution = execution;
     }
@@ -52,9 +57,19 @@ public class Report {
         return execution;
     }
 
-    @JsonProperty("findings")
+    @JsonIgnore
     public List<Finding> getFindings() {
         return execution.getFindings();
+    }
+
+    @JsonProperty("report_id")
+    public UUID getId(){
+        return id;
+    }
+
+    @JsonIgnore
+    public void setId(UUID id){
+        this.id = id;
     }
 
     @JsonProperty("severity_highest")
@@ -68,6 +83,11 @@ public class Report {
     @JsonProperty("severity_overview")
     public Map<Severity, Long> getSeverityOverview() {
         return getFindings().stream().collect(groupingBy(Finding::getSeverity, counting()));
+    }
+
+    @JsonIgnore
+    public String getTenantId(){
+        return execution.getTenantId();
     }
 
     @Override

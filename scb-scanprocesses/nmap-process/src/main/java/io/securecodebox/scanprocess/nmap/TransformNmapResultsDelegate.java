@@ -71,50 +71,52 @@ public class TransformNmapResultsDelegate implements JavaDelegate {
     public void execute(DelegateExecution delegateExecution) throws Exception {
         ScanProcessExecution process = processExecutionFactory.get(delegateExecution);
 
-        LOG.trace("VARS: {}", delegateExecution.getVariables());
 
-        String rawFindingResultXML = process.getScanner().getRawFindings();
-
-        if (!StringUtils.isEmpty(rawFindingResultXML)) {
-            final JAXBContext context = JAXBContext.newInstance(NmapRawResult.class);
-            final Unmarshaller unmarshaller = context.createUnmarshaller();
-            NmapRawResult rawResult = (NmapRawResult) unmarshaller.unmarshal(new StringReader(rawFindingResultXML));
-
-            for (Host host : rawResult.getHosts()) {
-                for (Ports ports : host.getPorts()) {
-                    for (Port port : ports.getPort()) {
-                        Finding finding = new Finding();
-                        finding.setId(UUID.randomUUID());
-                        finding.setCategory("Open Port");
-                        finding.setName(String.format("Open %s Port", port.getService().getName()));
-                        finding.setOsiLayer(OsiLayer.NETWORK);
-                        finding.setDescription(String.format("Port %d is open using %s protocol.", port.getPortid(),
-                                port.getProtocol()));
-                        finding.setLocation(
-                                port.getProtocol() + "://" + host.getIpAdress().orElse(new Address()).getAddr() + ":" + port.getPortid());
-                        finding.setSeverity(Severity.INFORMATIONAL);
-                        finding.addAttribute(NmapFindingAttributes.PORT, port.getPortid());
-                        finding.addAttribute(NmapFindingAttributes.SERVICE, port.getService().getName());
-                        finding.addAttribute(NmapFindingAttributes.PROTOCOL, port.getProtocol());
-                        finding.addAttribute(NmapFindingAttributes.IP_ADDRESS, host.getIpAdress().orElse(new Address()).getAddr());
-                        finding.addAttribute(NmapFindingAttributes.MAC_ADDRESS, host.getMacAdress().orElse(new Address()).getAddr());
-                        finding.addAttribute(NmapFindingAttributes.STATE, port.getState().getState());
-                        finding.addAttribute(NmapFindingAttributes.START, host.getStarttime());
-                        finding.addAttribute(NmapFindingAttributes.END, host.getEndtime());
-                        process.appendFinding(finding);
-                        LOG.trace("Finding: {}", finding);
-                    }
-                }
-            }
-
-            LOG.debug("Found {} findings", process.getFindings().size());
+//
+//        LOG.trace("VARS: {}", delegateExecution.getVariables());
+//
+//        String rawFindingResultXML = process.getScanner().getRawFindings();
+//
+//        if (!StringUtils.isEmpty(rawFindingResultXML)) {
+//            final JAXBContext context = JAXBContext.newInstance(NmapRawResult.class);
+//            final Unmarshaller unmarshaller = context.createUnmarshaller();
+//            NmapRawResult rawResult = (NmapRawResult) unmarshaller.unmarshal(new StringReader(rawFindingResultXML));
+//
+//            for (Host host : rawResult.getHosts()) {
+//                for (Ports ports : host.getPorts()) {
+//                    for (Port port : ports.getPort()) {
+//                        Finding finding = new Finding();
+//                        finding.setId(UUID.randomUUID());
+//                        finding.setCategory("Open Port");
+//                        finding.setName(String.format("Open %s Port", port.getService().getName()));
+//                        finding.setOsiLayer(OsiLayer.NETWORK);
+//                        finding.setDescription(String.format("Port %d is open using %s protocol.", port.getPortid(),
+//                                port.getProtocol()));
+//                        finding.setLocation(
+//                                port.getProtocol() + "://" + host.getIpAdress().orElse(new Address()).getAddr() + ":" + port.getPortid());
+//                        finding.setSeverity(Severity.INFORMATIONAL);
+//                        finding.addAttribute(NmapFindingAttributes.PORT, port.getPortid());
+//                        finding.addAttribute(NmapFindingAttributes.SERVICE, port.getService().getName());
+//                        finding.addAttribute(NmapFindingAttributes.PROTOCOL, port.getProtocol());
+//                        finding.addAttribute(NmapFindingAttributes.IP_ADDRESS, host.getIpAdress().orElse(new Address()).getAddr());
+//                        finding.addAttribute(NmapFindingAttributes.MAC_ADDRESS, host.getMacAdress().orElse(new Address()).getAddr());
+//                        finding.addAttribute(NmapFindingAttributes.STATE, port.getState().getState());
+//                        finding.addAttribute(NmapFindingAttributes.START, host.getStarttime());
+//                        finding.addAttribute(NmapFindingAttributes.END, host.getEndtime());
+//                        process.appendFinding(finding);
+//                        LOG.trace("Finding: {}", finding);
+//                    }
+//                }
+//            }
+//
+//            LOG.debug("Found {} findings", process.getFindings().size());
 
             // persist all generic result entries
             //new GenericReporter(delegateExecution).setGenericResultsVariable(findingsList)
-        } else {
-            LOG.warn("Couldn't find the process variable or its content is empty: {}",
-                    DefaultFields.PROCESS_RAW_FINDINGS);
-        }
+//        } else {
+//            LOG.warn("Couldn't find the process variable or its content is empty: {}",
+//                    DefaultFields.PROCESS_RAW_FINDINGS);
+//        }
     }
 
 }

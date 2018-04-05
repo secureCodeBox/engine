@@ -78,4 +78,7 @@ public interface ScanProcessExecution {
     @JsonProperty("automated")
     public abstract boolean isAutomated();
 
+    @JsonIgnore
+    public abstract String getTenantId();
+
 }
