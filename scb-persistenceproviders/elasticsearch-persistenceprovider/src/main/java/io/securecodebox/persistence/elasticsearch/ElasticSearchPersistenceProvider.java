@@ -105,11 +105,11 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
 
                     //todo: maybe declare the mapping file name in the properties (Not sure if we need the mapping anymore)
-//                    String mapping = readFileResource("mapping.json");
-//                    LOG.info("Initialize with mapping: " + mapping);
-//                    if(mapping != null) {
-//                        createIndexRequest.mapping("_doc", mapping, XContentType.JSON);
-//                    }
+                    String mapping = readFileResource("mapping.json");
+                    LOG.info("Initialize with mapping: " + mapping);
+                    if(mapping != null) {
+                        createIndexRequest.mapping("_doc", mapping, XContentType.JSON);
+                    }
                     highLevelClient.indices().create(createIndexRequest);
                 }
 
@@ -138,7 +138,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
         this.tenantId = report.getTenantId();
 
-        if(!initialized){
+        if(!initialized || !indexExists(getElasticIndexName())){
             init();
         }
 
@@ -272,7 +272,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     }
 
     /**
-     * This was initially created for reading the mapping file
+     * Read a file from the resources directory and store the content in a string
      * @param file the file to read
      * @return a string containing the file content
      */

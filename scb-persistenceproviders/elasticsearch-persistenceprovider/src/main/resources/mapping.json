@@ -1,32 +1,47 @@
 {
   "_doc" :
   {
-    "dynamic_templates" : [ {
-      "string_fields" : {
-        "match" : "*",
-        "match_mapping_type" : "string",
-        "mapping" : {
-          "type" : "string",
-          "index" : "analyzed",
-          "omit_norms" : true,
-          "fields" : {
-            "raw" : {
-              "type": "string",
-              "index" : "not_analyzed",
-              "ignore_above" : 256
-            }
-          }
-        }
-
-      }
-    } ],
-    "_all" : {"enabled" : true, "omit_norms" : true},
     "properties" : {
       "type":         { "type": "keyword"},
-      "@version": 	{ "type": "string", "index": "not_analyzed" },
-      "@timestamp": 	{ "type": "date", "format": "dateOptionalTime" },
-      "processUuid": 	{ "type": "string", "index": "not_analyzed" },
-      "context": 	    { "type": "string", "index": "not_analyzed" }
+      "attributes": {
+        "properties": {
+          "hostname": { "type": "text"},
+          "ip_address": { "type": "ip"},
+          "mac_address": { "type": "text"},
+          "method": { "type": "text"},
+          "operating_system": { "type": "text"},
+          "port": { "type": "integer"},
+          "protocol": { "type": "text"},
+          "service": { "type": "text"}
+        }
+      },
+      "category": { "type": "text"},
+      "description": { "type": "text"},
+      "execution": {
+        "properties": {
+          "automated": { "type": "boolean"},
+          "context": { "type": "text"},
+          "id": { "type": "text"},
+          "scanner_id": { "type": "text"},
+          "scanner_type": { "type": "text"}
+        }
+      },
+      "id": { "type": "text"},
+      "location": { "type": "text"},
+      "name": { "type": "text"},
+      "osi_layer": { "type": "text"},
+      "severity_highest": { "type": "text"},
+      "severity_overview": {
+        "properties": {
+          "INFORMATIONAL": { "type": "integer"},
+          "LOW": { "type": "integer"},
+          "MEDIUM": { "type": "integer"},
+          "HIGH": { "type": "integer"}
+        }
+      },
+      "report_id": { "type": "text"},
+      "@version": 	{ "type": "text"},
+      "@timestamp": 	{ "type": "date", "format": "dateOptionalTime" }
     }
   }
 }
