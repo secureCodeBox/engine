@@ -1,14 +1,23 @@
 ---
 sudo: true
 
+language: generic
 
-jobs:
-  include:
-    - stage: java test
-      language: java
-    - stage: build docker image
-      services:
-      - docker
-      script:
-      - docker build -t securecodebox:oss .
-      - docker images
+services:
+  - docker
+
+script:
+  - docker build -t securecodebox/engine:oss .
+  - docker images
+
+deploy:
+  -  provider: script
+     skip_cleanup: true
+     script: bash deploy.sh
+     on:
+       branch: develop
+  -  provider: script
+     skip_cleanup: true
+     script: bash deploy.sh
+     on:
+       branch: master

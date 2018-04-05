@@ -7,7 +7,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -qq install \
 
 
 COPY . .
-RUN mvn install -DskipTests=true
+RUN mvn install
 
 
 FROM openjdk:8-jre-alpine

@@ -27,6 +27,7 @@ import org.camunda.bpm.engine.variable.value.BooleanValue;
 import org.camunda.bpm.engine.variable.value.StringValue;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -107,5 +108,25 @@ public class DefaultScanProcessExecution extends ExecutionAware implements ScanP
     public String getTenantId(){
         StringValue tenantId = execution.<StringValue>getVariableTyped(DefaultFields.PROCESS_TENANT_ID.name());
         return tenantId != null ? tenantId.toString() : null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        DefaultScanProcessExecution that = (DefaultScanProcessExecution) o;
+        return Objects.equals(spider, that.spider) && Objects.equals(scanner, that.scanner);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(spider, scanner);
+    }
+
+    @Override
+    public String toString() {
+        return "DefaultScanProcessExecution{" + "spider=" + spider + ", scanner=" + scanner + '}';
     }
 }

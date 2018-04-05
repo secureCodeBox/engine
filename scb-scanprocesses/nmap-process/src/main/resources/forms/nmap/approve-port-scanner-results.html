@@ -26,7 +26,7 @@
 
             camForm.variableManager.fetchVariable('NMAP_TARGET');
             camForm.variableManager.fetchVariable('NMAP_PARAMETER');
-            camForm.variableManager.fetchVariable('PROCESS_RESULT');
+            camForm.variableManager.fetchVariable('PROCESS_FINDINGS');
             camForm.variableManager.fetchVariable('PROCESS_SCANNER_ID');
         });
 
@@ -37,14 +37,15 @@
             $scope.PROCESS_SCANNER_ID = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
             $scope.NMAP_TARGET = camForm.variableManager.variableValue('NMAP_TARGET');
             $scope.NMAP_PARAMETER = camForm.variableManager.variableValue('NMAP_PARAMETER');
-            $scope.PROCESS_RESULT = JSON.parse(camForm.variableManager.variableValue('PROCESS_RESULT'));
+            $scope.PROCESS_RESULT = JSON.parse(camForm.variableManager.variableValue('PROCESS_FINDINGS'));
 
-            $scope.groupedResults = $scope.portScannerResult.content.reduce(
+            $scope.groupedResults = $scope.portScannerResult.reduce(
                     function (carry, item) {
-                        if (!carry.hasOwnProperty(item.hostname)) {
-                            carry[item.hostname] = [];
+                    console.log(item.attributes.ip_address);
+                        if (!carry.hasOwnProperty(item.attributes.ip_address)) {
+                            carry[item.attributes.ip_address] = [];
                         }
-                        carry[item.hostname].push(item);
+                        carry[item.attributes.ip_address].push(item);
                         return carry;
                     },
                     {}
@@ -74,7 +75,7 @@
 
             <div class="form-group hidden">
                 <label>Result:</label>
-                <code>{{ PROCESS_RESULT }}</code>
+                <code>{{ PROCESS_FINDINGS }}</code>
             </div>
 
             <div class="well well-sm"
@@ -91,10 +92,10 @@
                         <th>Action:</th>
                     </tr>
                     <tr class="danger" ng-repeat="port in host">
-                        <td>{{ port.hostname }}</td>
-                        <td>{{ port.port }}</td>
-                        <td>{{ port.service }}</td>
-                        <td>{{ port.protocol }}</td>
+                        <td>{{ address }}</td>
+                        <td>{{ port.attributes.port }}</td>
+                        <td>{{ port.attributes.service }}</td>
+                        <td>{{ port.attributes.protocol }}</td>
                         <td>
                             <span class="label label-danger">
                                 <i aria-hidden="true"
