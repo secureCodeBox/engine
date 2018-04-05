@@ -6,7 +6,13 @@ language: java
 services:
   - docker
 
+cache:
+  directories:
+  - .autoconf
+  - $HOME/.m2
+
 script:
+  - mvn test
   - docker build -t securecodebox/engine:oss .
   - docker images
 
