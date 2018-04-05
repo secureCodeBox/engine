@@ -79,6 +79,7 @@ public class TransformNmapResultsDelegateTest {
         when(processExecutionFactory.get(executionMock)).thenReturn(new NmapScanProcessExecution(executionMock));
         when(processExecutionFactory.get(executionMock, NmapScanProcessExecution.class)).thenReturn(
                 new NmapScanProcessExecution(executionMock));
+        when(executionMock.hasVariable(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenReturn(true);
         when(executionMock.getVariableTyped(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenAnswer(
                 (answer) -> new PrimitiveTypeValueImpl.StringValueImpl(findingCache));
         doAnswer((Answer) invocation -> {
