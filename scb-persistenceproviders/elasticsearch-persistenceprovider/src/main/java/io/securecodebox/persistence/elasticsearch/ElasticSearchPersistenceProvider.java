@@ -62,7 +62,6 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElasticSearchPersistenceProvider.class);
 
-    private static final String scbIndexPrefix = "securecodebox";
     private static final String dateTimeFormat = "yyyy-MM-dd";
     private static final String TYPE_REPORT = "report";
     private static final String TYPE_FINDING = "finding_entry";
@@ -261,7 +260,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
         SimpleDateFormat sdf = new SimpleDateFormat(dateTimeFormat);
         String dateAsString = sdf.format(date);
-        String indexName = scbIndexPrefix + "_" + ((tenantId != null) ? tenantId + "_" : "") + dateAsString;
+        String indexName = indexPrefix + "_" + ((tenantId != null) ? tenantId + "_" : "") + dateAsString;
         return indexName.toLowerCase();
     }
     
