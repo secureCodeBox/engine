@@ -75,11 +75,6 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
      */
     private boolean deleteBeforeCreate = false;
 
-    @Override
-    public void setTenantId(String tenantId){
-        this.tenantId = tenantId;
-    }
-
     private void init(){
 
         LOG.info("Initializing ElasticSearchPersistenceProvider");
@@ -160,6 +155,8 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
             LOG.info("Report is null, nothing to persist.");
             return;
         }
+
+        this.tenantId = report.getTenantId();
 
         if(!initialized){
             init();

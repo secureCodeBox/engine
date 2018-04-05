@@ -85,6 +85,11 @@ public class Report {
         return getFindings().stream().collect(groupingBy(Finding::getSeverity, counting()));
     }
 
+    @JsonIgnore
+    public String getTenantId(){
+        return execution.getTenantId();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)

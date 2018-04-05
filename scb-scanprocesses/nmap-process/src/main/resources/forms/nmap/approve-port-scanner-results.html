@@ -37,9 +37,9 @@
             $scope.PROCESS_SCANNER_ID = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
             $scope.NMAP_TARGET = camForm.variableManager.variableValue('NMAP_TARGET');
             $scope.NMAP_PARAMETER = camForm.variableManager.variableValue('NMAP_PARAMETER');
-            $scope.PROCESS_RESULT = JSON.parse(camForm.variableManager.variableValue('PROCESS_FINDINGS'));
+            $scope.PROCESS_FINDINGS = JSON.parse(camForm.variableManager.variableValue('PROCESS_FINDINGS'));
 
-            $scope.groupedResults = $scope.portScannerResult.reduce(
+            $scope.groupedResults = $scope.PROCESS_FINDINGS.reduce(
                     function (carry, item) {
                     console.log(item.attributes.ip_address);
                         if (!carry.hasOwnProperty(item.attributes.ip_address)) {
