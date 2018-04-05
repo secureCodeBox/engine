@@ -1,13 +1,12 @@
 ---
 sudo: true
 
-language: generic
+language: java
 
 services:
   - docker
 
 script:
-  - mvn test
   - docker build -t securecodebox/engine:oss .
   - docker images
 
