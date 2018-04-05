@@ -7,6 +7,7 @@ services:
   - docker
 
 script:
+  - mvn test
   - docker build -t securecodebox/engine:oss .
   - docker images
 
