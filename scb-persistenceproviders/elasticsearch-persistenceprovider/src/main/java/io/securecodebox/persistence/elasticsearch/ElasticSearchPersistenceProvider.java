@@ -41,6 +41,8 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -198,11 +200,17 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     }
                 }
 
+                String dateTimeFormatToPersist = "yyyy-MM-dd'T'HH:mm:ss";
+
                 //Persisting the Report and the Findings
                 String jsonReport = objectMapper.writeValueAsString(report);
 
                 Map<String, Object> reportAsMap = objectMapper.readValue(jsonReport, new TypeReference<Map<String, Object>>(){});
                 reportAsMap.put("type", TYPE_REPORT);
+                reportAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
+                reportAsMap.remove("findings");
+
+                LOG.info("Timestamp: " + new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
 
                 IndexRequest reportIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
                 reportIndexRequest.source(objectMapper.writeValueAsString(reportAsMap), XContentType.JSON);
@@ -215,6 +223,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     findingAsMap.put("type", TYPE_FINDING);
                     findingAsMap.put("execution", report.getExecution());
                     findingAsMap.put("report_id", report.getId());
+                    findingAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
 
                     IndexRequest findingIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
                     findingIndexRequest.source(objectMapper.writeValueAsString(findingAsMap), XContentType.JSON);
@@ -228,6 +237,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     public void onResponse(BulkResponse bulkItemResponses) {
                         if(bulkItemResponses.hasFailures()){
                             LOG.warn("Warning: Some findings may not have been persisted correctly!");
+                            LOG.warn(bulkItemResponses.buildFailureMessage());
                         }
                         else {
                             LOG.info("Successfully saved findings to " + getElasticIndexName());

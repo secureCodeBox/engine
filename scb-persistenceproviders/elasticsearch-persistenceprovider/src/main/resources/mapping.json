@@ -41,7 +41,7 @@
       },
       "report_id": { "type": "text"},
       "@version": 	{ "type": "text"},
-      "@timestamp": 	{ "type": "date", "format": "dateOptionalTime" }
+      "@timestamp": 	{ "type": "date" }
     }
   }
 }
