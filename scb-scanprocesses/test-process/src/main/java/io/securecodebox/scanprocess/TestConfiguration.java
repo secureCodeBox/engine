@@ -34,17 +34,8 @@ public class TestConfiguration extends AbstractCamundaConfiguration {
 
     @Override
     public void postProcessEngineBuild(final ProcessEngine processEngine) {
-        //requireNonNull(adminUser);
 
         final IdentityService identityService = processEngine.getIdentityService();
-
-        if (!userAlreadyExists(identityService, approverUser)) {
-            createUser(identityService, approverUser);
-        }
-
-        if (!userAlreadyExists(identityService, normalUser)) {
-            createUser(identityService, normalUser);
-        }
 
         // create group
         if (identityService.createGroupQuery().groupId("approver").count() == 0) {
@@ -53,14 +44,22 @@ public class TestConfiguration extends AbstractCamundaConfiguration {
             approverGroup.setType(Groups.GROUP_TYPE_SYSTEM);
             identityService.saveGroup(approverGroup);
         }
-        identityService.createMembership(approverUser.getId(), "approver");
-        identityService.createMembership(normalUser.getId(), "approver");
+
+        if (!userAlreadyExists(identityService, approverUser)) {
+            createUser(identityService, approverUser);
+            identityService.createMembership(approverUser.getId(), "approver");
+        }
+
+        if (!userAlreadyExists(identityService, normalUser)) {
+            createUser(identityService, normalUser);
+        }
+
         LOG.info("Created user: {}", approverUser);
         LOG.info("Created user: {}", normalUser);
     }
 
-    static boolean userAlreadyExists(IdentityService identityService, User adminUser) {
-        final User existingUser = identityService.createUserQuery().userId(adminUser.getId()).singleResult();
+    static boolean userAlreadyExists(IdentityService identityService, User user) {
+        final User existingUser = identityService.createUserQuery().userId(user.getId()).singleResult();
         return existingUser != null;
     }
 
@@ -92,7 +91,7 @@ public class TestConfiguration extends AbstractCamundaConfiguration {
 
         @Override
         public String getFirstName() {
-            return null;
+            return "DEFAULT";
         }
 
         @Override
@@ -107,7 +106,7 @@ public class TestConfiguration extends AbstractCamundaConfiguration {
 
         @Override
         public String getLastName() {
-            return null;
+            return getId();
         }
 
         @Override
