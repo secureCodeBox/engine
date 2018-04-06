@@ -1,0 +1,108 @@
+<form role="form" name="configure-reporting">
+	<script cam-script type="text/form-script">
+		camForm.on('form-loaded', function() {
+			camForm.variableManager.fetchVariable('targetName');
+		  	camForm.variableManager.fetchVariable('context');
+
+		  	camForm.variableManager.fetchVariable('generic_scan_results');
+
+		  	camForm.variableManager.fetchVariable('nikto_target');
+		  	camForm.variableManager.fetchVariable('nikto_ports');
+		  	camForm.variableManager.fetchVariable('nikto_parameter');
+		  	camForm.variableManager.fetchVariable('nikto_microservice_id');
+		  
+		});
+
+		camForm.on('variables-restored', function() {
+			$scope.targetName = camForm.variableManager.variableValue('targetName');
+		  	$scope.context = camForm.variableManager.variableValue('context');
+
+		  	$scope.result = camForm
+				.variableManager
+				.variableValue('generic_scan_results')
+				.reduce(
+			  		function (carry, element) {
+			    		var key = element.ip_address + ':' + element.port ;
+
+						if(!carry.hasOwnProperty(key)){
+				  			carry[key] = [];
+						}
+						carry[key].push(element);
+						return carry;
+			  		},
+			  		{}
+				);
+
+		  	console.log($scope.result);
+
+		  	$scope.niktoScannerId 		= camForm.variableManager.variableValue('nikto_microservice_id');
+          	$scope.niktoScannerTarget 	= camForm.variableManager.variableValue('nikto_target');
+		  	$scope.niktoScannerPorts 		= camForm.variableManager.variableValue('nikto_ports');
+		  	$scope.niktoScannerParameter 	= camForm.variableManager.variableValue('nikto_parameter');
+
+		  	console.log("setting variables to scope");
+		});
+	</script>
+
+	<h2>Nikto-Scan results for "{{ targetName }}"</h2>
+
+	<div class="row">
+		<div class="col-xs-12">
+
+			<div class="">
+				<div class="">
+					<label>Target Host:</label>
+					<p>{{ niktoScannerTarget }}</p>
+				</div>
+				<div class="">
+					<label>Scanned Ports:</label>
+					<p>{{ niktoScannerPorts }}</p>
+				</div>
+				<div class="">
+					<label>Additional Arguments</label>
+					<code>{{ niktoScannerParameter }}</code>
+				</div>
+			</div>
+
+			<div class="form-group hidden">
+				<label>Result:</label>
+				<code>{{ result }}</code>
+			</div>
+			<div class="well well-sm"
+				 style="color: inherit;"
+				 ng-repeat="(host, group) in result">
+				<strong>Results for Host: {{ host }}</strong>
+				<table class="table table-striped">
+					<tr>
+						<th>Path:</th>
+						<th>Method:</th>
+						<th>Description:</th>
+					</tr>
+					<tr class="danger" ng-repeat="finding in group">
+						<td style="max-width: 175px; overflow: scroll">{{ finding.location }}</td>
+						<td>{{ finding.method }}</td>
+						<td>{{ finding.name }}</td>
+					</tr>
+				</table>
+			</div>
+
+			<h2>Approve Result</h2>
+			<!-- reporting configuration -->
+			<div class="form-group">
+				<label for="selectResultApproved">Approve Result</label>
+				<div id="selectResultApproved" class="controls">
+					<!--select box -->
+					<select required
+							class="form-control"
+							name="resultApproved"
+							cam-variable-name="resultApproved"
+							cam-variable-type="String">
+						<option value="approved" checked>Approved (Finished)</option>
+						<option value="dissapproved">Not Approved (Restart Scan)</option>
+					</select>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</form>

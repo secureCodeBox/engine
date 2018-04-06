@@ -16,6 +16,7 @@
     <modules>
         <module>test-process</module>
         <module>nmap-process</module>
+        <module>nikto-process</module>
     </modules>
 
     <dependencyManagement>

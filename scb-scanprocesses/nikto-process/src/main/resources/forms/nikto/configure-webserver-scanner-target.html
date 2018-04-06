@@ -1,0 +1,117 @@
+<h2>Please configure the Nikto Scan</h2>
+
+<form role="form" name="configure-target">
+	<div class="row">
+
+		<div class="col-xs-12">
+			<h3>Nikto Scan Target</h3>
+
+			<!-- Target Name -->
+			<div class="form-group">
+				<label for="NIKTO_TARGET_NAME">Target Name</label>
+				<div class="controls">
+					<input
+						required
+						class="form-control"
+						id="NIKTO_TARGET_NAME"
+						cam-variable-type="String"
+						cam-variable-name="NIKTO_TARGET_NAME"
+						type="text"
+						placeholder="Public Site Name"
+						ng-minlength="2"
+						ng-maxlength="30"
+						name="NIKTO_TARGET_NAME"
+						value="BodgeIT Public Host" />
+				</div>
+			</div>
+
+			<!-- Target URL -->
+			<div class="form-group">
+				<label for="NIKTO_TARGET">Target Host</label>
+				<div class="controls">
+					<input
+						required
+						class="form-control"
+						id="NIKTO_TARGET"
+						cam-variable-type="String"
+						cam-variable-name="NIKTO_TARGET"
+						type="text"
+						placeholder=""
+						ng-minlength="5"
+						ng-maxlength="100"
+						name="NIKTO_TARGET"
+						value="bodgeit" />
+				</div>
+			</div>
+
+			<!-- Target Port -->
+			<div class="form-group">
+				<label for="NIKTO_PORTS">Target Port(s)</label>
+				<div class="controls">
+					<input
+						required
+						class="form-control"
+						id="NIKTO_PORTS"
+						cam-variable-type="String"
+						cam-variable-name="NIKTO_PORTS"
+						type="text"
+						placeholder="80"
+						ng-minlength="2"
+						ng-maxlength="100"
+						ng-pattern="/(^([0-9]{0,5})$)|(^([0-9]{1,5})\-([0-9]{1,5})$)|^([0-9]{1,5})(\,([0-9]{1,5}))*$/"
+						name="NIKTO_PORTS"
+						value="8080" />
+				</div>
+			</div>
+
+			<!-- Context (Project/Team/System...) -->
+			<div class="form-group">
+				<label for="inputContext">Business Context (Project/Team/System)</label>
+				<div class="controls">
+					<input
+						class="form-control"
+						id="inputContext"
+						cam-variable-type="String"
+						cam-variable-name="PROCESS_CONTEXT"
+						type="text"
+						placeholder="Project/Team/System"
+						ng-required="false"
+						ng-maxlength="50"
+						name="PROCESS_CONTEXT"
+						value="BodgeIT" />
+				</div>
+			</div>
+
+			<div class="form-group">
+				<div class="controls">
+					<label for="PROCESS_MARK_FALSE_POSITIVE">Enable False/Positive Filtering?</label>
+					<input
+						class="form-control"
+						id="PROCESS_MARK_FALSE_POSITIVE"
+						cam-variable-type="Boolean"
+						cam-variable-name="PROCESS_MARK_FALSE_POSITIVE"
+						type="checkbox"
+						name="PROCESS_MARK_FALSE_POSITIVE" />
+				</div>
+			</div>
+
+			<!-- nikto scanner configuration -->
+			<div class="form-group">
+				<label for="NIKTO_CONFIGURATION_TYPE">Type of the Nikto Scanner configuration</label>
+				<div class="controls">
+					<select
+						required
+						id="NIKTO_CONFIGURATION_TYPE"
+						class="form-control"
+						name="NIKTO_CONFIGURATION_TYPE"
+						cam-variable-name="NIKTO_CONFIGURATION_TYPE"
+						cam-variable-type="String" >
+						<option value="default" checked>Default</option>
+						<option value="advanced">Advanced</option>
+					</select>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</form>
