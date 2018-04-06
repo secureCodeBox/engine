@@ -27,7 +27,6 @@ import io.securecodebox.model.findings.OsiLayer;
 import io.securecodebox.model.findings.Severity;
 import io.securecodebox.scanprocess.NmapScanProcessExecution;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.variable.impl.value.PrimitiveTypeValueImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -80,8 +79,8 @@ public class TransformNmapResultsDelegateTest {
         when(processExecutionFactory.get(executionMock, NmapScanProcessExecution.class)).thenReturn(
                 new NmapScanProcessExecution(executionMock));
         when(executionMock.hasVariable(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenReturn(true);
-        when(executionMock.getVariableTyped(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenAnswer(
-                (answer) -> new PrimitiveTypeValueImpl.StringValueImpl(findingCache));
+        when(executionMock.getVariable(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenAnswer(
+                (answer) -> findingCache);
         doAnswer((Answer) invocation -> {
             findingCache = invocation.getArgumentAt(1, String.class);
             return Void.TYPE;

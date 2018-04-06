@@ -84,13 +84,13 @@ public class Scanner extends ExecutionAware {
             return new LinkedList<>();
         }
 
-        StringValue findings = execution.getVariableTyped(DefaultFields.PROCESS_FINDINGS.name());
-        if (findings != null && !StringUtils.isEmpty(findings.getValue())) {
+        Object findings = execution.getVariable(DefaultFields.PROCESS_FINDINGS.name());
+        if (findings != null && !StringUtils.isEmpty(findings)) {
             try {
-                return objectMapper.readValue(findings.getValue(),
+                return objectMapper.readValue((String) findings,
                         objectMapper.getTypeFactory().constructCollectionType(List.class, Finding.class));
             } catch (IOException e) {
-                LOG.error("Cann't extract findings from process! Raw Data {}", findings.getValue(), e);
+                LOG.error("Can't extract findings from process! Raw Data {}", findings, e);
             }
         }
         return new LinkedList<>();
