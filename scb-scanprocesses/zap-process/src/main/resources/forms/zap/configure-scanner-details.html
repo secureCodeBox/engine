@@ -1,12 +1,12 @@
 <form role="form" name="configure-scanner">
 	<script cam-script type="text/form-script">
     	camForm.on('form-loaded', function() {
-      		camForm.variableManager.fetchVariable('targetName');
-	  		camForm.variableManager.fetchVariable('targetUrl');
+      		camForm.variableManager.fetchVariable('ZAP_TARGET_NAME');
+	  		camForm.variableManager.fetchVariable('ZAP_TARGET_URL');
     	});
     	camForm.on('variables-restored', function() {
-      		$scope.targetName = camForm.variableManager.variableValue('targetName');
-      		$scope.targetUrl = camForm.variableManager.variableValue('targetUrl');
+      		$scope.targetName = camForm.variableManager.variableValue('ZAP_TARGET_NAME');
+      		$scope.targetUrl = camForm.variableManager.variableValue('ZAP_TARGET_URL');
       		console.log("setting variables to scope");
     	});
   	</script>
@@ -26,7 +26,7 @@
 				<div class="controls">
 					<input required class="form-control" 
 							cam-variable-type="String"
-							cam-variable-name="scannerTargetUrl" 
+							cam-variable-name="ZAP_SCANNER_TARGET_URL"
 							type="text" 
 							ng-minlength="5"
 							ng-maxlength="100" 
@@ -39,7 +39,7 @@
 			      <label for="inputScannerIncludeRegexes">Include RegExe's</label>
 			      <div class="controls">
 			        	<textarea class="form-control"
-			                  cam-variable-name="scannerIncludeRegexes"
+			                  cam-variable-name="ZAP_SCANNER_INCLUDE_REGEX"
 			                  cam-variable-type="String"
 			                  rows="5"
 			                  name="scannerIncludeRegexes"></textarea>
@@ -51,7 +51,7 @@
 			      <label for="inputScannerExcludeRegexes">Exclude RegExe's</label>
 			      <div class="controls">
 			        	<textarea class="form-control"
-			                  cam-variable-name="scannerExcludeRegexes"
+			                  cam-variable-name="ZAP_SCANNER_EXCLUDE_REGEX"
 			                  cam-variable-type="String"
 			                  rows="5"
 			                  name="scannerExcludeRegexes"></textarea>

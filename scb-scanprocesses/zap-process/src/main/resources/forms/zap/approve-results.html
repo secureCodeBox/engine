@@ -2,67 +2,67 @@
 
 <script cam-script type="text/form-script">
     camForm.on('form-loaded', function() {
-      camForm.variableManager.fetchVariable('targetName');
-      camForm.variableManager.fetchVariable('targetUrl');
-      camForm.variableManager.fetchVariable('context');
+      camForm.variableManager.fetchVariable('ZAP_TARGET_NAME');
+      camForm.variableManager.fetchVariable('ZAP_TARGET_URL');
+      camForm.variableManager.fetchVariable('PROCESS_CONTEXT');
 
-      camForm.variableManager.fetchVariable('spiderMicroserviceId');
-	  camForm.variableManager.fetchVariable('spiderMicroserviceRunId');
-      camForm.variableManager.fetchVariable('spiderTargetUrl');
-      camForm.variableManager.fetchVariable('spiderIncludeRegexes');
-      camForm.variableManager.fetchVariable('spiderExcludeRegexes');
-      camForm.variableManager.fetchVariable('spiderExcludeDuplicates');
-      camForm.variableManager.fetchVariable('spiderMaxDepth');
+      camForm.variableManager.fetchVariable('PROCESS_SPIDER_ID');
+	  camForm.variableManager.fetchVariable('ZAP_SPIDER_RUN_ID');
+      camForm.variableManager.fetchVariable('ZAP_SPIDER_TARGET_URL');
+      camForm.variableManager.fetchVariable('ZAP_SPIDER_INCLUDE_REGEX');
+      camForm.variableManager.fetchVariable('ZAP_SPIDER_EXCLUDE_REGEX');
+      camForm.variableManager.fetchVariable('ZAP_SPIDER_EXLUDE_DUPLICATES');
+      camForm.variableManager.fetchVariable('ZAP_SPIDER_MAX_DEPTH');
 
-      camForm.variableManager.fetchVariable('scannerMicroserviceId');
- 	  camForm.variableManager.fetchVariable('scannerMicroserviceRunId');
-      camForm.variableManager.fetchVariable('scannerTargetUrl');
-      camForm.variableManager.fetchVariable('scannerIncludeRegexes');
-      camForm.variableManager.fetchVariable('scannerExcludeRegexes');
+      camForm.variableManager.fetchVariable('PROCESS_SCANNER_ID');
+ 	  camForm.variableManager.fetchVariable('ZAP_SCANNER_RUN_ID');
+      camForm.variableManager.fetchVariable('ZAP_SCANNER_TARGET_URL');
+      camForm.variableManager.fetchVariable('ZAP_SCANNER_INCLUDE_REGEX');
+      camForm.variableManager.fetchVariable('ZAP_SCANNER_EXLUDE_REGEX');
 
-      camForm.variableManager.fetchVariable('reportingConfigurationType');
-	  camForm.variableManager.fetchVariable('reportingTypes');
-	  camForm.variableManager.fetchVariable('reportingMicroserviceId');
- 	  camForm.variableManager.fetchVariable('reportingMicroserviceRunId');
- 	  camForm.variableManager.fetchVariable('reportingServiceHost');
-	  camForm.variableManager.fetchVariable('reportingDashboardUrl');
-	  camForm.variableManager.fetchVariable('reportingDashboardByTimeUrl');
-	  camForm.variableManager.fetchVariable('reportingFalsePositives');
+      camForm.variableManager.fetchVariable('ZAP_REPORTING_CONFIGURATION_TYPE');
+	  camForm.variableManager.fetchVariable('ZAP_REPORTING_TYPES');
+	  camForm.variableManager.fetchVariable('ZAP_REPORTING_SERVICE_ID');
+ 	  camForm.variableManager.fetchVariable('ZAP_REPORTING_SERVICE_RUN_ID');
+ 	  camForm.variableManager.fetchVariable('ZAP_REPORTING_SERVICE_HOST');
+	  camForm.variableManager.fetchVariable('ZAP_REPORTING_DASHBOARD_URL');
+	  camForm.variableManager.fetchVariable('ZAP_REPORTING_DASHBOARD_BY_TIME_URL');
+	  camForm.variableManager.fetchVariable('ZAP_REPORTING_FALSE_POSITIVES');
     });
 
     camForm.on('variables-restored', function() {
-      $scope.targetName = camForm.variableManager.variableValue('targetName');
-      $scope.targetUrl = camForm.variableManager.variableValue('targetUrl');
-      $scope.context = camForm.variableManager.variableValue('context');
+      $scope.targetName = camForm.variableManager.variableValue('ZAP_TARGET_NAME');
+      $scope.targetUrl = camForm.variableManager.variableValue('ZAP_TARGET_URL');
+      $scope.context = camForm.variableManager.variableValue('PROCESS_CONTEXT');
 
-	  $scope.spiderMicroserviceId = camForm.variableManager.variableValue('spiderMicroserviceId');
-	  $scope.spiderMicroserviceRunId = camForm.variableManager.variableValue('spiderMicroserviceRunId');
-	  $scope.spiderTargetUrl = camForm.variableManager.variableValue('spiderTargetUrl');
-	  $scope.spiderIncludeRegexes = camForm.variableManager.variableValue('spiderIncludeRegexes');
-	  $scope.spiderExcludeRegexes = camForm.variableManager.variableValue('spiderExcludeRegexes');
-	  $scope.spiderExcludeDuplicates = camForm.variableManager.variableValue('spiderExcludeDuplicates');
-	  $scope.spiderMaxDepth = camForm.variableManager.variableValue('spiderMaxDepth');
+	  $scope.spiderMicroserviceId = camForm.variableManager.variableValue('PROCESS_SPIDER_ID');
+	  $scope.spiderMicroserviceRunId = camForm.variableManager.variableValue('ZAP_SPIDER_RUN_ID');
+	  $scope.spiderTargetUrl = camForm.variableManager.variableValue('ZAP_SPIDER_TARGET_URL');
+	  $scope.spiderIncludeRegexes = camForm.variableManager.variableValue('ZAP_SPIDER_INCLUDE_REGEX');
+	  $scope.spiderExcludeRegexes = camForm.variableManager.variableValue('ZAP_SPIDER_EXCLUDE_REGEX');
+	  $scope.spiderExcludeDuplicates = camForm.variableManager.variableValue('ZAP_SPIDER_EXLUDE_DUPLICATES');
+	  $scope.spiderMaxDepth = camForm.variableManager.variableValue('ZAP_SPIDER_MAX_DEPTH');
 
-   	  $scope.scannerMicroserviceId = camForm.variableManager.variableValue('scannerMicroserviceId');
-	  $scope.scannerMicroserviceRunId = camForm.variableManager.variableValue('scannerMicroserviceRunId');
-	  $scope.scannerTargetUrl = camForm.variableManager.variableValue('scannerTargetUrl');
-	  $scope.scannerIncludeRegexes = camForm.variableManager.variableValue('scannerIncludeRegexes');
-	  $scope.scannerExcludeRegexes = camForm.variableManager.variableValue('scannerExcludeRegexes');
+   	  $scope.scannerMicroserviceId = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
+	  $scope.scannerMicroserviceRunId = camForm.variableManager.variableValue('ZAP_SCANNER_RUN_ID');
+	  $scope.scannerTargetUrl = camForm.variableManager.variableValue('ZAP_SCANNER_TARGET_URL');
+	  $scope.scannerIncludeRegexes = camForm.variableManager.variableValue('ZAP_SCANNER_INCLUDE_REGEX');
+	  $scope.scannerExcludeRegexes = camForm.variableManager.variableValue('ZAP_SCANNER_EXLUDE_REGEX');
 
-      $scope.reportingConfigurationType = camForm.variableManager.variableValue('reportingConfigurationType');
-	  $scope.reportingTypes = camForm.variableManager.variableValue('reportingTypes');
- 	  $scope.reportingFalsePositive = camForm.variableManager.variableValue('reportingFalsePositives');
-	  $scope.reportingMicroserviceId = camForm.variableManager.variableValue('reportingMicroserviceId');
-	  $scope.reportingMicroserviceRunId = camForm.variableManager.variableValue('reportingMicroserviceRunId');
- 	  $scope.reportingServiceHost = camForm.variableManager.variableValue('reportingServiceHost');
-	  $scope.reportingDashboardUrl = camForm.variableManager.variableValue('reportingDashboardUrl');
-	  $scope.reportingDashboardByTimeUrl = camForm.variableManager.variableValue('reportingDashboardByTimeUrl');
+      $scope.reportingConfigurationType = camForm.variableManager.variableValue('ZAP_REPORTING_CONFIGURATION_TYPE');
+	  $scope.reportingTypes = camForm.variableManager.variableValue('ZAP_REPORTING_TYPES');
+ 	  $scope.reportingFalsePositive = camForm.variableManager.variableValue('ZAP_REPORTING_SERVICE_ID');
+	  $scope.reportingMicroserviceId = camForm.variableManager.variableValue('ZAP_REPORTING_SERVICE_RUN_ID');
+	  $scope.reportingMicroserviceRunId = camForm.variableManager.variableValue('ZAP_REPORTING_SERVICE_HOST');
+ 	  $scope.reportingServiceHost = camForm.variableManager.variableValue('ZAP_REPORTING_DASHBOARD_URL');
+	  $scope.reportingDashboardUrl = camForm.variableManager.variableValue('ZAP_REPORTING_DASHBOARD_BY_TIME_URL');
+	  $scope.reportingDashboardByTimeUrl = camForm.variableManager.variableValue('ZAP_REPORTING_FALSE_POSITIVES');
 
       // TODO Workaround: Show dummy content if not specified (also see CAM-5292)
-      if (camForm.variableManager.variable('spiderApiSpecFile').type !== 'File') {
-        camForm.variableManager.destroyVariable('spiderApiSpecFile');
-        camForm.variableManager.createVariable({name: 'spiderApiSpecFile', type: 'File', valueInfo: {filename: ''}});
-        $scope.spiderApiSpecFile = camForm.variableManager.variableValue('spiderApiSpecFile');
+      if (camForm.variableManager.variable('ZAP_SPIDER_API_SPEC_FILE').type !== 'File') {
+        camForm.variableManager.destroyVariable('ZAP_SPIDER_API_SPEC_FILE');
+        camForm.variableManager.createVariable({name: 'ZAP_SPIDER_API_SPEC_FILE', type: 'File', valueInfo: {filename: ''}});
+        $scope.spiderApiSpecFile = camForm.variableManager.variableValue('ZAP_SPIDER_API_SPEC_FILE');
       }
 
       console.log("setting variables to scope");
@@ -250,10 +250,10 @@
 					<select required 
 							class="form-control" 
 							name="resultApproved"
-							cam-variable-name="resultApproved" 
+							cam-variable-name="ZAP_RESULT_APPROVED"
 							cam-variable-type="String">
 						<option value="approved" checked>Approved (Finished)</option>
-						<option value="dissapproved">Not Approved (Restart Scan)</option>
+						<option value="disapproved">Not Approved (Restart Scan)</option>
 						<option value="restart">Change Configuration (Restart)</option>
 					</select>
 				</div>

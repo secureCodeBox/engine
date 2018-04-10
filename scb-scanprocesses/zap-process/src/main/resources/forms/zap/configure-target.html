@@ -14,7 +14,7 @@
 					<input required class="form-control"
 						    id="inputTargetName"
 							cam-variable-type="String"
-							cam-variable-name="targetName" 
+							cam-variable-name="ZAP_TARGET_NAME"
 							type="text" 
 							placeholder="Public Site Run"
 							ng-minlength="2" 
@@ -31,7 +31,7 @@
 					<input required class="form-control"
 						    id="inputTargetUrl"
 							cam-variable-type="String"
-							cam-variable-name="targetUrl" 
+							cam-variable-name="ZAP_TARGET_URL"
 							type="text" 
 							placeholder="http://bodgeit:8080/bodgeit"
 							ng-minlength="5" 
@@ -48,7 +48,7 @@
 					<input class="form-control"
 						   id="inputContext"
 						   cam-variable-type="String"
-						   cam-variable-name="context"
+						   cam-variable-name="PROCESS_CONTEXT"
 						   type="text"
 						   placeholder="Project/Team/System"
 						   ng-required="false"
@@ -63,7 +63,7 @@
 				<div class="controls">
 					<input id="authentication"
 						   cam-variable-type="Boolean"
-						   cam-variable-name="authentication"
+						   cam-variable-name="ZAP_AUTHENTICATION"
 						   type="checkbox"
 						   name="authentication"
 						   class="form-control" />
@@ -76,7 +76,7 @@
                     <input class="form-control"
                            id="inputFalsePositiveFilter"
                            cam-variable-type="Boolean"
-                           cam-variable-name="markFalsePositive"
+                           cam-variable-name="PROCESS_MARK_FALSE_POSITIVE"
                            type="checkbox"
                            name="falsePositiveFilter"/>
                 </div>
@@ -90,7 +90,7 @@
 					<select required id="selectSpiderConfigurationType"
 							class="form-control" 
 							name="configurationType"
-							cam-variable-name="spiderConfigurationType" 
+							cam-variable-name="ZAP_SPIDER_CONFIGURATION_TYPE"
 							cam-variable-type="String">
 						<option value="default" checked>Default</option>
 						<option value="advanced">Advanced</option>
@@ -106,7 +106,7 @@
 					<select required id="selectScannerConfigurationType"
 							class="form-control" 
 							name="configurationType"
-							cam-variable-name="scannerConfigurationType" 
+							cam-variable-name="ZAP_SCANNER_CONFIGURATION_TYPE"
 							cam-variable-type="String">
 						<option value="default" checked>Default</option>
 						<option value="advanced">Advanced</option>
@@ -122,7 +122,7 @@
 					<select required id="selectReportingConfigurationType"
 							class="form-control" 
 							name="configurationType"
-							cam-variable-name="reportingConfigurationType" 
+							cam-variable-name="ZAP_REPORTING_CONFIGURATION_TYPE"
 							cam-variable-type="String">
 						<option value="default" checked>Default</option>
 						<option value="advanced">Advanced</option>

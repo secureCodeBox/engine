@@ -2,12 +2,12 @@
 
 	<script cam-script type="text/form-script">
     	camForm.on('form-loaded', function() {
-      		camForm.variableManager.fetchVariable('targetName');
-	  		camForm.variableManager.fetchVariable('targetUrl');
+      		camForm.variableManager.fetchVariable('ZAP_TARGET_NAME');
+	  		camForm.variableManager.fetchVariable('ZAP_TARGET_URL');
     	});
     	camForm.on('variables-restored', function() {
-      		$scope.targetName = camForm.variableManager.variableValue('targetName');
-      		$scope.targetUrl = camForm.variableManager.variableValue('targetUrl');
+      		$scope.targetName = camForm.variableManager.variableValue('ZAP_TARGET_NAME');
+      		$scope.targetUrl = camForm.variableManager.variableValue('ZAP_TARGET_URL');
       		console.log("setting variables to scope");
     	});
   	</script>
@@ -29,7 +29,7 @@
 					<select required multiple id="selectReportingTypes"
 							class="form-control"
 							name="reportingType"
-							cam-variable-name="reportingTypes"
+							cam-variable-name="ZAP_REPORTING_TYPES"
 							cam-variable-type="String">
 						<option value="kibana" checked>Kibana Report</option>
 						<option value="threadfix">Threadfix Report</option>
@@ -50,7 +50,7 @@
 						<input class="form-control"
 							   id="inputReportingApiKey"
 							   cam-variable-type="String"
-							   cam-variable-name="reportingApiKey"
+							   cam-variable-name="ZAP_REPORTING_API_KEY"
 							   type="text"
 							   ng-minlength="20"
 							   ng-maxlength="50"
@@ -65,7 +65,7 @@
 						<input class="form-control"
 							   id="inputReportingAppId"
 							   cam-variable-type="String"
-							   cam-variable-name="reportingAppId"
+							   cam-variable-name="ZAP_REPORTING_APP_ID"
 							   type="text"
 							   ng-minlength="1"
 							   ng-maxlength="10"
@@ -80,7 +80,7 @@
 			      <label for="textAreaReportingFalsePositive">False/Positive</label>
 			      <div class="controls">
 			        	<textarea class="form-control" id="textAreaReportingFalsePositive"
-			                  cam-variable-name="reportingFalsePositive"
+			                  cam-variable-name="ZAP_REPORTING_FALSE_POSITIVE"
 			                  cam-variable-type="String"
 			                  rows="5"
 			                  name="reportingFalsePositive">[

@@ -2,10 +2,10 @@
 
 	<script cam-script type="text/form-script">
     	camForm.on('form-loaded', function() {
-      		camForm.variableManager.fetchVariable('targetName');
+      		camForm.variableManager.fetchVariable('ZAP_TARGET_NAME');
     	});
     	camForm.on('variables-restored', function() {
-      		$scope.targetName = camForm.variableManager.variableValue('targetName');
+      		$scope.targetName = camForm.variableManager.variableValue('ZAP_TARGET_NAME');
       		console.log("setting variables to scope");
     	});
   	</script>
@@ -24,7 +24,7 @@
 					<input required class="form-control"
 						   id="inputLoginSite"
 						   cam-variable-type="String"
-						   cam-variable-name="loginSite"
+						   cam-variable-name="ZAP_LOGIN_SITE"
 						   type="text"
 						   ng-required="false"
 						   ng-maxlength="50"
@@ -39,7 +39,7 @@
 					<input required class="form-control"
 						   id="inputLoginUser"
 						   cam-variable-type="String"
-						   cam-variable-name="loginUser"
+						   cam-variable-name="ZAP_LOGIN_USER"
 						   type="text"
 						   ng-required="false"
 						   ng-maxlength="50"
@@ -54,7 +54,7 @@
 					<input required class="form-control"
 						   id="inputUserFieldId"
 						   cam-variable-type="String"
-						   cam-variable-name="usernameFieldId"
+						   cam-variable-name="ZAP_USERNAME_FIELD_ID"
 						   type="text"
 						   ng-required="false"
 						   ng-maxlength="20"
@@ -69,7 +69,7 @@
 					<input required class="form-control"
 						   id="inputLoginPassword"
 						   cam-variable-type="String"
-						   cam-variable-name="loginPassword"
+						   cam-variable-name="ZAP_LOGIN_PW"
 						   type="text"
 						   ng-required="false"
 						   ng-maxlength="20"
@@ -84,7 +84,7 @@
 					<input required class="form-control"
 						   id="inputPasswordFieldId"
 						   cam-variable-type="String"
-						   cam-variable-name="passwordFieldId"
+						   cam-variable-name="ZAP_PW_FIELD_ID"
 						   type="text"
 						   ng-required="false"
 						   ng-maxlength="20"
@@ -99,7 +99,7 @@
 					<input required class="form-control"
 						   id="inputLoggedInIndicator"
 						   cam-variable-type="String"
-						   cam-variable-name="loggedInIndicator"
+						   cam-variable-name="ZAP_LOGIN_INDICATOR"
 						   type="text"
 						   ng-required="false"
 						   ng-maxlength="50"
@@ -113,7 +113,7 @@
 					<input class="form-control"
 						   id="inputCsrfTokenIds"
 						   cam-variable-type="String"
-						   cam-variable-name="csrfTokenId"
+						   cam-variable-name="ZAP_CSRF_TOKEN"
 						   type="text"
 						   ng-required="false"
 						   ng-maxlength="100"

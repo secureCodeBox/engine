@@ -2,12 +2,12 @@
 
 	<script cam-script type="text/form-script">
     	camForm.on('form-loaded', function() {
-      		camForm.variableManager.fetchVariable('targetName');
-	  		camForm.variableManager.fetchVariable('targetUrl');
+      		camForm.variableManager.fetchVariable('ZAP_TARGET_NAME');
+	  		camForm.variableManager.fetchVariable('ZAP_TARGET_URL');
     	});
     	camForm.on('variables-restored', function() {
-      		$scope.targetName = camForm.variableManager.variableValue('targetName');
-      		$scope.targetUrl = camForm.variableManager.variableValue('targetUrl');
+      		$scope.targetName = camForm.variableManager.variableValue('ZAP_TARGET_NAME');
+      		$scope.targetUrl = camForm.variableManager.variableValue('ZAP_TARGET_URL');
       		console.log("setting variables to scope");
     	});
 
@@ -40,7 +40,7 @@
 					<input required class="form-control"
 						   id="inputSpiderTargetUrl"
 						   cam-variable-type="String"
-						   cam-variable-name="spiderTargetUrl"
+						   cam-variable-name="ZAP_SPIDER_TARGET_URL"
 						   type="text"
 						   ng-minlength="5"
 						   ng-maxlength="100"
@@ -55,7 +55,7 @@
 					<input class="form-control"
 						   id="inputSpiderApiSpecFile"
 						   cam-variable-type="File"
-						   cam-variable-name="spiderApiSpecFile"
+						   cam-variable-name="ZAP_SPIDER_API_FILE"
 						   type="file"
 						   name="spiderApiSpecFile" />
 				</div>
@@ -68,7 +68,7 @@
 					<input required class="form-control"
 						   id="inputSpiderMaxDepth"
 						   cam-variable-type="Integer"
-						   cam-variable-name="spiderMaxDepth"
+						   cam-variable-name="ZAP_SPIDER_MAX_DEPTH"
 						   type="number"
 						   min="1"
 						   max="10"
@@ -85,7 +85,7 @@
 					  <div class="controls">
 							<textarea class="form-control"
 								  id="inputSpiderIncludeRegexes"
-								  cam-variable-name="spiderIncludeRegexes"
+								  cam-variable-name="ZAP_SPIDER_INCLUDE_REGEX"
 								  cam-variable-type="String"
 								  rows="5"
 								  name="spiderIncludeRegexes"></textarea>
@@ -98,7 +98,7 @@
 					  <div class="controls">
 							<textarea class="form-control"
 								  id="inputSpiderExcludeRegexes"
-								  cam-variable-name="spiderExcludeRegexes"
+								  cam-variable-name="ZAP_SPIDER_EXCLUDE_REGEX"
 								  cam-variable-type="String"
 								  ng-required="false"
 								  rows="5"
@@ -111,7 +111,7 @@
 					  <label for="inputSpiderExcludeDuplicates">Exclude Duplicates</label>
 					  <div class="controls">
 							<textarea class="form-control" id="inputSpiderExcludeDuplicates"
-								  cam-variable-name="spiderExcludeDuplicates"
+								  cam-variable-name="ZAP_SPIDER_EXCLUDE_DUPLICATES"
 								  cam-variable-type="String"
 								  rows="5"
 								  name="spiderExcludeDuplicates"></textarea>
