@@ -1,0 +1,64 @@
+<form role="form" name="configure-scanner">
+	<script cam-script type="text/form-script">
+    	camForm.on('form-loaded', function() {
+      		camForm.variableManager.fetchVariable('targetName');
+	  		camForm.variableManager.fetchVariable('targetUrl');
+    	});
+    	camForm.on('variables-restored', function() {
+      		$scope.targetName = camForm.variableManager.variableValue('targetName');
+      		$scope.targetUrl = camForm.variableManager.variableValue('targetUrl');
+      		console.log("setting variables to scope");
+    	});
+  	</script>
+
+	<h2>Please configure the ZAP Scanner Details for "{{ targetName }}"</h2>
+	
+	<div class="row">
+
+		<div class="col-xs-12">
+			<h3>ZAP Scanner advanced configuration</h3>
+			
+			<div class="well">Target: <a href="{{ targetUrl }}">{{ targetUrl }}</a> </div>
+			
+			<!-- Scanner Target URL -->
+			<div class="form-group">
+				<label for="inputScannerTargetUrl">Scanner Target URL</label>
+				<div class="controls">
+					<input required class="form-control" 
+							cam-variable-type="String"
+							cam-variable-name="scannerTargetUrl" 
+							type="text" 
+							ng-minlength="5"
+							ng-maxlength="100" 
+							name="scannerTargetUrl" />
+				</div>
+			</div>
+			
+			<!-- includeRegexes -->
+		    <div class="form-group">
+			      <label for="inputScannerIncludeRegexes">Include RegExe's</label>
+			      <div class="controls">
+			        	<textarea class="form-control"
+			                  cam-variable-name="scannerIncludeRegexes"
+			                  cam-variable-type="String"
+			                  rows="5"
+			                  name="scannerIncludeRegexes"></textarea>
+			      </div>
+		    </div>
+			
+			<!-- includeRegexes -->
+		    <div class="form-group">
+			      <label for="inputScannerExcludeRegexes">Exclude RegExe's</label>
+			      <div class="controls">
+			        	<textarea class="form-control"
+			                  cam-variable-name="scannerExcludeRegexes"
+			                  cam-variable-type="String"
+			                  rows="5"
+			                  name="scannerExcludeRegexes"></textarea>
+			      </div>
+		    </div>
+			
+		</div>
+	
+	</div>
+</form>

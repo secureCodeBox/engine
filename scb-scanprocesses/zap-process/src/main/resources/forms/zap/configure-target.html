@@ -1,0 +1,135 @@
+<h2>Please configure the Application Security Scan</h2>
+
+<form role="form" name="configure-target">
+
+	<div class="row">
+
+		<div class="col-xs-12">
+			<h3>OWASP-ZAP Scan Target</h3>
+
+			<!-- Target Name -->
+			<div class="form-group">
+				<label for="inputTargetName">Target Name</label>
+				<div class="controls">
+					<input required class="form-control"
+						    id="inputTargetName"
+							cam-variable-type="String"
+							cam-variable-name="targetName" 
+							type="text" 
+							placeholder="Public Site Run"
+							ng-minlength="2" 
+							ng-maxlength="30" 
+							name="targetName"
+							value="BodgeIT Public Site Scan" />
+				</div>
+			</div>
+			
+			<!-- Target URL -->
+			<div class="form-group">
+				<label for="inputTargetUrl">Target URL</label>
+				<div class="controls">
+					<input required class="form-control"
+						    id="inputTargetUrl"
+							cam-variable-type="String"
+							cam-variable-name="targetUrl" 
+							type="text" 
+							placeholder="http://bodgeit:8080/bodgeit"
+							ng-minlength="5" 
+							ng-maxlength="100" 
+							name="targetUrl"
+							value="http://bodgeit:8080/bodgeit" />
+				</div>
+			</div>
+
+			<!-- Context (Project/Team/System...) -->
+			<div class="form-group">
+				<label for="inputContext">Business Context (Project/Team/System)</label>
+				<div class="controls">
+					<input class="form-control"
+						   id="inputContext"
+						   cam-variable-type="String"
+						   cam-variable-name="context"
+						   type="text"
+						   placeholder="Project/Team/System"
+						   ng-required="false"
+						   ng-maxlength="50"
+						   name="context" />
+				</div>
+			</div>
+
+			<!-- Authentication -->
+			<div class="form-group">
+				<label for="authentication">Scan with authentication (User Credentails)?</label>
+				<div class="controls">
+					<input id="authentication"
+						   cam-variable-type="Boolean"
+						   cam-variable-name="authentication"
+						   type="checkbox"
+						   name="authentication"
+						   class="form-control" />
+				</div>
+			</div>
+			
+			<div class="form-group">
+                <div class="controls">
+                    <label for="inputFalsePositiveFilter">Enable False/Positive Filtering?</label>
+                    <input class="form-control"
+                           id="inputFalsePositiveFilter"
+                           cam-variable-type="Boolean"
+                           cam-variable-name="markFalsePositive"
+                           type="checkbox"
+                           name="falsePositiveFilter"/>
+                </div>
+            </div>
+			
+			<!-- spider configuration -->
+			<div class="form-group">
+				<label for="selectSpiderConfigurationType">Type of the spider configuration</label>
+				<div class="controls">
+					<!--select box -->
+					<select required id="selectSpiderConfigurationType"
+							class="form-control" 
+							name="configurationType"
+							cam-variable-name="spiderConfigurationType" 
+							cam-variable-type="String">
+						<option value="default" checked>Default</option>
+						<option value="advanced">Advanced</option>
+					</select>
+				</div>
+			</div>
+			
+			<!-- scanner configuration -->
+			<div class="form-group">
+				<label for="selectScannerConfigurationType">Type of the scanner configuration</label>
+				<div class="controls">
+					<!--select box -->
+					<select required id="selectScannerConfigurationType"
+							class="form-control" 
+							name="configurationType"
+							cam-variable-name="scannerConfigurationType" 
+							cam-variable-type="String">
+						<option value="default" checked>Default</option>
+						<option value="advanced">Advanced</option>
+					</select>
+				</div>
+			</div>
+			
+			<!-- reporting configuration -->
+			<div class="form-group">
+				<label for="selectReportingConfigurationType">Type of the reporting configuration</label>
+				<div class="controls">
+					<!--select box -->
+					<select required id="selectReportingConfigurationType"
+							class="form-control" 
+							name="configurationType"
+							cam-variable-name="reportingConfigurationType" 
+							cam-variable-type="String">
+						<option value="default" checked>Default</option>
+						<option value="advanced">Advanced</option>
+					</select>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</form>

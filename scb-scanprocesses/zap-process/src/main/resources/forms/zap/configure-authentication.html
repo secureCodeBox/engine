@@ -1,0 +1,127 @@
+<form role="form" name="configure-spider">
+
+	<script cam-script type="text/form-script">
+    	camForm.on('form-loaded', function() {
+      		camForm.variableManager.fetchVariable('targetName');
+    	});
+    	camForm.on('variables-restored', function() {
+      		$scope.targetName = camForm.variableManager.variableValue('targetName');
+      		console.log("setting variables to scope");
+    	});
+  	</script>
+
+	<h2>Please configure the Authentication Details for "{{ targetName }}"</h2>
+
+	<div class="row">
+
+		<div class="col-xs-12">
+			<h3>ZAP Authentication configuration</h3>
+
+			<!-- Login Site -->
+			<div class="form-group">
+				<label for="inputLoginSite">Login Site URL</label>
+				<div class="controls">
+					<input required class="form-control"
+						   id="inputLoginSite"
+						   cam-variable-type="String"
+						   cam-variable-name="loginSite"
+						   type="text"
+						   ng-required="false"
+						   ng-maxlength="50"
+						   name="loginSite" />
+				</div>
+			</div>
+			
+			<!-- Login User -->
+			<div class="form-group">
+				<label for="inputLoginUser">Login User Name</label>
+				<div class="controls">
+					<input required class="form-control"
+						   id="inputLoginUser"
+						   cam-variable-type="String"
+						   cam-variable-name="loginUser"
+						   type="text"
+						   ng-required="false"
+						   ng-maxlength="50"
+						   name="loginUser" />
+				</div>
+			</div>
+
+			<!-- Login Username Field Id -->
+			<div class="form-group">
+				<label for="inputUserFieldId">Login User Name Field Id</label>
+				<div class="controls">
+					<input required class="form-control"
+						   id="inputUserFieldId"
+						   cam-variable-type="String"
+						   cam-variable-name="usernameFieldId"
+						   type="text"
+						   ng-required="false"
+						   ng-maxlength="20"
+						   name="usernameFieldId" />
+				</div>
+			</div>
+
+			<!-- Login Password -->
+			<div class="form-group">
+				<label for="inputLoginPassword">Login User Password</label>
+				<div class="controls">
+					<input required class="form-control"
+						   id="inputLoginPassword"
+						   cam-variable-type="String"
+						   cam-variable-name="loginPassword"
+						   type="text"
+						   ng-required="false"
+						   ng-maxlength="20"
+						   name="loginPassword" />
+				</div>
+			</div>
+
+			<!-- Login Password Field Id -->
+			<div class="form-group">
+				<label for="inputPasswordFieldId">Login Password Field Id</label>
+				<div class="controls">
+					<input required class="form-control"
+						   id="inputPasswordFieldId"
+						   cam-variable-type="String"
+						   cam-variable-name="passwordFieldId"
+						   type="text"
+						   ng-required="false"
+						   ng-maxlength="20"
+						   name="passwordFieldId" />
+				</div>
+			</div>
+
+			<!-- Logged in Indicator -->
+			<div class="form-group">
+				<label for="inputLoggedInIndicator">Logged In Indicator</label>
+				<div class="controls">
+					<input required class="form-control"
+						   id="inputLoggedInIndicator"
+						   cam-variable-type="String"
+						   cam-variable-name="loggedInIndicator"
+						   type="text"
+						   ng-required="false"
+						   ng-maxlength="50"
+						   name="loggedInIndicator" />
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="inputCsrfTokenIds">Html IDs of CSRF token elements</label>
+				<div class="controls">
+					<input class="form-control"
+						   id="inputCsrfTokenIds"
+						   cam-variable-type="String"
+						   cam-variable-name="csrfTokenId"
+						   type="text"
+						   ng-required="false"
+						   ng-maxlength="100"
+						   name="csrfTokenId" />
+				</div>
+			</div>
+
+		</div>
+		
+	</div>
+</form>

@@ -1,0 +1,126 @@
+<form role="form" name="configure-spider">
+
+	<script cam-script type="text/form-script">
+    	camForm.on('form-loaded', function() {
+      		camForm.variableManager.fetchVariable('targetName');
+	  		camForm.variableManager.fetchVariable('targetUrl');
+    	});
+    	camForm.on('variables-restored', function() {
+      		$scope.targetName = camForm.variableManager.variableValue('targetName');
+      		$scope.targetUrl = camForm.variableManager.variableValue('targetUrl');
+      		console.log("setting variables to scope");
+    	});
+
+    	// TODO Workaround: Ignoring unspecified file not possible yet (https://app.camunda.com/jira/browse/CAM-5292)
+        camForm.on('submit', function () {
+            camForm.fields = camForm.fields.filter(function (item) {
+                var variable = camForm.variableManager.variable(item.variableName);
+                if (variable.type === 'File' && variable.value === null) {
+                    camForm.variableManager.destroyVariable(item.variableName);
+                    return false;
+                }
+                return true;
+            });
+        });
+  	</script>
+
+	<h2>Please configure the ZAP Spider details for "{{ targetName }}"</h2>
+
+	<div class="row">
+
+		<div class="col-xs-12">
+			<h3>ZAP Spider advanced configuration</h3>
+			
+			<div class="well">Target: <a href="{{ targetUrl }}">{{ targetUrl }}</a> </div>
+
+			<!-- Spider Target URL -->
+			<div class="form-group">
+				<label for="inputSpiderTargetUrl">ZAP Spider Target URL</label>
+				<div class="controls">
+					<input required class="form-control"
+						   id="inputSpiderTargetUrl"
+						   cam-variable-type="String"
+						   cam-variable-name="spiderTargetUrl"
+						   type="text"
+						   ng-minlength="5"
+						   ng-maxlength="100"
+						   name="spiderTargetUrl" />
+				</div>
+			</div>
+
+			<!-- API specification file -->
+			<div class="form-group">
+				<label for="inputSpiderApiSpecFile">OpenAPI Specification File (optional)</label>
+				<div class="controls">
+					<input class="form-control"
+						   id="inputSpiderApiSpecFile"
+						   cam-variable-type="File"
+						   cam-variable-name="spiderApiSpecFile"
+						   type="file"
+						   name="spiderApiSpecFile" />
+				</div>
+			</div>
+
+			<!-- Spider max depth -->
+			<div class="form-group">
+				<label for="inputSpiderMaxDepth">Maximum Sitemap Depth</label>
+				<div class="controls">
+					<input required class="form-control"
+						   id="inputSpiderMaxDepth"
+						   cam-variable-type="Integer"
+						   cam-variable-name="spiderMaxDepth"
+						   type="number"
+						   min="1"
+						   max="10"
+						   name="spiderMaxDepth" />
+				</div>
+			</div>
+
+			<!-- OWASP Spider Configuration -->
+			<div class="form-group">
+			
+				<!-- includeRegexes -->
+				<div class="form-group">
+					  <label for="inputSpiderIncludeRegexes">Include RegExe's</label>
+					  <div class="controls">
+							<textarea class="form-control"
+								  id="inputSpiderIncludeRegexes"
+								  cam-variable-name="spiderIncludeRegexes"
+								  cam-variable-type="String"
+								  rows="5"
+								  name="spiderIncludeRegexes"></textarea>
+					  </div>
+				</div>
+
+				<!-- excludeRegexes -->
+				<div class="form-group">
+					  <label for="inputSpiderExcludeRegexes">Exclude RegExe's</label>
+					  <div class="controls">
+							<textarea class="form-control"
+								  id="inputSpiderExcludeRegexes"
+								  cam-variable-name="spiderExcludeRegexes"
+								  cam-variable-type="String"
+								  ng-required="false"
+								  rows="5"
+								  name="spiderExcludeRegexes"></textarea>
+					  </div>
+				</div>
+
+				<!-- excludeDuplicates -->
+				<div class="form-group">
+					  <label for="inputSpiderExcludeDuplicates">Exclude Duplicates</label>
+					  <div class="controls">
+							<textarea class="form-control" id="inputSpiderExcludeDuplicates"
+								  cam-variable-name="spiderExcludeDuplicates"
+								  cam-variable-type="String"
+								  rows="5"
+								  name="spiderExcludeDuplicates"></textarea>
+					  </div>
+				</div>
+
+			</div>
+
+		</div>
+		
+	</div>
+</form>

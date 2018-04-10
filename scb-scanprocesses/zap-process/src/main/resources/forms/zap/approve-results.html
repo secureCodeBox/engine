@@ -1,0 +1,264 @@
+<form role="form" name="configure-reporting">
+
+<script cam-script type="text/form-script">
+    camForm.on('form-loaded', function() {
+      camForm.variableManager.fetchVariable('targetName');
+      camForm.variableManager.fetchVariable('targetUrl');
+      camForm.variableManager.fetchVariable('context');
+
+      camForm.variableManager.fetchVariable('spiderMicroserviceId');
+	  camForm.variableManager.fetchVariable('spiderMicroserviceRunId');
+      camForm.variableManager.fetchVariable('spiderTargetUrl');
+      camForm.variableManager.fetchVariable('spiderIncludeRegexes');
+      camForm.variableManager.fetchVariable('spiderExcludeRegexes');
+      camForm.variableManager.fetchVariable('spiderExcludeDuplicates');
+      camForm.variableManager.fetchVariable('spiderMaxDepth');
+
+      camForm.variableManager.fetchVariable('scannerMicroserviceId');
+ 	  camForm.variableManager.fetchVariable('scannerMicroserviceRunId');
+      camForm.variableManager.fetchVariable('scannerTargetUrl');
+      camForm.variableManager.fetchVariable('scannerIncludeRegexes');
+      camForm.variableManager.fetchVariable('scannerExcludeRegexes');
+
+      camForm.variableManager.fetchVariable('reportingConfigurationType');
+	  camForm.variableManager.fetchVariable('reportingTypes');
+	  camForm.variableManager.fetchVariable('reportingMicroserviceId');
+ 	  camForm.variableManager.fetchVariable('reportingMicroserviceRunId');
+ 	  camForm.variableManager.fetchVariable('reportingServiceHost');
+	  camForm.variableManager.fetchVariable('reportingDashboardUrl');
+	  camForm.variableManager.fetchVariable('reportingDashboardByTimeUrl');
+	  camForm.variableManager.fetchVariable('reportingFalsePositives');
+    });
+
+    camForm.on('variables-restored', function() {
+      $scope.targetName = camForm.variableManager.variableValue('targetName');
+      $scope.targetUrl = camForm.variableManager.variableValue('targetUrl');
+      $scope.context = camForm.variableManager.variableValue('context');
+
+	  $scope.spiderMicroserviceId = camForm.variableManager.variableValue('spiderMicroserviceId');
+	  $scope.spiderMicroserviceRunId = camForm.variableManager.variableValue('spiderMicroserviceRunId');
+	  $scope.spiderTargetUrl = camForm.variableManager.variableValue('spiderTargetUrl');
+	  $scope.spiderIncludeRegexes = camForm.variableManager.variableValue('spiderIncludeRegexes');
+	  $scope.spiderExcludeRegexes = camForm.variableManager.variableValue('spiderExcludeRegexes');
+	  $scope.spiderExcludeDuplicates = camForm.variableManager.variableValue('spiderExcludeDuplicates');
+	  $scope.spiderMaxDepth = camForm.variableManager.variableValue('spiderMaxDepth');
+
+   	  $scope.scannerMicroserviceId = camForm.variableManager.variableValue('scannerMicroserviceId');
+	  $scope.scannerMicroserviceRunId = camForm.variableManager.variableValue('scannerMicroserviceRunId');
+	  $scope.scannerTargetUrl = camForm.variableManager.variableValue('scannerTargetUrl');
+	  $scope.scannerIncludeRegexes = camForm.variableManager.variableValue('scannerIncludeRegexes');
+	  $scope.scannerExcludeRegexes = camForm.variableManager.variableValue('scannerExcludeRegexes');
+
+      $scope.reportingConfigurationType = camForm.variableManager.variableValue('reportingConfigurationType');
+	  $scope.reportingTypes = camForm.variableManager.variableValue('reportingTypes');
+ 	  $scope.reportingFalsePositive = camForm.variableManager.variableValue('reportingFalsePositives');
+	  $scope.reportingMicroserviceId = camForm.variableManager.variableValue('reportingMicroserviceId');
+	  $scope.reportingMicroserviceRunId = camForm.variableManager.variableValue('reportingMicroserviceRunId');
+ 	  $scope.reportingServiceHost = camForm.variableManager.variableValue('reportingServiceHost');
+	  $scope.reportingDashboardUrl = camForm.variableManager.variableValue('reportingDashboardUrl');
+	  $scope.reportingDashboardByTimeUrl = camForm.variableManager.variableValue('reportingDashboardByTimeUrl');
+
+      // TODO Workaround: Show dummy content if not specified (also see CAM-5292)
+      if (camForm.variableManager.variable('spiderApiSpecFile').type !== 'File') {
+        camForm.variableManager.destroyVariable('spiderApiSpecFile');
+        camForm.variableManager.createVariable({name: 'spiderApiSpecFile', type: 'File', valueInfo: {filename: ''}});
+        $scope.spiderApiSpecFile = camForm.variableManager.variableValue('spiderApiSpecFile');
+      }
+
+      console.log("setting variables to scope");
+    });
+
+ </script>
+ 
+ 	<h2>OWASP ZAP Scan Results for "{{ targetName }}"</h2>
+
+	<div class="row">
+			<div class="col-xs-12">
+
+			<div class="">
+				<div class="">
+					<label>Target:</label>
+					<a href="{{ targetUrl }}">{{ targetUrl }}</a>
+				</div>
+				<div class="">
+					<label>Context:</label>
+					<code>{{ context }}</code>
+				</div>
+			</div>
+		
+			<h3>Application Security Findings By Process:</h3>
+			<div>
+				<iframe id="showReport" ng-src="{{reportingServiceHost + reportingDashboardUrl | trustUrl }}" height="600" width="100%" style="border: 1px solid #e3e3e3;"></iframe>
+			</div>
+			<div class="well">Scan Process Findings By Process:
+				<a href="{{reportingServiceHost + reportingDashboardUrl | trustUrl }}" target="_blank">Open Dashboard in a new Window</a>
+			</div>
+
+			<h3>Application Security Findings Overview:</h3>
+			<div>
+				<iframe id="showTimeReport" ng-src="{{reportingServiceHost + reportingDashboardByTimeUrl | trustUrl }}" height="600" width="100%" style="border: 1px solid #e3e3e3;"></iframe>
+			</div>
+			<div class="well">Security Findings By Time:
+				<a href="{{reportingServiceHost + reportingDashboardByTimeUrl | trustUrl }}" target="_blank">Open Dashboard in a new Window</a>
+			</div>
+
+			<div>
+				<h3>ZAP Spider Configuration</h3>
+				
+				<!-- Spider Type configuration -->
+				<div class="form-group">
+					<label for="selectSpiderTargetUrl">Spider TargetUrl</label>
+					<div id="selectSpiderTargetUrl" class="controls">
+						<code>{{ spiderTargetUrl }}</code>
+					</div>
+				</div>
+
+				<!-- API specification file -->
+				<div class="form-group">
+					<label for="inputSpiderApiSpecFile">API Specification File</label>
+					<div id="inputSpiderApiSpecFile" class="controls">
+						<a cam-file-download="spiderApiSpecFile"></a>
+					</div>
+				</div>
+
+				<!-- Spider Maximum Depth -->
+				<div class="form-group">
+					<label for="inputSpiderMaxDepth">Spider Maximum Depth</label>
+					<div id="inputSpiderMaxDepth" class="controls">
+						<code>{{ spiderMaxDepth }}</code>
+					</div>
+				</div>
+
+				<!-- OWASP Spider Configuration -->
+				<div class="form-group" ng-if="spiderType=='zap.spider.OwaspZapSpider'">
+
+					<!-- spiderMicroserviceId -->
+					<div class="form-group">
+						<label for="selectSpiderMicroserviceId">Spider MicroserviceId</label>
+						<div id="selectSpiderMicroserviceId" class="controls">
+							<code>{{ spiderMicroserviceId }}</code>
+						</div>
+					</div>
+
+					<!-- spiderMicroserviceRunId -->
+					<div class="form-group">
+						<label for="selectSpiderMicroserviceRunId">Spider MicroserviceRunId</label>
+						<div id="selectSpiderMicroserviceRunId" class="controls">
+							<code>{{ spiderMicroserviceRunId }}</code>
+						</div>
+					</div>
+				
+					<!-- includeRegexes -->
+					<div class="form-group">
+						  <label for="inputSpiderIncludeRegexes">Include sitemap pages by regular expression</label>
+						  <div id="inputSpiderIncludeRegexes" class="controls">
+								<code>{{ spiderIncludeRegexes }}</code>
+						  </div>
+					</div>
+
+					<!-- includeRegexes -->
+					<div class="form-group">
+						  <label for="inputSpiderExcludeRegexes">Exclude sitemap pages by regular expression</label>
+						  <div id="inputSpiderExcludeRegexes" class="controls">
+								<code>{{ spiderExcludeRegexes }}</code>
+						  </div>
+					</div>
+
+					<!-- includeRegexes -->
+					<div class="form-group">
+						  <label for="inputSpiderExcludeDuplicates">Exclude Duplicates</label>
+						  <div id="inputSpiderExcludeDuplicates" class="controls">
+								<code>{{ spiderExcludeDuplicates }}</code>
+						  </div>
+					</div>
+
+				</div>
+
+			</div>
+			
+			<div>
+				<h3>ZAP Scanner Configuration</h3>
+				
+				<!-- Scanner Target URL -->
+				<div class="form-group">
+					<label for="inputScannerTargetUrl">Scanner Target URL</label>
+					<div id="inputScannerTargetUrl" class="controls">
+						<code>{{ scannerTargetUrl }}</code>
+					</div>
+				</div>
+				
+				<!-- ScannerMicroserviceId -->
+				<div class="form-group">
+					<label for="inputScannerMicroserviceId">Scanner MicroserviceId</label>
+					<div id="inputScannerMicroserviceId" class="controls">
+						<code>{{ scannerMicroserviceId }}</code>
+					</div>
+				</div>
+				
+				<!-- ScannerMicroserviceRunId -->
+				<div class="form-group">
+					<label for="inputScannerMicroserviceRunId">Scanner MicroserviceRunId</label>
+					<div id="inputScannerMicroserviceRunId" class="controls">
+						<code>{{ scannerMicroserviceRunId }}</code>
+					</div>
+				</div>
+				
+				<!-- includeRegexes -->
+			    <div class="form-group">
+				      <label for="inputScannerIncludeRegexes">Include sitemap pages by regular expression</label>
+				      <div id="inputScannerIncludeRegexes" class="controls">
+				        	<code>{{ scannerIncludeRegexes }}</code>
+				      </div>
+			    </div>
+				
+				<!-- includeRegexes -->
+			    <div class="form-group">
+				      <label for="inputScannerExcludeRegexes">Exclude sitemap pages by regular expression</label>
+				      <div id="inputScannerExcludeRegexes" class="controls">
+				        	<code>{{ scannerExcludeRegexes }}</code>
+				      </div>
+			    </div>
+			</div>
+			
+			<div>
+				<h3>Reporting Configuration</h3>
+				
+				<!-- Reporting Type configuration -->
+				<div class="form-group">
+					<label for="selectReportingTypes">Reporting Type Configuration</label>
+					<div id="selectReportingTypes" class="controls">
+						<code>{{ reportingTypes }}</code>
+					</div>
+				</div>
+				
+				<!-- False/Positive -->
+		    	<div class="form-group">
+				      <label for="textAreaReportingFalsePositive">Reporting False/Positives</label>
+				      <div id="textAreaReportingFalsePositive" class="controls">
+				        	<code>{{ reportingFalsePositive }}</code>
+				      </div>
+			    </div>
+				
+			</div>
+			
+			<h2>Approve Result</h2>
+			<!-- reporting configuration -->
+			<div class="form-group">
+				<label for="selectResultApproved">Approve Result</label>
+				<div id="selectResultApproved" class="controls">
+					<!--select box -->
+					<select required 
+							class="form-control" 
+							name="resultApproved"
+							cam-variable-name="resultApproved" 
+							cam-variable-type="String">
+						<option value="approved" checked>Approved (Finished)</option>
+						<option value="dissapproved">Not Approved (Restart Scan)</option>
+						<option value="restart">Change Configuration (Restart)</option>
+					</select>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+</form>
