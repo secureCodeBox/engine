@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.11.3">
-  <bpmn:process id="SecureBoxExternalPortscan" name="Port Scan" isExecutable="true" camunda:versionTag="3">
+  <bpmn:process id="nmap-process-raw" name="NMAP Port Scan - Raw" isExecutable="true" camunda:versionTag="3">
     <bpmn:startEvent id="StartEvent_ConfigurePortscan" name="target configured" camunda:formKey="embedded:app:forms/nmap/configure-port-scanner-target.html">
       <bpmn:extensionElements>
         <camunda:executionListener delegateExpression="${checkForAutomatedRunListener}" event="start" />
@@ -20,7 +20,7 @@
       <bpmn:incoming>SequenceFlow_ResultApproved</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_AutomatedFinish</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="SequenceFlow_PortscanFinisched" name="finished&#10;&#10;" sourceRef="ServiceTask_DoPortscan" targetRef="ServiceTask_TransformResult" />
+    <bpmn:sequenceFlow id="SequenceFlow_PortscanFinished" name="finished&#10;&#10;" sourceRef="ServiceTask_DoPortscan" targetRef="ServiceTask_TransformResult" />
     <bpmn:userTask id="UserTask_ConfigureAdvancedPortscan" name="Configure advanced portscan" camunda:formKey="embedded:app:forms/nmap/configure-port-scanner-details.html">
       <bpmn:incoming>SequenceFlow_AdvancedConfig</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_ResultRejected</bpmn:incoming>
@@ -34,7 +34,6 @@
     <bpmn:userTask id="UserTask_ApproveResults" name="Review scan results" camunda:formKey="embedded:app:forms/nmap/approve-port-scanner-results.html" camunda:candidateGroups="_securebox_admin, _securebox_productowner, _securebox_developer, approver">
       <bpmn:extensionElements>
         <camunda:formData />
-        <!-- <camunda:taskListener delegateExpression="${setBridgeUrlListener}" event="create" /> -->
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_ManualFinish</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_ResultReviewed</bpmn:outgoing>
@@ -58,7 +57,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_AutomatedStart" name="automated start" sourceRef="ExclusiveGateway_AutomatedStart" targetRef="ServiceTask_DoPortscan">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_AUTOMATED == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_ManualStart" name="manuall start" sourceRef="ExclusiveGateway_AutomatedStart" targetRef="ExclusiveGateway_AdvancedConfiguration">
+    <bpmn:sequenceFlow id="SequenceFlow_ManualStart" name="manual start" sourceRef="ExclusiveGateway_AutomatedStart" targetRef="ExclusiveGateway_AdvancedConfiguration">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_AUTOMATED == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_AutomatedFinish" name="is automated run?">
@@ -66,7 +65,7 @@
       <bpmn:outgoing>SequenceFlow_ManualFinish</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_AutomatedFinish</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_ManualFinish" name="manuall finish&#10;&#10;" sourceRef="ExclusiveGateway_AutomatedFinish" targetRef="UserTask_ApproveResults">
+    <bpmn:sequenceFlow id="SequenceFlow_ManualFinish" name="manual finish&#10;&#10;" sourceRef="ExclusiveGateway_AutomatedFinish" targetRef="UserTask_ApproveResults">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_AUTOMATED == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_AutomatedFinish" name="automated finish" sourceRef="ExclusiveGateway_AutomatedFinish" targetRef="EndEvent_FinishedPortscan">
@@ -74,46 +73,42 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_TransformedPersisted" name="transformed and persisted" sourceRef="ServiceTask_TransformResult" targetRef="ExclusiveGateway_MarkFalsePositive" />
     <bpmn:serviceTask id="ServiceTask_TransformResult" name="Transform generic results" camunda:asyncBefore="true" camunda:delegateExpression="${transformNmapResultsDelegate}">
-      <bpmn:incoming>SequenceFlow_PortscanFinisched</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_PortscanFinished</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_TransformedPersisted</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="ServiceTask_DoPortscan" name="Run the portscan" camunda:asyncBefore="true" camunda:type="external" camunda:topic="nmap_portscan">
-      <bpmn:extensionElements>
-        <!-- <camunda:executionListener delegateExpression="${finishedPortScanTaskListener}" event="end" /> -->
-      </bpmn:extensionElements>
+      <bpmn:extensionElements />
       <bpmn:incoming>SequenceFlow_PortscanConfigured</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_DefaultConfig</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_AutomatedStart</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_PortscanFinisched</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_PortscanFinished</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_SummaryCreated" name="summary created" sourceRef="ServiceTask_CreateSummary" targetRef="ExclusiveGateway_AutomatedFinish" />
     <bpmn:serviceTask id="ServiceTask_CreateSummary" name="Create Report Summary" camunda:asyncBefore="true" camunda:delegateExpression="${summaryGeneratorDelegate}">
-      <bpmn:extensionElements>
-        <!-- <camunda:executionListener delegateExpression="${persistGenericFindingsListener}" event="start" /> -->
-      </bpmn:extensionElements>
+      <bpmn:extensionElements />
       <bpmn:incoming>SequenceFlow_ResultsFiltered</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_NoFilter</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_SummaryCreated</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_ResultsFiltered" name="findings checked" sourceRef="ServiceTask_MarkFalsePositive" targetRef="ServiceTask_CreateSummary" />
-    <bpmn:serviceTask id="ServiceTask_MarkFalsePositive" name="Mark false-positive results" camunda:asyncBefore="true" camunda:type="external" camunda:topic="mark_falsepositive">
+    <bpmn:serviceTask id="ServiceTask_MarkFalsePositive" name="Mark false-positive results" camunda:asyncBefore="true" camunda:type="external" camunda:topic="task_mark_false_positive">
       <bpmn:incoming>SequenceFlow_FilterResults</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_ResultsFiltered</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:exclusiveGateway id="ExclusiveGateway_MarkFalsePositive" name="check false/positives ?">
+    <bpmn:exclusiveGateway id="ExclusiveGateway_MarkFalsePositive" name="check false-positives ?">
       <bpmn:incoming>SequenceFlow_TransformedPersisted</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_FilterResults</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_NoFilter</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_FilterResults" name="check findings" sourceRef="ExclusiveGateway_MarkFalsePositive" targetRef="ServiceTask_MarkFalsePositive">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${execution.getVariable('markFalsePositive') == true}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${execution.getVariable('PROCESS_MARK_FALSE_POSITIVE') == true}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_NoFilter" name="no filter" sourceRef="ExclusiveGateway_MarkFalsePositive" targetRef="ServiceTask_CreateSummary">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${(execution.getVariable('markFalsePositive') == null) or (execution.getVariable('markFalsePositive') == false)}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${(execution.getVariable('PROCESS_MARK_FALSE_POSITIVE') == null) or (execution.getVariable('PROCESS_MARK_FALSE_POSITIVE') == false)}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:dataObjectReference id="DataObjectReference_nmapResultsRaw" name="nmap_results_raw&#10;&#10;" dataObjectRef="DataObject_1y6pfeq" />
+    <bpmn:dataObjectReference id="DataObjectReference_nmapResultsRaw" name="PROCESS_RAW_FINDINGS&#10;&#10;" dataObjectRef="DataObject_1y6pfeq" />
     <bpmn:dataObject id="DataObject_1y6pfeq" />
-    <bpmn:dataObjectReference id="DataObjectReference_0vhjx0n" name="nmap_results_json" dataObjectRef="DataObject_0lpf2y8" />
+    <bpmn:dataObjectReference id="DataObjectReference_0vhjx0n" name="PROCESS_FINDINGS" dataObjectRef="DataObject_0lpf2y8" />
     <bpmn:dataObject id="DataObject_0lpf2y8" />
     <bpmn:textAnnotation id="TextAnnotation_1mi2hrk">
       <bpmn:text>Original results returned by the nmap scanner</bpmn:text>
@@ -125,7 +120,7 @@
     <bpmn:association id="Association_16qrr9w" sourceRef="DataObjectReference_0vhjx0n" targetRef="TextAnnotation_0lm3esn" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="SecureBoxExternalPortscan">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="nmap-process-raw">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_ConfigurePortscan">
         <dc:Bounds x="27" y="329" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -159,7 +154,7 @@
           <dc:Bounds x="1523" y="320" width="90" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_0kjlgbs_di" bpmnElement="SequenceFlow_PortscanFinisched">
+      <bpmndi:BPMNEdge id="SequenceFlow_0kjlgbs_di" bpmnElement="SequenceFlow_PortscanFinished">
         <di:waypoint xsi:type="dc:Point" x="559" y="327" />
         <di:waypoint xsi:type="dc:Point" x="638" y="327" />
         <bpmndi:BPMNLabel>
@@ -234,7 +229,7 @@
         <di:waypoint xsi:type="dc:Point" x="194" y="120" />
         <di:waypoint xsi:type="dc:Point" x="277" y="120" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="125" y="222" width="58" height="13" />
+          <dc:Bounds x="123" y="222" width="63" height="12" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ExclusiveGateway_1bzno3f_di" bpmnElement="ExclusiveGateway_AutomatedFinish" isMarkerVisible="true">
@@ -248,7 +243,7 @@
         <di:waypoint xsi:type="dc:Point" x="1229" y="204" />
         <di:waypoint xsi:type="dc:Point" x="1276" y="204" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1144" y="245" width="68" height="38" />
+          <dc:Bounds x="1146" y="245" width="65" height="36" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0s3limw_di" bpmnElement="SequenceFlow_AutomatedFinish">
@@ -316,7 +311,7 @@
       <bpmndi:BPMNShape id="DataObjectReference_0haqq3t_di" bpmnElement="DataObjectReference_nmapResultsRaw">
         <dc:Bounds x="579" y="369" width="36" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="554" y="422" width="90" height="38" />
+          <dc:Bounds x="558" y="422" width="82" height="48" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_1mi2hrk_di" bpmnElement="TextAnnotation_1mi2hrk">
@@ -329,7 +324,7 @@
       <bpmndi:BPMNShape id="DataObjectReference_0vhjx0n_di" bpmnElement="DataObjectReference_0vhjx0n">
         <dc:Bounds x="753" y="369" width="36" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="729" y="422" width="87" height="25" />
+          <dc:Bounds x="730" y="422" width="86" height="24" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_0lm3esn_di" bpmnElement="TextAnnotation_0lm3esn">

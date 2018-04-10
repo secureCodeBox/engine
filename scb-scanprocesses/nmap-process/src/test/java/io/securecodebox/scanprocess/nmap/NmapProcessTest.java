@@ -75,11 +75,11 @@ import static org.mockito.Mockito.when;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@Deployment(resources = "bpmn/nmap_scan.bpmn")
+@Deployment(resources = "bpmn/nmap_process_raw.bpmn")
 public class NmapProcessTest {
 
     //Define the Process Activity IDs
-    private static final String PROCESS_ID = "SecureBoxExternalPortscan";
+    private static final String PROCESS_ID = "nmap-process-raw";
     private static final String DO_PORTSCAN_TASK_ID = "ServiceTask_DoPortscan";
     private static final String TRANSFORM_RESULTS_TASK_ID = "ServiceTask_TransformResult";
     private static final String CREATE_REPORT_TASK_ID = "ServiceTask_CreateSummary";
@@ -109,7 +109,7 @@ public class NmapProcessTest {
         defaultVariables.put(DefaultFields.PROCESS_CONTEXT.name(), "BodgeIT");
         defaultVariables.put(NmapFields.NMAP_TARGET.name(), "localhost");
         defaultVariables.put(NmapFields.NMAP_TARGET_URL.name(), "BodgeIT Public Host");
-        defaultVariables.put("markFalsePositive", false);
+        defaultVariables.put(DefaultFields.PROCESS_MARK_FALSE_POSITIVE.name(), false);
         defaultVariables.put(NmapFields.NMAP_CONFIGURATION_TYPE.name(), "default");
 
         /*
@@ -130,7 +130,7 @@ public class NmapProcessTest {
         then this guide is helpful:
         https://blog.akquinet.de/2016/11/04/camunda-bpm-test-your-processes-based-on-plain-old-java-delegates/
          */
-        autoMock("bpmn/nmap_scan.bpmn");
+        autoMock("bpmn/nmap_process_raw.bpmn");
 
         /*
         Here we define a default behaviour for all the tasks in the BPMN model.
@@ -150,7 +150,7 @@ public class NmapProcessTest {
         when(nmapProcess.waitsAtServiceTask(DO_PORTSCAN_TASK_ID)).thenReturn(
                 task -> startExternalMockProcess("nmap_portscan"));
         when(nmapProcess.waitsAtServiceTask(MARK_FALSE_POSITIVES_TASK_ID)).thenReturn(
-                task -> startExternalMockProcess("mark_falsepositive"));
+                task -> startExternalMockProcess("task_mark_false_positive"));
     }
 
     @Test
@@ -234,7 +234,7 @@ public class NmapProcessTest {
 
         assertThat(scenario.instance(nmapProcess)).isEnded();
         assertThat(scenario.instance(nmapProcess)).hasVariables(
-                DefaultFields.PROCESS_CONTEXT.name(), NmapFields.NMAP_TARGET.name(), NmapFields.NMAP_TARGET_URL.name(), "markFalsePositive", NmapFields.NMAP_CONFIGURATION_TYPE.name());
+                DefaultFields.PROCESS_CONTEXT.name(), NmapFields.NMAP_TARGET.name(), NmapFields.NMAP_TARGET_URL.name(), DefaultFields.PROCESS_MARK_FALSE_POSITIVE.name(), NmapFields.NMAP_CONFIGURATION_TYPE.name());
         assertThat(scenario.instance(nmapProcess)).hasPassedInOrder(DO_PORTSCAN_TASK_ID, TRANSFORM_RESULTS_TASK_ID, CREATE_REPORT_TASK_ID);
      //   verifyExecutionListenerMock("finishedPortScanTaskListener").executed();
         verifyJavaDelegateMock("transformNmapResultsDelegate").executed();
@@ -249,13 +249,13 @@ public class NmapProcessTest {
     public void testAutomatedScanWithMarkingFalsePositive() {
 
         Map<String, Object> variables = new HashMap<>(defaultVariables);
-        changeVariable(variables, "markFalsePositive", true);
+        changeVariable(variables, DefaultFields.PROCESS_MARK_FALSE_POSITIVE.name(), true);
 
         Scenario scenario = Scenario.run(nmapProcess).startByKey(PROCESS_ID, variables).execute();
 
         assertThat(scenario.instance(nmapProcess)).isEnded();
         assertThat(scenario.instance(nmapProcess)).hasVariables(
-                DefaultFields.PROCESS_CONTEXT.name(), NmapFields.NMAP_TARGET.name(), NmapFields.NMAP_TARGET_URL.name(), "markFalsePositive", NmapFields.NMAP_CONFIGURATION_TYPE.name());
+                DefaultFields.PROCESS_CONTEXT.name(), NmapFields.NMAP_TARGET.name(), NmapFields.NMAP_TARGET_URL.name(), DefaultFields.PROCESS_MARK_FALSE_POSITIVE.name(), NmapFields.NMAP_CONFIGURATION_TYPE.name());
         assertThat(scenario.instance(nmapProcess)).hasPassedInOrder(DO_PORTSCAN_TASK_ID, TRANSFORM_RESULTS_TASK_ID,
                 MARK_FALSE_POSITIVES_TASK_ID, CREATE_REPORT_TASK_ID);
     //    verifyExecutionListenerMock("finishedPortScanTaskListener").executed();
@@ -374,7 +374,7 @@ public class NmapProcessTest {
 //    @Test
 //    public void testAutomatedScanWithoutMarkingFalsePositve() {
 //
-//        autoMock("bpmn/nmap_scan.bpmn");
+//        autoMock("bpmn/nmap_process_raw.bpmn");
 //        ProcessInstance processInstance = processEngine().getRuntimeService().startProcessInstanceByKey(PROCESS_ID, defaultVariables);
 //
 //
@@ -398,7 +398,7 @@ public class NmapProcessTest {
 //        assertThat(processInstance).isEnded();
 //
 //        //todo: expand this list with finding variables
-//        assertThat(processInstance).hasVariables(DefaultFields.PROCESS_CONTEXT.name(), NmapFields.NMAP_TARGET.name(), NmapFields.NMAP_TARGET_URL.name(), "markFalsePositive",
+//        assertThat(processInstance).hasVariables(DefaultFields.PROCESS_CONTEXT.name(), NmapFields.NMAP_TARGET.name(), NmapFields.NMAP_TARGET_URL.name(), DefaultFields.PROCESS_MARK_FALSE_POSITIVE.name(),
 //                NmapFields.NMAP_CONFIGURATION_TYPE.name());
 //
 //        assertThat(processInstance).hasPassedInOrder(DO_PORTSCAN_TASK_ID, TRANSFORM_RESULTS_TASK_ID, CREATE_REPORT_TASK_ID);
