@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.11.3">
-  <bpmn:process id="SecureBoxExternalZapScan" name="OWASP-ZAP Scan" isExecutable="true" camunda:versionTag="1">
+  <bpmn:process id="zap-process-raw" name="ZAP Webapplication Scan" isExecutable="true" camunda:versionTag="1">
     <bpmn:startEvent id="StartEvent_ConfigureZapScan" name="target configured" camunda:formKey="embedded:app:forms/zap/configure-target.html">
       <bpmn:extensionElements>
         <camunda:executionListener class="de.iteratec.securebox.engine.listener.CheckForAutomatedRunListener" event="start" />
@@ -11,7 +11,7 @@
       <bpmn:outgoing>SequenceFlow_TargetConfigured</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="SequenceFlow_TargetConfigured" sourceRef="StartEvent_ConfigureZapScan" targetRef="ExclusiveGateway_AutomatedStart" />
-    <bpmn:endEvent id="EndEvent_FinishedWebserverScan" name="Port Scan finished">
+    <bpmn:endEvent id="EndEvent_FinishedWebserverScan" name="ZAP Scan finished">
       <bpmn:incoming>SequenceFlow_ResultApproved</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_AutomatedFinish</bpmn:incoming>
     </bpmn:endEvent>
@@ -40,7 +40,7 @@
       <bpmn:outgoing>SequenceFlow_0drubkw</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_ResultApproved" name="result approved" sourceRef="ExclusiveGateway_ResultApproved" targetRef="EndEvent_FinishedWebserverScan">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${resultApproved == 'approved'}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${ZAP_RESULT_APPROVED == 'approved'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_AutomatedStart" name="automated run?">
       <bpmn:incoming>SequenceFlow_TargetConfigured</bpmn:incoming>
@@ -49,27 +49,27 @@
       <bpmn:outgoing>SequenceFlow_ManualStart</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_AutomatedStart" name="automated run" sourceRef="ExclusiveGateway_AutomatedStart" targetRef="ServiceTask_StartSpider">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${automatedRun == true}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_AUTOMATED == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_ManualStart" name="manuall run&#10;&#10;" sourceRef="ExclusiveGateway_AutomatedStart" targetRef="ExclusiveGateway_AdvancedConfiguration">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${automatedRun == false}</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="SequenceFlow_ManualStart" name="manual&#10; run&#10;&#10;" sourceRef="ExclusiveGateway_AutomatedStart" targetRef="ExclusiveGateway_AdvancedConfiguration">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_AUTOMATED == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_AutomatedFinish" name="is automated run?">
       <bpmn:incoming>SequenceFlow_SummaryCreated</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_ManualFinish</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_AutomatedFinish</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_ManualFinish" name="manuall finish&#10;&#10;" sourceRef="ExclusiveGateway_AutomatedFinish" targetRef="UserTask_ApproveResults">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${automatedRun == false}</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="SequenceFlow_ManualFinish" name="manual finish&#10;&#10;" sourceRef="ExclusiveGateway_AutomatedFinish" targetRef="UserTask_ApproveResults">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_AUTOMATED == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_AutomatedFinish" name="automated finish" sourceRef="ExclusiveGateway_AutomatedFinish" targetRef="EndEvent_FinishedWebserverScan">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${automatedRun == true}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_AUTOMATED == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="ServiceTask_TransformResult" name="Transform generic results" camunda:asyncBefore="true" camunda:class="de.iteratec.securebox.engine.delegates.zap.TransformZapResultsDelegate">
       <bpmn:incoming>SequenceFlow_1g7p2w3</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1j7o3wd</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="ServiceTask_StartSpider" name="Run the (OWASP ZAP) Spider" camunda:asyncBefore="true" camunda:type="external" camunda:topic="owasp_spider">
+    <bpmn:serviceTask id="ServiceTask_StartSpider" name="Run the (OWASP ZAP) Spider" camunda:asyncBefore="true" camunda:type="external" camunda:topic="zap_spider">
       <bpmn:extensionElements>
         <camunda:executionListener class="de.iteratec.securebox.engine.listener.appscan.FinishedSpiderTaskListener" event="end" />
       </bpmn:extensionElements>
@@ -86,21 +86,21 @@
       <bpmn:incoming>SequenceFlow_0g44r4l</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_SummaryCreated</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="Task_MarkFalsePositive" name="Mark False Positive Results" camunda:type="external" camunda:topic="mark_falsepositive">
+    <bpmn:serviceTask id="Task_MarkFalsePositive" name="Mark False Positive Results" camunda:type="external" camunda:topic="task_mark_false_positive">
       <bpmn:incoming>SequenceFlow_1rinl8l</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0g44r4l</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:exclusiveGateway id="ExclusiveGateway_MarkFalsePositive" name="check false/positives ?&#10;&#10;">
+    <bpmn:exclusiveGateway id="ExclusiveGateway_MarkFalsePositive" name="check false-positives ?&#10;&#10;">
       <bpmn:incoming>SequenceFlow_1j7o3wd</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1rinl8l</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0zedhqj</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_1j7o3wd" sourceRef="ServiceTask_TransformResult" targetRef="ExclusiveGateway_MarkFalsePositive" />
     <bpmn:sequenceFlow id="SequenceFlow_1rinl8l" name="check findings" sourceRef="ExclusiveGateway_MarkFalsePositive" targetRef="Task_MarkFalsePositive">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${execution.getVariable('markFalsePositive') == true}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${execution.getVariable('PROCESS_MARK_FALSE_POSITIVE') == true}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0zedhqj" name="no check" sourceRef="ExclusiveGateway_MarkFalsePositive" targetRef="ServiceTask_CreateSummary">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${(execution.getVariable('markFalsePositive') == null) or (execution.getVariable('markFalsePositive') == false)}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${(execution.getVariable('PROCESS_MARK_FALSE_POSITIVE') == null) or (execution.getVariable('PROCESS_MARK_FALSE_POSITIVE') == false)}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0g44r4l" name="findings checked" sourceRef="Task_MarkFalsePositive" targetRef="ServiceTask_CreateSummary" />
     <bpmn:userTask id="UserTask_configure_spider-details" name="Configure&#10;spider" camunda:formKey="embedded:app:forms/zap/configure-spider-details.html">
@@ -116,21 +116,21 @@
     <bpmn:sequenceFlow id="SequenceFlow_1fxwueb" sourceRef="UserTask_configure_spider-details" targetRef="ExclusiveGateway_016s0wv" />
     <bpmn:sequenceFlow id="SequenceFlow_02qc6c8" name="authentication configured" sourceRef="UserTask_ConfigureAdvancedWebserverScan" targetRef="ExclusiveGateway_016s0wv" />
     <bpmn:sequenceFlow id="SequenceFlow_11fbr18" name="advanced &#10;spider configuration" sourceRef="ExclusiveGateway_AdvancedConfiguration" targetRef="UserTask_configure_spider-details">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${spiderConfigurationType == 'advanced'}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${ZAP_SPIDER_CONFIGURATION_TYPE == 'advanced'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1s3gu9y" name="advanced scanner configuration" sourceRef="ExclusiveGateway_AdvancedConfiguration" targetRef="UserTask_configure_scanner-details">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${scannerConfigurationType == 'advanced'}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${ZAP_SCANNER_CONFIGURATION_TYPE == 'advanced'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0r2gvr8" name="advanved authentication configuration" sourceRef="ExclusiveGateway_AdvancedConfiguration" targetRef="UserTask_ConfigureAdvancedWebserverScan">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${authentication}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ZAP_AUTHENTICATION}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0j7z5rz" name="spider &#10;configured" sourceRef="UserTask_configure_spider-details" targetRef="ExclusiveGateway_016s0wv" />
     <bpmn:sequenceFlow id="SequenceFlow_0dnuw18" name="scanner configured" sourceRef="UserTask_configure_scanner-details" targetRef="ExclusiveGateway_016s0wv" />
     <bpmn:sequenceFlow id="SequenceFlow_0br09x5" name="no &#10;advanced configuration" sourceRef="ExclusiveGateway_AdvancedConfiguration" targetRef="ExclusiveGateway_016s0wv">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${!authentication && spiderConfigurationType == 'default' && scannerConfigurationType == 'default' && reportingConfigurationType == 'default'}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${!ZAP_AUTHENTICATION && ZAP_SPIDER_CONFIGURATION_TYPE == 'default' && ZAP_SCANNER_CONFIGURATION_TYPE == 'default' && ZAP_REPORTING_CONFIGURATION_TYPE == 'default'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1g7p2w3" name="finished" sourceRef="ServiceTask_StartScanner" targetRef="ServiceTask_TransformResult" />
-    <bpmn:serviceTask id="ServiceTask_StartScanner" name="Run the (OWASP Zap) Scanner" camunda:asyncBefore="true" camunda:type="external" camunda:topic="owasp_scanner">
+    <bpmn:serviceTask id="ServiceTask_StartScanner" name="Run the (OWASP Zap) Scanner" camunda:asyncBefore="true" camunda:type="external" camunda:topic="zap_scan">
       <bpmn:extensionElements>
         <camunda:executionListener class="de.iteratec.securebox.engine.listener.appscan.FinishedScannerTaskListener" event="end" />
       </bpmn:extensionElements>
@@ -138,7 +138,7 @@
       <bpmn:outgoing>SequenceFlow_1g7p2w3</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_08lbhm5" name="advanced reporting configuration" sourceRef="ExclusiveGateway_AdvancedConfiguration" targetRef="UserTask_configure_reporting-details">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${reportingConfigurationType == 'advanced'}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${ZAP_REPORTING_CONFIGURATION_TYPE == 'advanced'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0ifemf4" sourceRef="UserTask_configure_reporting-details" targetRef="ExclusiveGateway_016s0wv" />
     <bpmn:userTask id="UserTask_configure_reporting-details" name="Configure reporting" camunda:formKey="embedded:app:forms/zap/configure-reporting-details.html">
@@ -146,7 +146,7 @@
       <bpmn:outgoing>SequenceFlow_0ifemf4</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="SequenceFlow_0drubkw" sourceRef="ExclusiveGateway_ResultApproved" targetRef="ExclusiveGateway_AutomatedStart">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${resultApproved == 'dissapproved'}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${ZAP_RESULT_APPROVED == 'disapproved'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:inclusiveGateway id="ExclusiveGateway_AdvancedConfiguration" name="Advanced configuration?">
       <bpmn:incoming>SequenceFlow_ManualStart</bpmn:incoming>
@@ -171,7 +171,7 @@
     <bpmn:association id="Association_09bt0si" sourceRef="StartEvent_ConfigureZapScan" targetRef="TextAnnotation_1cimbzw" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="SecureBoxExternalZapScan">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="zap-process-raw">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_ConfigureZapScan">
         <dc:Bounds x="-31" y="24" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -243,7 +243,7 @@
         <di:waypoint xsi:type="dc:Point" x="460" y="42" />
         <di:waypoint xsi:type="dc:Point" x="460" y="93" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="248.00000000000006" y="15" width="58" height="38" />
+          <dc:Bounds x="249" y="15" width="56" height="36" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ExclusiveGateway_1bzno3f_di" bpmnElement="ExclusiveGateway_AutomatedFinish" isMarkerVisible="true">
@@ -256,7 +256,7 @@
         <di:waypoint xsi:type="dc:Point" x="1454" y="548" />
         <di:waypoint xsi:type="dc:Point" x="1454" y="433" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1365" y="453" width="68" height="38" />
+          <dc:Bounds x="1367" y="453" width="65" height="36" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0s3limw_di" bpmnElement="SequenceFlow_AutomatedFinish">
