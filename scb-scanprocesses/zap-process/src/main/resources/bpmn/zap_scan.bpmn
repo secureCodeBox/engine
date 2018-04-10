@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.11.3">
   <bpmn:process id="SecureBoxExternalZapScan" name="OWASP-ZAP Scan" isExecutable="true" camunda:versionTag="1">
-    <bpmn:startEvent id="StartEvent_ConfigureZapScan" name="target configured" camunda:formKey="embedded:app:forms/zapscan/configure-target.html">
+    <bpmn:startEvent id="StartEvent_ConfigureZapScan" name="target configured" camunda:formKey="embedded:app:forms/zap/configure-target.html">
       <bpmn:extensionElements>
         <camunda:executionListener class="de.iteratec.securebox.engine.listener.CheckForAutomatedRunListener" event="start" />
         <camunda:executionListener class="de.iteratec.securebox.engine.listener.EnsureProcessUuidListener" event="end" />
@@ -16,12 +16,12 @@
       <bpmn:incoming>SequenceFlow_AutomatedFinish</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_WebserverScanFinisched" name="finished&#10;&#10;" sourceRef="ServiceTask_StartSpider" targetRef="ServiceTask_StartScanner" />
-    <bpmn:userTask id="UserTask_ConfigureAdvancedWebserverScan" name="Configure authentication" camunda:formKey="embedded:app:forms/zapscan/configure-authentication.html">
+    <bpmn:userTask id="UserTask_ConfigureAdvancedWebserverScan" name="Configure authentication" camunda:formKey="embedded:app:forms/zap/configure-authentication.html">
       <bpmn:incoming>SequenceFlow_0r2gvr8</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_02qc6c8</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="SequenceFlow_ResultReviewed" name="result reviewed" sourceRef="UserTask_ApproveResults" targetRef="ExclusiveGateway_ResultApproved" />
-    <bpmn:userTask id="UserTask_ApproveResults" name="Review scan results" camunda:formKey="embedded:app:forms/zapscan/approve-results.html" camunda:candidateGroups="_securebox_admin, _securebox_productowner, _securebox_developer, approver">
+    <bpmn:userTask id="UserTask_ApproveResults" name="Review scan results" camunda:formKey="embedded:app:forms/zap/approve-results.html" camunda:candidateGroups="_securebox_admin, _securebox_productowner, _securebox_developer, approver">
       <bpmn:extensionElements>
         <camunda:formData />
         <camunda:taskListener class="de.iteratec.securebox.engine.listener.SetFormUrlListener" event="create">
@@ -103,12 +103,12 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${(execution.getVariable('markFalsePositive') == null) or (execution.getVariable('markFalsePositive') == false)}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0g44r4l" name="findings checked" sourceRef="Task_MarkFalsePositive" targetRef="ServiceTask_CreateSummary" />
-    <bpmn:userTask id="UserTask_configure_spider-details" name="Configure&#10;spider" camunda:formKey="embedded:app:forms/zapscan/configure-spider-details.html">
+    <bpmn:userTask id="UserTask_configure_spider-details" name="Configure&#10;spider" camunda:formKey="embedded:app:forms/zap/configure-spider-details.html">
       <bpmn:incoming>SequenceFlow_11fbr18</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1fxwueb</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0j7z5rz</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="UserTask_configure_scanner-details" name="Configure scanner" camunda:formKey="embedded:app:forms/zapscan/configure-scanner-details.html">
+    <bpmn:userTask id="UserTask_configure_scanner-details" name="Configure scanner" camunda:formKey="embedded:app:forms/zap/configure-scanner-details.html">
       <bpmn:incoming>SequenceFlow_1s3gu9y</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0dnuw18</bpmn:outgoing>
     </bpmn:userTask>
@@ -141,7 +141,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${reportingConfigurationType == 'advanced'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0ifemf4" sourceRef="UserTask_configure_reporting-details" targetRef="ExclusiveGateway_016s0wv" />
-    <bpmn:userTask id="UserTask_configure_reporting-details" name="Configure reporting" camunda:formKey="embedded:app:forms/zapscan/configure-reporting-details.html">
+    <bpmn:userTask id="UserTask_configure_reporting-details" name="Configure reporting" camunda:formKey="embedded:app:forms/zap/configure-reporting-details.html">
       <bpmn:incoming>SequenceFlow_08lbhm5</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0ifemf4</bpmn:outgoing>
     </bpmn:userTask>
