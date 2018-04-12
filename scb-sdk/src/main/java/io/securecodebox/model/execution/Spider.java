@@ -35,6 +35,7 @@ import java.util.UUID;
 @JsonPropertyOrder({ "id", "type" })
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Spider extends ExecutionAware {
+
     public Spider(DelegateExecution execution) {
         super(execution);
     }

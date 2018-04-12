@@ -1,16 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.11.3">
   <bpmn:process id="zap-process-raw" name="ZAP Webapplication Scan" isExecutable="true" camunda:versionTag="1">
-    <bpmn:startEvent id="StartEvent_ConfigureZapScan" name="target configured" camunda:formKey="embedded:app:forms/zap/configure-target.html">
-      <bpmn:extensionElements>
-        <camunda:executionListener class="de.iteratec.securebox.engine.listener.CheckForAutomatedRunListener" event="start" />
-        <camunda:executionListener class="de.iteratec.securebox.engine.listener.EnsureProcessUuidListener" event="end" />
-        <camunda:executionListener class="de.iteratec.securebox.engine.listener.appscan.ConfigureTargetCompleteListener" event="end" />
-        <camunda:executionListener class="de.iteratec.securebox.engine.listener.ScanJobStartedTaskListener" event="end" />
-      </bpmn:extensionElements>
-      <bpmn:outgoing>SequenceFlow_TargetConfigured</bpmn:outgoing>
-    </bpmn:startEvent>
-    <bpmn:sequenceFlow id="SequenceFlow_TargetConfigured" sourceRef="StartEvent_ConfigureZapScan" targetRef="ExclusiveGateway_AutomatedStart" />
     <bpmn:endEvent id="EndEvent_FinishedWebserverScan" name="ZAP Scan finished">
       <bpmn:incoming>SequenceFlow_ResultApproved</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_AutomatedFinish</bpmn:incoming>
@@ -24,12 +14,6 @@
     <bpmn:userTask id="UserTask_ApproveResults" name="Review scan results" camunda:formKey="embedded:app:forms/zap/approve-results.html" camunda:candidateGroups="_securebox_admin, _securebox_productowner, _securebox_developer, approver">
       <bpmn:extensionElements>
         <camunda:formData />
-        <camunda:taskListener class="de.iteratec.securebox.engine.listener.SetFormUrlListener" event="create">
-          <camunda:field name="scanner_type">
-            <camunda:string>nikto</camunda:string>
-          </camunda:field>
-        </camunda:taskListener>
-        <camunda:taskListener class="de.iteratec.securebox.engine.listener.SetBridgeUrlListener" event="create" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_ManualFinish</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_ResultReviewed</bpmn:outgoing>
@@ -43,8 +27,8 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${ZAP_RESULT_APPROVED == 'approved'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_AutomatedStart" name="automated run?">
-      <bpmn:incoming>SequenceFlow_TargetConfigured</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0drubkw</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_TargetConfigured</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_AutomatedStart</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_ManualStart</bpmn:outgoing>
     </bpmn:exclusiveGateway>
@@ -71,7 +55,7 @@
     </bpmn:serviceTask>
     <bpmn:serviceTask id="ServiceTask_StartSpider" name="Run the (OWASP ZAP) Spider" camunda:asyncBefore="true" camunda:type="external" camunda:topic="zap_spider">
       <bpmn:extensionElements>
-        <camunda:executionListener class="de.iteratec.securebox.engine.listener.appscan.FinishedSpiderTaskListener" event="end" />
+        <camunda:executionListener delegateExpression="${finishedSpiderTaskListener}" event="end" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_AutomatedStart</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0tb0m80</bpmn:incoming>
@@ -80,7 +64,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_SummaryCreated" name="summary created" sourceRef="ServiceTask_CreateSummary" targetRef="ExclusiveGateway_AutomatedFinish" />
     <bpmn:serviceTask id="ServiceTask_CreateSummary" name="Create Report Summary" camunda:asyncBefore="true" camunda:class="de.iteratec.securebox.engine.delegates.SummaryGeneratorDelegate">
       <bpmn:extensionElements>
-        <camunda:executionListener class="de.iteratec.securebox.engine.listener.genericscan.PersistGenericFindings" event="start" />
+        <camunda:executionListener delegateExpression="${persistGenericFindingsListener}" event="start" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0zedhqj</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0g44r4l</bpmn:incoming>
@@ -132,7 +116,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_1g7p2w3" name="finished" sourceRef="ServiceTask_StartScanner" targetRef="ServiceTask_TransformResult" />
     <bpmn:serviceTask id="ServiceTask_StartScanner" name="Run the (OWASP Zap) Scanner" camunda:asyncBefore="true" camunda:type="external" camunda:topic="zap_scan">
       <bpmn:extensionElements>
-        <camunda:executionListener class="de.iteratec.securebox.engine.listener.appscan.FinishedScannerTaskListener" event="end" />
+        <camunda:executionListener delegateExpression="${finishedScannerTaskListener}" event="end" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_WebserverScanFinisched</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1g7p2w3</bpmn:outgoing>
@@ -165,6 +149,14 @@
       <bpmn:incoming>SequenceFlow_0ifemf4</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0tb0m80</bpmn:outgoing>
     </bpmn:inclusiveGateway>
+    <bpmn:startEvent id="StartEvent_ConfigureZapScan" name="target configured" camunda:formKey="embedded:app:forms/zap/configure-target.html">
+      <bpmn:extensionElements>
+        <camunda:executionListener delegateExpression="${checkForAutomatedRunListener}" event="start" />
+        <camunda:executionListener delegateExpression="${configureTargetCompleteListener}" event="end" />
+      </bpmn:extensionElements>
+      <bpmn:outgoing>SequenceFlow_TargetConfigured</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_TargetConfigured" sourceRef="StartEvent_ConfigureZapScan" targetRef="ExclusiveGateway_AutomatedStart" />
     <bpmn:textAnnotation id="TextAnnotation_1cimbzw">
       <bpmn:text>Configure a new security-scan process. The inital configuration must contain a target URL. The advanced configuration could be used to configure each component in detail.</bpmn:text>
     </bpmn:textAnnotation>
@@ -172,19 +164,6 @@
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="zap-process-raw">
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_ConfigureZapScan">
-        <dc:Bounds x="-31" y="24" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="-55" y="70" width="83" height="13" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_093mevy_di" bpmnElement="SequenceFlow_TargetConfigured">
-        <di:waypoint xsi:type="dc:Point" x="5" y="42" />
-        <di:waypoint xsi:type="dc:Point" x="86" y="42" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="0.5" y="17" width="90" height="20" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="EndEvent_07weexy_di" bpmnElement="EndEvent_FinishedWebserverScan">
         <dc:Bounds x="1683" y="555" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -428,10 +407,6 @@
       <bpmndi:BPMNShape id="TextAnnotation_1cimbzw_di" bpmnElement="TextAnnotation_1cimbzw">
         <dc:Bounds x="44" y="-125" width="231" height="88" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Association_09bt0si_di" bpmnElement="Association_09bt0si">
-        <di:waypoint xsi:type="dc:Point" x="1" y="32" />
-        <di:waypoint xsi:type="dc:Point" x="99" y="-37" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0drubkw_di" bpmnElement="SequenceFlow_0drubkw">
         <di:waypoint xsi:type="dc:Point" x="1701" y="368" />
         <di:waypoint xsi:type="dc:Point" x="1701" y="-24" />
@@ -453,6 +428,23 @@
           <dc:Bounds x="459.0297805642633" y="474.55485893416926" width="0" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_ConfigureZapScan">
+        <dc:Bounds x="-31" y="24" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="-57" y="70" width="88" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_093mevy_di" bpmnElement="SequenceFlow_TargetConfigured">
+        <di:waypoint xsi:type="dc:Point" x="5" y="42" />
+        <di:waypoint xsi:type="dc:Point" x="86" y="42" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1" y="17" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_09bt0si_di" bpmnElement="Association_09bt0si">
+        <di:waypoint xsi:type="dc:Point" x="1" y="32" />
+        <di:waypoint xsi:type="dc:Point" x="99" y="-37" />
+      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>
