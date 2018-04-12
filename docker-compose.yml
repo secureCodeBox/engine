@@ -1,7 +1,7 @@
 version: '3'
 services:
   engine:
-    build: .
+    image: securecodebox/engine:oss
     depends_on:
       - camundadb
     ports:
@@ -36,7 +36,7 @@ services:
         - MYSQL_PASSWORD=${CAMUNDADB_PW}
 
   scanner-infrastructure-nmap:
-    build: ../scanner-infrastructure-nmap/.
+    image: securecodebox/nmap:oss
     depends_on:
       - engine
     networks:
