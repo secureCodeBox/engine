@@ -19,7 +19,7 @@
 
 package io.securecodebox.scanprocess.nikto;
 
-import io.securecodebox.constants.NmapFields;
+import io.securecodebox.constants.NiktoFields;
 import io.securecodebox.model.execution.DefaultScanProcessExecution;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 
