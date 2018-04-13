@@ -46,6 +46,17 @@ services:
     environment:
       - ENGINE_ADDRESS=http://engine:8080/rest
 
+  scanner-webapplication-zap:
+    build: ../scanner-webapplication-zap/.
+    depends_on:
+      - engine
+    networks:
+      - frontend
+    labels:
+      container_group: scanner
+    environment:
+      - securecodebox.zap.processEngineApiUrl=http://engine:8080/rest/external-task
+
   persistence-elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.2.3
     ports:
