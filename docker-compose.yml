@@ -47,7 +47,7 @@ services:
       - ENGINE_ADDRESS=http://engine:8080/rest
 
   scanner-webapplication-zap:
-    build: ../zap/.
+    build: ../scanner-webapplication-zap/.
     depends_on:
       - engine
     networks:
