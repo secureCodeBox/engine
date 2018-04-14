@@ -16,8 +16,9 @@
  *  limitations under the License.
  * /
  */
+package io.securecodebox.scanprocess.nmap.constants;
 
-package io.securecodebox.constants;
+import io.securecodebox.constants.DefaultFields;
 
 /**
  * @since 01.03.18

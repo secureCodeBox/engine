@@ -17,10 +17,10 @@
  * /
  */
 
-package io.securecodebox.scanprocess.nmap;
+package io.securecodebox.scanprocess.nmap.delegate;
 
 import io.securecodebox.constants.DefaultFields;
-import io.securecodebox.constants.NmapFindingAttributes;
+import io.securecodebox.scanprocess.nmap.constants.NmapFindingAttributes;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.model.findings.Finding;

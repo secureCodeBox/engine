@@ -17,7 +17,7 @@
  * /
  */
 
-package io.securecodebox.constants;
+package io.securecodebox.scanprocess.nmap.constants;
 
 /**
  * Enum with corresponding Attributes in the Finding.getAttributes section.

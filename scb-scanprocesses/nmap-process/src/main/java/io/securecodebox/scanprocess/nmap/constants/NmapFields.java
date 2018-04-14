@@ -17,19 +17,13 @@
  * /
  */
 
-package io.securecodebox.scanprocess;
-
-import io.securecodebox.persistence.PersistenceProvider;
-import io.securecodebox.sdk.ScanProcessEntryPoint;
-import org.springframework.beans.factory.annotation.Autowired;
+package io.securecodebox.scanprocess.nmap.constants;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
- * @since 07.02.18
+ * @since 21.03.18
  */
-@ScanProcessEntryPoint
-public class NmapProcessConfiguration {
-
-    NmapProcessConfiguration(@Autowired PersistenceProvider provider) {
-    }
+public enum NmapFields {
+    NMAP_CONFIGURATION_TYPE, NMAP_TARGET_URL, NMAP_CLI_OPTIONS, NMAP_PARAMETER, NMAP_TARGET,
+    NMAP_RESULT_APPROVED
 }
