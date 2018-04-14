@@ -16,7 +16,6 @@
  *  limitations under the License.
  * /
  */
-
 package io.securecodebox.engine;
 
 import org.camunda.bpm.spring.boot.starter.annotation.EnableProcessApplication;
