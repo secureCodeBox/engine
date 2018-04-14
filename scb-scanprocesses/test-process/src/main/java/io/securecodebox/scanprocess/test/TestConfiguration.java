@@ -1,4 +1,4 @@
-package io.securecodebox.scanprocess;
+package io.securecodebox.scanprocess.test;
 
 import io.securecodebox.sdk.ScanProcessEntryPoint;
 import org.camunda.bpm.engine.IdentityService;
