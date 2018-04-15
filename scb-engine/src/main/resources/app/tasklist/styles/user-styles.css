@@ -6,32 +6,45 @@
 }
 
 /* navigation bar styles */
+
+/* logo and brand name */
 [cam-widget-header] {
-	border-bottom: 5px solid var(--primary-dark);
+	border-bottom: 3px solid var(--primary-dark);
+	border-top: 0px;
+	box-shadow: 0px 0px 10px 2px #555;
 }
 
-[cam-widget-header] .navbar-brand::after {
-	content: " - Cockpit";
-  	text-indent: -8em;
-    float: right;
-    font-weight:bold;
-	color: #fff;
+[cam-widget-header] .navbar-brand .brand-logo::before {
+	content: "";
 }
 
-[cam-widget-header] .navbar-brand {
-    background-image: url("../assets/images/logo_secureCodeBox_white.svg");
-    width: 385px;
-    height: 39px;
-    text-indent: -10em;
+[cam-widget-header] .navbar-brand .brand-logo {
+	display: inline-block;
+	background-image: url("../assets/images/logo_secureCodeBox_white.svg");
 	background-repeat: no-repeat;
+	width: 120px;
+	height: 40px;
+	content: "";
 }
 
+[cam-widget-header] .navbar-brand .brand-name::before {
+	content: " - Tasklist";
+	padding-left: 5px;
+	color: #FFF;
+}
+
+[cam-widget-header] .navbar-brand .brand-name {
+	content: "";
+	float: right;
+	font-weight:bold;
+	color: #a9218e;
+}
+
+/* navigation */
 [cam-widget-header] > .cam-nav {
     border-left: 0 none;
 }
-[cam-widget-header] .sections-menu>ul>li>a {
-	color: #fff;
-}
+
 [cam-widget-header] .sections-menu>ul>li.active {
 	background-color: var(--primary-dark);
 }
@@ -45,9 +58,7 @@
     background-color: var(--primary-dark);
     color: #fff;
 }
-.dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus {
-	color: #000 !important;:
-}
+
 [cam-widget-header] .cam-nav a:hover, 
 [cam-widget-header] .cam-nav a:focus,
 [cam-widget-header] .sections-menu a:hover, 
@@ -55,12 +66,16 @@
     border-bottom: 2px solid #fff;
     color: #fff;
 }
-
+.dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus {
+	color: #000 !important;
+}
 [cam-widget-header] {
     background-color: var(--primary);
 }
 
-[cam-widget-header] .navbar-nav > .open > a, [cam-widget-header] .navbar-nav > .open > a:hover, [cam-widget-header] .navbar-nav > .open > a:focus {
+[cam-widget-header] .navbar-nav > .open > a, 
+[cam-widget-header] .navbar-nav > .open > a:hover, 
+[cam-widget-header] .navbar-nav > .open > a:focus {
     background-color: var(--primary);
     color: #fff;
 }
@@ -140,14 +155,14 @@ button.region-toggle .icon-bar {
     border-color: var(--primary);
 }
 
-.three-cols-layout .column-left .deployments>li.active, .three-cols-layout .column-center .list-unstyled>li.active, .three-cols-layout .column-left .deployments>li.active:hover, .three-cols-layout .column-center .list-unstyled>li.active:hover {
-    border-color: var(--primary-dark);
-}
-
 .nav-tabs>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus {
-    border-bottom: 3px solid var(--primary-dark);
+	border-bottom: 3px solid var(--primary-dark);
 }
 
 .nav-tabs>li>a:hover, .nav-tabs>li>a:focus {
-    border-bottom: 3px solid var(--primary);
+	border-bottom: 3px solid var(--primary);
+}
+
+.glyphicon-fire {
+    color: #FFF;
 }
