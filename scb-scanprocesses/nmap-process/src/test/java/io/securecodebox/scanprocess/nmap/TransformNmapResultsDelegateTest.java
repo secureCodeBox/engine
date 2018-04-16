@@ -27,7 +27,6 @@ import io.securecodebox.model.findings.OsiLayer;
 import io.securecodebox.model.findings.Severity;
 import io.securecodebox.scanprocess.NmapScanProcessExecution;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.variable.impl.value.PrimitiveTypeValueImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -79,8 +78,9 @@ public class TransformNmapResultsDelegateTest {
         when(processExecutionFactory.get(executionMock)).thenReturn(new NmapScanProcessExecution(executionMock));
         when(processExecutionFactory.get(executionMock, NmapScanProcessExecution.class)).thenReturn(
                 new NmapScanProcessExecution(executionMock));
-        when(executionMock.getVariableTyped(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenAnswer(
-                (answer) -> new PrimitiveTypeValueImpl.StringValueImpl(findingCache));
+        when(executionMock.hasVariable(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenReturn(true);
+        when(executionMock.getVariable(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenAnswer(
+                (answer) -> findingCache);
         doAnswer((Answer) invocation -> {
             findingCache = invocation.getArgumentAt(1, String.class);
             return Void.TYPE;
@@ -89,8 +89,7 @@ public class TransformNmapResultsDelegateTest {
 
     @Test
     public void testRawFindings() throws Exception {
-        when(executionMock.getVariableTyped(DefaultFields.PROCESS_RAW_FINDINGS.name())).thenReturn(
-                new PrimitiveTypeValueImpl.StringValueImpl(nmapResult));
+        when(executionMock.getVariable(DefaultFields.PROCESS_RAW_FINDINGS.name())).thenReturn(nmapResult);
         underTest.execute(executionMock);
 
         Mockito.verify(executionMock, times(2)).setVariable(eq(DefaultFields.PROCESS_FINDINGS.name()), anyString());
@@ -103,7 +102,7 @@ public class TransformNmapResultsDelegateTest {
         assertEquals("Port 3306 is open using tcp protocol.", processExecution.getFindings().get(0).getDescription());
         assertEquals("Open Port", processExecution.getFindings().get(0).getCategory());
         assertEquals(OsiLayer.NETWORK, processExecution.getFindings().get(0).getOsiLayer());
-        assertEquals(Severity.INFORMATIONAL, processExecution.getFindings().get(0).getServerity());
+        assertEquals(Severity.INFORMATIONAL, processExecution.getFindings().get(0).getSeverity());
         assertEquals("Open mysql Port", processExecution.getFindings().get(0).getName());
         assertNotNull(processExecution.getFindings().get(0).getId());
         assertEquals("tcp://127.0.0.1:3306", processExecution.getFindings().get(0).getLocation());
@@ -113,7 +112,7 @@ public class TransformNmapResultsDelegateTest {
         assertEquals("Port 7778 is open using tcp protocol.", processExecution.getFindings().get(1).getDescription());
         assertEquals("Open Port", processExecution.getFindings().get(1).getCategory());
         assertEquals(OsiLayer.NETWORK, processExecution.getFindings().get(1).getOsiLayer());
-        assertEquals(Severity.INFORMATIONAL, processExecution.getFindings().get(1).getServerity());
+        assertEquals(Severity.INFORMATIONAL, processExecution.getFindings().get(1).getSeverity());
         assertEquals("Open interwise Port", processExecution.getFindings().get(1).getName());
         assertNotNull(processExecution.getFindings().get(1).getId());
         assertEquals("tcp://127.0.0.1:7778", processExecution.getFindings().get(1).getLocation());

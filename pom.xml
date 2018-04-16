@@ -10,13 +10,14 @@
 
     <properties>
         <camunda.spring.boot.starter.version>2.3.0</camunda.spring.boot.starter.version>
-        <spring-boot.version>1.5.8.RELEASE</spring-boot.version>
+        <spring-boot.version>1.5.10.RELEASE</spring-boot.version>
     </properties>
 
     <modules>
         <module>scb-sdk</module>
         <module>scb-engine</module>
         <module>scb-scanprocesses</module>
+        <module>scb-persistenceproviders</module>
     </modules>
 
     <dependencyManagement>
@@ -29,6 +30,13 @@
                 <version>${camunda.spring.boot.starter.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
+            </dependency>
+
+            <!-- Add camunda spring boot stater classes -->
+            <dependency>
+                <groupId>org.camunda.bpm.springboot</groupId>
+                <artifactId>camunda-bpm-spring-boot-starter</artifactId>
+                <version>${camunda.spring.boot.starter.version}</version>
             </dependency>
 
             <!-- Enable the camunda webapp's (tasklist, cockpit, admin) -->

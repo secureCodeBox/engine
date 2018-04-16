@@ -21,30 +21,31 @@
 
     <script cam-script type="text/form-script">
         camForm.on('form-loaded', function () {
-            camForm.variableManager.fetchVariable('targetName');
-            camForm.variableManager.fetchVariable('context');
+            camForm.variableManager.fetchVariable('NMAP_TARGET_NAME');
+            camForm.variableManager.fetchVariable('PROCESS_CONTEXT');
 
-            camForm.variableManager.fetchVariable('nmap_target');
-            camForm.variableManager.fetchVariable('nmap_parameter');
-            camForm.variableManager.fetchVariable('result');
-            camForm.variableManager.fetchVariable('microserviceId');
+            camForm.variableManager.fetchVariable('NMAP_TARGET');
+            camForm.variableManager.fetchVariable('NMAP_PARAMETER');
+            camForm.variableManager.fetchVariable('PROCESS_FINDINGS');
+            camForm.variableManager.fetchVariable('PROCESS_SCANNER_ID');
         });
 
         camForm.on('variables-restored', function () {
-            $scope.targetName = camForm.variableManager.variableValue('targetName');
-            $scope.context = camForm.variableManager.variableValue('context');
+            $scope.targetName = camForm.variableManager.variableValue('NMAP_TARGET_NAME');
+            $scope.context = camForm.variableManager.variableValue('PROCESS_CONTEXT');
 
-            $scope.portScannerId = camForm.variableManager.variableValue('microserviceId');
-            $scope.portScannerTarget = camForm.variableManager.variableValue('nmap_target');
-            $scope.portScannerParameter = camForm.variableManager.variableValue('nmap_parameter');
-            $scope.portScannerResult = JSON.parse(camForm.variableManager.variableValue('result'));
+            $scope.portScannerId = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
+            $scope.portScannerTarget = camForm.variableManager.variableValue('NMAP_TARGET');
+            $scope.portScannerParameter = camForm.variableManager.variableValue('NMAP_PARAMETER');
+            $scope.portScannerResult = JSON.parse(camForm.variableManager.variableValue('PROCESS_FINDINGS'));
 
-            $scope.groupedResults = $scope.portScannerResult.content.reduce(
+            $scope.groupedResults = $scope.portScannerResult.reduce(
                     function (carry, item) {
-                        if (!carry.hasOwnProperty(item.hostname)) {
-                            carry[item.hostname] = [];
+                    console.log(item.attributes.ip_address);
+                        if (!carry.hasOwnProperty(item.attributes.ip_address)) {
+                            carry[item.attributes.ip_address] = [];
                         }
-                        carry[item.hostname].push(item);
+                        carry[item.attributes.ip_address].push(item);
                         return carry;
                     },
                     {}
@@ -60,11 +61,11 @@
             <div>
                 <div>
                     <label>Port scanner Id:</label>
-                    <a href="{{ nmap_target }}">{{ portScannerId }}</a>
+                    <a href="{{ NMAP_TARGET }}">{{ portScannerId }}</a>
                 </div>
                 <div>
                     <label>Target Host:</label>
-                    <a href="{{ nmap_target }}">{{ portScannerTarget.trim().split(' ').join(', ') }}</a>
+                    <a href="{{ NMAP_TARGET }}">{{ portScannerTarget.trim().split(' ').join(', ') }}</a>
                 </div>
                 <div>
                     <label>Business Context:</label>
@@ -91,10 +92,10 @@
                         <th>Action:</th>
                     </tr>
                     <tr class="danger" ng-repeat="port in host">
-                        <td>{{ port.hostname }}</td>
-                        <td>{{ port.port }}</td>
-                        <td>{{ port.service }}</td>
-                        <td>{{ port.protocol }}</td>
+                        <td>{{ address }}</td>
+                        <td>{{ port.attributes.port }}</td>
+                        <td>{{ port.attributes.service }}</td>
+                        <td>{{ port.attributes.protocol }}</td>
                         <td>
                             <span class="label label-danger">
                                 <i aria-hidden="true"
@@ -122,10 +123,10 @@
                     <select required
                             class="form-control"
                             name="resultApproved"
-                            cam-variable-name="resultApproved"
+                            cam-variable-name="NMAP_RESULT_APPROVED"
                             cam-variable-type="String">
                         <option value="approved" checked>Approved (Finished)</option>
-                        <option value="dissapproved">Not Approved (Restart Scan)</option>
+                        <option value="disapproved">Not Approved (Restart Scan)</option>
                     </select>
                 </div>
             </div>

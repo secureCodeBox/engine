@@ -67,7 +67,7 @@ public abstract class PersistenceAwareTaskListener implements ExecutionListener 
     protected void storeResult(String contentIdentifier, Map report, Object indexType, Object tenantId,
             String microserviceId) {
         try {
-            persistenceProvider.saveJsonContent(contentIdentifier, report, microserviceId);
+            //persistenceProvider.saveJsonContent(contentIdentifier, report, microserviceId);
         } catch (Exception e) {
             LOG.error("Unexpected Error while trying to save a Document!", e);
         }

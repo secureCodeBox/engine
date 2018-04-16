@@ -31,6 +31,7 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.variable.value.StringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -72,21 +73,47 @@ public class Scanner extends ExecutionAware {
 
     @JsonProperty("type")
     public String getScannerType() {
-        return execution.<StringValue>getVariableTyped(DefaultFields.PROCESS_SCANNER_TYPE.name()).getValue();
+        StringValue valueHolder = execution.getVariableTyped(DefaultFields.PROCESS_SCANNER_TYPE.name());
+        return valueHolder != null ? valueHolder.getValue() : "";
     }
 
     @JsonIgnore
     public List<Finding> getFindings() {
-        StringValue rawFindings = execution.getVariableTyped(DefaultFields.PROCESS_FINDINGS.name());
-        if (rawFindings != null && !rawFindings.getValue().isEmpty()) {
+
+        if (!execution.hasVariable(DefaultFields.PROCESS_FINDINGS.name())) {
+            return new LinkedList<>();
+        }
+
+        Object findings = execution.getVariable(DefaultFields.PROCESS_FINDINGS.name());
+        if (findings != null && !StringUtils.isEmpty(findings)) {
             try {
-                return objectMapper.readValue(rawFindings.getValue(),
+                return objectMapper.readValue((String) findings,
                         objectMapper.getTypeFactory().constructCollectionType(List.class, Finding.class));
             } catch (IOException e) {
-                LOG.error("Cann't extract findings from process! Raw Data {}", rawFindings.getValue(), e);
+                LOG.error("Can't extract findings from process! Raw Data {}", findings, e);
             }
         }
         return new LinkedList<>();
+    }
+
+    /**
+     * Clears all {@link Finding}s in this Scanner.
+     * <p>
+     * After invoking this method, {@link Scanner#getFindings()} will return zero elements.
+     */
+    @JsonIgnore
+    public void clearFindings() {
+        saveFindingsToProcess(new LinkedList<>());
+    }
+
+    /**
+     * Clears the raw findings in this Scanner.
+     * <p>
+     * After invoking this method, {@link Scanner#getRawFindings()} ()} will return an empty string.
+     */
+    @JsonIgnore
+    public void clearRawFindings() {
+        execution.setVariable(DefaultFields.PROCESS_RAW_FINDINGS.name(), null);
     }
 
     /**
@@ -106,8 +133,8 @@ public class Scanner extends ExecutionAware {
      */
     @JsonIgnore
     public String getRawFindings() {
-        StringValue rawFindings = execution.getVariableTyped(DefaultFields.PROCESS_RAW_FINDINGS.name());
-        return rawFindings != null ? rawFindings.getValue() : "";
+        Object rawFindings = execution.getVariable(DefaultFields.PROCESS_RAW_FINDINGS.name());
+        return rawFindings != null ? (String) rawFindings : "";
     }
 
     /**
@@ -121,6 +148,10 @@ public class Scanner extends ExecutionAware {
     public synchronized void appendFinding(Finding finding) {
         List<Finding> findings = getFindings();
         findings.add(finding);
+        saveFindingsToProcess(findings);
+    }
+
+    private void saveFindingsToProcess(List<Finding> findings) {
         try {
             String rawFindingString = objectMapper.writeValueAsString(findings);
             execution.setVariable(DefaultFields.PROCESS_FINDINGS.name(), rawFindingString);
