@@ -26,5 +26,5 @@ package io.securecodebox.constants;
  * @since 06.04.18
  */
 public enum NiktoFindingAttributes {
-
+    HTTP_METHOD, HOSTNAME, PATH, IP_ADDRESS, PORT,
 }
