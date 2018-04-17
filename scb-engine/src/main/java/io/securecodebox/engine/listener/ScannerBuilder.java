@@ -49,7 +49,7 @@ public class ScannerBuilder {
     private List<Finding> findings;
 
     private ScannerBuilder() {
-       objectMapper=new ObjectMapper();
+        objectMapper = new ObjectMapper();
     }
 
     public static ScannerBuilder init() {
@@ -105,6 +105,7 @@ public class ScannerBuilder {
             try {
                 findings = objectMapper.readValue((String) results,
                         objectMapper.getTypeFactory().constructCollectionType(List.class, Finding.class));
+                return;
             } catch (IOException e) {
                 LOG.error("Can't extract findings from process! Raw Data {}", results, e);
             }
