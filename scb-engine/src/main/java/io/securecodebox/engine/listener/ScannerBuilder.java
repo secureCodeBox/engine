@@ -49,7 +49,7 @@ public class ScannerBuilder {
     private List<Finding> findings;
 
     private ScannerBuilder() {
-        //Should be instanced by init-Method...
+       objectMapper=new ObjectMapper();
     }
 
     public static ScannerBuilder init() {
