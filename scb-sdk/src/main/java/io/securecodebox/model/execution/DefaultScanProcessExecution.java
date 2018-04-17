@@ -25,7 +25,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.findings.Finding;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.BooleanValue;
+import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.camunda.bpm.engine.variable.value.StringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,7 +113,10 @@ public class DefaultScanProcessExecution extends ExecutionAware implements ScanP
     private void writeToProcess(Enum<?> field, List<?> data) {
         synchronized (field) {
             try {
-                execution.setVariable(field.name(), objectMapper.writeValueAsString(data));
+                ObjectValue objectValue = Variables.objectValue(objectMapper.writeValueAsString(data))
+                        .serializationDataFormat(Variables.SerializationDataFormats.JSON)
+                        .create();
+                execution.setVariable(field.name(), objectValue);
             } catch (JsonProcessingException e) {
                 LOG.error("Can't write field {} to process!", field, e);
                 throw new IllegalStateException("Can't write field to process!", e);
