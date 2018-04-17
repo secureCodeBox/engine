@@ -143,6 +143,24 @@ public class DefaultScanProcessExecution extends ExecutionAware implements ScanP
     }
 
     @Override
+    public void clearTargets() {
+        writeToProcess(DefaultFields.PROCESS_TARGETS, new LinkedList<>());
+    }
+
+    @Override
+    public void appendTarget(Target target) {
+        List<Target> targets = getJsonFromProcessVariableModifiable(DefaultFields.PROCESS_TARGETS, Target.class);
+        targets.add(target);
+        writeToProcess(DefaultFields.PROCESS_TARGETS, targets);
+    }
+
+    @Override
+    public List<Target> getTargets() {
+        return Collections.unmodifiableList(
+                getJsonFromProcessVariableModifiable(DefaultFields.PROCESS_TARGETS, Target.class));
+    }
+
+    @Override
     public boolean isAutomated() {
         BooleanValue isAutomated = execution.getVariableTyped(DefaultFields.PROCESS_AUTOMATED.name());
         return isAutomated != null ? isAutomated.getValue() : false;

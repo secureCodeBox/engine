@@ -79,6 +79,12 @@ public interface ScanProcessExecution {
     @JsonIgnore
     public abstract void appendFinding(Finding finding);
 
+    public abstract void appendTarget(Target target);
+
+    public abstract List<Target> getTargets();
+
+    public abstract void clearTargets();
+
     @JsonProperty("automated")
     public abstract boolean isAutomated();
 
