@@ -1,6 +1,5 @@
 package io.securecodebox.scanprocess;
 
-import io.securecodebox.sdk.ScanProcessEntryPoint;
 import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.authorization.Groups;
@@ -10,6 +9,7 @@ import org.camunda.bpm.spring.boot.starter.configuration.impl.AbstractCamundaCon
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 
@@ -17,7 +17,7 @@ import javax.annotation.PostConstruct;
  * @author Rüdiger Heins - iteratec GmbH
  * @since 07.02.18
  */
-@ScanProcessEntryPoint
+@Configuration
 public class TestConfiguration extends AbstractCamundaConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestConfiguration.class);

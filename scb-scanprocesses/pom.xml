@@ -14,6 +14,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>archetype</module>
         <module>test-process</module>
         <module>nmap-process</module>
     </modules>

@@ -29,6 +29,11 @@
             <groupId>org.camunda.bpm.springboot</groupId>
             <artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.camunda.bpm.extension.reactor</groupId>
+            <artifactId>camunda-bpm-reactor-spring-starter</artifactId>
+            <version>2.1.1</version>
+        </dependency>
 
         <!-- Camunda Spin lib -->
         <dependency>
@@ -60,21 +65,6 @@
             <groupId>org.camunda.bpm.springboot</groupId>
             <artifactId>camunda-bpm-spring-boot-starter-test</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-high-level-client</artifactId>
-            <version>6.2.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
-            <version>6.2.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-client</artifactId>
-            <version>6.2.3</version>
         </dependency>
     </dependencies>
 

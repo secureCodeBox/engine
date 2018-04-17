@@ -17,23 +17,26 @@
  * /
  */
 
-package io.securecodebox.sdk;
+package io.securecodebox.engine;
 
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.camunda.bpm.engine.ProcessEngine;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
- * @since 07.02.18
+ * @since 16.04.18
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Configuration
-@ComponentScan
-public @interface ScanProcessEntryPoint {
+@RestController
+public class KeksResource {
+
+    @Autowired
+    ProcessEngine engine;
+
+    @RequestMapping("/kekse")
+    public String getKeks() {
+
+        return "KEKS " + engine.getName() + "!";
+    }
 }

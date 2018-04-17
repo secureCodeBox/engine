@@ -19,10 +19,12 @@
 
 package io.securecodebox.scanprocess.nmap;
 
+import com.google.common.collect.Iterables;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.constants.NmapFindingAttributes;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
+import io.securecodebox.model.execution.Scanner;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.findings.OsiLayer;
 import io.securecodebox.model.findings.Severity;
@@ -68,9 +70,9 @@ public class TransformNmapResultsDelegate implements JavaDelegate {
     }
 
     private void clearFindings(ScanProcessExecution process) {
-        if (process.hasScanner()) {
-            LOG.debug("Clearing findings. The process had {}", process.getScanner().getFindings().size());
-            process.getScanner().clearFindings();
+        if (!process.getFindings().isEmpty()) {
+            LOG.debug("Clearing findings. The process had {}", process.getFindings().size());
+            process.clearFindings();
         }
     }
 
@@ -79,7 +81,7 @@ public class TransformNmapResultsDelegate implements JavaDelegate {
         ScanProcessExecution process = processExecutionFactory.get(delegateExecution);
         clearFindings(process);
 
-        String rawFindingResultXML = process.getScanner().getRawFindings();
+        String rawFindingResultXML = Iterables.getLast(process.getScanners(), new Scanner()).getRawFindings();
 
         if (!StringUtils.isEmpty(rawFindingResultXML)) {
             final JAXBContext context = JAXBContext.newInstance(NmapRawResult.class);

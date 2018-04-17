@@ -17,7 +17,7 @@
  * /
  */
 
-package io.securecodebox.scanprocess.listener;
+package io.securecodebox.engine.listener;
 
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.engine.impl.bpmn.parser.AbstractBpmnParseListener;
@@ -37,17 +37,11 @@ import org.springframework.stereotype.Component;
 public class DefaultListenerRegistrar extends AbstractBpmnParseListener {
 
     @Autowired
-    CheckForAutomatedRunListener checkForAutomatedRunListener;
-    @Autowired
-    ScanJobProcessWriter scanprocessWriter;
+    ScannerSetupListener scannerSetupListener;
 
     @Override
     public void parseServiceTask(Element serviceTaskElement, ScopeImpl scope, ActivityImpl activity) {
-        System.out.println("Executing DefaultListenerRegistrar");
-        activity.addListener(ExecutionListener.EVENTNAME_START, scanprocessWriter);
-        activity.addListener(ExecutionListener.EVENTNAME_END, scanprocessWriter);
-        activity.addListener(ExecutionListener.EVENTNAME_START, checkForAutomatedRunListener);
-
+        activity.addListener(ExecutionListener.EVENTNAME_END, scannerSetupListener);
     }
 
 }

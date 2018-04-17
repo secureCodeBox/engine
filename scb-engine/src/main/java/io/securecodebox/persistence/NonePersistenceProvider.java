@@ -17,19 +17,23 @@
  * /
  */
 
-package io.securecodebox.scanprocess;
+package io.securecodebox.persistence;
 
-import io.securecodebox.persistence.PersistenceProvider;
-import io.securecodebox.sdk.ScanProcessEntryPoint;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.securecodebox.model.Report;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
- * @since 07.02.18
+ * @since 13.04.18
  */
-@ScanProcessEntryPoint
-public class NmapProcessConfiguration {
+@Component
+@ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "none")
+public class NonePersistenceProvider implements PersistenceProvider {
 
-    NmapProcessConfiguration(@Autowired PersistenceProvider provider) {
+    @Override
+    public void persist(Report report) {
+
     }
 }
+
