@@ -28,6 +28,7 @@ import io.securecodebox.model.findings.OsiLayer;
 import io.securecodebox.model.findings.Severity;
 import io.securecodebox.scanprocess.NmapScanProcessExecution;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.variable.impl.value.ObjectValueImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -51,6 +52,7 @@ import static io.securecodebox.constants.NmapFindingAttributes.STATE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -90,9 +92,9 @@ public class TransformNmapResultsDelegateTest {
         when(executionMock.hasVariable(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenReturn(true);
         when(executionMock.getVariable(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenAnswer((answer) -> findingCache);
         doAnswer((Answer) invocation -> {
-            findingCache = invocation.getArgumentAt(1, String.class);
+            findingCache = (String) invocation.getArgumentAt(1, ObjectValueImpl.class).getValue();
             return Void.TYPE;
-        }).when(executionMock).setVariable(eq(DefaultFields.PROCESS_FINDINGS.name()), anyString());
+        }).when(executionMock).setVariable(eq(DefaultFields.PROCESS_FINDINGS.name()), any());
     }
 
     @Test

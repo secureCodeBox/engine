@@ -31,6 +31,7 @@ import org.junit.Test;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -57,7 +58,8 @@ public class ReportTest {
         execution.appendFinding(basicFinding);
 
         when(process.hasVariable(DefaultFields.PROCESS_FINDINGS.name())).thenReturn(true);
-        when(process.getVariable(DefaultFields.PROCESS_FINDINGS.name())).thenReturn("[{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"Some coder has tested this!\",\"category\":\"COOL_TEST_STUFF\",\"osi_layer\":\"NOT_APPLICABLE\",\"severity\":\"HIGH\",\"reference\":{\"id\":\"UNI_CODE_STUFF\",\"source\":\"RISCOOL\"},\"hint\":\"You might wan't to blame Rüdiger!\",\"attributes\":{\"TEST\":\"Kekse\",\"HORRIBLE\":\"Coke\"},\"location\":\"mett.brot.securecodebox.io\"}]");
+        when(process.getVariable(DefaultFields.PROCESS_FINDINGS.name())).thenReturn(
+                "[{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"Some coder has tested this!\",\"category\":\"COOL_TEST_STUFF\",\"osi_layer\":\"NOT_APPLICABLE\",\"severity\":\"HIGH\",\"reference\":{\"id\":\"UNI_CODE_STUFF\",\"source\":\"RISCOOL\"},\"hint\":\"You might wan't to blame Rüdiger!\",\"attributes\":{\"TEST\":\"Kekse\",\"HORRIBLE\":\"Coke\"},\"location\":\"mett.brot.securecodebox.io\"}]");
 
         Report report = new Report(execution);
         report.setId(UUID.fromString("3cd25d74-2a31-41cd-9d71-9cc70c0d3169"));
@@ -67,7 +69,6 @@ public class ReportTest {
         System.out.println(result);
         assertEquals(DEFAULT_RESULT_STRING, result);
 
-        verify(process, times(1)).setVariable(eq(DefaultFields.PROCESS_FINDINGS.name()),
-                eq("[{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"Some coder has tested this!\",\"category\":\"COOL_TEST_STUFF\",\"osi_layer\":\"NOT_APPLICABLE\",\"severity\":\"HIGH\",\"reference\":{\"id\":\"UNI_CODE_STUFF\",\"source\":\"RISCOOL\"},\"hint\":\"You might wan't to blame Rüdiger!\",\"attributes\":{\"TEST\":\"Kekse\",\"HORRIBLE\":\"Coke\"},\"location\":\"mett.brot.securecodebox.io\"}]"));
+        verify(process, times(1)).setVariable(eq(DefaultFields.PROCESS_FINDINGS.name()), any());
     }
 }
