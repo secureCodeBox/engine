@@ -91,36 +91,36 @@ public class ScannerBuilder {
     }
 
     private void initRawFindings(DelegateExecution execution) {
-        Object findings = execution.getVariable(DefaultFields.PROCESS_RAW_FINDINGS.name());
-        rawFindings = findings instanceof String ? (String) findings : "";
+        Object raw = execution.getVariable(DefaultFields.PROCESS_RAW_FINDINGS.name());
+        rawFindings(raw instanceof String ? (String) raw : "");
     }
 
     private void initFindings(DelegateExecution execution) {
         if (!execution.hasVariable(DefaultFields.PROCESS_FINDINGS.name())) {
-            findings = new LinkedList<>();
+            findings(new LinkedList<>());
         }
 
         Object results = execution.getVariable(DefaultFields.PROCESS_FINDINGS.name());
-        if (results != null && !StringUtils.isEmpty(results)) {
+        if (!StringUtils.isEmpty(results)) {
             try {
-                findings = objectMapper.readValue((String) results,
-                        objectMapper.getTypeFactory().constructCollectionType(List.class, Finding.class));
+                findings(objectMapper.readValue((String) results,
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, Finding.class)));
                 return;
             } catch (IOException e) {
                 LOG.error("Can't extract findings from process! Raw Data {}", results, e);
             }
         }
-        findings = new LinkedList<>();
+        findings(new LinkedList<>());
     }
 
     private void initScannerId(DelegateExecution execution) {
         StringValue input = execution.getVariableTyped(DefaultFields.PROCESS_SCANNER_ID.name());
-        id = input != null ? UUID.fromString(input.getValue()) : null;
+        id(input != null ? UUID.fromString(input.getValue()) : null);
     }
 
     private void initScannerType(DelegateExecution execution) {
         StringValue scannerType = execution.getVariableTyped(DefaultFields.PROCESS_SCANNER_TYPE.name());
-        type = scannerType != null ? scannerType.getValue() : "";
+        type(scannerType != null ? scannerType.getValue() : "");
     }
 
     private void validate() {
