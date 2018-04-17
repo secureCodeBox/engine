@@ -57,11 +57,11 @@ public class ScannerBuilder {
     }
 
     public Scanner buildByExecution(DelegateExecution execution) {
-        validate();
         initScannerId(execution);
         initScannerType(execution);
         initFindings(execution);
         initRawFindings(execution);
+        validate();
         return new Scanner(id, type, rawFindings, findings);
     }
 
@@ -125,9 +125,6 @@ public class ScannerBuilder {
     private void validate() {
         if (id == null) {
             throw new IllegalStateException("Scanner UUID should never be null!");
-        }
-        if (type == null) {
-            throw new IllegalStateException("Scanner type should never be null!");
         }
     }
 
