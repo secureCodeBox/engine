@@ -91,7 +91,7 @@ public class ZapScanProcessExecution extends DefaultScanProcessExecution {
     }
 
     public void setSpiderExcludeDuplicates(String spiderExcludeDuplicates) {
-        this.execution.setVariable(ZapFields.ZAP_SPIDER_EXLUDE_DUPLICATES.name(), spiderExcludeDuplicates);
+        this.execution.setVariable(ZapFields.ZAP_SPIDER_EXCLUDE_DUPLICATES.name(), spiderExcludeDuplicates);
     }
 
     public void setSpiderMaxDepth(String spiderMaxDepth) {
@@ -103,7 +103,7 @@ public class ZapScanProcessExecution extends DefaultScanProcessExecution {
     }
 
     public void setScannerExcludeRegexes(String scannerExcludeRegexes) {
-        this.execution.setVariable(ZapFields.ZAP_SCANNER_EXLUDE_REGEX.name(), scannerExcludeRegexes);
+        this.execution.setVariable(ZapFields.ZAP_SCANNER_EXCLUDE_REGEX.name(), scannerExcludeRegexes);
     }
 
     public void setScannerIncludeRegexes(String scannerIncludeRegexes) {

@@ -5,7 +5,7 @@ services:
     depends_on:
       - camundadb
     ports:
-      - "9000:8080"
+      - "8080:8080"
     networks:
       - frontend
     labels:
@@ -57,13 +57,11 @@ services:
     environment:
     - ENGINE_ADDRESS=http://engine:8080/rest/external-task
 
-# bodgeit ist nur zum testen hier
+# for testing
   bodgeit:
     image: psiinon/bodgeit
     networks:
       - frontend
-    ports:
-      - "8080:8080"
 
   persistence-elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.2.3
