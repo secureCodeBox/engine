@@ -22,8 +22,10 @@ import org.camunda.bpm.spring.boot.starter.annotation.EnableProcessApplication;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
+@EnableSwagger2
 @EnableProcessApplication
 @ComponentScan(basePackages = { "io.securecodebox.engine", "io.securecodebox.sdk", "io.securecodebox.scanprocess", "io.securecodebox.persistence", "io.securecodebox.reporting" })
 public class SecureCodeBoxEngine {

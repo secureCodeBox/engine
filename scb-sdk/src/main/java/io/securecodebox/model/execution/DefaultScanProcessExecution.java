@@ -20,14 +20,23 @@
 package io.securecodebox.model.execution;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.findings.Finding;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.BooleanValue;
+import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.camunda.bpm.engine.variable.value.StringValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -37,14 +46,14 @@ import java.util.UUID;
 public class DefaultScanProcessExecution extends ExecutionAware implements ScanProcessExecution {
 
     @JsonIgnore
-    private final Spider spider;
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultScanProcessExecution.class);
+
     @JsonIgnore
-    private final Scanner scanner;
+    protected ObjectMapper objectMapper;
 
     public DefaultScanProcessExecution(DelegateExecution execution) {
         super(execution);
-        scanner = new Scanner(execution);
-        spider = new Spider(execution);
+        objectMapper = new ObjectMapper();
     }
 
     @Override
@@ -69,33 +78,86 @@ public class DefaultScanProcessExecution extends ExecutionAware implements ScanP
     }
 
     @Override
-    public boolean hasSpider() {
-        return spider.getSpiderId() != null;
-    }
-
-    @Override
-    public Spider getSpider() {
-        return spider;
-    }
-
-    @Override
     public boolean hasScanner() {
-        return scanner.getScannerId() != null;
+        return !getScanners().isEmpty();
     }
 
     @Override
-    public Scanner getScanner() {
-        return scanner;
+    public synchronized void addScanner(Scanner scanner) {
+        List<Scanner> scanners = getJsonFromProcessVariableModifiable(DefaultFields.PROCESS_SCANNERS, Scanner.class);
+        scanners.add(scanner);
+        writeToProcess(DefaultFields.PROCESS_SCANNERS, scanners);
+    }
+
+    @Override
+    public List<Scanner> getScanners() {
+        return Collections.unmodifiableList(
+                getJsonFromProcessVariableModifiable(DefaultFields.PROCESS_SCANNERS, Scanner.class));
+    }
+
+    private <T> List<T> getJsonFromProcessVariableModifiable(Enum<?> field, Class<T> innerClass) {
+        synchronized (field) {
+            Object variable = execution.getVariable(field.name());
+            if (!StringUtils.isEmpty(variable)) {
+                try {
+                    return objectMapper.readValue((String) variable,
+                            objectMapper.getTypeFactory().constructCollectionType(List.class, innerClass));
+                } catch (IOException e) {
+                    LOG.error("Can't extract json field {} from process! Raw Data {}", field, variable, e);
+                }
+            }
+            return new LinkedList<>();
+        }
+    }
+
+    private void writeToProcess(Enum<?> field, List<?> data) {
+        synchronized (field) {
+            try {
+                ObjectValue objectValue = Variables.objectValue(objectMapper.writeValueAsString(data))
+                        .serializationDataFormat(Variables.SerializationDataFormats.JSON)
+                        .create();
+                execution.setVariable(field.name(), objectValue);
+            } catch (JsonProcessingException e) {
+                LOG.error("Can't write field {} to process!", field, e);
+                throw new IllegalStateException("Can't write field to process!", e);
+            }
+        }
     }
 
     @Override
     public List<Finding> getFindings() {
-        return scanner.getFindings();
+        return Collections.unmodifiableList(
+                getJsonFromProcessVariableModifiable(DefaultFields.PROCESS_FINDINGS, Finding.class));
+    }
+
+    @Override
+    public void clearFindings() {
+        writeToProcess(DefaultFields.PROCESS_FINDINGS, new LinkedList<>());
     }
 
     @Override
     public void appendFinding(Finding finding) {
-        getScanner().appendFinding(finding);
+        List<Finding> findings = getJsonFromProcessVariableModifiable(DefaultFields.PROCESS_FINDINGS, Finding.class);
+        findings.add(finding);
+        writeToProcess(DefaultFields.PROCESS_FINDINGS, findings);
+    }
+
+    @Override
+    public void clearTargets() {
+        writeToProcess(DefaultFields.PROCESS_TARGETS, new LinkedList<>());
+    }
+
+    @Override
+    public void appendTarget(Target target) {
+        List<Target> targets = getJsonFromProcessVariableModifiable(DefaultFields.PROCESS_TARGETS, Target.class);
+        targets.add(target);
+        writeToProcess(DefaultFields.PROCESS_TARGETS, targets);
+    }
+
+    @Override
+    public List<Target> getTargets() {
+        return Collections.unmodifiableList(
+                getJsonFromProcessVariableModifiable(DefaultFields.PROCESS_TARGETS, Target.class));
     }
 
     @Override
@@ -105,28 +167,8 @@ public class DefaultScanProcessExecution extends ExecutionAware implements ScanP
     }
 
     @Override
-    public String getTenantId(){
+    public String getTenantId() {
         StringValue tenantId = execution.<StringValue>getVariableTyped(DefaultFields.PROCESS_TENANT_ID.name());
         return tenantId != null ? tenantId.getValue() : null;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        DefaultScanProcessExecution that = (DefaultScanProcessExecution) o;
-        return Objects.equals(spider, that.spider) && Objects.equals(scanner, that.scanner);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(spider, scanner);
-    }
-
-    @Override
-    public String toString() {
-        return "DefaultScanProcessExecution{" + "spider=" + spider + ", scanner=" + scanner + '}';
     }
 }

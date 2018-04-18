@@ -19,81 +19,82 @@
 
 package io.securecodebox.model.execution;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.findings.Finding;
-import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.variable.value.StringValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
  * @since 09.03.18
  */
-@JsonPropertyOrder({ "id", "type" })
+@JsonPropertyOrder({ "id", "type", "findings", "rawFindings" })
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class Scanner extends ExecutionAware {
-    private static final Logger LOG = LoggerFactory.getLogger(Scanner.class);
-
-    @JsonIgnore
-    ObjectMapper objectMapper;
-
-    public Scanner(DelegateExecution execution) {
-        super(execution);
-        objectMapper = new ObjectMapper();
-    }
+public class Scanner {
 
     @JsonProperty("id")
+    protected UUID id;
+
+    @JsonProperty("type")
+    protected String type;
+
+    @JsonProperty("findings")
+    protected List<Finding> findings;
+
+    @JsonProperty("rawFindings")
+    protected String rawFindings;
+
+    public Scanner() {
+    }
+
+    public Scanner(UUID id) {
+        this();
+        this.id = id;
+    }
+
+    public Scanner(UUID id, String type) {
+        this(id);
+        this.type = type;
+    }
+
+    public Scanner(UUID id, String type, String rawFindings) {
+        this(id, type);
+        this.rawFindings = rawFindings;
+    }
+
+    public Scanner(UUID id, String type, String rawFindings, List<Finding> findings) {
+        this(id, type, rawFindings);
+        this.findings = findings;
+    }
+
     public void setScannerId(UUID id) {
-        execution.setVariable(DefaultFields.PROCESS_SCANNER_ID.name(), id.toString());
+        this.id = id;
     }
 
-    @JsonProperty("id")
+    @JsonGetter("id")
     public UUID getScannerId() {
-        StringValue input = execution.getVariableTyped(DefaultFields.PROCESS_SCANNER_ID.name());
-        return input != null ? UUID.fromString(input.getValue()) : null;
+        return id;
     }
 
-    @JsonProperty("type")
     public void setScannerType(String type) {
-        execution.setVariable(DefaultFields.PROCESS_SCANNER_TYPE.name(), type);
+        this.type = type;
     }
 
-    @JsonProperty("type")
+    @JsonGetter("type")
     public String getScannerType() {
-        StringValue valueHolder = execution.getVariableTyped(DefaultFields.PROCESS_SCANNER_TYPE.name());
-        return valueHolder != null ? valueHolder.getValue() : "";
+        return type;
     }
 
-    @JsonIgnore
+    @JsonGetter("findings")
     public List<Finding> getFindings() {
-
-        if (!execution.hasVariable(DefaultFields.PROCESS_FINDINGS.name())) {
-            return new LinkedList<>();
-        }
-
-        Object findings = execution.getVariable(DefaultFields.PROCESS_FINDINGS.name());
-        if (findings != null && !StringUtils.isEmpty(findings)) {
-            try {
-                return objectMapper.readValue((String) findings,
-                        objectMapper.getTypeFactory().constructCollectionType(List.class, Finding.class));
-            } catch (IOException e) {
-                LOG.error("Can't extract findings from process! Raw Data {}", findings, e);
-            }
-        }
-        return new LinkedList<>();
+        return findings != null ? findings : new LinkedList<>();
     }
 
     /**
@@ -103,7 +104,7 @@ public class Scanner extends ExecutionAware {
      */
     @JsonIgnore
     public void clearFindings() {
-        saveFindingsToProcess(new LinkedList<>());
+        findings = new LinkedList<>();
     }
 
     /**
@@ -113,7 +114,7 @@ public class Scanner extends ExecutionAware {
      */
     @JsonIgnore
     public void clearRawFindings() {
-        execution.setVariable(DefaultFields.PROCESS_RAW_FINDINGS.name(), null);
+        rawFindings = "";
     }
 
     /**
@@ -133,8 +134,7 @@ public class Scanner extends ExecutionAware {
      */
     @JsonIgnore
     public String getRawFindings() {
-        Object rawFindings = execution.getVariable(DefaultFields.PROCESS_RAW_FINDINGS.name());
-        return rawFindings != null ? (String) rawFindings : "";
+        return rawFindings;
     }
 
     /**
@@ -144,21 +144,29 @@ public class Scanner extends ExecutionAware {
      *
      * @throws IllegalStateException if something goes wrong writing the finding to the process
      */
-    @JsonIgnore
     public synchronized void appendFinding(Finding finding) {
-        List<Finding> findings = getFindings();
         findings.add(finding);
-        saveFindingsToProcess(findings);
     }
 
-    private void saveFindingsToProcess(List<Finding> findings) {
-        try {
-            String rawFindingString = objectMapper.writeValueAsString(findings);
-            execution.setVariable(DefaultFields.PROCESS_FINDINGS.name(), rawFindingString);
-        } catch (JsonProcessingException e) {
-            LOG.error("Can't write findings to process!", e);
-            throw new IllegalStateException("Can't write findings to process!", e);
-        }
+    public void setFindings(List<Finding> findings) {
+        this.findings = findings;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        Scanner scanner = (Scanner) o;
+        return Objects.equals(id, scanner.id) && Objects.equals(type, scanner.type) && Objects.equals(findings,
+                scanner.findings) && Objects.equals(rawFindings, scanner.rawFindings);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(id, type, findings, rawFindings);
     }
 
 }

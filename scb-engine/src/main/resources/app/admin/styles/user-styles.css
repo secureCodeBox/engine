@@ -1,0 +1,151 @@
+/* overrides /camunda/webapps/camunda/app/admin/styles */
+
+:root {
+  --primary: #a9218e;
+  --primary-dark: #731964;
+}
+
+/* navigation bar styles */
+
+/* logo and brand name */
+[cam-widget-header] {
+    border-bottom: 3px solid var(--primary-dark);
+    border-top: 0px;
+    box-shadow: 0px 0px 10px 2px #555;
+}
+
+[cam-widget-header] .navbar-brand .brand-logo::before {
+    content: "";
+}
+
+[cam-widget-header] .navbar-brand .brand-logo {
+    display: inline-block;
+    background-image: url("../assets/images/logo_secureCodeBox_white.svg");
+    background-repeat: no-repeat;
+    width: 120px;
+    height: 40px;
+    content: "";
+}
+
+[cam-widget-header] .navbar-brand .brand-name::before {
+    content: " - Administration";
+    padding-left: 5px;
+    color: #FFF;
+}
+
+[cam-widget-header] .navbar-brand .brand-name {
+    content: "";
+    float: right;
+    font-weight:bold;
+    color: #a9218e;
+}
+
+/* navigation */
+[cam-widget-header] > .cam-nav {
+    border-left: 0 none;
+}
+[cam-widget-header] .sections-menu>ul>li>a {
+	color: #fff;
+}
+[cam-widget-header] .sections-menu>ul>li.active {
+	background-color: var(--primary-dark);
+}
+[cam-widget-header] .sections-menu>ul>li.active>a {
+	color: #fff;
+}
+
+[cam-widget-header] .navbar-nav > .active > a, 
+[cam-widget-header] .navbar-nav > .active > a:hover, 
+[cam-widget-header] .navbar-nav > .active > a:focus {
+    background-color: var(--primary-dark);
+    color: #fff;
+}
+
+[cam-widget-header] .cam-nav a:hover, 
+[cam-widget-header] .cam-nav a:focus,
+[cam-widget-header] .sections-menu a:hover, 
+[cam-widget-header] .sections-menu a:focus {
+    border-bottom: 2px solid #fff;
+    color: #fff;
+}
+
+[cam-widget-header] {
+    background-color: var(--primary);
+}
+
+[cam-widget-header] .navbar-nav > .open > a:hover, 
+[cam-widget-header] .navbar-nav > .open > a:focus {
+    background-color: var(--primary);
+    color: #fff;
+}
+
+.dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus {
+	color: #000 !important;
+}
+
+[cam-widget-header] a, a:hover, a:focus, a:active {
+	color: #fff;
+}
+
+/* general basic styles  */
+a, a:hover, a:focus, a:active {
+    color: #000;
+}
+
+.dropdown-menu>li:hover>a {
+	border-color: var(--primary);
+}
+
+aside li.active>a {
+    border-left-color: var(--primary-dark);
+}
+
+aside li:hover>a {
+    border-left-color: var(--primary);
+    color: #000;
+}
+
+
+/* Button Styles */
+button.region-toggle .icon-bar {
+    background-color: var(--primary);
+}
+.btn-link {
+    color: var(--primary);
+}
+.btn-link:hover, .btn-link:focus {
+    color: #620050;
+    text-decoration: none;
+}
+.btn-primary {
+	background-color: var(--primary);
+	border-color: #FFF;
+	color: #FFF;
+	font-weight: bold;
+}
+.btn-primary:hover {
+	background-color: #FFF;
+	border-color: var(--primary);
+	color: var(--primary);
+	font-weight: bold;
+	transition: all 0.2s ease-in 0s;
+}
+.btn-primary.disabled, .btn-primary[disabled], fieldset[disabled] .btn-primary, .btn-primary.disabled:hover, .btn-primary[disabled]:hover, fieldset[disabled] .btn-primary:hover, .btn-primary.disabled:focus, .btn-primary[disabled]:focus, fieldset[disabled] .btn-primary:focus, .btn-primary.disabled.focus, .btn-primary.focus[disabled], fieldset[disabled] .btn-primary.focus, .btn-primary.disabled:active, .btn-primary[disabled]:active, fieldset[disabled] .btn-primary:active, .btn-primary.disabled.active, .btn-primary.active[disabled], fieldset[disabled] .btn-primary.active {
+	background-color: var(--primary);
+	border-color: #FFF;
+	color: #FFF;
+}
+.btn-success:hover {
+	background-color: #FFF;
+	border-color: #5cb85c;
+	color: #5cb85c;
+	font-weight: bold;
+	transition: all 0.2s ease-in 0s;
+}
+.btn-danger:hover {
+	background-color: #FFF;
+	border-color: #d9534f;
+	color: #d9534f;
+	font-weight: bold;
+	transition: all 0.2s ease-in 0s;
+}

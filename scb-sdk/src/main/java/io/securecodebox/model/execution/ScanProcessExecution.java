@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import io.securecodebox.model.findings.Finding;
 
 import java.util.List;
@@ -33,7 +32,7 @@ import java.util.UUID;
  * @author Rüdiger Heins - iteratec GmbH
  * @since 08.03.18
  */
-@JsonPropertyOrder({"id","context","automated"})
+@JsonPropertyOrder({ "id", "context", "automated", "scanners" })
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public interface ScanProcessExecution {
 
@@ -50,30 +49,41 @@ public interface ScanProcessExecution {
     public abstract boolean isRunning();
 
     @JsonIgnore
-    public abstract boolean hasSpider();
-
-    @JsonUnwrapped(prefix = "spider_")
-    public Spider getSpider();
-
-    @JsonIgnore
     public abstract boolean hasScanner();
 
-    @JsonUnwrapped(prefix = "scanner_")
-    public Scanner getScanner();
+    public void addScanner(Scanner scanner);
+
+    @JsonProperty("scanners")
+    public List<Scanner> getScanners();
 
     /**
-     * Convenience Method for getScanner().getFindings();
+     * Returns the Findings directly attached to the process. Mostly it's the result of the last step.
+     * If the process has multiple scanners you might wan't to have a look into getScanners().
      */
-    @JsonIgnore
+    @JsonProperty("findings")
     public abstract List<Finding> getFindings();
 
     /**
-     * Convenience Method for getScanner().appendFinding(Finding);
+     * Clears the Findings currently attached to this process findings.
+     * If the process has multiple scanners you might wan't to have a look into getScanners().
+     */
+    @JsonIgnore
+    public abstract void clearFindings();
+
+    /**
+     * Attaches Findings directly to the process instance.
+     * If the process has multiple scanners you might wan't to have a look into getScanners().
      *
      * @param finding
      */
     @JsonIgnore
     public abstract void appendFinding(Finding finding);
+
+    public abstract void appendTarget(Target target);
+
+    public abstract List<Target> getTargets();
+
+    public abstract void clearTargets();
 
     @JsonProperty("automated")
     public abstract boolean isAutomated();

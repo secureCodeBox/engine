@@ -10,6 +10,8 @@ services:
       - frontend
     labels:
       container_group: core
+    volumes:
+      - ./processes/:/scb-engine/processes/
     environment:
       - CAMUNDA_BPM_DATABASE_TYPE=mysql
       - SPRING_DATASOURCE_URL=jdbc:mysql://camundadb:3306/${CAMUNDADB_DATABASE}
