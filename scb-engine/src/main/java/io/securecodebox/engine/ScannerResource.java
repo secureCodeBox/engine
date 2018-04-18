@@ -21,7 +21,9 @@ package io.securecodebox.engine;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterables;
+import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.findings.Finding;
 import io.swagger.annotations.ApiOperation;
@@ -31,6 +33,8 @@ import io.swagger.annotations.ApiResponses;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.externaltask.ExternalTaskQueryBuilder;
 import org.camunda.bpm.engine.externaltask.LockedExternalTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,8 +44,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -51,32 +56,62 @@ import java.util.UUID;
 @RestController
 @RequestMapping(value = "/box/scanners")
 public class ScannerResource {
+    private static final Logger LOG = LoggerFactory.getLogger(ScannerResource.class);
+    public static final int LOCK_DURATION_MS = 86400000;
 
     @Autowired
     ProcessEngine engine;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @ApiOperation(value = "Lock a scan job for the given topic",
             notes = "Returns a scan job for the given topic / capability, if there is one.")
 
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Successful retrieval of the scan Job",
-            response = ScanConfiguration.class), @ApiResponse(code = 204, message = "No scanjob available"),
+            response = ScanConfiguration.class),
+            @ApiResponse(code = 204, message = "No scanjob available", response = void.class),
             @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
 
             @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
     @RequestMapping(method = RequestMethod.POST, value = "/{scannerId}/jobs/lock/{topic}")
-    public ResponseEntity<ScanConfiguration> lockJob(@PathVariable String topic, @PathVariable UUID workerId) {
+    public ResponseEntity<ScanConfiguration> lockJob(
+            @ApiParam(defaultValue = "nmap_portscan") @PathVariable String topic,
+            @ApiParam(value = "UUID of the job.", required = true, type = "UUID",
+                    defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID scannerId) {
         ExternalTaskQueryBuilder externalTaskQueryBuilder = engine.getExternalTaskService()
-                .fetchAndLock(1, workerId.toString());
-        externalTaskQueryBuilder.topic(topic, Long.MAX_VALUE);
+                .fetchAndLock(1, scannerId.toString());
+        externalTaskQueryBuilder.topic(topic, LOCK_DURATION_MS);
 
         LockedExternalTask result = Iterables.getFirst(externalTaskQueryBuilder.execute(), null);
         if (result != null) {
+
             ScanConfiguration config = new ScanConfiguration();
-            config.processId = UUID.fromString(result.getId());
+            config.processId = UUID.fromString(result.getExecutionId());
+            config.targets = getVariableListFromJsonField(result, DefaultFields.PROCESS_TARGETS,
+                    Target.class);
             return ResponseEntity.status(HttpStatus.CREATED).body(config);
         } else {
             return ResponseEntity.noContent().build();
+        }
+    }
+
+    private <T> List<T> getVariableListFromJsonField(LockedExternalTask result, Enum<?> field, Class<T> innerClass) {
+        synchronized (field) {
+            Object processFindings = engine.getRuntimeService().getVariable(result.getExecutionId(), field.name());            ;
+            if (!(processFindings instanceof String)) {
+                LOG.error("String field {} is not instance of string. Value {}", field, processFindings);
+                throw new IllegalStateException("String field is not instance of string!");
+            }
+
+            try {
+                return objectMapper.readValue((String) processFindings,
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, innerClass));
+            } catch (IOException e) {
+                LOG.error("Can't extract json field {} from process! Raw Data {}", field.name(), processFindings, e);
+                return new LinkedList<>();
+            }
         }
     }
 
@@ -88,7 +123,9 @@ public class ScannerResource {
             @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
     @RequestMapping(method = RequestMethod.POST, value = "/jobs/{id}")
-    public ResponseEntity completeJob( @ApiParam(value = "UUID of the job.", required = true) @PathVariable UUID id, @RequestBody ScanResult result) {
+    public ResponseEntity completeJob(@ApiParam(value = "UUID of the job.", required = true, type = "UUID",
+            defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID id,
+            @RequestBody ScanResult result) {
 
         return ResponseEntity.ok().build();
     }
@@ -98,8 +135,6 @@ public class ScannerResource {
 
         @JsonProperty
         UUID processId;
-        @JsonProperty
-        Map<String, Object> configs;
         @JsonProperty
         List<Target> targets;
 

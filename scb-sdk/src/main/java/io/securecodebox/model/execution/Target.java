@@ -36,6 +36,7 @@ public class Target {
     private String name;
     @JsonProperty
     private String location;
+    @JsonProperty
     private Map<String, Object> attributes = new HashMap<>();
 
     public String getName() {
@@ -52,5 +53,13 @@ public class Target {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    public void appendAttribute(String key, Object value) {
+        attributes.put(key, value);
     }
 }
