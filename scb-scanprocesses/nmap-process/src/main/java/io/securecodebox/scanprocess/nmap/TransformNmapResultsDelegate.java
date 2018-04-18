@@ -19,6 +19,7 @@
 
 package io.securecodebox.scanprocess.nmap;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterables;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.constants.NmapFindingAttributes;
@@ -42,9 +43,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.StringReader;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -58,6 +61,9 @@ public class TransformNmapResultsDelegate implements JavaDelegate {
 
     @Autowired
     ScanProcessExecutionFactory processExecutionFactory;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     DocumentBuilderFactory documentBuilderFactory;
 
@@ -81,10 +87,29 @@ public class TransformNmapResultsDelegate implements JavaDelegate {
         ScanProcessExecution process = processExecutionFactory.get(delegateExecution);
         clearFindings(process);
 
-        String rawFindingResultXML = Iterables.getLast(process.getScanners(), new Scanner()).getRawFindings();
+        String rawFindingResult = Iterables.getLast(process.getScanners(), new Scanner()).getRawFindings();
 
-        if (!StringUtils.isEmpty(rawFindingResultXML)) {
-            final JAXBContext context = JAXBContext.newInstance(NmapRawResult.class);
+        if (!StringUtils.isEmpty(rawFindingResult)) {
+
+            List<String> findings = objectMapper.readValue(rawFindingResult,
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, String.class));
+
+            findings.stream().forEach((findingXML) -> parseRawFindingAndAppend(process, findingXML));
+
+            LOG.debug("Found {} findings", process.getFindings().size());
+
+            // persist all generic result entries
+            //new GenericReporter(delegateExecution).setGenericResultsVariable(findingsList)
+        } else {
+            LOG.warn("Couldn't find the process variable or its content is empty: {}",
+                    DefaultFields.PROCESS_RAW_FINDINGS);
+        }
+    }
+
+    private void parseRawFindingAndAppend(ScanProcessExecution process, String rawFindingResultXML) {
+        final JAXBContext context;
+        try {
+            context = JAXBContext.newInstance(NmapRawResult.class);
             final Unmarshaller unmarshaller = context.createUnmarshaller();
             NmapRawResult rawResult = (NmapRawResult) unmarshaller.unmarshal(new StringReader(rawFindingResultXML));
 
@@ -117,14 +142,8 @@ public class TransformNmapResultsDelegate implements JavaDelegate {
                     }
                 }
             }
-
-            LOG.debug("Found {} findings", process.getFindings().size());
-
-            // persist all generic result entries
-            //new GenericReporter(delegateExecution).setGenericResultsVariable(findingsList)
-        } else {
-            LOG.warn("Couldn't find the process variable or its content is empty: {}",
-                    DefaultFields.PROCESS_RAW_FINDINGS);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
         }
     }
 
