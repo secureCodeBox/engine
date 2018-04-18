@@ -49,10 +49,6 @@ public class ConfigureTargetCompleteListener implements ExecutionListener {
                 process.setScannerIncludeRegexes("\\Q" + process.getTargetUrl() + "\\E.*");
                 process.setScannerExcludeRegexes("");
 
-                String[] reportingTypes = {"kibana"};
-                process.setReportingTypes(reportingTypes);
-                process.setReportingFalsePositives("[]");
-
         }
     }
 }

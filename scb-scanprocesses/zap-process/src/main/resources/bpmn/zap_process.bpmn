@@ -103,7 +103,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_0j7z5rz" name="spider &#10;configured" sourceRef="UserTask_configure_spider-details" targetRef="ExclusiveGateway_016s0wv" />
     <bpmn:sequenceFlow id="SequenceFlow_0dnuw18" name="scanner configured" sourceRef="UserTask_configure_scanner-details" targetRef="ExclusiveGateway_016s0wv" />
     <bpmn:sequenceFlow id="SequenceFlow_0br09x5" name="no &#10;advanced configuration" sourceRef="ExclusiveGateway_AdvancedConfiguration" targetRef="ExclusiveGateway_016s0wv">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${!ZAP_AUTHENTICATION && ZAP_SPIDER_CONFIGURATION_TYPE == 'default' && ZAP_SCANNER_CONFIGURATION_TYPE == 'default' && ZAP_REPORTING_CONFIGURATION_TYPE == 'default'}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${!ZAP_AUTHENTICATION && ZAP_SPIDER_CONFIGURATION_TYPE == 'default' && ZAP_SCANNER_CONFIGURATION_TYPE == 'default'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1g7p2w3" name="finished" sourceRef="ServiceTask_StartScanner" targetRef="ExclusiveGateway_MarkFalsePositive" />
     <bpmn:serviceTask id="ServiceTask_StartScanner" name="Run the (OWASP Zap) Scanner" camunda:asyncBefore="true" camunda:type="external" camunda:topic="zap_scan">
@@ -113,14 +113,6 @@
       <bpmn:incoming>SequenceFlow_WebserverScanFinisched</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1g7p2w3</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_08lbhm5" name="advanced reporting configuration" sourceRef="ExclusiveGateway_AdvancedConfiguration" targetRef="UserTask_configure_reporting-details">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${ZAP_REPORTING_CONFIGURATION_TYPE == 'advanced'}]]></bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0ifemf4" sourceRef="UserTask_configure_reporting-details" targetRef="ExclusiveGateway_016s0wv" />
-    <bpmn:userTask id="UserTask_configure_reporting-details" name="Configure reporting" camunda:formKey="embedded:app:forms/zap/configure-reporting-details.html">
-      <bpmn:incoming>SequenceFlow_08lbhm5</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0ifemf4</bpmn:outgoing>
-    </bpmn:userTask>
     <bpmn:sequenceFlow id="SequenceFlow_0drubkw" sourceRef="ExclusiveGateway_ResultApproved" targetRef="ExclusiveGateway_AutomatedStart">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${ZAP_RESULT_APPROVED == 'disapproved'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -130,7 +122,6 @@
       <bpmn:outgoing>SequenceFlow_1s3gu9y</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0r2gvr8</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0br09x5</bpmn:outgoing>
-      <bpmn:outgoing>SequenceFlow_08lbhm5</bpmn:outgoing>
     </bpmn:inclusiveGateway>
     <bpmn:inclusiveGateway id="ExclusiveGateway_016s0wv">
       <bpmn:incoming>SequenceFlow_1fxwueb</bpmn:incoming>
@@ -138,7 +129,6 @@
       <bpmn:incoming>SequenceFlow_0j7z5rz</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0dnuw18</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0br09x5</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_0ifemf4</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0tb0m80</bpmn:outgoing>
     </bpmn:inclusiveGateway>
     <bpmn:startEvent id="StartEvent_ConfigureZapScan" name="target configured" camunda:formKey="embedded:app:forms/zap/configure-target.html">
@@ -366,25 +356,6 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ServiceTask_0fnvvbs_di" bpmnElement="ServiceTask_StartScanner">
         <dc:Bounds x="612" y="533" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_08lbhm5_di" bpmnElement="SequenceFlow_08lbhm5">
-        <di:waypoint xsi:type="dc:Point" x="485" y="118" />
-        <di:waypoint xsi:type="dc:Point" x="785" y="118" />
-        <di:waypoint xsi:type="dc:Point" x="785" y="253" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="803" y="172" width="63" height="38" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_0ifemf4_di" bpmnElement="SequenceFlow_0ifemf4">
-        <di:waypoint xsi:type="dc:Point" x="785" y="333" />
-        <di:waypoint xsi:type="dc:Point" x="785" y="447" />
-        <di:waypoint xsi:type="dc:Point" x="485" y="447" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="800" y="383.5" width="0" height="13" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="UserTask_1nndqjm_di" bpmnElement="UserTask_configure_reporting-details">
-        <dc:Bounds x="736" y="253" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_1cimbzw_di" bpmnElement="TextAnnotation_1cimbzw">
         <dc:Bounds x="44" y="-125" width="231" height="88" />

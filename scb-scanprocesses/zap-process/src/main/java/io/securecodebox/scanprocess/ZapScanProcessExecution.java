@@ -51,27 +51,27 @@ public class ZapScanProcessExecution extends DefaultScanProcessExecution {
     }
 
     public void setLoginSite(String loginSite) {
-        this.execution.setVariable("loginSite", loginSite);
+        this.execution.setVariable(ZapFields.ZAP_LOGIN_SITE.name(), loginSite);
     }
 
     public void setLoginUserName(String loginUser) {
-        this.execution.setVariable("loginUser", loginUser);
+        this.execution.setVariable(ZapFields.ZAP_LOGIN_USER.name(), loginUser);
     }
 
     public void setUsernameFieldId(String usernameFieldId) {
-        this.execution.setVariable("usernameFieldId", usernameFieldId);
+        this.execution.setVariable(ZapFields.ZAP_USERNAME_FIELD_ID.name(), usernameFieldId);
     }
 
     public void setLoginPassword(String loginPassword) {
-        this.execution.setVariable("loginPassword", loginPassword);
+        this.execution.setVariable(ZapFields.ZAP_LOGIN_PW.name(), loginPassword);
     }
 
     public void setPasswordFieldId(String passwordFieldId) {
-        this.execution.setVariable("passwordFieldId", passwordFieldId);
+        this.execution.setVariable(ZapFields.ZAP_PW_FIELD_ID.name(), passwordFieldId);
     }
 
     public void setLoggedInIndicator(String loggedInIndicator) {
-        this.execution.setVariable("loggedInIndicator", loggedInIndicator);
+        this.execution.setVariable(ZapFields.ZAP_LOGGED_IN_INDICATOR.name(), loggedInIndicator);
     }
 
     public void setSpiderTargetUrl(String spiderTargetUrl) {
@@ -109,14 +109,5 @@ public class ZapScanProcessExecution extends DefaultScanProcessExecution {
     public void setScannerIncludeRegexes(String scannerIncludeRegexes) {
         this.execution.setVariable(ZapFields.ZAP_SCANNER_INCLUDE_REGEX.name(), scannerIncludeRegexes);
     }
-
-    public void setReportingTypes(String[] reportingTypes) {
-        this.execution.setVariable(ZapFields.ZAP_REPORTING_TYPES.name(), Arrays.toString(reportingTypes));
-    }
-
-    public void setReportingFalsePositives(String reportingFalsePositives) {
-        this.execution.setVariable(ZapFields.ZAP_REPORTING_FALSE_POSITIVES.name(), reportingFalsePositives);
-    }
-
 
 }

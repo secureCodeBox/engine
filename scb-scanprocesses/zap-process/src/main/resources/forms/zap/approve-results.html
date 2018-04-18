@@ -7,27 +7,16 @@
       camForm.variableManager.fetchVariable('PROCESS_CONTEXT');
 
       camForm.variableManager.fetchVariable('PROCESS_SPIDER_ID');
-	  camForm.variableManager.fetchVariable('ZAP_SPIDER_RUN_ID');
       camForm.variableManager.fetchVariable('ZAP_SPIDER_TARGET_URL');
       camForm.variableManager.fetchVariable('ZAP_SPIDER_INCLUDE_REGEX');
       camForm.variableManager.fetchVariable('ZAP_SPIDER_EXCLUDE_REGEX');
-      camForm.variableManager.fetchVariable('ZAP_SPIDER_EXLUDE_DUPLICATES');
+      camForm.variableManager.fetchVariable('ZAP_SPIDER_EXCLUDE_DUPLICATES');
       camForm.variableManager.fetchVariable('ZAP_SPIDER_MAX_DEPTH');
 
       camForm.variableManager.fetchVariable('PROCESS_SCANNER_ID');
- 	  camForm.variableManager.fetchVariable('ZAP_SCANNER_RUN_ID');
       camForm.variableManager.fetchVariable('ZAP_SCANNER_TARGET_URL');
       camForm.variableManager.fetchVariable('ZAP_SCANNER_INCLUDE_REGEX');
-      camForm.variableManager.fetchVariable('ZAP_SCANNER_EXLUDE_REGEX');
-
-      camForm.variableManager.fetchVariable('ZAP_REPORTING_CONFIGURATION_TYPE');
-	  camForm.variableManager.fetchVariable('ZAP_REPORTING_TYPES');
-	  camForm.variableManager.fetchVariable('ZAP_REPORTING_SERVICE_ID');
- 	  camForm.variableManager.fetchVariable('ZAP_REPORTING_SERVICE_RUN_ID');
- 	  camForm.variableManager.fetchVariable('ZAP_REPORTING_SERVICE_HOST');
-	  camForm.variableManager.fetchVariable('ZAP_REPORTING_DASHBOARD_URL');
-	  camForm.variableManager.fetchVariable('ZAP_REPORTING_DASHBOARD_BY_TIME_URL');
-	  camForm.variableManager.fetchVariable('ZAP_REPORTING_FALSE_POSITIVES');
+      camForm.variableManager.fetchVariable('ZAP_SCANNER_EXCLUDE_REGEX');
     });
 
     camForm.on('variables-restored', function() {
@@ -36,30 +25,19 @@
       $scope.context = camForm.variableManager.variableValue('PROCESS_CONTEXT');
 
 	  $scope.spiderMicroserviceId = camForm.variableManager.variableValue('PROCESS_SPIDER_ID');
-	  $scope.spiderMicroserviceRunId = camForm.variableManager.variableValue('ZAP_SPIDER_RUN_ID');
 	  $scope.spiderTargetUrl = camForm.variableManager.variableValue('ZAP_SPIDER_TARGET_URL');
 	  $scope.spiderIncludeRegexes = camForm.variableManager.variableValue('ZAP_SPIDER_INCLUDE_REGEX');
 	  $scope.spiderExcludeRegexes = camForm.variableManager.variableValue('ZAP_SPIDER_EXCLUDE_REGEX');
-	  $scope.spiderExcludeDuplicates = camForm.variableManager.variableValue('ZAP_SPIDER_EXLUDE_DUPLICATES');
+	  $scope.spiderExcludeDuplicates = camForm.variableManager.variableValue('ZAP_SPIDER_EXCLUDE_DUPLICATES');
 	  $scope.spiderMaxDepth = camForm.variableManager.variableValue('ZAP_SPIDER_MAX_DEPTH');
 
    	  $scope.scannerMicroserviceId = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
-	  $scope.scannerMicroserviceRunId = camForm.variableManager.variableValue('ZAP_SCANNER_RUN_ID');
 	  $scope.scannerTargetUrl = camForm.variableManager.variableValue('ZAP_SCANNER_TARGET_URL');
 	  $scope.scannerIncludeRegexes = camForm.variableManager.variableValue('ZAP_SCANNER_INCLUDE_REGEX');
-	  $scope.scannerExcludeRegexes = camForm.variableManager.variableValue('ZAP_SCANNER_EXLUDE_REGEX');
-
-      $scope.reportingConfigurationType = camForm.variableManager.variableValue('ZAP_REPORTING_CONFIGURATION_TYPE');
-	  $scope.reportingTypes = camForm.variableManager.variableValue('ZAP_REPORTING_TYPES');
- 	  $scope.reportingFalsePositive = camForm.variableManager.variableValue('ZAP_REPORTING_SERVICE_ID');
-	  $scope.reportingMicroserviceId = camForm.variableManager.variableValue('ZAP_REPORTING_SERVICE_RUN_ID');
-	  $scope.reportingMicroserviceRunId = camForm.variableManager.variableValue('ZAP_REPORTING_SERVICE_HOST');
- 	  $scope.reportingServiceHost = camForm.variableManager.variableValue('ZAP_REPORTING_DASHBOARD_URL');
-	  $scope.reportingDashboardUrl = camForm.variableManager.variableValue('ZAP_REPORTING_DASHBOARD_BY_TIME_URL');
-	  $scope.reportingDashboardByTimeUrl = camForm.variableManager.variableValue('ZAP_REPORTING_FALSE_POSITIVES');
+	  $scope.scannerExcludeRegexes = camForm.variableManager.variableValue('ZAP_SCANNER_EXCLUDE_REGEX');
 
       // TODO Workaround: Show dummy content if not specified (also see CAM-5292)
-      if (camForm.variableManager.variable('ZAP_SPIDER_API_SPEC_FILE').type !== 'File') {
+      if (camForm.variableManager.variable('ZAP_SPIDER_API_SPEC_FILE') && camForm.variableManager.variable('ZAP_SPIDER_API_SPEC_FILE').type !== 'File') {
         camForm.variableManager.destroyVariable('ZAP_SPIDER_API_SPEC_FILE');
         camForm.variableManager.createVariable({name: 'ZAP_SPIDER_API_SPEC_FILE', type: 'File', valueInfo: {filename: ''}});
         $scope.spiderApiSpecFile = camForm.variableManager.variableValue('ZAP_SPIDER_API_SPEC_FILE');
@@ -88,18 +66,7 @@
 		
 			<h3>Application Security Findings By Process:</h3>
 			<div>
-				<iframe id="showReport" ng-src="{{reportingServiceHost + reportingDashboardUrl | trustUrl }}" height="600" width="100%" style="border: 1px solid #e3e3e3;"></iframe>
-			</div>
-			<div class="well">Scan Process Findings By Process:
-				<a href="{{reportingServiceHost + reportingDashboardUrl | trustUrl }}" target="_blank">Open Dashboard in a new Window</a>
-			</div>
-
-			<h3>Application Security Findings Overview:</h3>
-			<div>
-				<iframe id="showTimeReport" ng-src="{{reportingServiceHost + reportingDashboardByTimeUrl | trustUrl }}" height="600" width="100%" style="border: 1px solid #e3e3e3;"></iframe>
-			</div>
-			<div class="well">Security Findings By Time:
-				<a href="{{reportingServiceHost + reportingDashboardByTimeUrl | trustUrl }}" target="_blank">Open Dashboard in a new Window</a>
+				<!-- TODO: show findings -->
 			</div>
 
 			<div>
@@ -114,7 +81,7 @@
 				</div>
 
 				<!-- API specification file -->
-				<div class="form-group">
+				<div class="form-group" ng-if="spiderApiSpecFile">
 					<label for="inputSpiderApiSpecFile">API Specification File</label>
 					<div id="inputSpiderApiSpecFile" class="controls">
 						<a cam-file-download="spiderApiSpecFile"></a>
@@ -137,14 +104,6 @@
 						<label for="selectSpiderMicroserviceId">Spider MicroserviceId</label>
 						<div id="selectSpiderMicroserviceId" class="controls">
 							<code>{{ spiderMicroserviceId }}</code>
-						</div>
-					</div>
-
-					<!-- spiderMicroserviceRunId -->
-					<div class="form-group">
-						<label for="selectSpiderMicroserviceRunId">Spider MicroserviceRunId</label>
-						<div id="selectSpiderMicroserviceRunId" class="controls">
-							<code>{{ spiderMicroserviceRunId }}</code>
 						</div>
 					</div>
 				
@@ -195,14 +154,6 @@
 					</div>
 				</div>
 				
-				<!-- ScannerMicroserviceRunId -->
-				<div class="form-group">
-					<label for="inputScannerMicroserviceRunId">Scanner MicroserviceRunId</label>
-					<div id="inputScannerMicroserviceRunId" class="controls">
-						<code>{{ scannerMicroserviceRunId }}</code>
-					</div>
-				</div>
-				
 				<!-- includeRegexes -->
 			    <div class="form-group">
 				      <label for="inputScannerIncludeRegexes">Include sitemap pages by regular expression</label>
@@ -218,27 +169,6 @@
 				        	<code>{{ scannerExcludeRegexes }}</code>
 				      </div>
 			    </div>
-			</div>
-			
-			<div>
-				<h3>Reporting Configuration</h3>
-				
-				<!-- Reporting Type configuration -->
-				<div class="form-group">
-					<label for="selectReportingTypes">Reporting Type Configuration</label>
-					<div id="selectReportingTypes" class="controls">
-						<code>{{ reportingTypes }}</code>
-					</div>
-				</div>
-				
-				<!-- False/Positive -->
-		    	<div class="form-group">
-				      <label for="textAreaReportingFalsePositive">Reporting False/Positives</label>
-				      <div id="textAreaReportingFalsePositive" class="controls">
-				        	<code>{{ reportingFalsePositive }}</code>
-				      </div>
-			    </div>
-				
 			</div>
 			
 			<h2>Approve Result</h2>
