@@ -17,10 +17,10 @@
  * /
  */
 
-package io.securecodebox.scanprocess.nmap;
+package io.securecodebox.scanprocess.test.nmap;
 
 import io.securecodebox.constants.DefaultFields;
-import io.securecodebox.constants.NmapFields;
+import io.securecodebox.scanprocess.nmap.constants.NmapFields;
 import org.camunda.bpm.engine.ExternalTaskService;
 import org.camunda.bpm.engine.ProcessEngineException;
 import org.camunda.bpm.engine.delegate.DelegateTask;
@@ -126,7 +126,7 @@ public class NmapProcessTest {
         Note: Most of the mocking methods seem to work only in combination with delegateExpressions
         but not with class definitions as delegate implementation.
 
-        If you have the path to your executable code (the class for example) as delegate implementation
+        If you have the path to your executable code (the class for delegate) as delegate implementation
         then this guide is helpful:
         https://blog.akquinet.de/2016/11/04/camunda-bpm-test-your-processes-based-on-plain-old-java-delegates/
          */

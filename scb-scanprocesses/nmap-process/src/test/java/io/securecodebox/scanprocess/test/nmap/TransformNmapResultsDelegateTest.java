@@ -17,17 +17,18 @@
  * /
  */
 
-package io.securecodebox.scanprocess.nmap;
+package io.securecodebox.scanprocess.test.nmap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
-import io.securecodebox.constants.NmapFindingAttributes;
+import io.securecodebox.scanprocess.nmap.constants.NmapFindingAttributes;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.model.execution.Scanner;
 import io.securecodebox.model.findings.OsiLayer;
 import io.securecodebox.model.findings.Severity;
-import io.securecodebox.scanprocess.NmapScanProcessExecution;
+import io.securecodebox.scanprocess.nmap.NmapScanProcessExecution;
+import io.securecodebox.scanprocess.nmap.delegate.TransformNmapResultsDelegate;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.variable.impl.value.ObjectValueImpl;
 import org.junit.Before;
@@ -43,13 +44,13 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.LinkedList;
 import java.util.UUID;
 
-import static io.securecodebox.constants.NmapFindingAttributes.END;
-import static io.securecodebox.constants.NmapFindingAttributes.IP_ADDRESS;
-import static io.securecodebox.constants.NmapFindingAttributes.MAC_ADDRESS;
-import static io.securecodebox.constants.NmapFindingAttributes.PORT;
-import static io.securecodebox.constants.NmapFindingAttributes.PROTOCOL;
-import static io.securecodebox.constants.NmapFindingAttributes.START;
-import static io.securecodebox.constants.NmapFindingAttributes.STATE;
+import static io.securecodebox.scanprocess.nmap.constants.NmapFindingAttributes.END;
+import static io.securecodebox.scanprocess.nmap.constants.NmapFindingAttributes.IP_ADDRESS;
+import static io.securecodebox.scanprocess.nmap.constants.NmapFindingAttributes.MAC_ADDRESS;
+import static io.securecodebox.scanprocess.nmap.constants.NmapFindingAttributes.PORT;
+import static io.securecodebox.scanprocess.nmap.constants.NmapFindingAttributes.PROTOCOL;
+import static io.securecodebox.scanprocess.nmap.constants.NmapFindingAttributes.START;
+import static io.securecodebox.scanprocess.nmap.constants.NmapFindingAttributes.STATE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;

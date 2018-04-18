@@ -1,4 +1,4 @@
-package io.securecodebox.scanprocess.example;
+package io.securecodebox.scanprocess.test.delegate;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;

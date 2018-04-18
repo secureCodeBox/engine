@@ -17,12 +17,12 @@
  * /
  */
 
-package io.securecodebox.scanprocess.nmap;
+package io.securecodebox.scanprocess.nmap.delegate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterables;
 import io.securecodebox.constants.DefaultFields;
-import io.securecodebox.constants.NmapFindingAttributes;
+import io.securecodebox.scanprocess.nmap.constants.NmapFindingAttributes;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.model.execution.Scanner;

@@ -17,23 +17,14 @@
  * /
  */
 
-package io.securecodebox.persistence;
-
-import io.securecodebox.model.Report;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
+package io.securecodebox.scanprocess.nmap.constants;
 
 /**
+ * Enum with corresponding Attributes in the Finding.getAttributes section.
+ *
  * @author Rüdiger Heins - iteratec GmbH
- * @since 13.04.18
+ * @since 22.03.18
  */
-@Component
-@ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "none")
-public class NonePersistenceProvider implements PersistenceProvider {
-
-    @Override
-    public void persist(Report report) {
-
-    }
+public enum NmapFindingAttributes {
+    PORT, SERVICE, PROTOCOL, STATE, START, END, IP_ADDRESS, MAC_ADDRESS, OPERATING_SYSTEM;
 }
-

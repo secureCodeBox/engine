@@ -17,7 +17,7 @@
  * /
  */
 
-package io.securecodebox.constants;
+package io.securecodebox.scanprocess.nmap.constants;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH

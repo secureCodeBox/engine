@@ -17,9 +17,9 @@
  * /
  */
 
-package io.securecodebox.scanprocess;
+package io.securecodebox.scanprocess.nmap;
 
-import io.securecodebox.constants.NmapFields;
+import io.securecodebox.scanprocess.nmap.constants.NmapFields;
 import io.securecodebox.model.execution.DefaultScanProcessExecution;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 
