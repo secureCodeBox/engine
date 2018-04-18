@@ -1,0 +1,28 @@
+[
+  {
+    "statusCode": "302",
+    "statusReason": "Found",
+    "method": "GET",
+    "messageId": "2",
+    "url": "http://bodgeit:8080/bodgeit",
+    "requestDateTime": "2018-04-17T13:22:01.386+00:00",
+    "responseTime": 50,
+    "postData": "",
+    "headers": "User-Agent=Mozilla%2F5.0+%28Windows+NT+6.3%3B+WOW64%3B+rv%3A39.0%29+Gecko%2F20100101+Firefox%2F39.0&Pragma=no-cache&Cache-Control=no-cache&Content-Length=0&Host=bodgeit%3A8080",
+    "queryString": "",
+    "cookies": ""
+  },
+  {
+    "statusCode": "200",
+    "statusReason": "OK",
+    "method": "GET",
+    "messageId": "5",
+    "url": "http://bodgeit:8080/bodgeit/",
+    "requestDateTime": "2018-04-17T13:22:01.469+00:00",
+    "responseTime": 258,
+    "postData": "",
+    "headers": "User-Agent=Mozilla%2F5.0+%28Windows+NT+6.3%3B+WOW64%3B+rv%3A39.0%29+Gecko%2F20100101+Firefox%2F39.0&Pragma=no-cache&Cache-Control=no-cache&Content-Length=0&Referer=http%3A%2F%2Fbodgeit%3A8080%2Fbodgeit&Host=bodgeit%3A8080",
+    "queryString": "",
+    "cookies": ""
+  }
+]
