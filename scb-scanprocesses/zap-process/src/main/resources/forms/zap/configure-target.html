@@ -1,5 +1,33 @@
 <h2>Please configure the Application Security Scan</h2>
+<script cam-script type="text/form-script">
+        camForm.on('form-loaded', function () {
+            camForm.variableManager.fetchVariable('PROCESS_TARGETS');
+        });
 
+        camForm.on('variables-fetched', function () {
+            $scope.targets = camForm.variableManager.variableValue('PROCESS_TARGETS');
+            console.log("targets: "+$scope.targets);
+
+            if($scope.targets === undefined || angular.equals([], $scope.targets)) {
+                $scope.targetList = [];
+                $scope.targetList.push({'name':'BodgeIT Public Host', 'location': 'http://bodgeit:8080/bodgeit'});
+            }
+        });
+
+        camForm.on('submit', function () {
+            camForm.variableManager.destroyVariable('PROCESS_TARGETS');
+            camForm.variableManager.createVariable({
+                name: 'PROCESS_TARGETS',
+                type: 'Object',
+                value: JSON.stringify($scope.targetList),
+                valueInfo: {
+                    serializationDataFormat: 'application/json',
+                    objectTypeName: 'java.lang.String'
+                }
+            });
+        });
+
+    </script>
 <form role="form" name="configure-target">
 
 	<div class="row">
@@ -13,14 +41,12 @@
 				<div class="controls">
 					<input required class="form-control"
 						    id="inputTargetName"
-							cam-variable-type="String"
-							cam-variable-name="ZAP_TARGET_NAME"
 							type="text" 
 							placeholder="Public Site Run"
 							ng-minlength="2" 
 							ng-maxlength="30" 
 							name="targetName"
-							value="BodgeIT Public Site Scan" />
+							ng-model="targets[0].name" />
 				</div>
 			</div>
 			
@@ -30,14 +56,12 @@
 				<div class="controls">
 					<input required class="form-control"
 						    id="inputTargetUrl"
-							cam-variable-type="String"
-							cam-variable-name="ZAP_TARGET_URL"
 							type="text" 
 							placeholder="http://bodgeit:8080/bodgeit"
 							ng-minlength="5" 
 							ng-maxlength="100" 
 							name="targetUrl"
-							value="http://bodgeit:8080/bodgeit" />
+						    ng-model="targets[0].location" />
 				</div>
 			</div>
 
@@ -63,8 +87,7 @@
 				<label for="authentication">Scan with authentication (User Credentails)?</label>
 				<div class="controls">
 					<input id="authentication"
-						   cam-variable-type="Boolean"
-						   cam-variable-name="ZAP_AUTHENTICATION"
+						   ng-model="targets[0].attributes.ZAP_AUTHENTICATION"
 						   type="checkbox"
 						   name="authentication"
 						   class="form-control" />
@@ -76,8 +99,7 @@
                     <label for="inputFalsePositiveFilter">Enable False/Positive Filtering?</label>
                     <input class="form-control"
                            id="inputFalsePositiveFilter"
-                           cam-variable-type="Boolean"
-                           cam-variable-name="PROCESS_MARK_FALSE_POSITIVE"
+						   ng-model="targets[0].attributes.PROCESS_MARK_FALSE_POSITIVE"
                            type="checkbox"
                            name="falsePositiveFilter"/>
                 </div>

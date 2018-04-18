@@ -21,13 +21,13 @@ package io.securecodebox.scanprocess.test.nmap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
+import io.securecodebox.model.execution.DefaultScanProcessExecution;
 import io.securecodebox.scanprocess.nmap.constants.NmapFindingAttributes;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.model.execution.Scanner;
 import io.securecodebox.model.findings.OsiLayer;
 import io.securecodebox.model.findings.Severity;
-import io.securecodebox.scanprocess.nmap.NmapScanProcessExecution;
 import io.securecodebox.scanprocess.nmap.delegate.TransformNmapResultsDelegate;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.variable.impl.value.ObjectValueImpl;
@@ -81,17 +81,16 @@ public class TransformNmapResultsDelegateTest {
     @InjectMocks
     TransformNmapResultsDelegate underTest = new TransformNmapResultsDelegate();
 
-    NmapScanProcessExecution execution;
+    ScanProcessExecution execution;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        execution = Mockito.spy(new NmapScanProcessExecution(executionMock));
+        execution = Mockito.spy(new DefaultScanProcessExecution(executionMock));
         doReturn(new LinkedList<Scanner>() {{
             add(new Scanner(UUID.randomUUID(), "NMAP_TEST", nmapResult));
         }}).when(execution).getScanners();
         when(processExecutionFactory.get(executionMock)).thenReturn(execution);
-        when(processExecutionFactory.get(executionMock, NmapScanProcessExecution.class)).thenReturn(execution);
         when(executionMock.hasVariable(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenReturn(true);
         when(executionMock.getVariable(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenAnswer((answer) -> findingCache);
         doAnswer((Answer) invocation -> {

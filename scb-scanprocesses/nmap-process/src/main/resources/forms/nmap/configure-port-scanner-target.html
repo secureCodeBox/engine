@@ -28,9 +28,6 @@ DASLJDAJSDASD!
             camForm.variableManager.fetchVariable('PROCESS_TARGETS');
         });
 
-        camForm.on('variables-fetched', function() {
-        });
-
         camForm.on('variables-fetched', function () {
             $scope.targets = camForm.variableManager.variableValue('PROCESS_TARGETS');
             console.log("targets: "+$scope.targets);
