@@ -21,4 +21,4 @@ WORKDIR /scb-engine
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-Dloader.path=./lib/", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Dloader.path=./lib/,./processes/", "-jar", "app.jar"]

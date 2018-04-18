@@ -55,7 +55,7 @@ public abstract class PersistenceAwareTaskListener implements ExecutionListener 
         map.put(CommonConstants.PROCESS_UUID, process.getId());
         map.put(CommonConstants.CONTEXT, process.getContext());
         map.put(CommonConstants.TENAND_ID, UUID.randomUUID());
-        map.put(CommonConstants.MICROSERVICE, process.getScanner().getScannerType());
+        map.put(CommonConstants.MICROSERVICE, process.getScanners().iterator().next().getScannerType());
         map.put(CommonConstants.MICROSERVICE_ID, microserviceId);
     }
 

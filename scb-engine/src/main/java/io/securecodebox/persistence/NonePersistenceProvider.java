@@ -17,23 +17,23 @@
  * /
  */
 
-package io.securecodebox.sdk;
+package io.securecodebox.persistence;
 
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import io.securecodebox.model.Report;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
- * @since 07.02.18
+ * @since 13.04.18
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Configuration
-@ComponentScan
-public @interface ScanProcessEntryPoint {
+@Component
+@ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "none")
+public class NonePersistenceProvider implements PersistenceProvider {
+
+    @Override
+    public void persist(Report report) {
+
+    }
 }
+
