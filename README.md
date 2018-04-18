@@ -34,7 +34,16 @@ We're using snake_case (lower case) for json attributes. If an enum type is used
   }
 ``` 
 ### Topic Names for External Tasks
-Topics for external tasks use snake_case and the format technology_function, e.g. `nmap_portscan`.
+Topics for external tasks for specific technologies are named as follows:
+```
+$TECHNOLOGY_$TASK
+Example: nmap_portscan
+```
+Topics for tasks that are independent of the used technology are named as follows:
+```
+task_$TASK
+Example: task_mark_false_positive
+```
 
 ### Naming conventions for git repositories and processes
 
@@ -46,8 +55,22 @@ Example: scanner-infrastructure-nmap
 The process repositories are named as follows:
 ```
 $TECHNOLOGY-process
-Bsp.: nmap-process 
+Example: nmap-process 
 ```
+
+### Naming conventions for Process IDs and Names in BPMN Files
+Process ids use the following format:
+```
+$TECHNOLOGY-process[-$DESCRIPTION]
+Examples: nmap-process, nmap-process-raw
+```
+
+Process names use the following format:
+```
+$TECHNOLOGY $FUNCTION [- $DESCRIPTION]
+Examples: NMAP Port Scan, NMAP Port Scan - Raw
+```
+
  # secureCodeBox – Continuous Secure Delivery Out of the Box
 
 ![secureCodeBox](img/logo.png "secureCodeBox")

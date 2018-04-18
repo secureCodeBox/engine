@@ -13,7 +13,7 @@ cache:
 
 script:
   - echo -en "travis_fold:start:Test\r"
-  - mvn test -q
+  - mvn test -q -B
   - echo -en "travis_fold:end:Test\r"
   - echo -en "travis_fold:start:Docker_Build\r"
   - docker build -t securecodebox/engine:oss .

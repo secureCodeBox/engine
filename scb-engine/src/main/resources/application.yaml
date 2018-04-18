@@ -7,4 +7,13 @@ camunda.bpm:
 
 logging.level: DEBUG
 logging.level.io.securecodebox: TRACE
+
+# Configure which persistence provider you would like to choose
+# - none
+# - elasticsearch
 securecodebox.persistence.provider: none
+
+# Configuration for the elasticsearch persistence provider:
+securecodebox.persistence.elasticsearch.host: persistence-elasticsearch
+securecodebox.persistence.elasticsearch.port: 9200
+securecodebox.persistence.elasticsearch.index.prefix: securecodebox
