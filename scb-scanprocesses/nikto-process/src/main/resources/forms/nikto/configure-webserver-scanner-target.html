@@ -20,6 +20,50 @@
 <h2>Please configure the Nikto Scan</h2>
 
 <form role="form" name="configure-target">
+
+	<script cam-script type="text/form-script">
+        camForm.on('form-loaded', function () {
+            camForm.variableManager.fetchVariable('PROCESS_TARGETS');
+        });
+
+        camForm.on('variables-fetched', function () {
+            $scope.targets = camForm.variableManager.variableValue('PROCESS_TARGETS');
+            console.log("targets: "+$scope.targets);
+
+            if($scope.targets === undefined || angular.equals([], $scope.targets)) {
+                $scope.targetList = [];
+                $scope.targetList.push({'name':'BodgeIT Public Host', 'location': 'bodgeit', 'attributes': { 'NIKTO_PORTS': '80'}});
+            }
+            $scope.addTarget = function () {
+                $scope.targetList.push({'name':'', 'location': ''});
+            };
+
+            $scope.checkForEnter = function ($event) {
+                if ($event.key === 'Enter') {
+                    $scope.addTarget();
+                    $event.stopPropagation();
+                    $event.preventDefault();
+                }
+            };
+        });
+
+
+        camForm.on('submit', function () {
+            camForm.variableManager.destroyVariable('PROCESS_TARGETS');
+            camForm.variableManager.createVariable({
+                name: 'PROCESS_TARGETS',
+                type: 'Object',
+                value: JSON.stringify($scope.targetList),
+                valueInfo: {
+                    serializationDataFormat: 'application/json',
+                    objectTypeName: 'java.lang.String'
+                }
+            });
+        });
+
+
+    </script>
+
 	<div class="row">
 
 		<div class="col-xs-12">
@@ -30,17 +74,15 @@
 				<label for="NIKTO_TARGET_NAME">Target Name</label>
 				<div class="controls">
 					<input
-						required
-						class="form-control"
-						id="NIKTO_TARGET_NAME"
-						cam-variable-type="String"
-						cam-variable-name="NIKTO_TARGET_NAME"
-						type="text"
-						placeholder="Public Site Name"
-						ng-minlength="2"
-						ng-maxlength="30"
-						name="NIKTO_TARGET_NAME"
-						value="BodgeIT Public Host" />
+							required
+							class="form-control"
+							id="NIKTO_TARGET_NAME"
+							type="text"
+							placeholder="Public Site Name"
+							ng-minlength="2"
+							ng-maxlength="30"
+							name="NIKTO_TARGET_NAME"
+							ng-model="targetList[0].name"/>
 				</div>
 			</div>
 
@@ -48,18 +90,15 @@
 			<div class="form-group">
 				<label for="NIKTO_TARGET">Target Host</label>
 				<div class="controls">
-					<input
-						required
-						class="form-control"
-						id="NIKTO_TARGET"
-						cam-variable-type="String"
-						cam-variable-name="NIKTO_TARGET"
-						type="text"
-						placeholder=""
-						ng-minlength="5"
-						ng-maxlength="100"
-						name="NIKTO_TARGET"
-						value="bodgeit" />
+					<input required
+						   class="form-control"
+						   id="NIKTO_TARGET"
+						   type="text"
+						   placeholder=""
+						   ng-minlength="5"
+						   ng-maxlength="100"
+						   name="NIKTO_TARGET"
+						   ng-model="targetList[0].location" />
 				</div>
 			</div>
 
@@ -68,18 +107,17 @@
 				<label for="NIKTO_PORTS">Target Port(s)</label>
 				<div class="controls">
 					<input
-						required
-						class="form-control"
-						id="NIKTO_PORTS"
-						cam-variable-type="String"
-						cam-variable-name="NIKTO_PORTS"
-						type="text"
-						placeholder="80"
-						ng-minlength="2"
-						ng-maxlength="100"
-						ng-pattern="/(^([0-9]{0,5})$)|(^([0-9]{1,5})\-([0-9]{1,5})$)|^([0-9]{1,5})(\,([0-9]{1,5}))*$/"
-						name="NIKTO_PORTS"
-						value="8080" />
+							required
+							class="form-control"
+							id="NIKTO_PORTS"
+							ng-model="targetList[0].attributes.NIKTO_PORTS"
+							type="text"
+							placeholder="80"
+							ng-minlength="2"
+							ng-maxlength="100"
+							ng-pattern="/(^([0-9]{0,5})$)|(^([0-9]{1,5})\-([0-9]{1,5})$)|^([0-9]{1,5})(\,([0-9]{1,5}))*$/"
+							name="NIKTO_PORTS"
+							value="8080" />
 				</div>
 			</div>
 
@@ -88,16 +126,16 @@
 				<label for="inputContext">Business Context (Project/Team/System)</label>
 				<div class="controls">
 					<input
-						class="form-control"
-						id="inputContext"
-						cam-variable-type="String"
-						cam-variable-name="PROCESS_CONTEXT"
-						type="text"
-						placeholder="Project/Team/System"
-						ng-required="false"
-						ng-maxlength="50"
-						name="PROCESS_CONTEXT"
-						value="BodgeIT" />
+							class="form-control"
+							id="inputContext"
+							cam-variable-type="String"
+							cam-variable-name="PROCESS_CONTEXT"
+							type="text"
+							placeholder="Project/Team/System"
+							ng-required="false"
+							ng-maxlength="50"
+							name="PROCESS_CONTEXT"
+							value="BodgeIT" />
 				</div>
 			</div>
 
@@ -105,12 +143,12 @@
 				<div class="controls">
 					<label for="PROCESS_MARK_FALSE_POSITIVE">Enable False/Positive Filtering?</label>
 					<input
-						class="form-control"
-						id="PROCESS_MARK_FALSE_POSITIVE"
-						cam-variable-type="Boolean"
-						cam-variable-name="PROCESS_MARK_FALSE_POSITIVE"
-						type="checkbox"
-						name="PROCESS_MARK_FALSE_POSITIVE" />
+							class="form-control"
+							id="PROCESS_MARK_FALSE_POSITIVE"
+							cam-variable-type="Boolean"
+							cam-variable-name="PROCESS_MARK_FALSE_POSITIVE"
+							type="checkbox"
+							name="PROCESS_MARK_FALSE_POSITIVE" />
 				</div>
 			</div>
 
@@ -119,12 +157,12 @@
 				<label for="NIKTO_CONFIGURATION_TYPE">Type of the Nikto Scanner configuration</label>
 				<div class="controls">
 					<select
-						required
-						id="NIKTO_CONFIGURATION_TYPE"
-						class="form-control"
-						name="NIKTO_CONFIGURATION_TYPE"
-						cam-variable-name="NIKTO_CONFIGURATION_TYPE"
-						cam-variable-type="String" >
+							required
+							id="NIKTO_CONFIGURATION_TYPE"
+							class="form-control"
+							name="NIKTO_CONFIGURATION_TYPE"
+							cam-variable-name="NIKTO_CONFIGURATION_TYPE"
+							cam-variable-type="String" >
 						<option value="default" checked>Default</option>
 						<option value="advanced">Advanced</option>
 					</select>

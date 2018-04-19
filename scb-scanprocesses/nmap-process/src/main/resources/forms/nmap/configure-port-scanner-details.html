@@ -27,7 +27,7 @@
 
         camForm.on('variables-fetched', function() {
             $scope.processContext=camForm.variableManager.variableValue('PROCESS_CONTEXT');
-            $scope.targets = camForm.variableManager.variableValue('PROCESS_TARGETS');
+            $scope.targets = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
         });
 
 

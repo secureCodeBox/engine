@@ -48,6 +48,17 @@ services:
     environment:
       - ENGINE_ADDRESS=http://engine:8080/rest
 
+  scanner-webserver-nikto:
+    image: securecodebox/nikto:oss
+    depends_on:
+      - engine
+    networks:
+      - frontend
+    labels:
+      container_group: scanner
+    environment:
+      - ENGINE_ADDRESS=http://engine:8080/rest
+
   persistence-elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.2.3
     ports:
