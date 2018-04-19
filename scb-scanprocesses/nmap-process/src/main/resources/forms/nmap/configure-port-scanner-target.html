@@ -1,4 +1,6 @@
 <!--
+DASLJDAJSDASD!
+
   ~ /*
   ~ * SecureCodeBox (SCB)
   ~ * Copyright 2015-2018 iteratec GmbH
@@ -23,20 +25,22 @@
 
     <script cam-script type="text/form-script">
         camForm.on('form-loaded', function () {
-            camForm.variableManager.fetchVariable('NMAP_TARGET');
+            camForm.variableManager.fetchVariable('PROCESS_TARGETS');
+        });
+
+        camForm.on('variables-fetched', function() {
         });
 
         camForm.on('variables-fetched', function () {
-            $scope.targetList = ['bodgeit'];
-            var previousTargetName = camForm.variableManager.variableValue('NMAP_TARGET');
-            if (previousTargetName !== null && previousTargetName !== undefined && previousTargetName !== '') {
-                $scope.targetList = previousTargetName.split(' ');
-                //console.log('TargetName was already set to: ', previousTargetName);
-                //console.log('Splitted the string into', $scope.targetList);
+            $scope.targets = camForm.variableManager.variableValue('PROCESS_TARGETS');
+            console.log("targets: "+$scope.targets);
+
+            if($scope.targets === undefined || angular.equals([], $scope.targets)) {
+                $scope.targetList = [];
+                $scope.targetList.push({'name':'BodgeIT Public Host', 'location': 'bodgeit'});
             }
             $scope.addTarget = function () {
-                $scope.targetList.push('');
-                //console.log($scope.targetList);
+                $scope.targetList.push({'name':'', 'location': ''});
             };
 
             $scope.checkForEnter = function ($event) {
@@ -49,15 +53,18 @@
         });
 
         camForm.on('submit', function () {
-            var targetString = $scope.targetList.join(' ');
-
-            camForm.variableManager.destroyVariable('NMAP_TARGET');
+            camForm.variableManager.destroyVariable('PROCESS_TARGETS');
             camForm.variableManager.createVariable({
-                name: 'NMAP_TARGET',
-                type: 'string',
-                value: targetString
+                name: 'PROCESS_TARGETS',
+                type: 'Object',
+                value: JSON.stringify($scope.targetList),
+                valueInfo: {
+                    serializationDataFormat: 'application/json',
+                    objectTypeName: 'java.lang.String'
+                }
             });
         });
+
     </script>
 
     <div class="row">
@@ -65,57 +72,41 @@
         <div class="col-xs-12">
             <h3>Portscan Target</h3>
 
-            <!-- Target Name -->
-            <div class="form-group">
-                <label for="inputTargetName">Target Name</label>
-                <div class="controls">
-                    <input required class="form-control"
-                           id="inputTargetName"
-                           cam-variable-type="String"
-                           cam-variable-name="NMAP_TARGET_NAME"
-                           type="text"
-                           placeholder="Public Site Name"
-                           ng-minlength="2"
-                           ng-maxlength="30"
-                           name="targetName"
-                           value="BodgeIT Public Host"/>
-                </div>
-            </div>
-
             <!-- Target Hosts -->
             <div class="form-group">
-                <strong for="inputTargetUrl">Target Hosts</strong>
-                <span>Hostname/ IP-Address</span>
-                <code class="hidden">{{ targetList }}</code>
-                <div class="controls row"
-                     ng-repeat="target in targetList track by $index"
-                >
-                    <div class="col-xs-12">
-
+                <div class="controls row form-group" ng-repeat="target in targetList track by $index">
+                    <div class="col-xs-5">
+                        <label>Target Name</label>
+                        <input required class="form-control"
+                               type="text"
+                               placeholder="Public Site Name"
+                               ng-minlength="2"
+                               ng-maxlength="30"
+                               ng-model="target.name"/>
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Target Hosts</label>
+                        <span>Hostname/ IP-Address</span>
                         <input required class="form-control"
                                type="text"
                                placeholder="bodgeit"
                                ng-minlength="3"
                                ng-maxlength="100"
-                               ng-model="targetList[$index]"
+                               ng-model="target.location"
                                ng-keydown="checkForEnter($event)"
                         />
-                        <button
-                                class="btn btn-danger"
+                    </div>
+                    <div class="col-xs-1">
+                        <button class="btn btn-danger btn-lg"
                                 ng-click="targetList.splice($index, 1)"
                                 ng-disabled="targetList.length === 1"
-                                style="position: absolute; right: 15px; top: 0;"
-                        >
+                                style="position: absolute; right: 15px; top: 0;">
                             <span class="glyphicon glyphicon-trash"></span>
                         </button>
                     </div>
                 </div>
-                <button
-                        class="btn btn-primary"
-                        ng-click="addTarget()"
-                >
-                    Add Host
-                </button>
+                <button class="btn btn-primary" ng-click="addTarget()">Add Host</button>
+                <code class="hidden2">{{ targetList }}</code>
             </div>
 
             <!-- Context (Project/Team/System...) -->

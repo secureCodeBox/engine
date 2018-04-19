@@ -17,14 +17,14 @@
  * /
  */
 
-package io.securecodebox.constants;
+package io.securecodebox.scanprocess.nmap.constants;
 
 /**
+ * Enum with corresponding Attributes in the Finding.getAttributes section.
+ *
  * @author Rüdiger Heins - iteratec GmbH
- * @since 09.03.18
+ * @since 22.03.18
  */
-
-public enum DefaultFields {
-    PROCESS_CONTEXT, PROCESS_SCANNER_ID, PROCESS_SCANNER_TYPE, PROCESS_AUTOMATED, PROCESS_FINDINGS,
-    PROCESS_RAW_FINDINGS, PROCESS_TENANT_ID, PROCESS_MARK_FALSE_POSITIVE, PROCESS_SCANNERS, PROCESS_TARGETS
+public enum NmapFindingAttributes {
+    PORT, SERVICE, PROTOCOL, STATE, START, END, IP_ADDRESS, MAC_ADDRESS, OPERATING_SYSTEM;
 }
