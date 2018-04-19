@@ -1,6 +1,4 @@
 <!--
-DASLJDAJSDASD!
-
   ~ /*
   ~ * SecureCodeBox (SCB)
   ~ * Copyright 2015-2018 iteratec GmbH
@@ -19,7 +17,7 @@ DASLJDAJSDASD!
   ~ */
   -->
 
-<h2>Please configure the Port Scan</h2>
+<h2>Please configure the Nikto Scan</h2>
 
 <form role="form" name="configure-target">
 
@@ -28,16 +26,13 @@ DASLJDAJSDASD!
             camForm.variableManager.fetchVariable('PROCESS_TARGETS');
         });
 
-        camForm.on('variables-fetched', function() {
-        });
-
         camForm.on('variables-fetched', function () {
             $scope.targets = camForm.variableManager.variableValue('PROCESS_TARGETS');
             console.log("targets: "+$scope.targets);
 
             if($scope.targets === undefined || angular.equals([], $scope.targets)) {
                 $scope.targetList = [];
-                $scope.targetList.push({'name':'BodgeIT Public Host', 'location': 'bodgeit'});
+                $scope.targetList.push({'name':'BodgeIT Public Host', 'location': 'bodgeit', 'attributes': { 'NIKTO_PORTS': '80'}});
             }
             $scope.addTarget = function () {
                 $scope.targetList.push({'name':'', 'location': ''});
@@ -52,6 +47,7 @@ DASLJDAJSDASD!
             };
         });
 
+
         camForm.on('submit', function () {
             camForm.variableManager.destroyVariable('PROCESS_TARGETS');
             camForm.variableManager.createVariable({
@@ -65,89 +61,108 @@ DASLJDAJSDASD!
             });
         });
 
+
     </script>
 
     <div class="row">
 
         <div class="col-xs-12">
-            <h3>Portscan Target</h3>
+            <h3>Nikto Scan Target</h3>
 
-            <!-- Target Hosts -->
+            <!-- Target Name -->
             <div class="form-group">
-                <div class="controls row form-group" ng-repeat="target in targetList track by $index">
-                    <div class="col-xs-5">
-                        <label>Target Name</label>
-                        <input required class="form-control"
-                               type="text"
-                               placeholder="Public Site Name"
-                               ng-minlength="2"
-                               ng-maxlength="30"
-                               ng-model="target.name"/>
-                    </div>
-                    <div class="col-xs-6">
-                        <label>Target Hosts</label>
-                        <span>Hostname/ IP-Address</span>
-                        <input required class="form-control"
-                               type="text"
-                               placeholder="bodgeit"
-                               ng-minlength="3"
-                               ng-maxlength="100"
-                               ng-model="target.location"
-                               ng-keydown="checkForEnter($event)"
-                        />
-                    </div>
-                    <div class="col-xs-1">
-                        <button class="btn btn-danger btn-lg"
-                                ng-click="targetList.splice($index, 1)"
-                                ng-disabled="targetList.length === 1"
-                                style="position: absolute; right: 15px; top: 0;">
-                            <span class="glyphicon glyphicon-trash"></span>
-                        </button>
-                    </div>
+                <label for="NIKTO_TARGET_NAME">Target Name</label>
+                <div class="controls">
+                    <input
+                            required
+                            class="form-control"
+                            id="NIKTO_TARGET_NAME"
+                            type="text"
+                            placeholder="Public Site Name"
+                            ng-minlength="2"
+                            ng-maxlength="30"
+                            name="NIKTO_TARGET_NAME"
+                            ng-model="targetList[0].name"/>
                 </div>
-                <button class="btn btn-primary" ng-click="addTarget()">Add Host</button>
-                <code class="hidden2">{{ targetList }}</code>
+            </div>
+
+            <!-- Target URL -->
+            <div class="form-group">
+                <label for="NIKTO_TARGET">Target Host</label>
+                <div class="controls">
+                    <input required
+                           class="form-control"
+                           id="NIKTO_TARGET"
+                           type="text"
+                           placeholder=""
+                           ng-minlength="5"
+                           ng-maxlength="100"
+                           name="NIKTO_TARGET"
+                           ng-model="targetList[0].location" />
+                </div>
+            </div>
+
+            <!-- Target Port -->
+            <div class="form-group">
+                <label for="NIKTO_PORTS">Target Port(s)</label>
+                <div class="controls">
+                    <input
+                            required
+                            class="form-control"
+                            id="NIKTO_PORTS"
+                            ng-model="targetList[0].attributes.NIKTO_PORTS"
+                            type="text"
+                            placeholder="80"
+                            ng-minlength="2"
+                            ng-maxlength="100"
+                            ng-pattern="/(^([0-9]{0,5})$)|(^([0-9]{1,5})\-([0-9]{1,5})$)|^([0-9]{1,5})(\,([0-9]{1,5}))*$/"
+                            name="NIKTO_PORTS"
+                            value="8080" />
+                </div>
             </div>
 
             <!-- Context (Project/Team/System...) -->
             <div class="form-group">
                 <label for="inputContext">Business Context (Project/Team/System)</label>
                 <div class="controls">
-                    <input class="form-control"
-                           id="inputContext"
-                           cam-variable-type="String"
-                           cam-variable-name="PROCESS_CONTEXT"
-                           type="text"
-                           placeholder="Project/Team/System"
-                           ng-required="false"
-                           ng-maxlength="50"
-                           name="context"
-                           value="BodgeIT"/>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <div class="controls">
-                    <label for="inputFalsePositiveFilter">Enable False/Positive Filtering?</label>
-                    <input class="form-control"
-                           id="inputFalsePositiveFilter"
-                           cam-variable-type="Boolean"
-                           cam-variable-name="PROCESS_MARK_FALSE_POSITIVE"
-                           type="checkbox"
-                           name="falsePositiveFilter"/>
-                </div>
-            </div>
-
-            <!-- port scanner configuration -->
-            <div class="form-group">
-                <label for="selectPortScannerConfigurationType">Type of the port scanner configuration</label>
-                <div class="controls">
-                    <!--select box -->
-                    <select required id="selectPortScannerConfigurationType"
+                    <input
                             class="form-control"
-                            name="configurationType"
-                            cam-variable-name="NMAP_CONFIGURATION_TYPE"
-                            cam-variable-type="String">
+                            id="inputContext"
+                            cam-variable-type="String"
+                            cam-variable-name="PROCESS_CONTEXT"
+                            type="text"
+                            placeholder="Project/Team/System"
+                            ng-required="false"
+                            ng-maxlength="50"
+                            name="PROCESS_CONTEXT"
+                            value="BodgeIT" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="controls">
+                    <label for="PROCESS_MARK_FALSE_POSITIVE">Enable False/Positive Filtering?</label>
+                    <input
+                            class="form-control"
+                            id="PROCESS_MARK_FALSE_POSITIVE"
+                            cam-variable-type="Boolean"
+                            cam-variable-name="PROCESS_MARK_FALSE_POSITIVE"
+                            type="checkbox"
+                            name="PROCESS_MARK_FALSE_POSITIVE" />
+                </div>
+            </div>
+
+            <!-- nikto scanner configuration -->
+            <div class="form-group">
+                <label for="NIKTO_CONFIGURATION_TYPE">Type of the Nikto Scanner configuration</label>
+                <div class="controls">
+                    <select
+                            required
+                            id="NIKTO_CONFIGURATION_TYPE"
+                            class="form-control"
+                            name="NIKTO_CONFIGURATION_TYPE"
+                            cam-variable-name="NIKTO_CONFIGURATION_TYPE"
+                            cam-variable-type="String" >
                         <option value="default" checked>Default</option>
                         <option value="advanced">Advanced</option>
                     </select>
