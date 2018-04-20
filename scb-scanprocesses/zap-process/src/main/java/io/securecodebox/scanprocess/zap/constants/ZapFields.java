@@ -1,4 +1,4 @@
-package io.securecodebox.constants;
+package io.securecodebox.scanprocess.zap.constants;
 
 public enum ZapFields {
 

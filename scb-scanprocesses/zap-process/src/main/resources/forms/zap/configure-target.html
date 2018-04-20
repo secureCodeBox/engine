@@ -1,5 +1,8 @@
 <h2>Please configure the Application Security Scan</h2>
-<script cam-script type="text/form-script">
+
+<form role="form" name="configure-target">
+
+	<script cam-script type="text/form-script">
         camForm.on('form-loaded', function () {
             camForm.variableManager.fetchVariable('PROCESS_TARGETS');
         });
@@ -10,7 +13,7 @@
 
             if($scope.targets === undefined || angular.equals([], $scope.targets)) {
                 $scope.targetList = [];
-                $scope.targetList.push({'name':'BodgeIT Public Host', 'location': 'http://bodgeit:8080/bodgeit'});
+                $scope.targetList.push({'name':'BodgeIT Public Host', 'location': 'http://engine:8080/bodgeit'});
             }
         });
 
@@ -28,8 +31,6 @@
         });
 
     </script>
-<form role="form" name="configure-target">
-
 	<div class="row">
 
 		<div class="col-xs-12">
@@ -58,6 +59,8 @@
 						    id="inputTargetUrl"
 							type="text" 
 							placeholder="http://bodgeit:8080/bodgeit"
+						   cam-variable-type="String"
+						   cam-variable-name="ZAP_TARGET_URL"
 							ng-minlength="5" 
 							ng-maxlength="100" 
 							name="targetUrl"
@@ -88,6 +91,8 @@
 				<div class="controls">
 					<input id="authentication"
 						   ng-model="targets[0].attributes.ZAP_AUTHENTICATION"
+						   cam-variable-type="Boolean"
+						   cam-variable-name="ZAP_AUTHENTICATION"
 						   type="checkbox"
 						   name="authentication"
 						   class="form-control" />
@@ -100,6 +105,8 @@
                     <input class="form-control"
                            id="inputFalsePositiveFilter"
 						   ng-model="targets[0].attributes.PROCESS_MARK_FALSE_POSITIVE"
+						   cam-variable-type="Boolean"
+						   cam-variable-name="PROCESS_MARK_FALSE_POSITIVE"
                            type="checkbox"
                            name="falsePositiveFilter"/>
                 </div>
