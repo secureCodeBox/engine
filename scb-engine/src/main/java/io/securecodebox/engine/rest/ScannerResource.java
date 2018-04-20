@@ -17,15 +17,15 @@
  * /
  */
 
-package io.securecodebox.engine;
+package io.securecodebox.engine.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterables;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.execution.Target;
-import io.securecodebox.model.findings.Finding;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -33,6 +33,8 @@ import io.swagger.annotations.ApiResponses;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.externaltask.ExternalTaskQueryBuilder;
 import org.camunda.bpm.engine.externaltask.LockedExternalTask;
+import org.camunda.bpm.engine.variable.Variables;
+import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,8 +47,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -88,7 +92,7 @@ public class ScannerResource {
         if (result != null) {
 
             ScanConfiguration config = new ScanConfiguration();
-            config.processId = UUID.fromString(result.getExecutionId());
+            config.jobId = UUID.fromString(result.getId());
             config.targets = getVariableListFromJsonField(result, DefaultFields.PROCESS_TARGETS, Target.class);
             return ResponseEntity.status(HttpStatus.CREATED).body(config);
         } else {
@@ -126,7 +130,25 @@ public class ScannerResource {
             defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID id,
             @RequestBody ScanResult result) {
 
-        LOG.info("Recived scan result {}", result);
+        LOG.debug("Recived scan result {}", result);
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put(DefaultFields.PROCESS_SCANNER_ID.name(), result.getScannerId().toString());
+        variables.put(DefaultFields.PROCESS_SCANNER_TYPE.name(), result.getScannerType());
+        variables.put(DefaultFields.PROCESS_RAW_FINDINGS.name(), result.getRawFindings());
+        synchronized (DefaultFields.PROCESS_FINDINGS) {
+            try {
+                ObjectValue objectValue = Variables.objectValue(objectMapper.writeValueAsString(result.getFindings()))
+                        .serializationDataFormat(Variables.SerializationDataFormats.JSON)
+                        .create();
+                variables.put(DefaultFields.PROCESS_FINDINGS.name(), objectValue);
+            } catch (JsonProcessingException e) {
+                LOG.error("Can't write field {} to process!", DefaultFields.PROCESS_FINDINGS, e);
+                throw new IllegalStateException("Can't write field to process!", e);
+            }
+        }
+
+        engine.getExternalTaskService().complete(id.toString(), result.scannerId.toString(), variables);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -135,32 +157,14 @@ public class ScannerResource {
     private class ScanConfiguration {
 
         @JsonProperty
-        UUID processId;
+        UUID jobId;
         @JsonProperty
         List<Target> targets;
 
         @Override
         public String toString() {
-            return "ScanConfiguration{" + "processId=" + processId + ", targets=" + targets + '}';
+            return "ScanConfiguration{" + "jobId=" + jobId + ", targets=" + targets + '}';
         }
     }
 
-    @JsonPropertyOrder(alphabetic = true)
-    private class ScanResult {
-
-        @JsonProperty
-        UUID scannerId;
-        @JsonProperty
-        String scannerType;
-        @JsonProperty
-        List<Finding> findings;
-        @JsonProperty
-        String rawFindings;
-
-        @Override
-        public String toString() {
-            return "ScanResult{" + "scannerId=" + scannerId + ", scannerType='" + scannerType + '\'' + ", findings="
-                    + findings + ", rawFindings='" + rawFindings + '\'' + '}';
-        }
-    }
 }
