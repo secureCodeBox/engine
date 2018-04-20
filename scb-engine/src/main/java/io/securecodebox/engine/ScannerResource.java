@@ -54,7 +54,7 @@ import java.util.UUID;
  * @since 16.04.18
  */
 @RestController
-@RequestMapping(value = "/box/scanners")
+@RequestMapping(value = "/box/jobs")
 public class ScannerResource {
     private static final Logger LOG = LoggerFactory.getLogger(ScannerResource.class);
     public static final int LOCK_DURATION_MS = 86400000;
@@ -75,7 +75,7 @@ public class ScannerResource {
 
             @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
-    @RequestMapping(method = RequestMethod.POST, value = "/{scannerId}/jobs/lock/{topic}")
+    @RequestMapping(method = RequestMethod.POST, value = "/lock/{topic}/{scannerId}")
     public ResponseEntity<ScanConfiguration> lockJob(
             @ApiParam(defaultValue = "nmap_portscan") @PathVariable String topic,
             @ApiParam(value = "UUID of the job.", required = true, type = "UUID",
@@ -89,8 +89,7 @@ public class ScannerResource {
 
             ScanConfiguration config = new ScanConfiguration();
             config.processId = UUID.fromString(result.getExecutionId());
-            config.targets = getVariableListFromJsonField(result, DefaultFields.PROCESS_TARGETS,
-                    Target.class);
+            config.targets = getVariableListFromJsonField(result, DefaultFields.PROCESS_TARGETS, Target.class);
             return ResponseEntity.status(HttpStatus.CREATED).body(config);
         } else {
             return ResponseEntity.noContent().build();
@@ -99,7 +98,8 @@ public class ScannerResource {
 
     private <T> List<T> getVariableListFromJsonField(LockedExternalTask result, Enum<?> field, Class<T> innerClass) {
         synchronized (field) {
-            Object processFindings = engine.getRuntimeService().getVariable(result.getExecutionId(), field.name());            ;
+            Object processFindings = engine.getRuntimeService().getVariable(result.getExecutionId(), field.name());
+            ;
             if (!(processFindings instanceof String)) {
                 LOG.error("String field {} is not instance of string. Value {}", field, processFindings);
                 throw new IllegalStateException("String field is not instance of string!");
@@ -117,17 +117,18 @@ public class ScannerResource {
 
     @ApiOperation(value = "Send a scan result for the previously locked job.")
 
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful return of the scan results.",
-            response = ScanConfiguration.class),
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "Successful retrival of the result."),
             @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
             @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
-    @RequestMapping(method = RequestMethod.POST, value = "/jobs/{id}")
+    @RequestMapping(method = RequestMethod.POST, value = "{id}/result")
     public ResponseEntity completeJob(@ApiParam(value = "UUID of the job.", required = true, type = "UUID",
             defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID id,
             @RequestBody ScanResult result) {
 
-        return ResponseEntity.ok().build();
+        LOG.info("Recived scan result {}", result);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @JsonPropertyOrder(alphabetic = true)
@@ -138,15 +139,28 @@ public class ScannerResource {
         @JsonProperty
         List<Target> targets;
 
+        @Override
+        public String toString() {
+            return "ScanConfiguration{" + "processId=" + processId + ", targets=" + targets + '}';
+        }
     }
 
     @JsonPropertyOrder(alphabetic = true)
     private class ScanResult {
 
         @JsonProperty
+        UUID scannerId;
+        @JsonProperty
+        String scannerType;
+        @JsonProperty
         List<Finding> findings;
         @JsonProperty
         String rawFindings;
 
+        @Override
+        public String toString() {
+            return "ScanResult{" + "scannerId=" + scannerId + ", scannerType='" + scannerType + '\'' + ", findings="
+                    + findings + ", rawFindings='" + rawFindings + '\'' + '}';
+        }
     }
 }
