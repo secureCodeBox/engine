@@ -34,21 +34,21 @@
 			$scope.targetName = camForm.variableManager.variableValue('NIKTO_TARGET_NAME');
 		  	$scope.context = camForm.variableManager.variableValue('PROCESS_CONTEXT');
 
-		  	$scope.result = camForm
-				.variableManager
-				.variableValue('PROCESS_FINDINGS')
-				.reduce(
-			  		function (carry, element) {
-			    		var key = element.attributes.ip_address + ':' + element.attributes.port;
+			$scope.result = JSON.parse(camForm
+					.variableManager
+					.variableValue('PROCESS_FINDINGS'))
+					.reduce(
+						function (carry, element) {
+							var key = element.attributes.ip_address + ':' + element.attributes.port;
 
-						if(!carry.hasOwnProperty(key)){
-				  			carry[key] = [];
-						}
-						carry[key].push(element);
-						return carry;
-			  		},
-			  		{}
-				);
+							if(!carry.hasOwnProperty(key)){
+								carry[key] = [];
+							}
+							carry[key].push(element);
+							return carry;
+						},
+						{}
+					);
 
 		  	console.log($scope.result);
 
@@ -93,7 +93,7 @@
 					</tr>
 					<tr class="danger" ng-repeat="finding in group">
 						<td style="max-width: 175px; overflow: scroll">{{ finding.location }}</td>
-						<td>{{ finding.attributes.method }}</td>
+						<td>{{ finding.attributes.http_method }}</td>
 						<td>{{ finding.name }}</td>
 						<td>
 							<span class="label label-success ng-binding">
