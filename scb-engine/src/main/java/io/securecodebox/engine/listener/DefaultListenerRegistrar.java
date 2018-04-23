@@ -29,6 +29,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * This listener registers the common secure code box execution listeners.
+ * Feel free to define own ones.
  *
  * @author Rüdiger Heins - iteratec GmbH
  * @since 05.03.18

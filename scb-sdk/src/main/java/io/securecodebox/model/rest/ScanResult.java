@@ -17,28 +17,41 @@
  * /
  */
 
-package io.securecodebox.engine.rest;
+package io.securecodebox.model.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.securecodebox.model.findings.Finding;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
  * @since 20.04.18
  */
+@ApiModel(value = "ScanResult", description = "The result of an external scan.")
 @JsonPropertyOrder(alphabetic = true)
 public class ScanResult {
 
-    @JsonProperty
+    @ApiModelProperty(value = "The id of the external scanner, which provides this result.",
+            example = "5dd0840c-81ae-4fed-90b5-b3eea3d4c701", required = true)
+    @JsonProperty(required = true)
     UUID scannerId;
-    @JsonProperty
+
+    @ApiModelProperty(value = "The type of the external scanner, which provides this result.", example = "nmap",
+            required = true)
+    @JsonProperty(required = true)
     String scannerType;
+
+    @ApiModelProperty(value = "The prepared findings of an external scan result.")
     @JsonProperty
     List<Finding> findings;
+
+    @ApiModelProperty(value = "The raw findings providet by the scanner. This can be nearly everything.")
     @JsonProperty
     String rawFindings;
 
@@ -72,6 +85,23 @@ public class ScanResult {
 
     public void setRawFindings(String rawFindings) {
         this.rawFindings = rawFindings;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ScanResult that = (ScanResult) o;
+        return Objects.equals(scannerId, that.scannerId) && Objects.equals(scannerType, that.scannerType)
+                && Objects.equals(findings, that.findings) && Objects.equals(rawFindings, that.rawFindings);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(scannerId, scannerType, findings, rawFindings);
     }
 
     @Override

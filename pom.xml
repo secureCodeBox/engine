@@ -10,6 +10,7 @@
     <properties>
         <camunda.spring.boot.starter.version>2.3.0</camunda.spring.boot.starter.version>
         <spring-boot.version>1.5.12.RELEASE</spring-boot.version>
+        <swagger-version>2.8.0</swagger-version>
     </properties>
 
     <modules>
@@ -23,7 +24,6 @@
         <dependencies>
             <!-- import dependencies from camunda spring boot starter -->
             <dependency>
-
                 <groupId>org.camunda.bpm.springboot.project</groupId>
                 <artifactId>camunda-bpm-spring-boot-starter-root</artifactId>
                 <version>${camunda.spring.boot.starter.version}</version>

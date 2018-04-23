@@ -19,13 +19,15 @@
 
 package io.securecodebox.engine.rest;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterables;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.execution.Target;
+import io.securecodebox.model.rest.ScanConfiguration;
+import io.securecodebox.model.rest.ScanFailure;
+import io.securecodebox.model.rest.ScanResult;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -54,13 +56,16 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
+ * API / Endpoint for scan jobs.
+ *
  * @author Rüdiger Heins - iteratec GmbH
  * @since 16.04.18
  */
+@Api(description = "Scan Jobs Resource", produces = "application/json", consumes = "application/json")
 @RestController
 @RequestMapping(value = "/box/jobs")
-public class ScannerResource {
-    private static final Logger LOG = LoggerFactory.getLogger(ScannerResource.class);
+public class ScanJobResource {
+    private static final Logger LOG = LoggerFactory.getLogger(ScanJobResource.class);
     public static final int LOCK_DURATION_MS = 86400000;
 
     @Autowired
@@ -72,7 +77,7 @@ public class ScannerResource {
     @ApiOperation(value = "Lock a scan job for the given topic",
             notes = "Returns a scan job for the given topic / capability, if there is one.")
 
-    @ApiResponses(value = { @ApiResponse(code = 201, message = "Successful retrieval of the scan Job",
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful retrieval of the scan Job",
             response = ScanConfiguration.class),
             @ApiResponse(code = 204, message = "No scanjob available", response = void.class),
             @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
@@ -92,9 +97,9 @@ public class ScannerResource {
         if (result != null) {
 
             ScanConfiguration config = new ScanConfiguration();
-            config.jobId = UUID.fromString(result.getId());
-            config.targets = getVariableListFromJsonField(result, DefaultFields.PROCESS_TARGETS, Target.class);
-            return ResponseEntity.status(HttpStatus.CREATED).body(config);
+            config.setJobId(UUID.fromString(result.getId()));
+            config.setTargets(getVariableListFromJsonField(result, DefaultFields.PROCESS_TARGETS, Target.class));
+            return ResponseEntity.ok(config);
         } else {
             return ResponseEntity.noContent().build();
         }
@@ -120,10 +125,10 @@ public class ScannerResource {
     }
 
     @ApiOperation(value = "Send a scan result for the previously locked job.")
-
-    @ApiResponses(value = { @ApiResponse(code = 201, message = "Successful retrival of the result."),
-            @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
-            @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
+    @ApiResponses(
+            value = { @ApiResponse(code = 200, message = "Successful delivery of the result.", response = void.class),
+                    @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
+                    @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
     @RequestMapping(method = RequestMethod.POST, value = "{id}/result")
     public ResponseEntity completeJob(@ApiParam(value = "UUID of the job.", required = true, type = "UUID",
@@ -148,23 +153,43 @@ public class ScannerResource {
             }
         }
 
-        engine.getExternalTaskService().complete(id.toString(), result.scannerId.toString(), variables);
+        engine.getExternalTaskService().complete(id.toString(), result.getScannerId().toString(), variables);
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.ok().build();
     }
 
-    @JsonPropertyOrder(alphabetic = true)
-    private class ScanConfiguration {
+    @ApiOperation(value = "Send a scan failure for the previously locked job.")
+    @ApiResponses(
+            value = { @ApiResponse(code = 200, message = "Successful delivery of the failure.", response = void.class),
+                    @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
+                    @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
-        @JsonProperty
-        UUID jobId;
-        @JsonProperty
-        List<Target> targets;
+    @RequestMapping(method = RequestMethod.POST, value = "{id}/failure")
+    public ResponseEntity failJob(@ApiParam(value = "UUID of the job.", required = true, type = "UUID",
+            defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID id,
+            @RequestBody ScanFailure result) {
 
-        @Override
-        public String toString() {
-            return "ScanConfiguration{" + "jobId=" + jobId + ", targets=" + targets + '}';
-        }
+        LOG.debug("Recived scan failure {}", result);
+
+        //        Map<String, Object> variables = new HashMap<>();
+        //        variables.put(DefaultFields.PROCESS_SCANNER_ID.name(), result.getScannerId().toString());
+        //        variables.put(DefaultFields.PROCESS_SCANNER_TYPE.name(), result.getScannerType());
+        //        variables.put(DefaultFields.PROCESS_RAW_FINDINGS.name(), result.getRawFindings());
+        //        synchronized (DefaultFields.PROCESS_FINDINGS) {
+        //            try {
+        //                ObjectValue objectValue = Variables.objectValue(objectMapper.writeValueAsString(result.getFindings()))
+        //                        .serializationDataFormat(Variables.SerializationDataFormats.JSON)
+        //                        .create();
+        //                variables.put(DefaultFields.PROCESS_FINDINGS.name(), objectValue);
+        //            } catch (JsonProcessingException e) {
+        //                LOG.error("Can't write field {} to process!", DefaultFields.PROCESS_FINDINGS, e);
+        //                throw new IllegalStateException("Can't write field to process!", e);
+        //            }
+        //        }
+        //
+        //        engine.getExternalTaskService().complete(id.toString(), result.getScannerId().toString(), variables);
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
     }
 
 }
