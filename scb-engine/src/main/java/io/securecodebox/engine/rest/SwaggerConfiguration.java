@@ -47,7 +47,8 @@ public class SwaggerConfiguration {
         return new ApiInfoBuilder().
                 title("SecureCodeBox API Documentation")
                 .description("This Document describes the public API of the SecureCodeBox. It's mostly used for scanners to retrieve scan jobs from the engine and send results to the engine.")
-                .contact(new Contact("SecureCodeBox-Team","https://github.com/secureCodeBox", "")).build();
+                .contact(new Contact("SecureCodeBox-Team","https://github.com/secureCodeBox", ""))
+                .license("Apache 2.0").licenseUrl("https://github.com/secureCodeBox/engine/blob/master/LICENSE.txt").build();
     }
 
     @Bean
