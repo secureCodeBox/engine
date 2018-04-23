@@ -24,7 +24,7 @@ services:
     restart: on-failure:3
 
   camundadb:
-      image: mysql
+      image: mysql:5.7
       networks:
         - frontend
       volumes:
