@@ -17,6 +17,7 @@
       camForm.variableManager.fetchVariable('ZAP_SCANNER_TARGET_URL');
       camForm.variableManager.fetchVariable('ZAP_SCANNER_INCLUDE_REGEX');
       camForm.variableManager.fetchVariable('ZAP_SCANNER_EXCLUDE_REGEX');
+      camForm.variableManager.fetchVariable('PROCESS_FINDINGS');
     });
 
     camForm.on('variables-restored', function() {
@@ -36,6 +37,8 @@
 	  $scope.scannerIncludeRegexes = camForm.variableManager.variableValue('ZAP_SCANNER_INCLUDE_REGEX');
 	  $scope.scannerExcludeRegexes = camForm.variableManager.variableValue('ZAP_SCANNER_EXCLUDE_REGEX');
 
+	  $scope.scannerResult = JSON.parse(camForm.variableManager.variableValue('PROCESS_FINDINGS'));
+
       // TODO Workaround: Show dummy content if not specified (also see CAM-5292)
       if (camForm.variableManager.variable('ZAP_SPIDER_API_SPEC_FILE') && camForm.variableManager.variable('ZAP_SPIDER_API_SPEC_FILE').type !== 'File') {
         camForm.variableManager.destroyVariable('ZAP_SPIDER_API_SPEC_FILE');
@@ -44,6 +47,20 @@
       }
 
       console.log("setting variables to scope");
+
+      $scope.getLabelClass = function(severity) {
+		  switch (severity) {
+			  case "HIGH":
+				  return "label label-danger";
+			  case "MEDIUM":
+				  return "label label-warning";
+			  case "LOW":
+				  return "label label-success";
+			  default:
+				  return "label label-info";
+		  }
+	  };
+
     });
 
  </script>
@@ -56,17 +73,47 @@
 			<div class="">
 				<div class="">
 					<label>Target:</label>
-					<a href="{{ targetUrl }}">{{ targetUrl }}</a>
+					{{targetName}}, <a href="{{ targetUrl }}">{{ targetUrl }}</a>
 				</div>
 				<div class="">
 					<label>Context:</label>
 					<code>{{ context }}</code>
 				</div>
 			</div>
-		
-			<h3>Application Security Findings By Process:</h3>
-			<div>
-				<!-- TODO: show findings -->
+
+			<h3>Application Security Findings</h3>
+			<div class="well well-sm"
+				 style="color: inherit;">
+				<table class="table table-striped">
+					<tr>
+						<th>Name:</th>
+						<th>Description:</th>
+						<th>Severity:</th>
+						<th>Location:</th>
+						<th>Hint:</th>
+					</tr>
+					<tr class="danger" ng-repeat="finding in scannerResult">
+						<td>{{ finding.name }}</td>
+						<td>
+							<button type="button" class="btn btn-default"
+									tooltip="{{finding.description}}" tooltip-trigger="focus">
+								Show description
+							</button>
+						</td>
+						<td>
+							<span ng-class="getLabelClass(finding.severity)">
+								{{ finding.severity }}
+							</span>
+						</td>
+						<td>{{ finding.location }}</td>
+						<td>
+							<button type="button" class="btn btn-default"
+									tooltip="{{finding.hint}}" tooltip-trigger="focus">
+								Show hint
+							</button>
+						</td>
+					</tr>
+				</table>
 			</div>
 
 			<div>
@@ -96,41 +143,36 @@
 					</div>
 				</div>
 
-				<!-- OWASP Spider Configuration -->
-				<div class="form-group" ng-if="spiderType=='zap.spider.OwaspZapSpider'">
-
-					<!-- spiderMicroserviceId -->
-					<div class="form-group">
-						<label for="selectSpiderMicroserviceId">Spider MicroserviceId</label>
-						<div id="selectSpiderMicroserviceId" class="controls">
-							<code>{{ spiderMicroserviceId }}</code>
-						</div>
+				<!-- spiderMicroserviceId -->
+				<div class="form-group">
+					<label for="selectSpiderMicroserviceId">Spider MicroserviceId</label>
+					<div id="selectSpiderMicroserviceId" class="controls">
+						<code>{{ spiderMicroserviceId }}</code>
 					</div>
-				
-					<!-- includeRegexes -->
-					<div class="form-group">
-						  <label for="inputSpiderIncludeRegexes">Include sitemap pages by regular expression</label>
-						  <div id="inputSpiderIncludeRegexes" class="controls">
-								<code>{{ spiderIncludeRegexes }}</code>
-						  </div>
-					</div>
+				</div>
 
-					<!-- includeRegexes -->
-					<div class="form-group">
-						  <label for="inputSpiderExcludeRegexes">Exclude sitemap pages by regular expression</label>
-						  <div id="inputSpiderExcludeRegexes" class="controls">
-								<code>{{ spiderExcludeRegexes }}</code>
-						  </div>
-					</div>
+				<!-- includeRegexes -->
+				<div class="form-group">
+					  <label for="inputSpiderIncludeRegexes">Include sitemap pages by regular expression</label>
+					  <div id="inputSpiderIncludeRegexes" class="controls">
+							<code>{{ spiderIncludeRegexes }}</code>
+					  </div>
+				</div>
 
-					<!-- includeRegexes -->
-					<div class="form-group">
-						  <label for="inputSpiderExcludeDuplicates">Exclude Duplicates</label>
-						  <div id="inputSpiderExcludeDuplicates" class="controls">
-								<code>{{ spiderExcludeDuplicates }}</code>
-						  </div>
-					</div>
+				<!-- includeRegexes -->
+				<div class="form-group">
+					  <label for="inputSpiderExcludeRegexes">Exclude sitemap pages by regular expression</label>
+					  <div id="inputSpiderExcludeRegexes" class="controls">
+							<code>{{ spiderExcludeRegexes }}</code>
+					  </div>
+				</div>
 
+				<!-- includeRegexes -->
+				<div class="form-group">
+					  <label for="inputSpiderExcludeDuplicates">Exclude Duplicates</label>
+					  <div id="inputSpiderExcludeDuplicates" class="controls">
+							<code>{{ spiderExcludeDuplicates }}</code>
+					  </div>
 				</div>
 
 			</div>
