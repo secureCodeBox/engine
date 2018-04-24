@@ -4,11 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.execution.Target;
-import io.securecodebox.model.findings.Finding;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.engine.variable.Variables;
-import org.camunda.bpm.engine.variable.impl.value.ObjectValueImpl;
 import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -16,9 +14,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class FinishedSpiderTaskListener implements ExecutionListener {
+public class TransformFindingsToTargetsDelegate implements ExecutionListener {
 
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(FinishedSpiderTaskListener.class);
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(TransformFindingsToTargetsDelegate.class);
 
     @Override
     public void notify(DelegateExecution delegateExecution) throws Exception {
