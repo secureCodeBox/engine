@@ -1,0 +1,153 @@
+<h2>Please configure the Application Security Scan</h2>
+
+<form role="form" name="configure-target">
+
+	<script cam-script type="text/form-script">
+        camForm.on('form-loaded', function () {
+            camForm.variableManager.fetchVariable('PROCESS_TARGETS');
+        });
+
+        camForm.on('variables-fetched', function () {
+            $scope.targets = camForm.variableManager.variableValue('PROCESS_TARGETS');
+            console.log("targets: "+$scope.targets);
+
+            if($scope.targets === undefined || angular.equals([], $scope.targets)) {
+                $scope.targetList = [];
+                $scope.targetList.push({'name':'BodgeIT Public Host', 'location': 'http://bodgeit:8080/bodgeit'});
+            }
+        });
+
+        camForm.on('submit', function () {
+            camForm.variableManager.destroyVariable('PROCESS_TARGETS');
+            camForm.variableManager.createVariable({
+                name: 'PROCESS_TARGETS',
+                type: 'Object',
+                value: JSON.stringify($scope.targetList),
+                valueInfo: {
+                    serializationDataFormat: 'application/json',
+                    objectTypeName: 'java.lang.String'
+                }
+            });
+        });
+
+    </script>
+	<div class="row">
+
+		<div class="col-xs-12">
+			<h3>OWASP-ZAP Scan Target</h3>
+
+			<!-- Target Name -->
+            <div class="form-group">
+                <label>Target Url</label>
+                <input required class="form-control"
+                       type="text"
+                       placeholder="Target Url"
+                       cam-variable-type="String"
+                       cam-variable-name="ZAP_TARGET_URL"
+                       ng-minlength="2"
+                       ng-maxlength="30"/>
+                <div class="controls row form-group" ng-repeat="target in targetList track by $index">
+                    <div class="col-xs-5">
+                        <label>Target Name</label>
+                        <input required class="form-control"
+                               type="text"
+                               placeholder="Public Site Name"
+                               ng-minlength="2"
+                               ng-maxlength="30"
+                               ng-model="target.name"/>
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Target Hosts</label>
+                        <span>Hostname/ IP-Address</span>
+                        <input required class="form-control"
+                               type="text"
+                               placeholder="bodgeit"
+                               ng-minlength="3"
+                               ng-maxlength="100"
+                               ng-model="target.location"
+                               ng-keydown="checkForEnter($event)"
+                        />
+                    </div>
+                </div>
+                <code class="hidden2">{{ targetList }}</code>
+            </div>
+
+			<!-- Context (Project/Team/System...) -->
+			<div class="form-group">
+				<label for="inputContext">Business Context (Project/Team/System)</label>
+				<div class="controls">
+					<input class="form-control"
+						   id="inputContext"
+						   cam-variable-type="String"
+						   cam-variable-name="PROCESS_CONTEXT"
+						   type="text"
+						   placeholder="Project/Team/System"
+						   ng-required="false"
+						   ng-maxlength="50"
+						   name="context"
+						   value="BodgeIT"/>
+				</div>
+			</div>
+
+			<!-- Authentication -->
+			<div class="form-group">
+				<label for="authentication">Scan with authentication (User Credentails)?</label>
+				<div class="controls">
+					<input id="authentication"
+						   ng-model="targets[0].attributes.ZAP_AUTHENTICATION"
+						   cam-variable-type="Boolean"
+						   cam-variable-name="ZAP_AUTHENTICATION"
+						   type="checkbox"
+						   name="authentication"
+						   class="form-control" />
+				</div>
+			</div>
+			
+			<div class="form-group">
+                <div class="controls">
+                    <label for="inputFalsePositiveFilter">Enable False/Positive Filtering?</label>
+                    <input class="form-control"
+                           id="inputFalsePositiveFilter"
+						   ng-model="targets[0].attributes.PROCESS_MARK_FALSE_POSITIVE"
+						   cam-variable-type="Boolean"
+						   cam-variable-name="PROCESS_MARK_FALSE_POSITIVE"
+                           type="checkbox"
+                           name="falsePositiveFilter"/>
+                </div>
+            </div>
+			
+			<!-- spider configuration -->
+			<div class="form-group">
+				<label for="selectSpiderConfigurationType">Type of the spider configuration</label>
+				<div class="controls">
+					<!--select box -->
+					<select required id="selectSpiderConfigurationType"
+							class="form-control" 
+							name="configurationType"
+							cam-variable-name="ZAP_SPIDER_CONFIGURATION_TYPE"
+							cam-variable-type="String">
+						<option value="default" checked>Default</option>
+						<option value="advanced">Advanced</option>
+					</select>
+				</div>
+			</div>
+			
+			<!-- scanner configuration -->
+			<div class="form-group">
+				<label for="selectScannerConfigurationType">Type of the scanner configuration</label>
+				<div class="controls">
+					<!--select box -->
+					<select required id="selectScannerConfigurationType"
+							class="form-control" 
+							name="configurationType"
+							cam-variable-name="ZAP_SCANNER_CONFIGURATION_TYPE"
+							cam-variable-type="String">
+						<option value="default" checked>Default</option>
+						<option value="advanced">Advanced</option>
+					</select>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</form>

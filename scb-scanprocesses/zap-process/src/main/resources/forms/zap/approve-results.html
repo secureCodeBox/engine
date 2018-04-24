@@ -1,0 +1,236 @@
+<form role="form" name="configure-reporting">
+
+<script cam-script type="text/form-script">
+    camForm.on('form-loaded', function() {
+      camForm.variableManager.fetchVariable('ZAP_TARGET_NAME');
+      camForm.variableManager.fetchVariable('ZAP_TARGET_URL');
+      camForm.variableManager.fetchVariable('PROCESS_CONTEXT');
+
+      camForm.variableManager.fetchVariable('PROCESS_SPIDER_ID');
+      camForm.variableManager.fetchVariable('ZAP_SPIDER_TARGET_URL');
+      camForm.variableManager.fetchVariable('ZAP_SPIDER_INCLUDE_REGEX');
+      camForm.variableManager.fetchVariable('ZAP_SPIDER_EXCLUDE_REGEX');
+      camForm.variableManager.fetchVariable('ZAP_SPIDER_EXCLUDE_DUPLICATES');
+      camForm.variableManager.fetchVariable('ZAP_SPIDER_MAX_DEPTH');
+
+      camForm.variableManager.fetchVariable('PROCESS_SCANNER_ID');
+      camForm.variableManager.fetchVariable('ZAP_SCANNER_TARGET_URL');
+      camForm.variableManager.fetchVariable('ZAP_SCANNER_INCLUDE_REGEX');
+      camForm.variableManager.fetchVariable('ZAP_SCANNER_EXCLUDE_REGEX');
+      camForm.variableManager.fetchVariable('PROCESS_FINDINGS');
+    });
+
+    camForm.on('variables-restored', function() {
+      $scope.targetName = camForm.variableManager.variableValue('ZAP_TARGET_NAME');
+      $scope.targetUrl = camForm.variableManager.variableValue('ZAP_TARGET_URL');
+      $scope.context = camForm.variableManager.variableValue('PROCESS_CONTEXT');
+
+	  $scope.spiderMicroserviceId = camForm.variableManager.variableValue('PROCESS_SPIDER_ID');
+	  $scope.spiderTargetUrl = camForm.variableManager.variableValue('ZAP_SPIDER_TARGET_URL');
+	  $scope.spiderIncludeRegexes = camForm.variableManager.variableValue('ZAP_SPIDER_INCLUDE_REGEX');
+	  $scope.spiderExcludeRegexes = camForm.variableManager.variableValue('ZAP_SPIDER_EXCLUDE_REGEX');
+	  $scope.spiderExcludeDuplicates = camForm.variableManager.variableValue('ZAP_SPIDER_EXCLUDE_DUPLICATES');
+	  $scope.spiderMaxDepth = camForm.variableManager.variableValue('ZAP_SPIDER_MAX_DEPTH');
+
+   	  $scope.scannerMicroserviceId = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
+	  $scope.scannerTargetUrl = camForm.variableManager.variableValue('ZAP_SCANNER_TARGET_URL');
+	  $scope.scannerIncludeRegexes = camForm.variableManager.variableValue('ZAP_SCANNER_INCLUDE_REGEX');
+	  $scope.scannerExcludeRegexes = camForm.variableManager.variableValue('ZAP_SCANNER_EXCLUDE_REGEX');
+
+	  $scope.scannerResult = JSON.parse(camForm.variableManager.variableValue('PROCESS_FINDINGS'));
+
+      // TODO Workaround: Show dummy content if not specified (also see CAM-5292)
+      if (camForm.variableManager.variable('ZAP_SPIDER_API_SPEC_FILE') && camForm.variableManager.variable('ZAP_SPIDER_API_SPEC_FILE').type !== 'File') {
+        camForm.variableManager.destroyVariable('ZAP_SPIDER_API_SPEC_FILE');
+        camForm.variableManager.createVariable({name: 'ZAP_SPIDER_API_SPEC_FILE', type: 'File', valueInfo: {filename: ''}});
+        $scope.spiderApiSpecFile = camForm.variableManager.variableValue('ZAP_SPIDER_API_SPEC_FILE');
+      }
+
+      console.log("setting variables to scope");
+
+      $scope.getLabelClass = function(severity) {
+		  switch (severity) {
+			  case "HIGH":
+				  return "label label-danger";
+			  case "MEDIUM":
+				  return "label label-warning";
+			  case "LOW":
+				  return "label label-success";
+			  default:
+				  return "label label-info";
+		  }
+	  };
+
+    });
+
+ </script>
+ 
+ 	<h2>OWASP ZAP Scan Results for "{{ targetName }}"</h2>
+
+	<div class="row">
+			<div class="col-xs-12">
+
+			<div class="">
+				<div class="">
+					<label>Target:</label>
+					{{targetName}}, <a href="{{ targetUrl }}">{{ targetUrl }}</a>
+				</div>
+				<div class="">
+					<label>Context:</label>
+					<code>{{ context }}</code>
+				</div>
+			</div>
+
+			<h3>Application Security Findings</h3>
+			<div class="well well-sm"
+				 style="color: inherit;">
+				<table class="table table-striped">
+					<tr>
+						<th>Name:</th>
+						<th>Description:</th>
+						<th>Severity:</th>
+						<th>Location:</th>
+						<th>Hint:</th>
+					</tr>
+					<tr class="danger" ng-repeat="finding in scannerResult">
+						<td>{{ finding.name }}</td>
+						<td>
+							<button type="button" class="btn btn-default"
+									tooltip="{{finding.description}}" tooltip-trigger="focus">
+								Show description
+							</button>
+						</td>
+						<td>
+							<span ng-class="getLabelClass(finding.severity)">
+								{{ finding.severity }}
+							</span>
+						</td>
+						<td>{{ finding.location }}</td>
+						<td>
+							<button type="button" class="btn btn-default"
+									tooltip="{{finding.hint}}" tooltip-trigger="focus">
+								Show hint
+							</button>
+						</td>
+					</tr>
+				</table>
+			</div>
+
+			<div>
+				<h3>ZAP Spider Configuration</h3>
+				
+				<!-- Spider Type configuration -->
+				<div class="form-group">
+					<label for="selectSpiderTargetUrl">Spider TargetUrl</label>
+					<div id="selectSpiderTargetUrl" class="controls">
+						<code>{{ spiderTargetUrl }}</code>
+					</div>
+				</div>
+
+				<!-- API specification file -->
+				<div class="form-group" ng-if="spiderApiSpecFile">
+					<label for="inputSpiderApiSpecFile">API Specification File</label>
+					<div id="inputSpiderApiSpecFile" class="controls">
+						<a cam-file-download="spiderApiSpecFile"></a>
+					</div>
+				</div>
+
+				<!-- Spider Maximum Depth -->
+				<div class="form-group">
+					<label for="inputSpiderMaxDepth">Spider Maximum Depth</label>
+					<div id="inputSpiderMaxDepth" class="controls">
+						<code>{{ spiderMaxDepth }}</code>
+					</div>
+				</div>
+
+				<!-- spiderMicroserviceId -->
+				<div class="form-group">
+					<label for="selectSpiderMicroserviceId">Spider MicroserviceId</label>
+					<div id="selectSpiderMicroserviceId" class="controls">
+						<code>{{ spiderMicroserviceId }}</code>
+					</div>
+				</div>
+
+				<!-- includeRegexes -->
+				<div class="form-group">
+					  <label for="inputSpiderIncludeRegexes">Include sitemap pages by regular expression</label>
+					  <div id="inputSpiderIncludeRegexes" class="controls">
+							<code>{{ spiderIncludeRegexes }}</code>
+					  </div>
+				</div>
+
+				<!-- includeRegexes -->
+				<div class="form-group">
+					  <label for="inputSpiderExcludeRegexes">Exclude sitemap pages by regular expression</label>
+					  <div id="inputSpiderExcludeRegexes" class="controls">
+							<code>{{ spiderExcludeRegexes }}</code>
+					  </div>
+				</div>
+
+				<!-- includeRegexes -->
+				<div class="form-group">
+					  <label for="inputSpiderExcludeDuplicates">Exclude Duplicates</label>
+					  <div id="inputSpiderExcludeDuplicates" class="controls">
+							<code>{{ spiderExcludeDuplicates }}</code>
+					  </div>
+				</div>
+
+			</div>
+			
+			<div>
+				<h3>ZAP Scanner Configuration</h3>
+				
+				<!-- Scanner Target URL -->
+				<div class="form-group">
+					<label for="inputScannerTargetUrl">Scanner Target URL</label>
+					<div id="inputScannerTargetUrl" class="controls">
+						<code>{{ scannerTargetUrl }}</code>
+					</div>
+				</div>
+				
+				<!-- ScannerMicroserviceId -->
+				<div class="form-group">
+					<label for="inputScannerMicroserviceId">Scanner MicroserviceId</label>
+					<div id="inputScannerMicroserviceId" class="controls">
+						<code>{{ scannerMicroserviceId }}</code>
+					</div>
+				</div>
+				
+				<!-- includeRegexes -->
+			    <div class="form-group">
+				      <label for="inputScannerIncludeRegexes">Include sitemap pages by regular expression</label>
+				      <div id="inputScannerIncludeRegexes" class="controls">
+				        	<code>{{ scannerIncludeRegexes }}</code>
+				      </div>
+			    </div>
+				
+				<!-- includeRegexes -->
+			    <div class="form-group">
+				      <label for="inputScannerExcludeRegexes">Exclude sitemap pages by regular expression</label>
+				      <div id="inputScannerExcludeRegexes" class="controls">
+				        	<code>{{ scannerExcludeRegexes }}</code>
+				      </div>
+			    </div>
+			</div>
+			
+			<h2>Approve Result</h2>
+			<!-- reporting configuration -->
+			<div class="form-group">
+				<label for="selectResultApproved">Approve Result</label>
+				<div id="selectResultApproved" class="controls">
+					<!--select box -->
+					<select required 
+							class="form-control" 
+							name="resultApproved"
+							cam-variable-name="ZAP_RESULT_APPROVED"
+							cam-variable-type="String">
+						<option value="approved" checked>Approved (Finished)</option>
+						<option value="disapproved">Not Approved (Restart Scan)</option>
+						<option value="restart">Change Configuration (Restart)</option>
+					</select>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+</form>
