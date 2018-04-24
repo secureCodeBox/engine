@@ -37,36 +37,40 @@
 			<h3>OWASP-ZAP Scan Target</h3>
 
 			<!-- Target Name -->
-			<div class="form-group">
-				<label for="inputTargetName">Target Name</label>
-				<div class="controls">
-					<input required class="form-control"
-						    id="inputTargetName"
-							type="text" 
-							placeholder="Public Site Run"
-							ng-minlength="2" 
-							ng-maxlength="30" 
-							name="targetName"
-							ng-model="targets[0].name" />
-				</div>
-			</div>
-			
-			<!-- Target URL -->
-			<div class="form-group">
-				<label for="inputTargetUrl">Target URL</label>
-				<div class="controls">
-					<input required class="form-control"
-						    id="inputTargetUrl"
-							type="text" 
-							placeholder="http://bodgeit:8080/bodgeit"
-						   cam-variable-type="String"
-						   cam-variable-name="ZAP_TARGET_URL"
-							ng-minlength="5" 
-							ng-maxlength="100" 
-							name="targetUrl"
-						    ng-model="targets[0].location" />
-				</div>
-			</div>
+            <div class="form-group">
+                <label>Target Url</label>
+                <input required class="form-control"
+                       type="text"
+                       placeholder="Target Url"
+                       cam-variable-type="String"
+                       cam-variable-name="ZAP_TARGET_URL"
+                       ng-minlength="2"
+                       ng-maxlength="30"/>
+                <div class="controls row form-group" ng-repeat="target in targetList track by $index">
+                    <div class="col-xs-5">
+                        <label>Target Name</label>
+                        <input required class="form-control"
+                               type="text"
+                               placeholder="Public Site Name"
+                               ng-minlength="2"
+                               ng-maxlength="30"
+                               ng-model="target.name"/>
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Target Hosts</label>
+                        <span>Hostname/ IP-Address</span>
+                        <input required class="form-control"
+                               type="text"
+                               placeholder="bodgeit"
+                               ng-minlength="3"
+                               ng-maxlength="100"
+                               ng-model="target.location"
+                               ng-keydown="checkForEnter($event)"
+                        />
+                    </div>
+                </div>
+                <code class="hidden2">{{ targetList }}</code>
+            </div>
 
 			<!-- Context (Project/Team/System...) -->
 			<div class="form-group">
