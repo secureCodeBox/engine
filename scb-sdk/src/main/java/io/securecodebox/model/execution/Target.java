@@ -62,4 +62,13 @@ public class Target {
     public void appendAttribute(String key, Object value) {
         attributes.put(key, value);
     }
+
+    @Override
+    public String toString() {
+        return "Target{" +
+                "name='" + name + '\'' +
+                ", location='" + location + '\'' +
+                ", attributes=" + attributes +
+                '}';
+    }
 }

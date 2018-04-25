@@ -135,20 +135,24 @@ public class ScanJobResource {
             defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID id,
             @RequestBody ScanResult result) {
 
-        LOG.debug("Recived scan result {}", result);
+        LOG.debug("Received scan result {}", result);
 
         Map<String, Object> variables = new HashMap<>();
         variables.put(DefaultFields.PROCESS_SCANNER_ID.name(), result.getScannerId().toString());
         variables.put(DefaultFields.PROCESS_SCANNER_TYPE.name(), result.getScannerType());
-        variables.put(DefaultFields.PROCESS_RAW_FINDINGS.name(), result.getRawFindings());
         synchronized (DefaultFields.PROCESS_FINDINGS) {
             try {
-                ObjectValue objectValue = Variables.objectValue(objectMapper.writeValueAsString(result.getFindings()))
+                ObjectValue findings = Variables.objectValue(objectMapper.writeValueAsString(result.getFindings()))
                         .serializationDataFormat(Variables.SerializationDataFormats.JSON)
                         .create();
-                variables.put(DefaultFields.PROCESS_FINDINGS.name(), objectValue);
+                variables.put(DefaultFields.PROCESS_FINDINGS.name(), findings);
+
+                ObjectValue rawFindings = Variables.objectValue(objectMapper.writeValueAsString(result.getRawFindings()))
+                        .serializationDataFormat(Variables.SerializationDataFormats.JSON)
+                        .create();
+                variables.put(DefaultFields.PROCESS_RAW_FINDINGS.name(), rawFindings);
             } catch (JsonProcessingException e) {
-                LOG.error("Can't write field {} to process!", DefaultFields.PROCESS_FINDINGS, e);
+                LOG.error("Can't write field to process: {}",  e);
                 throw new IllegalStateException("Can't write field to process!", e);
             }
         }
