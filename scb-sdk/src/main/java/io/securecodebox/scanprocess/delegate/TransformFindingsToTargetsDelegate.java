@@ -1,4 +1,4 @@
-package io.securecodebox.scanprocess.zap;
+package io.securecodebox.scanprocess.delegate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
