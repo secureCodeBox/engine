@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -54,8 +55,8 @@ public class ScanProcessResource {
                     @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
                     @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
-    @RequestMapping(method = RequestMethod.PUT, value = "/")
-    public ResponseEntity createProcess(@RequestBody List<Target> targets) {
+    @RequestMapping(method = RequestMethod.PUT, value = "/{processName}")
+    public ResponseEntity createProcess(@PathVariable String processName, @RequestBody List<Target> targets) {
 
         LOG.debug("Recived scan failure {}", targets);
 
