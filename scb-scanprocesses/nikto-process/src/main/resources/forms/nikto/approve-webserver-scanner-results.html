@@ -20,7 +20,7 @@
 <form role="form" name="configure-reporting">
 	<script cam-script type="text/form-script">
 		camForm.on('form-loaded', function() {
-			camForm.variableManager.fetchVariable('NIKTO_TARGET_NAME');
+			camForm.variableManager.fetchVariable('PROCESS_TARGETS');
 		  	camForm.variableManager.fetchVariable('PROCESS_CONTEXT');
 
 		  	camForm.variableManager.fetchVariable('PROCESS_FINDINGS');
@@ -31,8 +31,7 @@
 		});
 
 		camForm.on('variables-restored', function() {
-			$scope.targetName = camForm.variableManager.variableValue('NIKTO_TARGET_NAME');
-		  	$scope.context = camForm.variableManager.variableValue('PROCESS_CONTEXT');
+		    $scope.context = camForm.variableManager.variableValue('PROCESS_CONTEXT');
 
 			$scope.result = JSON.parse(camForm
 					.variableManager
@@ -50,31 +49,35 @@
 						{}
 					);
 
-		  	console.log($scope.result);
+			var targets = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
 
-          	$scope.niktoScannerTarget = camForm.variableManager.variableValue('NIKTO_TARGET');
-		  	$scope.niktoScannerPorts = camForm.variableManager.variableValue('NIKTO_PORTS');
-		  	$scope.niktoScannerParameter = camForm.variableManager.variableValue('NIKTO_PARAMETER');
+			$scope.firstTarget = targets[0];
+			$scope.otherTargetsLength = targets.length - 1;
 		});
 	</script>
 
-	<h2>Nikto-Scan results for "{{ targetName }}"</h2>
+	<h2>
+		Nikto-Scan results for "{{ firstTarget.name }}"
+		<span ng-if="otherTargetsLength > 0">, and {{otherTargetsLength}} other Targets.</span>
+	</h2>
 
 	<div class="row">
 		<div class="col-xs-12">
 			<div>
 				<label>Target Host:</label>
-				<p>{{ niktoScannerTarget }}</p>
+				<p>{{ firstTarget.location }}</p>
 			</div>
 			<div>
 				<label>Scanned Ports:</label>
-				<p>{{ niktoScannerPorts }}</p>
+				<p>{{ firstTarget.attributes.NIKTO_PORTS }}</p>
 			</div>
 			<div>
-				<label>Additional Arguments</label>
-				<code>{{ niktoScannerParameter }}</code>
+				<label>Additional Arguments:</label>
+				<p>
+					<span ng-if="!firstTarget.attributes.NIKTO_PARAMETER">None</span>
+					<code ng-if="firstTarget.attributes.NIKTO_PARAMETER">{{firstTarget.attributes.NIKTO_PARAMETER}}</code>
+				</p>
 			</div>
-
 			<div class="form-group hidden">
 				<label>Result:</label>
 				<code>{{ result }}</code>
