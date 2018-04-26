@@ -274,7 +274,7 @@ public class NmapProcessTest {
         changeVariable(variables, DefaultFields.PROCESS_AUTOMATED.name(), false);
 
         when(nmapProcess.waitsAtUserTask(APPROVE_RESULTS_TASK_ID)).thenReturn(task -> {
-            variables.put(NmapFields.NMAP_RESULT_APPROVED.name(), "approved");
+            variables.put(DefaultFields.PROCESS_RESULT_APPROVED.name(), "approved");
             task.complete(variables);
         });
 
@@ -300,7 +300,7 @@ public class NmapProcessTest {
 
         assertThat(scenario.instance(nmapProcess)).isEnded();
         assertThat(scenario.instance(nmapProcess)).hasPassed(APPROVE_RESULTS_TASK_ID);
-        assertThat(scenario.instance(nmapProcess)).variables().containsEntry(NmapFields.NMAP_RESULT_APPROVED.name(), "approved");
+        assertThat(scenario.instance(nmapProcess)).variables().containsEntry(DefaultFields.PROCESS_RESULT_APPROVED.name(), "approved");
     }
 
     /**
@@ -316,7 +316,7 @@ public class NmapProcessTest {
         changeVariable(variables, DefaultFields.PROCESS_AUTOMATED.name(), false);
 
         when(nmapProcess.waitsAtUserTask(APPROVE_RESULTS_TASK_ID)).thenReturn(task -> {
-            variables.put(NmapFields.NMAP_RESULT_APPROVED.name(), "disapproved");
+            variables.put(DefaultFields.PROCESS_RESULT_APPROVED.name(), "disapproved");
             task.complete(variables);
         });
         when(nmapProcess.waitsAtUserTask(CONFIGURE_ADVANCED_PORTSCAN_TASK_ID)).thenReturn(task ->  {});
@@ -334,7 +334,7 @@ public class NmapProcessTest {
         Scenario scenario = Scenario.run(nmapProcess).startByKey(PROCESS_ID, variables).execute();
 
         assertThat(scenario.instance(nmapProcess)).hasPassed(APPROVE_RESULTS_TASK_ID);
-        assertThat(scenario.instance(nmapProcess)).variables().containsEntry(NmapFields.NMAP_RESULT_APPROVED.name(), "disapproved");
+        assertThat(scenario.instance(nmapProcess)).variables().containsEntry(DefaultFields.PROCESS_RESULT_APPROVED.name(), "disapproved");
         assertThat(scenario.instance(nmapProcess)).isWaitingAt(CONFIGURE_ADVANCED_PORTSCAN_TASK_ID);
     }
 
