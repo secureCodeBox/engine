@@ -44,10 +44,10 @@
       <bpmn:outgoing>SequenceFlow_ResultRejected</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_ResultApproved" name="result approved" sourceRef="ExclusiveGateway_ResultApproved" targetRef="EndEvent_FinishedPortscan">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${NMAP_RESULT_APPROVED == 'approved'}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${PROCESS_RESULT_APPROVED == 'approved'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_ResultRejected" name="result rejected" sourceRef="ExclusiveGateway_ResultApproved" targetRef="UserTask_ConfigureAdvancedPortscan">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${NMAP_RESULT_APPROVED == 'disapproved'}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${PROCESS_RESULT_APPROVED == 'disapproved'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_AutomatedStart" name="Is automated run?">
       <bpmn:incoming>SequenceFlow_TargetConfigured</bpmn:incoming>
