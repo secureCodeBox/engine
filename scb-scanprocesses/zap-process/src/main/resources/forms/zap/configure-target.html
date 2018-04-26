@@ -6,7 +6,6 @@
         camForm.on('form-loaded', function () {
             camForm.variableManager.fetchVariable('PROCESS_TARGETS');
         });
-
         camForm.on('variables-fetched', function () {
             $scope.targets = camForm.variableManager.variableValue('PROCESS_TARGETS');
             console.log("targets: "+$scope.targets);
@@ -40,17 +39,54 @@
                     objectTypeName: 'java.lang.String'
                 }
        		});
+
        		var authenticationOnAnyTarget = false
        		for(var item in $scope.targetList){
        			authenticationOnAnyTarget = authenticationOnAnyTarget || $scope.targetList[item]["attributes"]["ZAP_AUTHENTICATION"]
 			}
-			if (camForm.variableManager.variable('myVariable') != undefined) {
+			if (camForm.variableManager.variable('ZAP_AUTHENTICATION') != undefined) {
 				camForm.variableManager.destroyVariable('ZAP_AUTHENTICATION');
 			}
 			camForm.variableManager.createVariable({
 				name: 'ZAP_AUTHENTICATION',
 				type: 'Boolean',
 				value: authenticationOnAnyTarget,
+				valueInfo: {}
+			});
+
+			var spiderAdvanced = false
+       		for(var item in $scope.targetList){
+       			spiderAdvanced = spiderAdvanced || ($scope.targetList[item]["attributes"]["ZAP_SPIDER_CONFIGURATION_TYPE"] == 'advanced')
+			}
+			var spiderConfig = 'default'
+			if(spiderAdvanced){
+				spiderConfig = 'advanced'
+			}
+			if (camForm.variableManager.variable('ZAP_SPIDER_CONFIGURATION_TYPE') != undefined) {
+				camForm.variableManager.destroyVariable('ZAP_SPIDER_CONFIGURATION_TYPE');
+			}
+			camForm.variableManager.createVariable({
+				name: 'ZAP_SPIDER_CONFIGURATION_TYPE',
+				type: 'String',
+				value: spiderConfig,
+				valueInfo: {}
+			});
+
+			var scannerAdvanced = false
+       		for(var item in $scope.targetList){
+       			scannerAdvanced = spiderAdvanced || ($scope.targetList[item]["attributes"]["ZAP_SCANNER_CONFIGURATION_TYPE"] == 'advanced')
+			}
+			var scannerConfig = 'default'
+			if(scannerAdvanced){
+				scannerConfig = 'advanced'
+			}
+			if (camForm.variableManager.variable('ZAP_SCANNER_CONFIGURATION_TYPE') != undefined) {
+				camForm.variableManager.destroyVariable('ZAP_SCANNER_CONFIGURATION_TYPE');
+			}
+			camForm.variableManager.createVariable({
+				name: 'ZAP_SCANNER_CONFIGURATION_TYPE',
+				type: 'String',
+				value: scannerConfig,
 				valueInfo: {}
 			});
         });
@@ -62,7 +98,7 @@
 			<h3>OWASP-ZAP Scan Target</h3>
 
 			<div class="form-group">
-				<div class="controls form-group" style="background: lightgrey" ng-repeat="target in targetList track by $index">
+				<div class="controls form-group" style="background: #dfdfdf" ng-repeat="target in targetList track by $index">
 					<div class="row">
 						<div class="col-xs-3">
 							<label>Target Name</label>
@@ -125,7 +161,35 @@
 							<label for="inputFalsePositiveFilter" style="white-space:nowrap">Enable False Positive Filtering</label>
 						</div>
 					</div>
+					<!-- spider configuration -->
+					<div class="form-group">
+						<label for="selectSpiderConfigurationType">Type of the spider configuration</label>
+						<div class="controls">
+							<!--select box -->
+							<select required id="selectSpiderConfigurationType"
+									class="form-control"
+									name="configurationType"
+									ng-model="target.attributes.ZAP_SPIDER_CONFIGURATION_TYPE">
+								<option value="default" checked>Default</option>
+								<option value="advanced">Advanced</option>
+							</select>
+						</div>
+					</div>
 
+					<!-- scanner configuration -->
+					<div class="form-group">
+						<label for="selectScannerConfigurationType">Type of the scanner configuration</label>
+						<div class="controls">
+							<!--select box -->
+							<select required id="selectScannerConfigurationType"
+									class="form-control"
+									name="configurationType"
+									ng-model="target.attributes.ZAP_SCANNER_CONFIGURATION_TYPE">
+								<option value="default" checked>Default</option>
+								<option value="advanced">Advanced</option>
+							</select>
+						</div>
+					</div>
 					<code class="hidden2">{{ targetList }}</code>
 				</div>
 				<button class="btn btn-primary" ng-click="addTarget()">Add Host</button>
@@ -147,63 +211,6 @@
 						   value="BodgeIT"/>
 				</div>
 			</div>
-
-			<!--<div class="form-group">-->
-				<!--<label for="authentication">Scan with authentication (User Credentails)?</label>-->
-				<!--<div class="controls">-->
-					<!--<input id="authentication"-->
-						   <!--cam-variable-name="ZAP_AUTHENTICATION"-->
-						   <!--cam-variable-type="Boolean"-->
-						   <!--type="checkbox"-->
-						   <!--name="authentication"-->
-						   <!--class="form-control" />-->
-				<!--</div>-->
-			<!--</div>-->
-
-			<!--<div class="form-group">-->
-				<!--<div class="controls">-->
-					<!--<label for="inputFalsePositiveFilter">Enable False/Positive Filtering?</label>-->
-					<!--<input class="form-control"-->
-						   <!--id="inputFalsePositiveFilter"-->
-						   <!--cam-variable-name="PROCESS_MARK_FALSE_POSITIVE"-->
-						   <!--cam-variable-type="Boolean"-->
-						   <!--type="checkbox"-->
-						   <!--name="falsePositiveFilter"/>-->
-				<!--</div>-->
-			<!--</div>-->
-			
-			<!-- spider configuration -->
-			<div class="form-group">
-				<label for="selectSpiderConfigurationType">Type of the spider configuration</label>
-				<div class="controls">
-					<!--select box -->
-					<select required id="selectSpiderConfigurationType"
-							class="form-control" 
-							name="configurationType"
-							cam-variable-name="ZAP_SPIDER_CONFIGURATION_TYPE"
-							cam-variable-type="String">
-						<option value="default" checked>Default</option>
-						<option value="advanced">Advanced</option>
-					</select>
-				</div>
-			</div>
-			
-			<!-- scanner configuration -->
-			<div class="form-group">
-				<label for="selectScannerConfigurationType">Type of the scanner configuration</label>
-				<div class="controls">
-					<!--select box -->
-					<select required id="selectScannerConfigurationType"
-							class="form-control" 
-							name="configurationType"
-							cam-variable-name="ZAP_SCANNER_CONFIGURATION_TYPE"
-							cam-variable-type="String">
-						<option value="default" checked>Default</option>
-						<option value="advanced">Advanced</option>
-					</select>
-				</div>
-			</div>
-
 		</div>
 	</div>
 </form>

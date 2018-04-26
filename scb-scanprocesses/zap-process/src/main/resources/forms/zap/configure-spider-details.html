@@ -1,15 +1,13 @@
 <form role="form" name="configure-spider">
 
-	<script cam-script type="text/form-script">
-    	camForm.on('form-loaded', function() {
-      		camForm.variableManager.fetchVariable('ZAP_TARGET_NAME');
-	  		camForm.variableManager.fetchVariable('ZAP_TARGET_URL');
-    	});
-    	camForm.on('variables-restored', function() {
-      		$scope.targetName = camForm.variableManager.variableValue('ZAP_TARGET_NAME');
-      		$scope.targetUrl = camForm.variableManager.variableValue('ZAP_TARGET_URL');
-      		console.log("setting variables to scope");
-    	});
+    <script cam-script type="text/form-script">
+    	camForm.on('form-loaded', function () {
+            camForm.variableManager.fetchVariable('PROCESS_TARGETS');
+        });
+        camForm.on('variables-fetched', function () {
+            $scope.targetList = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
+            console.log("targets: "+$scope.targetList + ", " + $scope.targetList.length);
+        });
 
     	// TODO Workaround: Ignoring unspecified file not possible yet (https://app.camunda.com/jira/browse/CAM-5292)
         camForm.on('submit', function () {
@@ -21,106 +19,117 @@
                 }
                 return true;
             });
+            camForm.variableManager.destroyVariable('PROCESS_TARGETS');
+            camForm.variableManager.createVariable({
+                name: 'PROCESS_TARGETS',
+                type: 'Object',
+                value: JSON.stringify($scope.targetList),
+                valueInfo: {
+                    serializationDataFormat: 'application/json',
+                    objectTypeName: 'java.lang.String'
+                }
+       		});
         });
-  	</script>
 
-	<h2>Please configure the ZAP Spider details for "{{ targetName }}"</h2>
 
-	<div class="row">
+    </script>
 
-		<div class="col-xs-12">
-			<h3>ZAP Spider advanced configuration</h3>
-			
-			<div class="well">Target: <a href="{{ targetUrl }}">{{ targetUrl }}</a> </div>
+    <div class="controls form-group" ng-repeat="target in targetList track by $index">
+        <div ng-if="target.attributes.ZAP_SPIDER_CONFIGURATION_TYPE == 'advanced'">
+            <h2>Please configure the ZAP Spider details for "{{ target.name }}"</h2>
 
-			<!-- Spider Target URL -->
-			<div class="form-group">
-				<label for="inputSpiderTargetUrl">ZAP Spider Target URL</label>
-				<div class="controls">
-					<input required class="form-control"
-						   id="inputSpiderTargetUrl"
-						   cam-variable-type="String"
-						   cam-variable-name="ZAP_SPIDER_TARGET_URL"
-						   type="text"
-						   ng-minlength="5"
-						   ng-maxlength="100"
-						   name="spiderTargetUrl" />
-				</div>
-			</div>
+            <div class="row">
 
-			<!-- API specification file -->
-			<div class="form-group">
-				<label for="inputSpiderApiSpecFile">OpenAPI Specification File (optional)</label>
-				<div class="controls">
-					<input class="form-control"
-						   id="inputSpiderApiSpecFile"
-						   cam-variable-type="File"
-						   cam-variable-name="ZAP_SPIDER_API_SPEC_FILE"
-						   type="file"
-						   name="spiderApiSpecFile" />
-				</div>
-			</div>
+                <div class="col-xs-12">
+                    <h3>ZAP Spider advanced configuration</h3>
 
-			<!-- Spider max depth -->
-			<div class="form-group">
-				<label for="inputSpiderMaxDepth">Maximum Sitemap Depth</label>
-				<div class="controls">
-					<input required class="form-control"
-						   id="inputSpiderMaxDepth"
-						   cam-variable-type="Integer"
-						   cam-variable-name="ZAP_SPIDER_MAX_DEPTH"
-						   type="number"
-						   min="1"
-						   max="10"
-						   name="spiderMaxDepth" />
-				</div>
-			</div>
+                    <div class="well">Target: <a href="{{ target.location }}">{{ target.location }}</a> </div>
 
-			<!-- OWASP Spider Configuration -->
-			<div class="form-group">
-			
-				<!-- includeRegexes -->
-				<div class="form-group">
-					  <label for="inputSpiderIncludeRegexes">Include RegExe's</label>
-					  <div class="controls">
-							<textarea class="form-control"
-								  id="inputSpiderIncludeRegexes"
-								  cam-variable-name="ZAP_SPIDER_INCLUDE_REGEX"
-								  cam-variable-type="String"
-								  rows="5"
-								  name="spiderIncludeRegexes"></textarea>
-					  </div>
-				</div>
+                    <!-- Spider Target URL -->
+                    <div class="form-group">
+                        <label for="inputSpiderTargetUrl">ZAP Spider Target URL</label>
+                        <div class="controls">
+                            <input required class="form-control"
+                                   id="inputSpiderTargetUrl"
+                                   ng-model="target.location"
+                                   type="text"
+                                   ng-minlength="5"
+                                   ng-maxlength="100"
+                                   name="spiderTargetUrl"/>
+                        </div>
+                    </div>
 
-				<!-- excludeRegexes -->
-				<div class="form-group">
-					  <label for="inputSpiderExcludeRegexes">Exclude RegExe's</label>
-					  <div class="controls">
-							<textarea class="form-control"
-								  id="inputSpiderExcludeRegexes"
-								  cam-variable-name="ZAP_SPIDER_EXCLUDE_REGEX"
-								  cam-variable-type="String"
-								  ng-required="false"
-								  rows="5"
-								  name="spiderExcludeRegexes"></textarea>
-					  </div>
-				</div>
+                    <!-- API specification file -->
+                    <div class="form-group">
+                        <label for="inputSpiderApiSpecFile">OpenAPI Specification File (optional)</label>
+                        <div class="controls">
+                            <input class="form-control"
+                                   id="inputSpiderApiSpecFile"
+                                   cam-variable-type="File"
+                                   ng-model="t.attributes.ZAP_SPIDER_API_SPEC_FILE"
+                                   type="file"
+                                   name="spiderApiSpecFile"/>
+                        </div>
+                    </div>
 
-				<!-- excludeDuplicates -->
-				<div class="form-group">
-					  <label for="inputSpiderExcludeDuplicates">Exclude Duplicates</label>
-					  <div class="controls">
-							<textarea class="form-control" id="inputSpiderExcludeDuplicates"
-								  cam-variable-name="ZAP_SPIDER_EXCLUDE_DUPLICATES"
-								  cam-variable-type="String"
-								  rows="5"
-								  name="spiderExcludeDuplicates"></textarea>
-					  </div>
-				</div>
+                    <!-- Spider max depth -->
+                    <div class="form-group">
+                        <label for="inputSpiderMaxDepth">Maximum Sitemap Depth</label>
+                        <div class="controls">
+                            <input required class="form-control"
+                                   id="inputSpiderMaxDepth"
+                                   cam-variable-type="Integer"
+                                   ng-model="t.attributes.ZAP_SPIDER_MAX_DEPTH"
+                                   type="number"
+                                   min="1"
+                                   max="10"
+                                   name="spiderMaxDepth"/>
+                        </div>
+                    </div>
 
-			</div>
+                    <!-- OWASP Spider Configuration -->
+                    <div class="form-group">
 
-		</div>
-		
-	</div>
+                        <!-- includeRegexes -->
+                        <div class="form-group">
+                            <label for="inputSpiderIncludeRegexes">Include RegExe's</label>
+                            <div class="controls">
+                                    <textarea class="form-control"
+                                              id="inputSpiderIncludeRegexes"
+                                              ng-model="t.attributes.ZAP_SPIDER_INCLUDE_REGEX"
+                                              rows="5"
+                                              name="spiderIncludeRegexes"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- excludeRegexes -->
+                        <div class="form-group">
+                            <label for="inputSpiderExcludeRegexes">Exclude RegExe's</label>
+                            <div class="controls">
+                                    <textarea class="form-control"
+                                              id="inputSpiderExcludeRegexes"
+                                              ng-model="t.attributes.ZAP_SPIDER_EXCLUDE_REGEX"
+                                              ng-required="false"
+                                              rows="5"
+                                              name="spiderExcludeRegexes"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- excludeDuplicates -->
+                        <div class="form-group">
+                            <label for="inputSpiderExcludeDuplicates">Exclude Duplicates</label>
+                            <div class="controls">
+                                    <textarea class="form-control" id="inputSpiderExcludeDuplicates"
+                                              ng-model="t.attributes.ZAP_SPIDER_EXCLUDE_DUPLICATES"
+                                              rows="5"
+                                              name="spiderExcludeDuplicates"></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
 </form>

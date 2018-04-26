@@ -1,67 +1,78 @@
 <form role="form" name="configure-scanner">
 	<script cam-script type="text/form-script">
     	camForm.on('form-loaded', function() {
-      		camForm.variableManager.fetchVariable('ZAP_TARGET_NAME');
-	  		camForm.variableManager.fetchVariable('ZAP_TARGET_URL');
+      		camForm.variableManager.fetchVariable('PROCESS_TARGETS');
     	});
     	camForm.on('variables-restored', function() {
-      		$scope.targetName = camForm.variableManager.variableValue('ZAP_TARGET_NAME');
-      		$scope.targetUrl = camForm.variableManager.variableValue('ZAP_TARGET_URL');
+      		$scope.targetList = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
       		console.log("setting variables to scope");
+      		console.log("targets: " + $scope.targetList);
     	});
+    	camForm.on('submit', function () {
+            camForm.variableManager.destroyVariable('PROCESS_TARGETS');
+            camForm.variableManager.createVariable({
+                name: 'PROCESS_TARGETS',
+                type: 'Object',
+                value: JSON.stringify($scope.targetList),
+                valueInfo: {
+                    serializationDataFormat: 'application/json',
+                    objectTypeName: 'java.lang.String'
+                }
+       		});
+        });
   	</script>
 
-	<h2>Please configure the ZAP Scanner Details for "{{ targetName }}"</h2>
-	
-	<div class="row">
+	<div ng-repeat="target in targetList track by $index">
+		<div ng-if="target.attributes.ZAP_SCANNER_CONFIGURATION_TYPE == 'advanced'">
+			<h2>Please configure the ZAP Scanner Details for "{{ target.name }}"</h2>
 
-		<div class="col-xs-12">
-			<h3>ZAP Scanner advanced configuration</h3>
-			
-			<div class="well">Target: <a href="{{ targetUrl }}">{{ targetUrl }}</a> </div>
-			
-			<!-- Scanner Target URL -->
-			<div class="form-group">
-				<label for="inputScannerTargetUrl">Scanner Target URL</label>
-				<div class="controls">
-					<input required class="form-control" 
-							cam-variable-type="String"
-							cam-variable-name="ZAP_SCANNER_TARGET_URL"
-							type="text" 
-							ng-minlength="5"
-							ng-maxlength="100" 
-							name="scannerTargetUrl"
-							id="inputScannerTargetUrl"/>
+			<div class="row">
+
+				<div class="col-xs-12">
+					<h3>ZAP Scanner advanced configuration</h3>
+
+					<div class="well">Target: <a href="{{ target.location }}">{{ target.location }}</a> </div>
+
+					<!-- Scanner Target URL -->
+					<div class="form-group">
+						<label for="inputScannerTargetUrl">Scanner Target URL</label>
+						<div class="controls">
+							<input required class="form-control"
+									ng-model="target.location"
+									type="text"
+									ng-minlength="5"
+									ng-maxlength="100"
+									name="scannerTargetUrl"
+									id="inputScannerTargetUrl"/>
+						</div>
+					</div>
+
+					<!-- includeRegexes -->
+					<div class="form-group">
+						  <label for="inputScannerIncludeRegexes">Include RegExe's</label>
+						  <div class="controls">
+								<textarea class="form-control"
+									  ng-model="target.attributes.ZAP_SCANNER_INCLUDE_REGEX"
+									  rows="5"
+									  name="scannerIncludeRegexes"
+									  id="inputScannerIncludeRegexes"></textarea>
+						  </div>
+					</div>
+
+					<!-- includeRegexes -->
+					<div class="form-group">
+						  <label for="inputScannerExcludeRegexes">Exclude RegExe's</label>
+						  <div class="controls">
+								<textarea class="form-control"
+									  ng-model="target.attributes.ZAP_SCANNER_EXCLUDE_REGEX"
+									  rows="5"
+									  name="scannerExcludeRegexes"
+									  id="inputScannerExcludeRegexes"></textarea>
+						  </div>
+					</div>
+
 				</div>
 			</div>
-			
-			<!-- includeRegexes -->
-		    <div class="form-group">
-			      <label for="inputScannerIncludeRegexes">Include RegExe's</label>
-			      <div class="controls">
-			        	<textarea class="form-control"
-			                  cam-variable-name="ZAP_SCANNER_INCLUDE_REGEX"
-			                  cam-variable-type="String"
-			                  rows="5"
-			                  name="scannerIncludeRegexes"
-							  id="inputScannerIncludeRegexes"></textarea>
-			      </div>
-		    </div>
-			
-			<!-- includeRegexes -->
-		    <div class="form-group">
-			      <label for="inputScannerExcludeRegexes">Exclude RegExe's</label>
-			      <div class="controls">
-			        	<textarea class="form-control"
-			                  cam-variable-name="ZAP_SCANNER_EXCLUDE_REGEX"
-			                  cam-variable-type="String"
-			                  rows="5"
-			                  name="scannerExcludeRegexes"
-							  id="inputScannerExcludeRegexes"></textarea>
-			      </div>
-		    </div>
-			
 		</div>
-	
 	</div>
 </form>

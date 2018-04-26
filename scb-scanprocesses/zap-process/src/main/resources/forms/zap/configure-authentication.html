@@ -1,127 +1,142 @@
 <form role="form" name="configure-spider">
 
-	<script cam-script type="text/form-script">
+    <script cam-script type="text/form-script">
     	camForm.on('form-loaded', function() {
-      		camForm.variableManager.fetchVariable('ZAP_TARGET_NAME');
+      		camForm.variableManager.fetchVariable('PROCESS_TARGETS');
     	});
     	camForm.on('variables-restored', function() {
-      		$scope.targetName = camForm.variableManager.variableValue('ZAP_TARGET_NAME');
+      		$scope.targetList = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
       		console.log("setting variables to scope");
     	});
-  	</script>
+    	camForm.on('submit', function () {
+            camForm.variableManager.destroyVariable('PROCESS_TARGETS');
+            camForm.variableManager.createVariable({
+                name: 'PROCESS_TARGETS',
+                type: 'Object',
+                value: JSON.stringify($scope.targetList),
+                valueInfo: {
+                    serializationDataFormat: 'application/json',
+                    objectTypeName: 'java.lang.String'
+                }
+       		});
+        });
 
-	<h2>Please configure the Authentication Details for "{{ targetName }}"</h2>
+    </script>
 
-	<div class="row">
+    <div ng-repeat="target in targetList track by $index">
+        <div ng-if="target.attributes.ZAP_AUTHENTICATION">
+            <h2>Please configure the Authentication Details for "{{ target.name }}"</h2>
 
-		<div class="col-xs-12">
-			<h3>ZAP Authentication configuration</h3>
+            <div class="row">
 
-			<!-- Login Site -->
-			<div class="form-group">
-				<label for="inputLoginSite">Login Site URL</label>
-				<div class="controls">
-					<input required class="form-control"
-						   id="inputLoginSite"
-						   cam-variable-type="String"
-						   cam-variable-name="ZAP_LOGIN_SITE"
-						   type="text"
-						   ng-required="false"
-						   ng-maxlength="50"
-						   name="loginSite" />
-				</div>
-			</div>
-			
-			<!-- Login User -->
-			<div class="form-group">
-				<label for="inputLoginUser">Login User Name</label>
-				<div class="controls">
-					<input required class="form-control"
-						   id="inputLoginUser"
-						   cam-variable-type="String"
-						   cam-variable-name="ZAP_LOGIN_USER"
-						   type="text"
-						   ng-required="false"
-						   ng-maxlength="50"
-						   name="loginUser" />
-				</div>
-			</div>
+                <div class="col-xs-12">
+                    <h3>ZAP Authentication configuration</h3>
 
-			<!-- Login Username Field Id -->
-			<div class="form-group">
-				<label for="inputUserFieldId">Login User Name Field Id</label>
-				<div class="controls">
-					<input required class="form-control"
-						   id="inputUserFieldId"
-						   cam-variable-type="String"
-						   cam-variable-name="ZAP_USERNAME_FIELD_ID"
-						   type="text"
-						   ng-required="false"
-						   ng-maxlength="20"
-						   name="usernameFieldId" />
-				</div>
-			</div>
+                    <!-- Login Site -->
+                    <div class="form-group">
+                        <label for="inputLoginSite">Login Site URL</label>
+                        <div class="controls">
+                            <input required class="form-control"
+                                   id="inputLoginSite"
+                                   cam-variable-name="target.attributes.ZAP_LOGIN_SITE"
+                                   type="text"
+                                   ng-required="false"
+                                   ng-maxlength="50"
+                                   name="loginSite"/>
+                        </div>
+                    </div>
 
-			<!-- Login Password -->
-			<div class="form-group">
-				<label for="inputLoginPassword">Login User Password</label>
-				<div class="controls">
-					<input required class="form-control"
-						   id="inputLoginPassword"
-						   cam-variable-type="String"
-						   cam-variable-name="ZAP_LOGIN_PW"
-						   type="text"
-						   ng-required="false"
-						   ng-maxlength="20"
-						   name="loginPassword" />
-				</div>
-			</div>
+                    <!-- Login User -->
+                    <div class="form-group">
+                        <label for="inputLoginUser">Login User Name</label>
+                        <div class="controls">
+                            <input required class="form-control"
+                                   id="inputLoginUser"
+                                   cam-variable-name="target.attributes.ZAP_LOGIN_USER"
+                                   type="text"
+                                   ng-required="false"
+                                   ng-maxlength="50"
+                                   name="loginUser"/>
+                        </div>
+                    </div>
 
-			<!-- Login Password Field Id -->
-			<div class="form-group">
-				<label for="inputPasswordFieldId">Login Password Field Id</label>
-				<div class="controls">
-					<input required class="form-control"
-						   id="inputPasswordFieldId"
-						   cam-variable-type="String"
-						   cam-variable-name="ZAP_PW_FIELD_ID"
-						   type="text"
-						   ng-required="false"
-						   ng-maxlength="20"
-						   name="passwordFieldId" />
-				</div>
-			</div>
+                    <!-- Login Username Field Id -->
+                    <div class="form-group">
+                        <label for="inputUserFieldId">Login User Name Field Id</label>
+                        <div class="controls">
+                            <input required class="form-control"
+                                   id="inputUserFieldId"
 
-			<!-- Logged in Indicator -->
-			<div class="form-group">
-				<label for="inputLoggedInIndicator">Logged In Indicator</label>
-				<div class="controls">
-					<input required class="form-control"
-						   id="inputLoggedInIndicator"
-						   cam-variable-type="String"
-						   cam-variable-name="ZAP_LOGGED_IN_INDICATOR"
-						   type="text"
-						   ng-required="false"
-						   ng-maxlength="50"
-						   name="loggedInIndicator" />
-				</div>
-			</div>
+                                   cam-variable-name="target.attributes.ZAP_USERNAME_FIELD_ID"
+                                   type="text"
+                                   ng-required="false"
+                                   ng-maxlength="20"
+                                   name="usernameFieldId"/>
+                        </div>
+                    </div>
 
-			<div class="form-group">
-				<label for="inputCsrfTokenIds">Html IDs of CSRF token elements</label>
-				<div class="controls">
-					<input class="form-control"
-						   id="inputCsrfTokenIds"
-						   cam-variable-type="String"
-						   cam-variable-name="ZAP_CSRF_TOKEN_ID"
-						   type="text"
-						   ng-required="false"
-						   ng-maxlength="100"
-						   name="csrfTokenId" />
-				</div>
-			</div>
+                    <!-- Login Password -->
+                    <div class="form-group">
+                        <label for="inputLoginPassword">Login User Password</label>
+                        <div class="controls">
+                            <input required class="form-control"
+                                   id="inputLoginPassword"
 
-		</div>
-		
-	</div>
+                                   cam-variable-name="target.attributes.ZAP_LOGIN_PW"
+                                   type="text"
+                                   ng-required="false"
+                                   ng-maxlength="20"
+                                   name="loginPassword"/>
+                        </div>
+                    </div>
+
+                    <!-- Login Password Field Id -->
+                    <div class="form-group">
+                        <label for="inputPasswordFieldId">Login Password Field Id</label>
+                        <div class="controls">
+                            <input required class="form-control"
+                                   id="inputPasswordFieldId"
+
+                                   cam-variable-name="target.attributes.ZAP_PW_FIELD_ID"
+                                   type="text"
+                                   ng-required="false"
+                                   ng-maxlength="20"
+                                   name="passwordFieldId"/>
+                        </div>
+                    </div>
+
+                    <!-- Logged in Indicator -->
+                    <div class="form-group">
+                        <label for="inputLoggedInIndicator">Logged In Indicator</label>
+                        <div class="controls">
+                            <input required class="form-control"
+                                   id="inputLoggedInIndicator"
+
+                                   cam-variable-name="target.attributes.ZAP_LOGGED_IN_INDICATOR"
+                                   type="text"
+                                   ng-required="false"
+                                   ng-maxlength="50"
+                                   name="loggedInIndicator"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputCsrfTokenIds">Html IDs of CSRF token elements</label>
+                        <div class="controls">
+                            <input class="form-control"
+                                   id="inputCsrfTokenIds"
+
+                                   cam-variable-name="target.attributes.ZAP_CSRF_TOKEN_ID"
+                                   type="text"
+                                   ng-required="false"
+                                   ng-maxlength="100"
+                                   name="csrfTokenId"/>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
 </form>
