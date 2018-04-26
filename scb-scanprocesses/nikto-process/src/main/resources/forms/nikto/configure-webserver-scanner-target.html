@@ -23,45 +23,20 @@
 
 	<script cam-script type="text/form-script">
         camForm.on('form-loaded', function () {
-            camForm.variableManager.fetchVariable('PROCESS_TARGETS');
+			$scope.target = {'name':'BodgeIT Public Host', 'location': 'bodgeit', 'attributes': { 'NIKTO_PORTS': '80'}};
         });
-
-        camForm.on('variables-fetched', function () {
-            $scope.targets = camForm.variableManager.variableValue('PROCESS_TARGETS');
-            console.log("targets: "+$scope.targets);
-
-            if($scope.targets === undefined || angular.equals([], $scope.targets)) {
-                $scope.targetList = [];
-                $scope.targetList.push({'name':'BodgeIT Public Host', 'location': 'bodgeit', 'attributes': { 'NIKTO_PORTS': '80'}});
-            }
-            $scope.addTarget = function () {
-                $scope.targetList.push({'name':'', 'location': ''});
-            };
-
-            $scope.checkForEnter = function ($event) {
-                if ($event.key === 'Enter') {
-                    $scope.addTarget();
-                    $event.stopPropagation();
-                    $event.preventDefault();
-                }
-            };
-        });
-
 
         camForm.on('submit', function () {
-            camForm.variableManager.destroyVariable('PROCESS_TARGETS');
             camForm.variableManager.createVariable({
                 name: 'PROCESS_TARGETS',
                 type: 'Object',
-                value: JSON.stringify($scope.targetList),
+                value: JSON.stringify([$scope.target]),
                 valueInfo: {
                     serializationDataFormat: 'application/json',
                     objectTypeName: 'java.lang.String'
                 }
             });
         });
-
-
     </script>
 
 	<div class="row">
@@ -82,7 +57,7 @@
 							ng-minlength="2"
 							ng-maxlength="30"
 							name="NIKTO_TARGET_NAME"
-							ng-model="targetList[0].name"/>
+							ng-model="target.name"/>
 				</div>
 			</div>
 
@@ -98,7 +73,7 @@
 						   ng-minlength="5"
 						   ng-maxlength="100"
 						   name="NIKTO_TARGET"
-						   ng-model="targetList[0].location" />
+						   ng-model="target.location" />
 				</div>
 			</div>
 
@@ -110,7 +85,7 @@
 							required
 							class="form-control"
 							id="NIKTO_PORTS"
-							ng-model="targetList[0].attributes.NIKTO_PORTS"
+							ng-model="target.attributes.NIKTO_PORTS"
 							type="text"
 							placeholder="80"
 							ng-minlength="2"
@@ -163,7 +138,7 @@
 							name="NIKTO_CONFIGURATION_TYPE"
 							cam-variable-name="NIKTO_CONFIGURATION_TYPE"
 							cam-variable-type="String" >
-						<option value="default" checked>Default</option>
+						<option value="default" selected>Default</option>
 						<option value="advanced">Advanced</option>
 					</select>
 				</div>
