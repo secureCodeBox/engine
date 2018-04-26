@@ -21,7 +21,7 @@
       <bpmn:incoming>SequenceFlow_AutomatedFinish</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_PortscanFinisched" name="finished&#10;&#10;" sourceRef="ServiceTask_DoWebserverscan" targetRef="ExclusiveGateway_MarkFalsePositive" />
-    <bpmn:userTask id="UserTask_ConfigureAdvancedPortscan" name="Configure advanced portscan" camunda:formKey="embedded:app:forms/nikto/configure-webserver-scanner-target.html">
+    <bpmn:userTask id="UserTask_ConfigureAdvancedPortscan" name="Configure advanced portscan" camunda:formKey="embedded:app:forms/nikto/configure-webserver-scanner-details.html">
       <bpmn:incoming>SequenceFlow_AdvancedConfig</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_ResultRejected</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_PortscanConfigured</bpmn:outgoing>
