@@ -33,6 +33,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.camunda.bpm.engine.ProcessEngine;
+import org.camunda.bpm.engine.externaltask.ExternalTask;
 import org.camunda.bpm.engine.externaltask.ExternalTaskQueryBuilder;
 import org.camunda.bpm.engine.externaltask.LockedExternalTask;
 import org.camunda.bpm.engine.variable.Variables;
@@ -40,7 +41,6 @@ import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -61,7 +61,7 @@ import java.util.UUID;
  * @author Rüdiger Heins - iteratec GmbH
  * @since 16.04.18
  */
-@Api(description = "Scan Jobs Resource", produces = "application/json", consumes = "application/json")
+@Api(description = "Scan Jobs Resource", consumes = "application/json", produces = "application/json")
 @RestController
 @RequestMapping(value = "/box/jobs")
 public class ScanJobResource {
@@ -84,9 +84,9 @@ public class ScanJobResource {
 
             @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
-    @RequestMapping(method = RequestMethod.POST, value = "/lock/{topic}/{scannerId}")
-    public ResponseEntity<ScanConfiguration> lockJob(
-            @ApiParam(defaultValue = "nmap_portscan") @PathVariable String topic,
+    @RequestMapping(method = RequestMethod.POST, value = "/lock/{topic:[a-zA-Z0-9_\\-]*}/{scannerId}")
+    public ResponseEntity<ScanConfiguration> lockJob(@ApiParam(defaultValue = "nmap_portscan",
+            value = "Topic name for the Process, be shure only to use: [A-Za-z0-9-_]") @PathVariable String topic,
             @ApiParam(value = "UUID of the job.", required = true, type = "UUID",
                     defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID scannerId) {
         ExternalTaskQueryBuilder externalTaskQueryBuilder = engine.getExternalTaskService()
@@ -169,27 +169,25 @@ public class ScanJobResource {
             defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID id,
             @RequestBody ScanFailure result) {
 
+        int retriesLeft = 0;
+
         LOG.debug("Recived scan failure {}", result);
 
-        //        Map<String, Object> variables = new HashMap<>();
-        //        variables.put(DefaultFields.PROCESS_SCANNER_ID.name(), result.getScannerId().toString());
-        //        variables.put(DefaultFields.PROCESS_SCANNER_TYPE.name(), result.getScannerType());
-        //        variables.put(DefaultFields.PROCESS_RAW_FINDINGS.name(), result.getRawFindings());
-        //        synchronized (DefaultFields.PROCESS_FINDINGS) {
-        //            try {
-        //                ObjectValue objectValue = Variables.objectValue(objectMapper.writeValueAsString(result.getFindings()))
-        //                        .serializationDataFormat(Variables.SerializationDataFormats.JSON)
-        //                        .create();
-        //                variables.put(DefaultFields.PROCESS_FINDINGS.name(), objectValue);
-        //            } catch (JsonProcessingException e) {
-        //                LOG.error("Can't write field {} to process!", DefaultFields.PROCESS_FINDINGS, e);
-        //                throw new IllegalStateException("Can't write field to process!", e);
-        //            }
-        //        }
-        //
-        //        engine.getExternalTaskService().complete(id.toString(), result.getScannerId().toString(), variables);
+        ExternalTask externalTask = engine.getExternalTaskService()
+                .createExternalTaskQuery()
+                .executionId(id.toString())
+                .withRetriesLeft()
+                .singleResult();
 
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+        if (externalTask != null && externalTask.getRetries() != null && externalTask.getRetries() > 0) {
+            retriesLeft = externalTask.getRetries() - 1;
+        }
+
+        engine.getExternalTaskService()
+                .handleFailure(id.toString(), result.getScannerId().toString(), result.getErrorMessage(),
+                        result.getErrorDetails(), retriesLeft, 1000);
+
+        return ResponseEntity.ok().build();
     }
 
 }

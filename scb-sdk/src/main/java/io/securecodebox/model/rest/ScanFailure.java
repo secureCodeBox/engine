@@ -48,4 +48,28 @@ public class ScanFailure {
             example = "It was not possible to resolve a DNS entry!")
     @JsonProperty
     String errorDetails;
+
+    public UUID getScannerId() {
+        return scannerId;
+    }
+
+    public void setScannerId(UUID scannerId) {
+        this.scannerId = scannerId;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public String getErrorDetails() {
+        return errorDetails;
+    }
+
+    public void setErrorDetails(String errorDetails) {
+        this.errorDetails = errorDetails;
+    }
 }
