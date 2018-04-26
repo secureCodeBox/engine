@@ -25,12 +25,11 @@
         });
 
         camForm.on('variables-fetched', function () {
-            $scope.targets = camForm.variableManager.variableValue('PROCESS_TARGETS');
-            console.log("targets: "+$scope.targets);
+            $scope.targets = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
+            $scope.target = $scope.targets[0];
 
             if($scope.targets === undefined || angular.equals([], $scope.targets)) {
-                $scope.targetList = [];
-                $scope.targetList.push({'name':'BodgeIT Public Host', 'location': 'bodgeit'});
+                $scope.target = {'name':'BodgeIT Public Host', 'location': 'bodgeit', attributes: {}};
             }
         });
 
@@ -39,7 +38,7 @@
             camForm.variableManager.createVariable({
                 name: 'PROCESS_TARGETS',
                 type: 'Object',
-                value: JSON.stringify($scope.targets),
+                value: JSON.stringify([$scope.target]),
                 valueInfo: {
                     serializationDataFormat: 'application/json',
                     objectTypeName: 'java.lang.String'
@@ -48,7 +47,7 @@
         });
   	</script>
 
-    <h2>Please configure the Nikto Scanner Details for "{{ targetList[0].name }}"</h2>
+    <h2>Please configure the Nikto Scanner Details for "{{ target.name }}"</h2>
 
     <div class="row">
 
@@ -60,7 +59,7 @@
                 <label for="nikto_target">Target Host</label>
                 <div class="controls">
                     <input required class="form-control"
-                           ng-model="targetList[0].location"
+                           ng-model="target.location"
                            type="text"
                            ng-minlength="5"
                            ng-maxlength="100"
@@ -76,7 +75,7 @@
                 <label for="nikto_ports">Target Port(s)</label>
                 <div class="controls">
                     <input class="form-control"
-                           ng-model="targetList[0].attributes.NIKTO_PORTS"
+                           ng-model="target.attributes.NIKTO_PORTS"
                            type="text"
                            ng-required="false"
                            ng-maxlength="100"
@@ -94,7 +93,7 @@
                 <div class="controls">
                     <input class="form-control"
 
-                           ng-model="targetList[0].attributes.NIKTO_PARAMETER"
+                           ng-model="target.attributes.NIKTO_PARAMETER"
                            type="text"
                            ng-required="false"
                            ng-maxlength="100"
