@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -45,7 +45,15 @@ public class ProcessVariableHelper {
 
     protected ProcessVariableHelper() {
         // Not instanceable
-        // ObjectMapper gets initialised by SecureCodeBox engine!
+        // ObjectMapper normaly gets initialised by SecureCodeBox engine!
+    }
+
+    private static void initIfNotHappend() {
+        if (objectMapper == null) {
+            LOG.error(
+                    "The object mapper was not init! Falling back to default object mapper by calling new ObjectMapper()!!!!");
+            objectMapper = new ObjectMapper();
+        }
     }
 
     /**
@@ -56,15 +64,16 @@ public class ProcessVariableHelper {
      * @param innerClass the class which should be constructed
      * @param <T>        the return type
      *
-     * @return List of innerClass objects, if not successfull it returns {@link Collections#emptyList()}.
+     * @return List of innerClass objects, if not successfull it returns an empty {@link LinkedList}.
      */
     public static <T> List<T> readListFromValue(String data, Class<T> innerClass) {
         try {
+            initIfNotHappend();
             return objectMapper.readValue(data,
                     objectMapper.getTypeFactory().constructCollectionType(List.class, innerClass));
         } catch (IOException e) {
             LOG.error("Can't extract json data type {} string! Raw Data {}", innerClass.getCanonicalName(), data, e);
-            return Collections.emptyList();
+            return new LinkedList<>();
         }
     }
 
@@ -76,6 +85,7 @@ public class ProcessVariableHelper {
      */
     public static ObjectValue generateObjectValue(Object value) {
         try {
+            initIfNotHappend();
             return Variables.objectValue(objectMapper.writeValueAsString(value))
                     .serializationDataFormat(Variables.SerializationDataFormats.JSON)
                     .create();

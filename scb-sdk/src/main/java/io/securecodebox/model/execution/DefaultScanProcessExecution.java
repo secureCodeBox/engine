@@ -93,7 +93,7 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
             if (!StringUtils.isEmpty(variable)) {
                 return ProcessVariableHelper.readListFromValue((String) variable, innerClass);
             }
-            return Collections.emptyList();
+            return new LinkedList<>();
         }
     }
 
