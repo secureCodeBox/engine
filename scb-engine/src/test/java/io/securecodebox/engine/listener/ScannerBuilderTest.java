@@ -20,6 +20,7 @@
 package io.securecodebox.engine.listener;
 
 import io.securecodebox.constants.DefaultFields;
+import io.securecodebox.engine.execution.ScannerBuilder;
 import io.securecodebox.model.execution.Scanner;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.variable.impl.value.PrimitiveTypeValueImpl;

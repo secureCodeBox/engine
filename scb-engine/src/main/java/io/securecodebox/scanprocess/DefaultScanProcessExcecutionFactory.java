@@ -16,7 +16,6 @@
  *  limitations under the License.
  * /
  */
-
 package io.securecodebox.scanprocess;
 
 import io.securecodebox.model.execution.DefaultScanProcessExecution;

@@ -20,20 +20,15 @@
 package io.securecodebox.model.execution;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.findings.Finding;
+import io.securecodebox.scanprocess.ProcessVariableHelper;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.BooleanValue;
-import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.camunda.bpm.engine.variable.value.StringValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,17 +38,14 @@ import java.util.UUID;
  * @author Rüdiger Heins - iteratec GmbH
  * @since 08.03.18
  */
-public class DefaultScanProcessExecution extends ExecutionAware implements ScanProcessExecution {
+@Configurable
+public class DefaultScanProcessExecution implements ScanProcessExecution {
 
     @JsonIgnore
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultScanProcessExecution.class);
-
-    @JsonIgnore
-    protected ObjectMapper objectMapper;
+    protected DelegateExecution execution;
 
     public DefaultScanProcessExecution(DelegateExecution execution) {
-        super(execution);
-        objectMapper = new ObjectMapper();
+        this.execution = execution;
     }
 
     @Override
@@ -99,12 +91,7 @@ public class DefaultScanProcessExecution extends ExecutionAware implements ScanP
         synchronized (field) {
             Object variable = execution.getVariable(field.name());
             if (!StringUtils.isEmpty(variable)) {
-                try {
-                    return objectMapper.readValue((String) variable,
-                            objectMapper.getTypeFactory().constructCollectionType(List.class, innerClass));
-                } catch (IOException e) {
-                    LOG.error("Can't extract json field {} from process! Raw Data {}", field, variable, e);
-                }
+                return ProcessVariableHelper.readListFromValue((String) variable, innerClass);
             }
             return new LinkedList<>();
         }
@@ -112,15 +99,7 @@ public class DefaultScanProcessExecution extends ExecutionAware implements ScanP
 
     private void writeToProcess(Enum<?> field, List<?> data) {
         synchronized (field) {
-            try {
-                ObjectValue objectValue = Variables.objectValue(objectMapper.writeValueAsString(data))
-                        .serializationDataFormat(Variables.SerializationDataFormats.JSON)
-                        .create();
-                execution.setVariable(field.name(), objectValue);
-            } catch (JsonProcessingException e) {
-                LOG.error("Can't write field {} to process!", field, e);
-                throw new IllegalStateException("Can't write field to process!", e);
-            }
+            execution.setVariable(field.name(), ProcessVariableHelper.generateObjectValue(data));
         }
     }
 

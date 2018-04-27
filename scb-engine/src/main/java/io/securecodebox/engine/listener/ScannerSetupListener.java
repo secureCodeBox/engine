@@ -19,8 +19,10 @@
 
 package io.securecodebox.engine.listener;
 
+import io.securecodebox.engine.execution.ScannerBuilder;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
+import io.securecodebox.model.execution.Scanner;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.slf4j.Logger;
@@ -42,9 +44,10 @@ public class ScannerSetupListener implements ExecutionListener {
 
     @Override
     public void notify(DelegateExecution instance) throws Exception {
-        LOG.info("TestListener called :)");
         ScanProcessExecution scanProcessExecution = factory.get(instance);
-        scanProcessExecution.addScanner(ScannerBuilder.init().buildByExecution(instance));
+        Scanner scanner = ScannerBuilder.init().buildByExecution(instance);
+        scanProcessExecution.addScanner(scanner);
+        LOG.debug("Scanner {} added to scanprocess {}", scanner, scanProcessExecution);
 
     }
 }

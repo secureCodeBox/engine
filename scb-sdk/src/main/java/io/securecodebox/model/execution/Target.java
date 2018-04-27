@@ -19,8 +19,7 @@
 
 package io.securecodebox.model.execution;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,12 +29,14 @@ import java.util.Map;
  * @since 17.04.18
  */
 @JsonPropertyOrder(alphabetic = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Target {
 
     @JsonProperty
     private String name;
     @JsonProperty
     private String location;
+    @JsonProperty
     private Map<String, Object> attributes = new HashMap<>();
 
     public String getName() {
@@ -52,5 +53,22 @@ public class Target {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    public void appendAttribute(String key, Object value) {
+        attributes.put(key, value);
+    }
+
+    @Override
+    public String toString() {
+        return "Target{" +
+                "name='" + name + '\'' +
+                ", location='" + location + '\'' +
+                ", attributes=" + attributes +
+                '}';
     }
 }

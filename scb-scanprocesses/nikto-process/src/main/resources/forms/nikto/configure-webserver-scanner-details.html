@@ -1,0 +1,207 @@
+<!--
+  ~ /*
+  ~ * SecureCodeBox (SCB)
+  ~ * Copyright 2015-2018 iteratec GmbH
+  ~ *
+  ~ * Licensed under the Apache License, Version 2.0 (the "License");
+  ~ * you may not use this file except in compliance with the License.
+  ~ * You may obtain a copy of the License at
+  ~ *
+  ~ * 	http://www.apache.org/licenses/LICENSE-2.0
+  ~ *
+  ~ * Unless required by applicable law or agreed to in writing, software
+  ~ * distributed under the License is distributed on an "AS IS" BASIS,
+  ~ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ * See the License for the specific language governing permissions and
+  ~ * limitations under the License.
+  ~ */
+  -->
+
+<form role="form" name="configure-nikto-scanner">
+
+    <script cam-script type="text/form-script">
+     camForm.on('form-loaded', function () {
+            camForm.variableManager.fetchVariable('PROCESS_TARGETS');
+        });
+
+        camForm.on('variables-fetched', function () {
+            $scope.targets = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
+            $scope.target = $scope.targets[0];
+
+            if($scope.targets === undefined || angular.equals([], $scope.targets)) {
+                $scope.target = {'name':'BodgeIT Public Host', 'location': 'bodgeit', attributes: {}};
+            }
+        });
+
+        camForm.on('submit', function () {
+            camForm.variableManager.destroyVariable('PROCESS_TARGETS');
+            camForm.variableManager.createVariable({
+                name: 'PROCESS_TARGETS',
+                type: 'Object',
+                value: JSON.stringify([$scope.target]),
+                valueInfo: {
+                    serializationDataFormat: 'application/json',
+                    objectTypeName: 'java.lang.String'
+                }
+            });
+        });
+  	</script>
+
+    <h2>Please configure the Nikto Scanner Details for "{{ target.name }}"</h2>
+
+    <div class="row">
+
+        <div class="col-xs-12">
+            <h3>Nikto Scanner advanced configuration</h3>
+
+            <!-- nikto Scanner Target -->
+            <div class="form-group">
+                <label for="nikto_target">Target Host</label>
+                <div class="controls">
+                    <input required class="form-control"
+                           ng-model="target.location"
+                           type="text"
+                           ng-minlength="5"
+                           ng-maxlength="100"
+                           name="nikto_target"
+                           id="nikto_target"
+                           disabled
+                    />
+                </div>
+            </div>
+
+            <!-- nikto Scanner Ports -->
+            <div class="form-group">
+                <label for="nikto_ports">Target Port(s)</label>
+                <div class="controls">
+                    <input class="form-control"
+                           ng-model="target.attributes.NIKTO_PORTS"
+                           type="text"
+                           ng-required="false"
+                           ng-maxlength="100"
+                           ng-pattern="/(^([0-9]{0,5})$)|(^([0-9]{1,5})\-([0-9]{1,5})$)|^([0-9]{1,5})(\,([0-9]{1,5}))*$/"
+                           name="nikto_ports"
+                           id="nikto_ports"
+                           disabled
+                    />
+                </div>
+            </div>
+
+            <!-- nikto Scanner Parameter -->
+            <div class="form-group">
+                <label for="nikto_parameter">Advanced Nikto Parameter</label>
+                <div class="controls">
+                    <input class="form-control"
+
+                           ng-model="target.attributes.NIKTO_PARAMETER"
+                           type="text"
+                           ng-required="false"
+                           ng-maxlength="100"
+                           name="nikto_parameter"
+                           id="nikto_parameter"
+                    />
+                </div>
+            </div>
+
+			<h3>Nikto Parameter Description</h3>
+<pre>
+  Options:
+       -ask+               Whether to ask about submitting updates
+                               yes   Ask about each (default)
+                               no    Don't ask, don't send
+                               auto  Don't ask, just send
+       -Cgidirs+           Scan these CGI dirs: "none", "all", or values like "/cgi/ /cgi-a/"
+       -config+            Use this config file
+       -Display+           Turn on/off display outputs:
+                               1     Show redirects
+                               2     Show cookies received
+                               3     Show all 200/OK responses
+                               4     Show URLs which require authentication
+                               D     Debug output
+                               E     Display all HTTP errors
+                               P     Print progress to STDOUT
+                               S     Scrub output of IPs and hostnames
+                               V     Verbose output
+       -dbcheck           Check database and other key files for syntax errors
+       -evasion+          Encoding technique:
+                               1     Random URI encoding (non-UTF8)
+                               2     Directory self-reference (/./)
+                               3     Premature URL ending
+                               4     Prepend long random string
+                               5     Fake parameter
+                               6     TAB as request spacer
+                               7     Change the case of the URL
+                               8     Use Windows directory separator (\)
+                               A     Use a carriage return (0x0d) as a request spacer
+                               B     Use binary value 0x0b as a request spacer
+        -Format+           Save file (-o) format:
+                               csv   Comma-separated-value
+                               json  JSON Format
+                               htm   HTML Format
+                               nbe   Nessus NBE format
+                               sql   Generic SQL (see docs for schema)
+                               txt   Plain text
+                               xml   XML Format
+                               (if not specified the format will be taken from the file extension passed to -output)
+       -Help              Extended help information
+       -host+             Target host
+       -404code           Ignore these HTTP codes as negative responses (always). Format is "302,301".
+       -404string         Ignore this string in response body content as negative response (always). Can be a regular expression.
+       -id+               Host authentication to use, format is id:pass or id:pass:realm
+       -key+              Client certificate key file
+       -list-plugins      List all available plugins, perform no testing
+       -maxtime+          Maximum testing time per host (e.g., 1h, 60m, 3600s)
+       -mutate+           Guess additional file names:
+                               1     Test all files with all root directories
+                               2     Guess for password file names
+                               3     Enumerate user names via Apache (/~user type requests)
+                               4     Enumerate user names via cgiwrap (/cgi-bin/cgiwrap/~user type requests)
+                               5     Attempt to brute force sub-domain names, assume that the host name is the parent domain
+                               6     Attempt to guess directory names from the supplied dictionary file
+       -mutate-options    Provide information for mutates
+       -nointeractive     Disables interactive features
+       -nolookup          Disables DNS lookups
+       -nossl             Disables the use of SSL
+       -no404             Disables nikto attempting to guess a 404 page
+       -Option            Over-ride an option in nikto.conf, can be issued multiple times
+       -output+           Write output to this file ('.' for auto-name)
+       -Pause+            Pause between tests (seconds, integer or float)
+       -Plugins+          List of plugins to run (default: ALL)
+       -port+             Port to use (default 80)
+       -RSAcert+          Client certificate file
+       -root+             Prepend root value to all requests, format is /directory
+       -Save              Save positive responses to this directory ('.' for auto-name)
+       -ssl               Force ssl mode on port
+       -Tuning+           Scan tuning:
+                               1     Interesting File / Seen in logs
+                               2     Misconfiguration / Default File
+                               3     Information Disclosure
+                               4     Injection (XSS/Script/HTML)
+                               5     Remote File Retrieval - Inside Web Root
+                               6     Denial of Service
+                               7     Remote File Retrieval - Server Wide
+                               8     Command Execution / Remote Shell
+                               9     SQL Injection
+                               0     File Upload
+                               a     Authentication Bypass
+                               b     Software Identification
+                               c     Remote Source Inclusion
+                               d     WebService
+                               e     Administrative Console
+                               x     Reverse Tuning Options (i.e., include all except specified)
+       -timeout+          Timeout for requests (default 10 seconds)
+       -Userdbs           Load only user databases, not the standard databases
+                               all   Disable standard dbs and load only user dbs
+                               tests Disable only db_tests and load udb_tests
+       -useragent         Over-rides the default useragent
+       -until             Run until the specified time or duration
+       -update            Update databases and plugins from CIRT.net
+       -useproxy          Use the proxy defined in nikto.conf, or argument http://server:port
+       -Version           Print plugin and database versions
+       -vhost+            Virtual host (for Host header)
+   		+ requires a value
+</pre>
+        </div>
+
+    </div>
+</form>

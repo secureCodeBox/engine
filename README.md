@@ -1,5 +1,4 @@
-  
- ![Build Status](https://travis-ci.com/secureCodeBox/engine.svg?token=N5PJUt4SAUxNTYFZNtLj&branch=develop)
+  ![Build Status](https://travis-ci.com/secureCodeBox/engine.svg?token=N5PJUt4SAUxNTYFZNtLj&branch=develop)
  
  # Guidelines
  ## Coding Guidelines
