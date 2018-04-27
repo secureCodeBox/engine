@@ -24,6 +24,9 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 /**
+ * This class adds additional resources to the spring application.
+ * For example forms provided in the classpath of every process instance.
+ *
  * @author Rüdiger Heins - iteratec GmbH
  * @since 02.03.18
  */

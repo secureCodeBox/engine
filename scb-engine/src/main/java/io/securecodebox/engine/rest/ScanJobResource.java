@@ -19,7 +19,6 @@
 
 package io.securecodebox.engine.rest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterables;
 import io.securecodebox.constants.DefaultFields;
@@ -27,6 +26,7 @@ import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.rest.ScanConfiguration;
 import io.securecodebox.model.rest.ScanFailure;
 import io.securecodebox.model.rest.ScanResult;
+import io.securecodebox.scanprocess.ProcessVariableHelper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -36,8 +36,6 @@ import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.externaltask.ExternalTask;
 import org.camunda.bpm.engine.externaltask.ExternalTaskQueryBuilder;
 import org.camunda.bpm.engine.externaltask.LockedExternalTask;
-import org.camunda.bpm.engine.variable.Variables;
-import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,25 +103,6 @@ public class ScanJobResource {
         }
     }
 
-    private <T> List<T> getVariableListFromJsonField(LockedExternalTask result, Enum<?> field, Class<T> innerClass) {
-        synchronized (field) {
-            Object processFindings = engine.getRuntimeService().getVariable(result.getExecutionId(), field.name());
-            ;
-            if (!(processFindings instanceof String)) {
-                LOG.error("String field {} is not instance of string. Value {}", field, processFindings);
-                throw new IllegalStateException("String field is not instance of string!");
-            }
-
-            try {
-                return objectMapper.readValue((String) processFindings,
-                        objectMapper.getTypeFactory().constructCollectionType(List.class, innerClass));
-            } catch (IOException e) {
-                LOG.error("Can't extract json field {} from process! Raw Data {}", field.name(), processFindings, e);
-                return new LinkedList<>();
-            }
-        }
-    }
-
     @ApiOperation(value = "Send a scan result for the previously locked job.")
     @ApiResponses(
             value = { @ApiResponse(code = 200, message = "Successful delivery of the result.", response = void.class),
@@ -141,20 +120,12 @@ public class ScanJobResource {
         variables.put(DefaultFields.PROCESS_SCANNER_ID.name(), result.getScannerId().toString());
         variables.put(DefaultFields.PROCESS_SCANNER_TYPE.name(), result.getScannerType());
         synchronized (DefaultFields.PROCESS_FINDINGS) {
-            try {
-                ObjectValue findings = Variables.objectValue(objectMapper.writeValueAsString(result.getFindings()))
-                        .serializationDataFormat(Variables.SerializationDataFormats.JSON)
-                        .create();
-                variables.put(DefaultFields.PROCESS_FINDINGS.name(), findings);
-
-                ObjectValue rawFindings = Variables.objectValue(objectMapper.writeValueAsString(result.getRawFindings()))
-                        .serializationDataFormat(Variables.SerializationDataFormats.JSON)
-                        .create();
-                variables.put(DefaultFields.PROCESS_RAW_FINDINGS.name(), rawFindings);
-            } catch (JsonProcessingException e) {
-                LOG.error("Can't write field to process: {}",  e);
-                throw new IllegalStateException("Can't write field to process!", e);
-            }
+            variables.put(DefaultFields.PROCESS_FINDINGS.name(),
+                    ProcessVariableHelper.generateObjectValue(result.getFindings()));
+        }
+        synchronized (DefaultFields.PROCESS_RAW_FINDINGS) {
+            variables.put(DefaultFields.PROCESS_RAW_FINDINGS.name(),
+                    ProcessVariableHelper.generateObjectValue(result.getRawFindings()));
         }
 
         engine.getExternalTaskService().complete(id.toString(), result.getScannerId().toString(), variables);
@@ -192,6 +163,18 @@ public class ScanJobResource {
                         result.getErrorDetails(), retriesLeft, 1000);
 
         return ResponseEntity.ok().build();
+    }
+
+    private <T> List<T> getVariableListFromJsonField(LockedExternalTask result, Enum<?> field, Class<T> innerClass) {
+        synchronized (field) {
+            Object processFindings = engine.getRuntimeService().getVariable(result.getExecutionId(), field.name());
+
+            if (!(processFindings instanceof String)) {
+                LOG.error("String field {} is not instance of string. Value {}", field, processFindings);
+                throw new IllegalStateException("String field is not instance of string!");
+            }
+            return ProcessVariableHelper.readListFromValue((String) processFindings, innerClass);
+        }
     }
 
 }

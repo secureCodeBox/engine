@@ -21,6 +21,8 @@ package io.securecodebox.engine.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.execution.Target;
 import io.swagger.annotations.Api;
@@ -29,6 +31,8 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
+import org.camunda.bpm.engine.variable.Variables;
+import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +64,9 @@ public class ScanProcessResource {
 
     @Autowired
     ProcessEngine engine;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @ApiOperation(value = "Creates a new scan process. (API STUB NOT IMPLEMENTED!)")
     @ApiResponses(
