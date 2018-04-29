@@ -25,6 +25,7 @@ import io.securecodebox.model.findings.Finding;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.validation.constraints.Pattern;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -45,6 +46,7 @@ public class ScanResult {
     @ApiModelProperty(value = "The type of the external scanner, which provides this result.", example = "nmap",
             required = true)
     @JsonProperty(required = true)
+    @Pattern(regexp = "^[\\w-]*$")
     String scannerType;
 
     @ApiModelProperty(value = "The prepared findings of an external scan result.")

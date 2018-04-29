@@ -19,8 +19,12 @@
 
 package io.securecodebox.model.execution;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,9 +36,13 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Target {
 
+    @Size(min=1, max = 4000)
+    @Pattern(regexp = "^[\\w-]*$")
     @JsonProperty
     private String name;
+    @Size(min=1, max = 4000)
     @JsonProperty
+    @Pattern(regexp = "^[^<>\\\\\\[\\]()%$]*$")
     private String location;
     @JsonProperty
     private Map<String, Object> attributes = new HashMap<>();

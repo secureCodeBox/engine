@@ -24,6 +24,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,11 +49,16 @@ public class Finding {
     /**
      * Id of the finding. Must be unique for every finding.
      */
+    @NotNull
     @JsonProperty("id")
     private UUID id;
+    @Max(4000)
+    @Pattern(regexp = "^[^<>\\\\/\\[\\]()%$]*$")
     private String name;
+    @Pattern(regexp = "^[^<>\\\\/\\[\\]()%$]*$")
     private String description;
 
+    @Pattern(regexp = "^[^<>\\\\/\\[\\]()%$]*$")
     private String category;
     @JsonProperty(value = "osi_layer", required = false)
     private OsiLayer osiLayer;

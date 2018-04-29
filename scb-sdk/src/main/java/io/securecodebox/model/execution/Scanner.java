@@ -26,6 +26,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.securecodebox.model.findings.Finding;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -39,9 +42,12 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Scanner {
 
+    @NotNull
     @JsonProperty("id")
     protected UUID id;
 
+    @Size(max = 3999)
+    @Pattern(regexp = "^[\\w-]*$")
     @JsonProperty("type")
     protected String type;
 
