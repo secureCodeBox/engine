@@ -9,16 +9,7 @@
             console.log("targets: "+$scope.targetList + ", " + $scope.targetList.length);
         });
 
-    	// TODO Workaround: Ignoring unspecified file not possible yet (https://app.camunda.com/jira/browse/CAM-5292)
         camForm.on('submit', function () {
-            camForm.fields = camForm.fields.filter(function (item) {
-                var variable = camForm.variableManager.variable(item.variableName);
-                if (variable.type === 'File' && variable.value === null) {
-                    camForm.variableManager.destroyVariable(item.variableName);
-                    return false;
-                }
-                return true;
-            });
             camForm.variableManager.destroyVariable('PROCESS_TARGETS');
             camForm.variableManager.createVariable({
                 name: 'PROCESS_TARGETS',
@@ -59,16 +50,16 @@
                         </div>
                     </div>
 
-                    <!-- API specification file -->
+                    <!-- API specification url -->
                     <div class="form-group">
-                        <label for="inputSpiderApiSpecFile">OpenAPI Specification File (optional)</label>
+                        <label for="inputSpiderApiSpecUrl">OpenAPI Specification URL (optional)</label>
                         <div class="controls">
                             <input class="form-control"
-                                   id="inputSpiderApiSpecFile"
-                                   cam-variable-type="File"
-                                   ng-model="t.attributes.ZAP_SPIDER_API_SPEC_FILE"
-                                   type="file"
-                                   name="spiderApiSpecFile"/>
+                                   id="inputSpiderApiSpecUrl"
+                                   cam-variable-type="String"
+                                   ng-model="target.attributes.ZAP_SPIDER_API_SPEC_URL"
+                                   type="url"
+                                   name="spiderApiSpecUrl"/>
                         </div>
                     </div>
 
@@ -79,7 +70,7 @@
                             <input required class="form-control"
                                    id="inputSpiderMaxDepth"
                                    cam-variable-type="Integer"
-                                   ng-model="t.attributes.ZAP_SPIDER_MAX_DEPTH"
+                                   ng-model="target.attributes.ZAP_SPIDER_MAX_DEPTH"
                                    type="number"
                                    min="1"
                                    max="10"
@@ -96,7 +87,7 @@
                             <div class="controls">
                                     <textarea class="form-control"
                                               id="inputSpiderIncludeRegexes"
-                                              ng-model="t.attributes.ZAP_SPIDER_INCLUDE_REGEX"
+                                              ng-model="target.attributes.ZAP_SPIDER_INCLUDE_REGEX"
                                               rows="5"
                                               name="spiderIncludeRegexes"></textarea>
                             </div>
@@ -108,7 +99,7 @@
                             <div class="controls">
                                     <textarea class="form-control"
                                               id="inputSpiderExcludeRegexes"
-                                              ng-model="t.attributes.ZAP_SPIDER_EXCLUDE_REGEX"
+                                              ng-model="target.attributes.ZAP_SPIDER_EXCLUDE_REGEX"
                                               ng-required="false"
                                               rows="5"
                                               name="spiderExcludeRegexes"></textarea>
@@ -120,7 +111,7 @@
                             <label for="inputSpiderExcludeDuplicates">Exclude Duplicates</label>
                             <div class="controls">
                                     <textarea class="form-control" id="inputSpiderExcludeDuplicates"
-                                              ng-model="t.attributes.ZAP_SPIDER_EXCLUDE_DUPLICATES"
+                                              ng-model="target.attributes.ZAP_SPIDER_EXCLUDE_DUPLICATES"
                                               rows="5"
                                               name="spiderExcludeDuplicates"></textarea>
                             </div>

@@ -74,7 +74,7 @@
 
 			var scannerAdvanced = false
        		for(var item in $scope.targetList){
-       			scannerAdvanced = spiderAdvanced || ($scope.targetList[item]["attributes"]["ZAP_SCANNER_CONFIGURATION_TYPE"] == 'advanced')
+       			scannerAdvanced = scannerAdvanced || ($scope.targetList[item]["attributes"]["ZAP_SCANNER_CONFIGURATION_TYPE"] == 'advanced')
 			}
 			var scannerConfig = 'default'
 			if(scannerAdvanced){
@@ -151,15 +151,6 @@
 								   class="form-check-input" />
 							<label for="authentication" style="white-space:nowrap">Scan with authentication (User Credentails)</label>
 						</div>
-
-						<div class="form-check">
-							<input class="form-check-input"
-								   id="inputFalsePositiveFilter"
-								   ng-model="target.attributes.PROCESS_MARK_FALSE_POSITIVE"
-								   type="checkbox"
-								   name="falsePositiveFilter"/>
-							<label for="inputFalsePositiveFilter" style="white-space:nowrap">Enable False Positive Filtering</label>
-						</div>
 					</div>
 					<!-- spider configuration -->
 					<div class="form-group">
@@ -193,6 +184,18 @@
 					<code class="hidden2">{{ targetList }}</code>
 				</div>
 				<button class="btn btn-primary" ng-click="addTarget()">Add Host</button>
+			</div>
+
+			<div class="form-group">
+				<div class="controls">
+					<label for="inputFalsePositiveFilter">Enable False/Positive Filtering?</label>
+					<input class="form-control"
+						   id="inputFalsePositiveFilter"
+						   cam-variable-type="Boolean"
+						   cam-variable-name="PROCESS_MARK_FALSE_POSITIVE"
+						   type="checkbox"
+						   name="falsePositiveFilter"/>
+				</div>
 			</div>
 
 			<!-- Context (Project/Team/System...) -->
