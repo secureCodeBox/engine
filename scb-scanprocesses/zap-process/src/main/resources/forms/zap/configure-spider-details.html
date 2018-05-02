@@ -1,9 +1,45 @@
 <form role="form" name="configure-spider">
 
     <script cam-script type="text/form-script">
-    	camForm.on('form-loaded', function () {
-            camForm.variableManager.fetchVariable('PROCESS_TARGETS');
-        });
+        inject(['$http', 'Uri', function($http, Uri){
+            camForm.on('form-loaded', function () {
+                camForm.variableManager.fetchVariable('PROCESS_TARGETS');
+                $scope.targetFiles = [];
+                $scope.handleFileSelect = function(evt){
+
+                    console.log("handleFileSelect: " + evt);
+                    var file = evt.target.files[0];
+                    var inputId = evt.target.id;
+
+                    if (file != null){
+
+                        var filename = "ZAP_SPIDER_API_SPEC_FILE_" + escape(file.name);
+
+
+                        //Get the process instance of the engine
+                        $http.get(Uri.appUri('engine://engine/:engine/task/' + camForm.taskId)).success(function(result){
+
+                            var variablePath = "process-instance/" + result.processInstanceId + "/variables/" + filename + "/data";
+                            var fileUrl = "http://engine:8080/engine-rest/" + variablePath;
+                            var splitInputName = inputId.split("-");
+                            var index = splitInputName[1];
+
+                            //Set the Url attribute for the file in the corresponding target
+                            $scope.targetList[index]["attributes"]["ZAP_SPIDER_API_SPEC_URL"] = fileUrl;
+
+                            var formdata = new FormData();
+                            formdata.append('data', file);
+
+                            //Create a new variable in the engine with the uploaded file
+                            $http.post(Uri.appUri('engine://engine/:engine/' + variablePath), formdata, {
+                                transformRequest: angular.identity,
+                                headers: {'Content-Type': undefined }
+                            });
+                        });
+                    }
+                }
+            });
+        }]);
         camForm.on('variables-fetched', function () {
             $scope.targetList = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
             console.log("targets: "+$scope.targetList + ", " + $scope.targetList.length);
@@ -42,10 +78,21 @@
                         <div class="controls">
                             <input class="form-control"
                                    id="inputSpiderApiSpecUrl"
-                                   cam-variable-type="String"
                                    ng-model="target.attributes.ZAP_SPIDER_API_SPEC_URL"
                                    type="url"
                                    name="spiderApiSpecUrl"/>
+                        </div>
+                    </div>
+
+                    <!-- API specification file -->
+                    <div class="form-group">
+                        <label for="inputSpiderApiSpecFile-{{$index}}">OpenAPI Specification File (optional)</label>
+                        <div class="controls">
+                            <input class="form-control"
+                                   id="inputSpiderApiSpecFile-{{$index}}"
+                                   type="file"
+                                   name="spiderApiSpecFile"
+                                   onchange="angular.element(this).scope().handleFileSelect(event)"/>
                         </div>
                     </div>
 
@@ -55,7 +102,6 @@
                         <div class="controls">
                             <input required class="form-control"
                                    id="inputSpiderMaxDepth"
-                                   cam-variable-type="Integer"
                                    ng-model="target.attributes.ZAP_SPIDER_MAX_DEPTH"
                                    type="number"
                                    min="1"
