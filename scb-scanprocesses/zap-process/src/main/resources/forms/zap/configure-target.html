@@ -13,7 +13,7 @@
             if($scope.targets === undefined || angular.equals([], $scope.targets)) {
                 $scope.targetList = [];
                 $scope.targetList.push({'name':'BodgeIT Public Host', 'location': 'http://bodgeit:8080/bodgeit',
-                'attributes': {'ZAP_BASE_URL':'http://bodgeit:8080/bodgeit', 'ZAP_AUTHENTICATION':false, 'PROCESS_MARK_FALSE_POSITIVE':false}});
+                'attributes': {'ZAP_BASE_URL':'http://bodgeit:8080/bodgeit'}});
             }
             $scope.addTarget = function () {
                 $scope.targetList.push({'name':'', 'location': ''});
@@ -42,7 +42,12 @@
 
        		var authenticationOnAnyTarget = false
        		for(var item in $scope.targetList){
-       			authenticationOnAnyTarget = authenticationOnAnyTarget || $scope.targetList[item]["attributes"]["ZAP_AUTHENTICATION"]
+
+       			var auth = $scope.targetList[item]["attributes"]["ZAP_AUTHENTICATION"];
+       			if(auth == null){
+       				auth = false;
+				}
+       			authenticationOnAnyTarget = authenticationOnAnyTarget || auth;
 			}
 			if (camForm.variableManager.variable('ZAP_AUTHENTICATION') != undefined) {
 				camForm.variableManager.destroyVariable('ZAP_AUTHENTICATION');
