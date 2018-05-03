@@ -58,21 +58,21 @@ public interface ScanProcessExecution {
 
     /**
      * Returns the Findings directly attached to the process. Mostly it's the result of the last step.
-     * If the process has multiple scanners you might wan't to have a look into getScanners().
+     * If the process has multiple scanners you might want to have a look into getScanners().
      */
     @JsonProperty("findings")
     public abstract List<Finding> getFindings();
 
     /**
      * Clears the Findings currently attached to this process findings.
-     * If the process has multiple scanners you might wan't to have a look into getScanners().
+     * If the process has multiple scanners you might want to have a look into getScanners().
      */
     @JsonIgnore
     public abstract void clearFindings();
 
     /**
      * Attaches Findings directly to the process instance.
-     * If the process has multiple scanners you might wan't to have a look into getScanners().
+     * If the process has multiple scanners you might want to have a look into getScanners().
      *
      * @param finding
      */

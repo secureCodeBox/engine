@@ -53,7 +53,7 @@ public class ScanResult {
     @JsonProperty
     List<Finding> findings;
 
-    @ApiModelProperty(value = "The raw findings providet by the scanner. This can be nearly everything.")
+    @ApiModelProperty(value = "The raw findings provided by the scanner. This can be nearly everything.")
     @JsonProperty
     String rawFindings;
 

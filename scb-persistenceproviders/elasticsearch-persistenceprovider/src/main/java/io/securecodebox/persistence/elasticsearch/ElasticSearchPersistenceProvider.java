@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.model.Report;
+import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.persistence.PersistenceProvider;
 import org.apache.http.HttpHost;
@@ -54,9 +55,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Date;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 @ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "elasticsearch")
@@ -202,13 +201,12 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
                 String dateTimeFormatToPersist = "yyyy-MM-dd'T'HH:mm:ss";
 
-                //Persisting the Report and the Findings
-                String jsonReport = objectMapper.writeValueAsString(report);
-
-                Map<String, Object> reportAsMap = objectMapper.readValue(jsonReport, new TypeReference<Map<String, Object>>(){});
+                Map<String, Object> reportAsMap = serializeAndRemove(report, "findings", "execution");
+                Map<String, Object> execution = serializeAndRemove(report.getExecution(), "findings", "scanners");
+                execution.put("scanners", serializeAndRemoveList(report.getExecution().getScanners(), "findings", "rawFindings"));
                 reportAsMap.put("type", TYPE_REPORT);
+                reportAsMap.put("execution", execution);
                 reportAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
-                reportAsMap.remove("findings");
 
                 LOG.info("Timestamp: " + new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
 
@@ -217,11 +215,10 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
                 BulkRequest bulkRequest = new BulkRequest();
                 for(Finding f : report.getFindings()){
-                    String jsonFinding = objectMapper.writeValueAsString(f);
 
-                    Map<String, Object> findingAsMap = objectMapper.readValue(jsonFinding, new TypeReference<Map<String, Object>>(){});
+                    Map<String, Object> findingAsMap = serializeAndRemove(f);
                     findingAsMap.put("type", TYPE_FINDING);
-                    findingAsMap.put("execution", report.getExecution());
+                    findingAsMap.put("execution", execution);
                     findingAsMap.put("report_id", report.getId());
                     findingAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
 
@@ -315,5 +312,32 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
             LOG.error(ioe.getMessage());
             return null;
         }
+    }
+
+    private Map<String, Object> serializeAndRemove(Object object, String...toRemove){
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            String jsonString = objectMapper.writeValueAsString(object);
+            Map<String, Object> result =  objectMapper.readValue(jsonString,new TypeReference<Map<String, Object>>(){});
+            for(String s : toRemove){
+                result.remove(s);
+            }
+            return result;
+        }
+        catch (JsonProcessingException e){
+            return new HashMap<>();
+        }
+        catch (IOException e){
+            return new HashMap<>();
+        }
+    }
+
+    private List<Map<String, Object>> serializeAndRemoveList(List<?> objects, String...toRemove){
+        List<Map<String, Object>> result = new LinkedList<>();
+        for(Object o : objects){
+            result.add(serializeAndRemove(o, toRemove));
+        }
+        return result;
     }
 }
