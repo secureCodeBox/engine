@@ -30,23 +30,20 @@
                     }
                 }
 
-                $scope.handleRemoveApiSpecFile = function($evt){
-                    var inputId = $evt.target.id;
+                $scope.handleRemoveApiSpecFile = function(evt){
+                    var inputId = evt.target.id;
                     var splitInputName = inputId.split("-");
                     var index = splitInputName[1];
-
-                    console.log("Remove API File from target: " + index);
 
                     delete $scope.targetList[index]["attributes"]["ZAP_SPIDER_API_SPEC_URL"];
                     delete $scope.targetList[index]["attributes"]["ZAP_SPIDER_API_SPEC_FILE"];
 
-                    document.getElementById(inputId).value = "";
+                    document.getElementById('inputSpiderApiSpecFile-' + index).value = "";
                 }
             });
 
             camForm.on('variables-fetched', function () {
                 $scope.targetList = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
-                console.log("targets: "+$scope.targetList + ", " + $scope.targetList.length);
             });
 
             camForm.on('submit', function () {
@@ -54,8 +51,6 @@
                 for (var index in $scope.targetList){
 
                     var target = $scope.targetList[index];
-                    console.log(target);
-
                     var variablePath = target["attributes"]["ZAP_SPIDER_API_SPEC_URL"];
 
                     if(variablePath != null){
@@ -120,7 +115,6 @@
                                 <span class="glyphicon glyphicon-trash"></span>
                             </button>
                         </div>
-                        <code class="hidden2">{{ targetList }}</code>
                     </div>
 
                     <!-- Spider max depth -->
@@ -164,20 +158,7 @@
                                               name="spiderExcludeRegexes"></textarea>
                             </div>
                         </div>
-
-                        <!-- excludeDuplicates -->
-                        <div class="form-group">
-                            <label for="inputSpiderExcludeDuplicates">Exclude Duplicates</label>
-                            <div class="controls">
-                                    <textarea class="form-control" id="inputSpiderExcludeDuplicates"
-                                              ng-model="target.attributes.ZAP_SPIDER_EXCLUDE_DUPLICATES"
-                                              rows="5"
-                                              name="spiderExcludeDuplicates"></textarea>
-                            </div>
-                        </div>
-
                     </div>
-
                 </div>
             </div>
         </div>
