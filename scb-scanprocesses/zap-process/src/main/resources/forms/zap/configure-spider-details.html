@@ -30,10 +30,9 @@
                     }
                 }
 
-                $scope.handleRemoveApiSpecFile = function(evt){
-                    var inputId = evt.target.id;
-                    var splitInputName = inputId.split("-");
-                    var index = splitInputName[1];
+                $scope.handleRemoveApiSpecFile = function(index){
+
+                    console.log("Remove File from Target" + index + ": " + $scope.targetList[index]);
 
                     delete $scope.targetList[index]["attributes"]["ZAP_SPIDER_API_SPEC_URL"];
                     delete $scope.targetList[index]["attributes"]["ZAP_SPIDER_API_SPEC_FILE"];
@@ -48,9 +47,13 @@
 
             camForm.on('submit', function () {
 
+                console.log("Submit!");
+
                 for (var index in $scope.targetList){
 
                     var target = $scope.targetList[index];
+
+                    console.log(target);
                     var variablePath = target["attributes"]["ZAP_SPIDER_API_SPEC_URL"];
 
                     if(variablePath != null){
@@ -109,7 +112,7 @@
                         <div class="col-xs-1">
                             <button id="removeApiFile-{{$index}}"
                                     class="btn btn-danger btn-lg"
-                                    ng-click="handleRemoveApiSpecFile($event)"
+                                    ng-click="handleRemoveApiSpecFile($index)"
                                     ng-disabled="target.attributes.ZAP_SPIDER_API_SPEC_URL == null"
                                     style="position: absolute; right: 15px; top: 0;">
                                 <span class="glyphicon glyphicon-trash"></span>
