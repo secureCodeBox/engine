@@ -25,37 +25,65 @@
 
                             //Set the Url attribute for the file in the corresponding target
                             $scope.targetList[index]["attributes"]["ZAP_SPIDER_API_SPEC_URL"] = variablePath;
-
-                            var formdata = new FormData();
-                            formdata.append('data', file);
-
-                            //Create a new variable in the engine with the uploaded file
-                            $http.post(Uri.appUri('engine://engine/:engine/' + variablePath), formdata, {
-                                transformRequest: angular.identity,
-                                headers: {'Content-Type': undefined }
-                            });
+                            $scope.targetList[index]["attributes"]["ZAP_SPIDER_API_SPEC_FILE"] = file;
                         });
                     }
                 }
+
+                $scope.handleRemoveApiSpecFile = function($evt){
+                    var inputId = $evt.target.id;
+                    var splitInputName = inputId.split("-");
+                    var index = splitInputName[1];
+
+                    console.log("Remove API File from target: " + index);
+
+                    delete $scope.targetList[index]["attributes"]["ZAP_SPIDER_API_SPEC_URL"];
+                    delete $scope.targetList[index]["attributes"]["ZAP_SPIDER_API_SPEC_FILE"];
+
+                    document.getElementById(inputId).value = "";
+                }
+            });
+
+            camForm.on('variables-fetched', function () {
+                $scope.targetList = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
+                console.log("targets: "+$scope.targetList + ", " + $scope.targetList.length);
+            });
+
+            camForm.on('submit', function () {
+
+                for (var index in $scope.targetList){
+
+                    var target = $scope.targetList[index];
+                    console.log(target);
+
+                    var variablePath = target["attributes"]["ZAP_SPIDER_API_SPEC_URL"];
+
+                    if(variablePath != null){
+                        var file = target["attributes"]["ZAP_SPIDER_API_SPEC_FILE"]
+                        delete $scope.targetList[index]["attributes"]["ZAP_SPIDER_API_SPEC_FILE"];
+
+                        var formdata = new FormData();
+                        formdata.append('data', file);
+
+                        //Create a new variable in the engine with the uploaded file
+                        $http.post(Uri.appUri('engine://engine/:engine/' + variablePath), formdata, {
+                            transformRequest: angular.identity,
+                            headers: {'Content-Type': undefined }
+                        });
+                    }
+                }
+                camForm.variableManager.destroyVariable('PROCESS_TARGETS');
+                camForm.variableManager.createVariable({
+                    name: 'PROCESS_TARGETS',
+                    type: 'Object',
+                    value: JSON.stringify($scope.targetList),
+                    valueInfo: {
+                        serializationDataFormat: 'application/json',
+                        objectTypeName: 'java.lang.String'
+                    }
+                });
             });
         }]);
-        camForm.on('variables-fetched', function () {
-            $scope.targetList = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
-            console.log("targets: "+$scope.targetList + ", " + $scope.targetList.length);
-        });
-
-        camForm.on('submit', function () {
-            camForm.variableManager.destroyVariable('PROCESS_TARGETS');
-            camForm.variableManager.createVariable({
-                name: 'PROCESS_TARGETS',
-                type: 'Object',
-                value: JSON.stringify($scope.targetList),
-                valueInfo: {
-                    serializationDataFormat: 'application/json',
-                    objectTypeName: 'java.lang.String'
-                }
-       		});
-        });
 
 
     </script>
@@ -72,15 +100,27 @@
                     <div class="well">Target: <a href="{{ target.location }}">{{ target.location }}</a> </div>
 
                     <!-- API specification file -->
-                    <div class="form-group">
-                        <label for="inputSpiderApiSpecFile-{{$index}}">OpenAPI Specification File (optional)</label>
-                        <div class="controls">
-                            <input class="form-control"
-                                   id="inputSpiderApiSpecFile-{{$index}}"
-                                   type="file"
-                                   name="spiderApiSpecFile"
-                                   onchange="angular.element(this).scope().handleFileSelect(event)"/>
+                    <div class="form-group row">
+                        <div class="col-xs-8">
+                            <label for="inputSpiderApiSpecFile-{{$index}}">OpenAPI Specification File (optional)</label>
+                            <div class="controls">
+                                <input class="form-control"
+                                       id="inputSpiderApiSpecFile-{{$index}}"
+                                       type="file"
+                                       name="spiderApiSpecFile"
+                                       onchange="angular.element(this).scope().handleFileSelect(event)"/>
+                            </div>
                         </div>
+                        <div class="col-xs-1">
+                            <button id="removeApiFile-{{$index}}"
+                                    class="btn btn-danger btn-lg"
+                                    ng-click="handleRemoveApiSpecFile($event)"
+                                    ng-disabled="target.attributes.ZAP_SPIDER_API_SPEC_URL == null"
+                                    style="position: absolute; right: 15px; top: 0;">
+                                <span class="glyphicon glyphicon-trash"></span>
+                            </button>
+                        </div>
+                        <code class="hidden2">{{ targetList }}</code>
                     </div>
 
                     <!-- Spider max depth -->
