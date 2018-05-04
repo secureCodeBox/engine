@@ -10,22 +10,21 @@
                     console.log("handleFileSelect: " + evt);
                     var file = evt.target.files[0];
                     var inputId = evt.target.id;
+                    var splitInputName = inputId.split("-");
+                    var index = splitInputName[1];
 
                     if (file != null){
 
-                        var filename = "ZAP_SPIDER_API_SPEC_FILE_" + escape(file.name);
+                        var filename = "ZAP_SPIDER_API_SPEC_FILE_" + index;
 
 
                         //Get the process instance of the engine
                         $http.get(Uri.appUri('engine://engine/:engine/task/' + camForm.taskId)).success(function(result){
 
                             var variablePath = "process-instance/" + result.processInstanceId + "/variables/" + filename + "/data";
-                            var fileUrl = "http://engine:8080/engine-rest/" + variablePath;
-                            var splitInputName = inputId.split("-");
-                            var index = splitInputName[1];
 
                             //Set the Url attribute for the file in the corresponding target
-                            $scope.targetList[index]["attributes"]["ZAP_SPIDER_API_SPEC_URL"] = fileUrl;
+                            $scope.targetList[index]["attributes"]["ZAP_SPIDER_API_SPEC_URL"] = variablePath;
 
                             var formdata = new FormData();
                             formdata.append('data', file);
@@ -71,18 +70,6 @@
                     <h3>ZAP Spider advanced configuration</h3>
 
                     <div class="well">Target: <a href="{{ target.location }}">{{ target.location }}</a> </div>
-
-                    <!-- API specification url -->
-                    <div class="form-group">
-                        <label for="inputSpiderApiSpecUrl">OpenAPI Specification URL (optional)</label>
-                        <div class="controls">
-                            <input class="form-control"
-                                   id="inputSpiderApiSpecUrl"
-                                   ng-model="target.attributes.ZAP_SPIDER_API_SPEC_URL"
-                                   type="url"
-                                   name="spiderApiSpecUrl"/>
-                        </div>
-                    </div>
 
                     <!-- API specification file -->
                     <div class="form-group">
