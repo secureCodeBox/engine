@@ -12,6 +12,26 @@ This is the main component of the _secureCodeBox_ it's a [Camunda][camunda] [BPM
  * [Developer Guide][scb-developer-guide]
  * [User Guide][scb-user-guide]
  
+# Development
+
+## Local setup
+
+1.  Clone the repository
+2.  You might need to install some dependencies `java`, `maven`
+3.  Run locally `mvn spring-boot:run -Pdev`
+
+## Test
+
+To run the testsuite run:
+
+`mvn test`
+
+## Build
+
+To build the docker container run:
+
+`docker build -t CONTAINER_NAME .`
+ 
  # Guidelines
  ## Coding Guidelines
 
