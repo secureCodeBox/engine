@@ -9,7 +9,7 @@ Attributes that are only used in BPMN files and forms are also named with a pref
 Common attributes use the prefix `PROCESS`, specific attributes use the technology as a prefix, e.g. `NMAP_TARGET_NAME`.
 
 ### JSON
-We're using snake_case (lower case) for json attributes. If an enum type is used as attribute its converted to lower case. If it's an value it's always used UPPERCASE. This is to hold the attribute api consistent, but make shure Enums are recognized as enums.
+We're using snake_case (lower case) for json attributes. If an enum type is used as attribute its converted to lower case. 
 
 ```json
 {
@@ -32,6 +32,8 @@ We're using snake_case (lower case) for json attributes. If an enum type is used
     "location": "tcp://127.0.0.1:3306"
   }
 ``` 
+If an Enum is a value it's always used UPPERCASE. This is to hold the attribute api consistent, but make shure Enums are recognized as enums. In the example above there is an field `severity` with the value `INFORMATIONAL`. INFORMATIONAL is represented as value enum inside the data model.
+
 ### Topic Names for External Tasks
 Topics for external tasks for specific technologies are named as follows:
 ```
