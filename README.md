@@ -32,14 +32,18 @@ To build the docker container run:
 
 `docker build -t CONTAINER_NAME .`
 
-[scb-project]:          https://github.com/secureCodeBox/secureCodeBox
-[scb-developer-guide]:  https://github.com/secureCodeBox/starter/blob/master/docs/developer-guide/README.md
-[scb-user-guide]:       https://github.com/secureCodeBox/starter/tree/master/docs/user-guide
+# Guidelines & Standards
+Well boring but please read our guidelines and naming standards.
 
-[camunda]:              https://camunda.com/de/
-[bpmn]:                 https://en.wikipedia.org/wiki/Business_Process_Model_and_Notation
-[jenkins]:              https://jenkins.io/
+[scb-project]:              https://github.com/secureCodeBox/secureCodeBox
+[scb-developer-guide]:      https://github.com/secureCodeBox/starter/blob/master/docs/developer-guide/README.md
+[scb-developer-guidelines]: https://github.com/secureCodeBox/starter/blob/master/docs/developer-guide/README.md#guidelines
+[scb-user-guide]:           https://github.com/secureCodeBox/starter/tree/master/docs/user-guide
 
-[docker]:               https://www.docker.com/
-[beta-testers]:         https://www.securecodebox.io/
-[owasp]:                https://www.owasp.org/index.php/Main_Page
+[camunda]:                  https://camunda.com/de/
+[bpmn]:                     https://en.wikipedia.org/wiki/Business_Process_Model_and_Notation
+[jenkins]:                  https://jenkins.io/
+
+[docker]:                   https://www.docker.com/
+[beta-testers]:             https://www.securecodebox.io/
+[owasp]:                    https://www.owasp.org/index.php/Main_Page
