@@ -30,4 +30,13 @@
         <cve>CVE-2008-0732</cve>
     </suppress>
 
+    <!--
+    The issues CVE-2016-6325, CVE-2016-5425 seems to only affect Red Hat Enterprise Linux (RHEL) 5 through 7, JBoss Web Server 3.0, and JBoss EWS 2 . We are using embedded appserver.
+         -->
+    <suppress>
+        <cve>CVE-2016-6325</cve>
+        <cve>CVE-2016-5425</cve>
+    </suppress>
+
+
 </suppressions>

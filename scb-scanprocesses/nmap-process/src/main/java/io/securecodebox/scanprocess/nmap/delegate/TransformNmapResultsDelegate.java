@@ -20,15 +20,13 @@
 package io.securecodebox.scanprocess.nmap.delegate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Iterables;
 import io.securecodebox.constants.DefaultFields;
-import io.securecodebox.scanprocess.nmap.constants.NmapFindingAttributes;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
-import io.securecodebox.model.execution.Scanner;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.findings.OsiLayer;
 import io.securecodebox.model.findings.Severity;
+import io.securecodebox.scanprocess.nmap.constants.NmapFindingAttributes;
 import io.securecodebox.scanprocess.nmap.model.Address;
 import io.securecodebox.scanprocess.nmap.model.Host;
 import io.securecodebox.scanprocess.nmap.model.NmapRawResult;
@@ -87,7 +85,7 @@ public class TransformNmapResultsDelegate implements JavaDelegate {
         ScanProcessExecution process = processExecutionFactory.get(delegateExecution);
         clearFindings(process);
 
-        String rawFindingResult = Iterables.getLast(process.getScanners(), new Scanner()).getRawFindings();
+        String rawFindingResult = process.getScanners().get(process.getScanners().size() - 1).getRawFindings();
 
         if (!StringUtils.isEmpty(rawFindingResult)) {
 
