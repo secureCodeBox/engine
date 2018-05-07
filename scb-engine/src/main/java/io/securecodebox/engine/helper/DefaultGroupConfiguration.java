@@ -43,15 +43,19 @@ public class DefaultGroupConfiguration extends AbstractCamundaConfiguration {
     public void postProcessEngineBuild(final ProcessEngine processEngine) {
 
         final IdentityService identityService = processEngine.getIdentityService();
+        createGroup(identityService, "approver");
+        createGroup(identityService, "scanner");
 
+    }
+
+    private void createGroup(IdentityService identityService, String group) {
         // create group
-        if (identityService.createGroupQuery().groupId("approver").count() == 0) {
-            Group approverGroup = identityService.newGroup("approver");
-            approverGroup.setName("SecureCodeBox Approver");
+        if (identityService.createGroupQuery().groupId(group).count() == 0) {
+            Group approverGroup = identityService.newGroup(group);
+            approverGroup.setName("SecureCodeBox " + group);
             approverGroup.setType(Groups.GROUP_TYPE_SYSTEM);
             identityService.saveGroup(approverGroup);
             LOG.info("Created default secureCodeBox group: {}", approverGroup.getName());
         }
-
     }
 }

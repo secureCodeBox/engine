@@ -20,6 +20,9 @@ script:
   - echo -en "travis_fold:end:Docker_Build\r"
   - docker images
 
+after_success:
+  - mvn validate -Pdependency-check
+
 deploy:
   -  provider: script
      skip_cleanup: true

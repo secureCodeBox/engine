@@ -8,8 +8,15 @@
     <packaging>pom</packaging>
 
     <properties>
+        <!--
+            IMPORTANT: camunda.version and camunda.spring.boot.starter.version must be compatible
+            please see org.camunda.bpm.springboot.project:camunda-bpm-spring-boot-starter-root
+         -->
+        <camunda.version>7.8.0</camunda.version>
         <camunda.spring.boot.starter.version>2.3.0</camunda.spring.boot.starter.version>
-        <spring-boot.version>1.5.12.RELEASE</spring-boot.version>
+        <!-- END IMPORTANT -->
+
+        <spring-boot.version>1.5.8.RELEASE</spring-boot.version>
         <swagger-version>2.8.0</swagger-version>
     </properties>
 
@@ -22,11 +29,26 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- import dependencies from camunda spring boot starter -->
+            <!-- Import dependency management from camunda -->
+            <dependency>
+                <groupId>org.camunda.bpm</groupId>
+                <artifactId>camunda-bom</artifactId>
+                <version>${camunda.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+
             <dependency>
                 <groupId>org.camunda.bpm.springboot.project</groupId>
                 <artifactId>camunda-bpm-spring-boot-starter-root</artifactId>
                 <version>${camunda.spring.boot.starter.version}</version>
+            </dependency>
+
+            <!-- Import dependency management from Spring Boot -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -103,4 +125,34 @@
         </repository>
     </repositories>
 
+    <profiles>
+        <profile>
+            <id>dependency-check</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.owasp</groupId>
+                        <artifactId>dependency-check-maven</artifactId>
+                        <version>3.1.2</version>
+                        <configuration>
+                            <failBuildOnCVSS>8</failBuildOnCVSS>
+                            <format>ALL</format>
+                            <suppressionFile>dependency-check-suppression.xml</suppressionFile>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>aggregate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
