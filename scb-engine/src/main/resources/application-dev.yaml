@@ -1,0 +1,12 @@
+camunda.bpm:
+  admin-user:
+    id: kermit
+    password: a
+
+logging.level: DEBUG
+logging.level.io.securecodebox: TRACE
+
+# Configure which persistence provider you would like to choose
+# - none
+# - elasticsearch
+securecodebox.persistence.provider: none
