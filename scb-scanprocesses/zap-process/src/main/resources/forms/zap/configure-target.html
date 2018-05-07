@@ -12,8 +12,15 @@
 
             if($scope.targets === undefined || angular.equals([], $scope.targets)) {
                 $scope.targetList = [];
-                $scope.targetList.push({'name':'BodgeIT Public Host', 'location': 'http://bodgeit:8080/bodgeit',
-                'attributes': {'ZAP_BASE_URL':'http://bodgeit:8080/bodgeit'}});
+                $scope.targetList.push({
+					'name':'BodgeIT Public Host',
+					'location': 'http://bodgeit:8080/bodgeit',
+                	'attributes': {
+					    'ZAP_BASE_URL':'http://bodgeit:8080/bodgeit',
+						'ZAP_SPIDER_CONFIGURATION_TYPE': 'default',
+						'ZAP_SCANNER_CONFIGURATION_TYPE': 'default'
+					}
+                });
             }
             $scope.addTarget = function () {
                 $scope.targetList.push({'name':'', 'location': ''});
