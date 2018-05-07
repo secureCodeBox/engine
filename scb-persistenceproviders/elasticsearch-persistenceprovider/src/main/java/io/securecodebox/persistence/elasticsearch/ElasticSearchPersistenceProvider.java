@@ -23,7 +23,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.model.Report;
-import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.persistence.PersistenceProvider;
 import org.apache.http.HttpHost;
@@ -42,8 +41,6 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,7 +52,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Component
 @ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "elasticsearch")
@@ -90,7 +92,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
      */
     private boolean deleteBeforeCreate = false;
 
-    private void init(){
+    private void init() {
 
         LOG.info("Initializing ElasticSearchPersistenceProvider");
         highLevelClient = new RestHighLevelClient(RestClient.builder(new HttpHost(host, port, "http")));
@@ -102,7 +104,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
             LOG.info("ElasticSearch connected?: " + connected);
             if (connected) {
-                if(indexExists(indexName) && deleteBeforeCreate){
+                if (indexExists(indexName) && deleteBeforeCreate) {
                     /**
                      * The next lines are just for developing purposes and will be removed later
                      * TODO: REMOVE THESE LINES BEFORE GOING INTO PRODUCTION
@@ -112,7 +114,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(indexName);
                     highLevelClient.indices().delete(deleteIndexRequest);
                 }
-                if (!indexExists(indexName)){
+                if (!indexExists(indexName)) {
 
                     //The index doesn't exist until now, so we create it
                     LOG.info("Index " + indexName + " doesn't exist. Creating it...");
@@ -121,22 +123,20 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     //todo: maybe declare the mapping file name in the properties (Not sure if we need the mapping anymore)
                     String mapping = readFileResource("mapping.json");
                     LOG.info("Initialize with mapping: " + mapping);
-                    if(mapping != null) {
+                    if (mapping != null) {
                         createIndexRequest.mapping("_doc", mapping, XContentType.JSON);
                     }
                     highLevelClient.indices().create(createIndexRequest);
                 }
 
                 //Checking once more, in case anything went wrong during index creation
-                if(indexExists(indexName)){
+                if (indexExists(indexName)) {
                     initialized = true;
                 }
-            }
-            else {
+            } else {
                 LOG.error("ElasticSearch doesn't respond. Please check if it is up and running");
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             LOG.error(e.getMessage());
             initialized = false;
         }
@@ -145,27 +145,26 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     @Override
     public void persist(Report report) {
 
-        if(report == null){
+        if (report == null) {
             LOG.info("Report is null, nothing to persist.");
             return;
         }
 
         this.tenantId = report.getTenantId();
 
-        if(!initialized || !indexExists(getElasticIndexName())){
+        if (!initialized || !indexExists(getElasticIndexName())) {
             init();
         }
 
         try {
             connected = highLevelClient.ping();
-        }
-        catch (IOException ioe){
+        } catch (IOException ioe) {
             LOG.error("Error pinging ElasticSearch: " + ioe.getMessage());
             connected = false;
         }
 
         //Second check because, if the initialization wasn't successful, it's still false
-        if(initialized && connected) {
+        if (initialized && connected) {
             ObjectMapper objectMapper = new ObjectMapper();
             try {
 
@@ -176,7 +175,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                 the same (if not impossible)
                 Anyway, we want to make sure that we don't save the same Report Id twice
                  */
-                while (uuidAlreadyExists){
+                while (uuidAlreadyExists) {
                     SearchRequest searchRequest = new SearchRequest();
                     SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
                     searchSourceBuilder.query(QueryBuilders.matchQuery("report_id", report.getId()));
@@ -184,17 +183,16 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     SearchResponse searchResponse = highLevelClient.search(searchRequest);
                     LOG.info("Search Response Status: " + searchResponse.status());
                     boolean searchFailure = searchResponse.isTimedOut() || (searchResponse.status() != RestStatus.OK);
-                    if(searchFailure){
+                    if (searchFailure) {
                         LOG.error("Searching the index failed. Skipping persisting...");
                         return;
                     }
 
                     LOG.info("SearchResponse from UUID Search: " + searchResponse);
-                    if(searchResponse.getHits().totalHits > 0 ){
+                    if (searchResponse.getHits().totalHits > 0) {
                         report.setId(UUID.randomUUID());
                         uuidAlreadyExists = true;
-                    }
-                    else {
+                    } else {
                         uuidAlreadyExists = false;
                     }
                 }
@@ -203,7 +201,8 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
                 Map<String, Object> reportAsMap = serializeAndRemove(report, "findings", "execution");
                 Map<String, Object> execution = serializeAndRemove(report.getExecution(), "findings", "scanners");
-                execution.put("scanners", serializeAndRemoveList(report.getExecution().getScanners(), "findings", "rawFindings"));
+                execution.put("scanners",
+                        serializeAndRemoveList(report.getExecution().getScanners(), "findings", "rawFindings"));
                 reportAsMap.put("type", TYPE_REPORT);
                 reportAsMap.put("execution", execution);
                 reportAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
@@ -214,7 +213,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                 reportIndexRequest.source(objectMapper.writeValueAsString(reportAsMap), XContentType.JSON);
 
                 BulkRequest bulkRequest = new BulkRequest();
-                for(Finding f : report.getFindings()){
+                for (Finding f : report.getFindings()) {
 
                     Map<String, Object> findingAsMap = serializeAndRemove(f);
                     findingAsMap.put("type", TYPE_FINDING);
@@ -232,11 +231,10 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                 highLevelClient.bulkAsync(bulkRequest, new ActionListener<BulkResponse>() {
                     @Override
                     public void onResponse(BulkResponse bulkItemResponses) {
-                        if(bulkItemResponses.hasFailures()){
+                        if (bulkItemResponses.hasFailures()) {
                             LOG.warn("Warning: Some findings may not have been persisted correctly!");
                             LOG.warn(bulkItemResponses.buildFailureMessage());
-                        }
-                        else {
+                        } else {
                             LOG.info("Successfully saved findings to " + getElasticIndexName());
                         }
                     }
@@ -252,14 +250,14 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
             } catch (IOException e) {
                 LOG.error(e.getMessage());
             }
-        }
-        else {
+        } else {
             LOG.error("Could not persist data. It seems like ElasticSearch is not reachable.");
         }
     }
 
     /**
      * Returns the elasticsearch indexName, based on the current dateTime and configuration.
+     *
      * @return
      */
     private String getElasticIndexName() {
@@ -270,22 +268,20 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         String indexName = indexPrefix + "_" + ((tenantId != null) ? tenantId + "_" : "") + dateAsString;
         return indexName.toLowerCase();
     }
-    
-    private boolean indexExists(String indexName){
-        
+
+    private boolean indexExists(String indexName) {
+
         try {
             //Indices Exist API is currently not supported in the high level client
             highLevelClient.getLowLevelClient().performRequest("GET", "/" + indexName);
             return true;
-        }
-        catch (ResponseException e){
+        } catch (ResponseException e) {
             if (e.getResponse().getStatusLine().getStatusCode() == 404) {
                 return false;
             }
             LOG.error(e.getMessage());
             return false;
-        }
-        catch (IOException ioe){
+        } catch (IOException ioe) {
             LOG.error(ioe.getMessage());
             return false;
         }
@@ -293,49 +289,49 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
     /**
      * Read a file from the resources directory and store the content in a string
+     *
      * @param file the file to read
+     *
      * @return a string containing the file content
      */
-    private String readFileResource(String file){
+    private String readFileResource(String file) {
 
         StringBuilder result = new StringBuilder();
         try {
-            BufferedReader reader = new BufferedReader
-                    (new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream(file)));
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream(file)));
             String line;
-            while((line = reader.readLine()) != null){
+            while ((line = reader.readLine()) != null) {
                 result.append(line);
             }
             return result.toString();
-        }
-        catch (IOException ioe){
+        } catch (IOException ioe) {
             LOG.error(ioe.getMessage());
             return null;
         }
     }
 
-    private Map<String, Object> serializeAndRemove(Object object, String...toRemove){
+    private Map<String, Object> serializeAndRemove(Object object, String... toRemove) {
 
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             String jsonString = objectMapper.writeValueAsString(object);
-            Map<String, Object> result =  objectMapper.readValue(jsonString,new TypeReference<Map<String, Object>>(){});
-            for(String s : toRemove){
+            Map<String, Object> result = objectMapper.readValue(jsonString, new TypeReference<Map<String, Object>>() {
+            });
+            for (String s : toRemove) {
                 result.remove(s);
             }
             return result;
-        }
-        catch (JsonProcessingException e){
+        } catch (JsonProcessingException e) {
             return new HashMap<>();
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             return new HashMap<>();
         }
     }
 
-    private List<Map<String, Object>> serializeAndRemoveList(List<?> objects, String...toRemove){
+    private List<Map<String, Object>> serializeAndRemoveList(List<?> objects, String... toRemove) {
         List<Map<String, Object>> result = new LinkedList<>();
-        for(Object o : objects){
+        for (Object o : objects) {
             result.add(serializeAndRemove(o, toRemove));
         }
         return result;
