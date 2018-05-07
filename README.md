@@ -33,7 +33,7 @@ To build the docker container run:
 `docker build -t CONTAINER_NAME .`
 
 # Guidelines & Standards
-Well boring but please read our guidelines and naming standards.
+Well boring yes - but please read our [guidelines and naming standards][scb-developer-guidelines].
 
 [scb-project]:              https://github.com/secureCodeBox/secureCodeBox
 [scb-developer-guide]:      https://github.com/secureCodeBox/starter/blob/master/docs/developer-guide/README.md
