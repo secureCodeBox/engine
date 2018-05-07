@@ -11,6 +11,9 @@ cache:
   - .autoconf
   - $HOME/.m2
 
+before_script:
+  - mvn validate -Pdependency-check
+
 script:
   - echo -en "travis_fold:start:Test\r"
   - mvn test -q -B
@@ -19,9 +22,6 @@ script:
   - docker build -t securecodebox/engine:oss .
   - echo -en "travis_fold:end:Docker_Build\r"
   - docker images
-
-after_success:
-  - mvn validate -Pdependency-check
 
 deploy:
   -  provider: script
