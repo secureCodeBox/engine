@@ -17,10 +17,13 @@
  * /
  */
 
-package io.securecodebox.model.execution;
+package io.securecodebox.engine.execution;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.securecodebox.constants.DefaultFields;
+import io.securecodebox.model.execution.ScanProcessExecution;
+import io.securecodebox.model.execution.Scanner;
+import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.scanprocess.ProcessVariableHelper;
 import org.camunda.bpm.engine.delegate.DelegateExecution;

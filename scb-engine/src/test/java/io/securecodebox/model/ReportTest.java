@@ -20,11 +20,12 @@
 package io.securecodebox.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.securecodebox.TestHelper;
 import io.securecodebox.constants.DefaultFields;
-import io.securecodebox.model.execution.DefaultScanProcessExecution;
+import io.securecodebox.engine.execution.DefaultScanProcessExecution;
+import io.securecodebox.engine.execution.DefaultScanProcessExecutionTest;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.findings.Finding;
-import io.securecodebox.model.results.FindingTest;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.junit.Test;
 
@@ -53,7 +54,7 @@ public class ReportTest {
         when(process.getVariable(DefaultFields.PROCESS_FINDINGS.name())).thenReturn(null);
         when(process.hasVariable(DefaultFields.PROCESS_FINDINGS.name())).thenReturn(false);
 
-        Finding basicFinding = FindingTest.createBasicFinding();
+        Finding basicFinding = TestHelper.createBasicFinding();
         ScanProcessExecution execution = new DefaultScanProcessExecution(process);
         execution.appendFinding(basicFinding);
 
