@@ -12,8 +12,15 @@
 
             if($scope.targets === undefined || angular.equals([], $scope.targets)) {
                 $scope.targetList = [];
-                $scope.targetList.push({'name':'BodgeIT Public Host', 'location': 'http://bodgeit:8080/bodgeit',
-                'attributes': {'ZAP_BASE_URL':'http://bodgeit:8080/bodgeit', 'ZAP_AUTHENTICATION':false, 'PROCESS_MARK_FALSE_POSITIVE':false}});
+                $scope.targetList.push({
+					'name':'BodgeIT Public Host',
+					'location': 'http://bodgeit:8080/bodgeit',
+                	'attributes': {
+					    'ZAP_BASE_URL':'http://bodgeit:8080/bodgeit',
+						'ZAP_SPIDER_CONFIGURATION_TYPE': 'default',
+						'ZAP_SCANNER_CONFIGURATION_TYPE': 'default'
+					}
+                });
             }
             $scope.addTarget = function () {
                 $scope.targetList.push({'name':'', 'location': ''});
@@ -42,7 +49,12 @@
 
        		var authenticationOnAnyTarget = false
        		for(var item in $scope.targetList){
-       			authenticationOnAnyTarget = authenticationOnAnyTarget || $scope.targetList[item]["attributes"]["ZAP_AUTHENTICATION"]
+
+       			var auth = $scope.targetList[item]["attributes"]["ZAP_AUTHENTICATION"];
+       			if(auth == null){
+       				auth = false;
+				}
+       			authenticationOnAnyTarget = authenticationOnAnyTarget || auth;
 			}
 			if (camForm.variableManager.variable('ZAP_AUTHENTICATION') != undefined) {
 				camForm.variableManager.destroyVariable('ZAP_AUTHENTICATION');
@@ -74,7 +86,7 @@
 
 			var scannerAdvanced = false
        		for(var item in $scope.targetList){
-       			scannerAdvanced = spiderAdvanced || ($scope.targetList[item]["attributes"]["ZAP_SCANNER_CONFIGURATION_TYPE"] == 'advanced')
+       			scannerAdvanced = scannerAdvanced || ($scope.targetList[item]["attributes"]["ZAP_SCANNER_CONFIGURATION_TYPE"] == 'advanced')
 			}
 			var scannerConfig = 'default'
 			if(scannerAdvanced){
@@ -151,15 +163,6 @@
 								   class="form-check-input" />
 							<label for="authentication" style="white-space:nowrap">Scan with authentication (User Credentails)</label>
 						</div>
-
-						<div class="form-check">
-							<input class="form-check-input"
-								   id="inputFalsePositiveFilter"
-								   ng-model="target.attributes.PROCESS_MARK_FALSE_POSITIVE"
-								   type="checkbox"
-								   name="falsePositiveFilter"/>
-							<label for="inputFalsePositiveFilter" style="white-space:nowrap">Enable False Positive Filtering</label>
-						</div>
 					</div>
 					<!-- spider configuration -->
 					<div class="form-group">
@@ -190,9 +193,20 @@
 							</select>
 						</div>
 					</div>
-					<code class="hidden2">{{ targetList }}</code>
 				</div>
 				<button class="btn btn-primary" ng-click="addTarget()">Add Host</button>
+			</div>
+
+			<div class="form-group">
+				<div class="controls">
+					<label for="inputFalsePositiveFilter">Enable False/Positive Filtering?</label>
+					<input class="form-control"
+						   id="inputFalsePositiveFilter"
+						   cam-variable-type="Boolean"
+						   cam-variable-name="PROCESS_MARK_FALSE_POSITIVE"
+						   type="checkbox"
+						   name="falsePositiveFilter"/>
+				</div>
 			</div>
 
 			<!-- Context (Project/Team/System...) -->

@@ -1,12 +1,14 @@
+# This value gets replaced by maven.
+# default is prod, example for development:
+# mvn spring-boot:run -Pdev
+spring.profiles.active: ${activatedProfiles}
+
 camunda.bpm:
   webapp:
     index-redirect-enabled: true
-  admin-user:
-    id: kermit
-    password: a
 
-logging.level: DEBUG
-logging.level.io.securecodebox: TRACE
+logging.level: INFO
+logging.level.io.securecodebox: INFO
 
 # Configure which persistence provider you would like to choose
 # - none

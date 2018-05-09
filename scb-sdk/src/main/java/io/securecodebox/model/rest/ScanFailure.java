@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.validation.constraints.Pattern;
 import java.util.UUID;
 
 /**
@@ -37,17 +38,19 @@ public class ScanFailure {
     @ApiModelProperty(value = "The id of the external scanner, which provides this failure.",
             example = "5dd0840c-81ae-4fed-90b5-b3eea3d4c701", required = true)
     @JsonProperty(required = true)
-    UUID scannerId;
+    private UUID scannerId;
 
     @ApiModelProperty(value = "Short error message why this failure happened.",
             example = "The host down.securecodebox.io is nor reachable!")
     @JsonProperty
-    String errorMessage;
+    @Pattern(regexp = "^[\\w\\r.!?+-]*$")
+    private String errorMessage;
 
     @ApiModelProperty(value = "Provide more details, if there are any, why this failure happened.",
             example = "It was not possible to resolve a DNS entry!")
     @JsonProperty
-    String errorDetails;
+    @Pattern(regexp = "^[\\w\\r.!?+-]*$")
+    private String errorDetails;
 
     public UUID getScannerId() {
         return scannerId;

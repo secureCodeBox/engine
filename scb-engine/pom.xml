@@ -11,6 +11,10 @@
     <artifactId>engine</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
+    <properties>
+        <activatedProfiles>prod</activatedProfiles>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -32,12 +36,10 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
-            <version>${swagger-version}</version>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
-            <version>${swagger-version}</version>
         </dependency>
 
         <!-- Camunda Spin lib -->
@@ -65,7 +67,7 @@
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>io.securecodebox.persistenceproviders</groupId>
             <artifactId>empty-persistenceprovider</artifactId>
@@ -104,6 +106,13 @@
                 </configuration>
             </plugin>
         </plugins>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 
     <profiles>
@@ -112,6 +121,9 @@
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
+            <properties>
+                <activatedProfiles>dev</activatedProfiles>
+            </properties>
             <dependencies>
                 <!-- default scan process collection -->
                 <dependency>

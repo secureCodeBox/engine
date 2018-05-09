@@ -16,9 +16,8 @@
  *  limitations under the License.
  * /
  */
-package io.securecodebox.scanprocess;
+package io.securecodebox.engine.execution;
 
-import io.securecodebox.model.execution.DefaultScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -29,7 +28,7 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
 
-import static io.securecodebox.scanprocess.DefaultScanProcessExcecutionFactory.FactoryFields.PROCESS_EXECUTION_TYPE;
+import static io.securecodebox.engine.execution.DefaultScanProcessExcecutionFactory.FactoryFields.PROCESS_EXECUTION_TYPE;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH

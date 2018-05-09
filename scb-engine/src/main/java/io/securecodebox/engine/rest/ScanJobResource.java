@@ -46,6 +46,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -112,7 +113,7 @@ public class ScanJobResource {
     @RequestMapping(method = RequestMethod.POST, value = "{id}/result")
     public ResponseEntity completeJob(@ApiParam(value = "UUID of the job.", required = true, type = "UUID",
             defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID id,
-            @RequestBody ScanResult result) {
+            @Valid @RequestBody ScanResult result) {
 
         LOG.debug("Received scan result {}", result);
 
@@ -142,7 +143,7 @@ public class ScanJobResource {
     @RequestMapping(method = RequestMethod.POST, value = "{id}/failure")
     public ResponseEntity failJob(@ApiParam(value = "UUID of the job.", required = true, type = "UUID",
             defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID id,
-            @RequestBody ScanFailure result) {
+            @Valid @RequestBody ScanFailure result) {
 
         int retriesLeft = 0;
 

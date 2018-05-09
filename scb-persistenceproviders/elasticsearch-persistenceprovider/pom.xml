@@ -30,6 +30,11 @@
     <artifactId>elasticsearch-persistenceprovider</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
+    <properties>
+        <elasticsearch.version>6.2.4</elasticsearch.version>
+    </properties>
+
+
     <dependencies>
         <dependency>
             <groupId>io.securecodebox.core</groupId>
@@ -40,29 +45,24 @@
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
-            <version>6.2.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-client</artifactId>
-            <version>6.2.3</version>
+            <version>${elasticsearch.version}</version>
         </dependency>
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
-            <version>6.2.3</version>
+            <version>${elasticsearch.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.elasticsearch.test</groupId>
+            <artifactId>framework</artifactId>
+            <version>${elasticsearch.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-test-framework</artifactId>
             <version>7.3.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.elasticsearch.test</groupId>
-            <artifactId>framework</artifactId>
-            <version>6.2.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>

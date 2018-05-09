@@ -22,6 +22,8 @@ package io.securecodebox.model.findings;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Pattern;
 import java.util.Objects;
 
 /**
@@ -39,7 +41,10 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Reference {
 
+    @Max(4000)
+    @Pattern(regexp = "^[^<>\\\\/\\[\\]()%$]*$")
     private String id;
+    @Pattern(regexp = "^[^<>\\\\\\[\\]()%$]*$")
     private String source;
 
     public String getId() {
@@ -70,7 +75,6 @@ public class Reference {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(id, source);
     }
 }

@@ -20,17 +20,15 @@
 package io.securecodebox.scanprocess.test.nmap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.securecodebox.constants.DefaultFields;
-import io.securecodebox.model.execution.DefaultScanProcessExecution;
-import io.securecodebox.scanprocess.nmap.constants.NmapFindingAttributes;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.model.execution.Scanner;
+import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.findings.OsiLayer;
 import io.securecodebox.model.findings.Severity;
+import io.securecodebox.scanprocess.nmap.constants.NmapFindingAttributes;
 import io.securecodebox.scanprocess.nmap.delegate.TransformNmapResultsDelegate;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.variable.impl.value.ObjectValueImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -42,6 +40,7 @@ import org.mockito.stubbing.Answer;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 import static io.securecodebox.scanprocess.nmap.constants.NmapFindingAttributes.END;
@@ -55,8 +54,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -68,7 +65,7 @@ import static org.mockito.Mockito.when;
  */
 public class TransformNmapResultsDelegateTest {
 
-    String findingCache = "";
+    List<Finding> findingCache = new LinkedList<>();
 
     @Mock
     ScanProcessExecutionFactory processExecutionFactory;
@@ -81,29 +78,30 @@ public class TransformNmapResultsDelegateTest {
     @InjectMocks
     TransformNmapResultsDelegate underTest = new TransformNmapResultsDelegate();
 
+    @Mock
     ScanProcessExecution execution;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        execution = Mockito.spy(new DefaultScanProcessExecution(executionMock));
         doReturn(new LinkedList<Scanner>() {{
             add(new Scanner(UUID.randomUUID(), "NMAP_TEST", nmapResult));
         }}).when(execution).getScanners();
-        when(processExecutionFactory.get(executionMock)).thenReturn(execution);
-        when(executionMock.hasVariable(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenReturn(true);
-        when(executionMock.getVariable(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenAnswer((answer) -> findingCache);
+        when(execution.getFindings()).thenReturn(findingCache);
         doAnswer((Answer) invocation -> {
-            findingCache = (String) invocation.getArgumentAt(1, ObjectValueImpl.class).getValue();
+            findingCache.add(invocation.getArgumentAt(0, Finding.class));
             return Void.TYPE;
-        }).when(executionMock).setVariable(eq(DefaultFields.PROCESS_FINDINGS.name()), any());
+        }).when(execution).appendFinding(any());
+
+        when(processExecutionFactory.get(executionMock)).thenReturn(execution);
     }
 
     @Test
     public void testRawFindings() throws Exception {
         underTest.execute(executionMock);
 
-        Mockito.verify(executionMock, times(2)).setVariable(eq(DefaultFields.PROCESS_FINDINGS.name()), anyString());
+        Mockito.verify(execution, times(2)).appendFinding(any());
+        Mockito.verifyNoMoreInteractions(executionMock);
 
         ScanProcessExecution processExecution = processExecutionFactory.get(executionMock);
 
