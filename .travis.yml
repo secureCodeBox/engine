@@ -11,6 +11,9 @@ cache:
   - .autoconf
   - $HOME/.m2
 
+# Skips useless mvn install from travis
+install: true
+
 script:
   - echo -en "travis_fold:start:Test\r"
   - mvn test -Pdependency-check -q -B
