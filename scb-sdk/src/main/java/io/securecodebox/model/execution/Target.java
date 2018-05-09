@@ -67,7 +67,10 @@ public class Target {
         return attributes;
     }
 
-    public void appendAttribute(String key, Object value) {
+    public void appendOrUpdateAttribute(String key, Object value) {
+        if(attributes.get(key) != null){
+            attributes.remove(key);
+        }
         attributes.put(key, value);
     }
 

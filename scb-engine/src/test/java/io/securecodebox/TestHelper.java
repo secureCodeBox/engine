@@ -87,9 +87,9 @@ public class TestHelper {
         Target target = new Target();
         target.setLocation(location);
         target.setName(name);
-        target.appendAttribute("TEST", "Kuchen");
-        target.appendAttribute("HORRIBLE", "Beer");
-        target.appendAttribute("ObjeCT", new Reference());
+        target.appendOrUpdateAttribute("TEST", "Kuchen");
+        target.appendOrUpdateAttribute("HORRIBLE", "Beer");
+        target.appendOrUpdateAttribute("ObjeCT", new Reference());
         return target;
     }
 }

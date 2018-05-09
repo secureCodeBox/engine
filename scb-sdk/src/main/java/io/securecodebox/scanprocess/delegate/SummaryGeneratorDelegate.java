@@ -17,7 +17,7 @@
  * /
  */
 
-package io.securecodebox.scanprocess.nmap.delegate;
+package io.securecodebox.scanprocess.delegate;
 
 import io.securecodebox.model.Report;
 import io.securecodebox.model.execution.ScanProcessExecution;
