@@ -175,7 +175,9 @@
                             <outputFile>${project.build.directory}/docs/api-doc</outputFile>
                             <config>
                                 <swagger2markup.markupLanguage>MARKDOWN</swagger2markup.markupLanguage>
-                                <swagger2markup.interDocumentCrossReferencesEnabled>true</swagger2markup.interDocumentCrossReferencesEnabled>
+                                <swagger2markup.interDocumentCrossReferencesEnabled>true
+                                </swagger2markup.interDocumentCrossReferencesEnabled>
+                                <swagger2markup.generatedExamplesEnabled>true</swagger2markup.generatedExamplesEnabled>
                             </config>
                         </configuration>
                         <executions>
