@@ -48,7 +48,7 @@ import java.nio.file.Paths;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = { SecureCodeBoxEngine.class, SwaggerConfiguration.class })
 @AutoConfigureMockMvc
-public class SwaggerMarkupGenerator {
+public class SwaggerMarkupGeneratorTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -69,7 +69,7 @@ public class SwaggerMarkupGenerator {
 
     private Path getTargetFolderPath() {
         return Paths.get(new File(
-                        SwaggerMarkupGenerator.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent(),
+                        SwaggerMarkupGeneratorTest.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent(),
                 "swagger.json");
     }
 }

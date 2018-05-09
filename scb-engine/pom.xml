@@ -115,6 +115,7 @@
                     <outputDir>${project.build.directory}/docs/</outputDir>
                     <config>
                         <swagger2markup.markupLanguage>MARKDOWN</swagger2markup.markupLanguage>
+                        <swagger2markup.interDocumentCrossReferencesEnabled>true</swagger2markup.interDocumentCrossReferencesEnabled>
                     </config>
                 </configuration>
                 <executions>
