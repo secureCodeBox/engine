@@ -105,6 +105,27 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>io.github.swagger2markup</groupId>
+                <artifactId>swagger2markup-maven-plugin</artifactId>
+
+                <configuration>
+                    <swaggerInput>${project.build.directory}/swagger.json</swaggerInput>
+                    <outputDir>${project.build.directory}/docs/</outputDir>
+                    <config>
+                        <swagger2markup.markupLanguage>MARKDOWN</swagger2markup.markupLanguage>
+                    </config>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>convertSwagger2markup</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
 
         <resources>
