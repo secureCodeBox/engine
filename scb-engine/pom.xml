@@ -113,6 +113,7 @@
                 <configuration>
                     <swaggerInput>${project.build.directory}/swagger.json</swaggerInput>
                     <outputDir>${project.build.directory}/docs/</outputDir>
+                    <outputFile>${project.build.directory}/docs/api-doc</outputFile>
                     <config>
                         <swagger2markup.markupLanguage>MARKDOWN</swagger2markup.markupLanguage>
                         <swagger2markup.interDocumentCrossReferencesEnabled>true</swagger2markup.interDocumentCrossReferencesEnabled>
