@@ -1,6 +1,6 @@
 FROM maven as builder
 COPY . .
-RUN mvn clean install -DskipTests=true -B
+RUN mvn clean install -DskipTests=true -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
 
 
 FROM openjdk:8-jre-alpine
