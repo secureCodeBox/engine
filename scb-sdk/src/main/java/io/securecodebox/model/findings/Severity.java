@@ -19,6 +19,8 @@
 
 package io.securecodebox.model.findings;
 
+import io.swagger.annotations.ApiModel;
+
 /**
  * Severity of an issue.
  * <p>
@@ -30,6 +32,12 @@ package io.securecodebox.model.findings;
  * @author Rüdiger Heins - iteratec GmbH
  * @since 08.03.18
  */
+@ApiModel(description = "Severity of an issue:\n"
+        + " * INFORMATION - Has normally no impact but is a bad behavior.\n"
+        + " * LOW - Small impact, Low Risk. Hard to exploit, hard to find.\n"
+        + " * MEDIUM - Medium impact, medium risk. Either easy to exploit but hard to find or hard to exploit and easy to find.\n"
+        + " * HIGH - Medium to High impact, high risk. Easy to exploit and easy to find.")
+
 public enum Severity {
     // The ordinal order is relevant for criticality detection! See Report class for more information.
     // Ordinal order: INFORMATIONAL < LOW < MEDIUM < HIGH

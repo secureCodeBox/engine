@@ -47,9 +47,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -84,10 +82,13 @@ public class ScanJobResource {
             @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
     @RequestMapping(method = RequestMethod.POST, value = "/lock/{topic:[a-zA-Z0-9_\\-]*}/{scannerId}")
-    public ResponseEntity<ScanConfiguration> lockJob(@ApiParam(defaultValue = "nmap_portscan",
-            value = "Topic name for the Process, be shure only to use: [A-Za-z0-9-_]") @PathVariable String topic,
+    public ResponseEntity<ScanConfiguration> lockJob(
+            @ApiParam(defaultValue = "nmap_portscan", example = "nmap_portscan",
+                    value = "Topic name for the Process, be shure only to use: [A-Za-z0-9-_]",
+                    required = true) @PathVariable String topic,
             @ApiParam(value = "UUID of the job.", required = true, type = "UUID",
-                    defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID scannerId) {
+                    defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726",
+                    example = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID scannerId) {
         ExternalTaskQueryBuilder externalTaskQueryBuilder = engine.getExternalTaskService()
                 .fetchAndLock(1, scannerId.toString());
         externalTaskQueryBuilder.topic(topic, LOCK_DURATION_MS);
@@ -112,7 +113,8 @@ public class ScanJobResource {
 
     @RequestMapping(method = RequestMethod.POST, value = "{id}/result")
     public ResponseEntity completeJob(@ApiParam(value = "UUID of the job.", required = true, type = "UUID",
-            defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID id,
+            defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726",
+            example = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID id,
             @Valid @RequestBody ScanResult result) {
 
         LOG.debug("Received scan result {}", result);
@@ -142,7 +144,8 @@ public class ScanJobResource {
 
     @RequestMapping(method = RequestMethod.POST, value = "{id}/failure")
     public ResponseEntity failJob(@ApiParam(value = "UUID of the job.", required = true, type = "UUID",
-            defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID id,
+            defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726",
+            example = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID id,
             @Valid @RequestBody ScanFailure result) {
 
         int retriesLeft = 0;
