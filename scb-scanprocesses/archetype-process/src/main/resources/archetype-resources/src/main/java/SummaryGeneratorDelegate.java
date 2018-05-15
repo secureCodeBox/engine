@@ -31,10 +31,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
+ * Example process saving results to the persistence.
+ *
  * @author Rüdiger Heins - iteratec GmbH
  * @since 04.04.18
  */
-@Component
+@Component("$package.SummaryGeneratorDelegate")
 public class SummaryGeneratorDelegate implements JavaDelegate {
 
     private static final Logger LOG = LoggerFactory.getLogger(SummaryGeneratorDelegate.class);
@@ -62,10 +64,7 @@ public class SummaryGeneratorDelegate implements JavaDelegate {
         LOG.trace("starting scan report persistence. {}", report);
 
         try {
-
-            if (persistenceProvider != null) {
-                persistenceProvider.persist(report);
-            }
+            persistenceProvider.persist(report);
         } catch (Exception e) {
             LOG.error("Unexpected Error while trying to init a persistence provider!", e);
         }
