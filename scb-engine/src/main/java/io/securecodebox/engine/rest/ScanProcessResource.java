@@ -26,6 +26,7 @@ import io.securecodebox.model.rest.Process;
 import io.securecodebox.scanprocess.ProcessVariableHelper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.camunda.bpm.engine.ProcessEngine;
@@ -77,7 +78,9 @@ public class ScanProcessResource {
             @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{processKey}")
-    public ResponseEntity<UUID> getProcesses(@PathVariable String processKey, @Valid @RequestBody List<Target> targets) {
+    public ResponseEntity<UUID> getProcesses(
+            @ApiParam(value = "The key of the process to be started. See GET /box/processes.", example = "nmap-process",
+                    required = true) @PathVariable String processKey, @Valid @RequestBody List<Target> targets) {
 
         long processCount = engine.getRepositoryService()
                 .createProcessDefinitionQuery()

@@ -22,6 +22,8 @@ package io.securecodebox.model.execution;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -29,22 +31,29 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * This class represents targets to scan by a scanner.
+ *
  * @author Rüdiger Heins - iteratec GmbH
  * @since 17.04.18
  */
 @JsonPropertyOrder(alphabetic = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@ApiModel(description = "This type represents targets to scan by a scanner.")
 public class Target {
 
-    @Size(min=1, max = 4000)
+    @ApiModelProperty(value = "The name of this target.", example = "SecureCodeBox Demo Instance", required = true)
+    @Size(min = 1, max = 4000)
     @Pattern(regexp = "^[\\w-]*$")
     @JsonProperty
     private String name;
-    @Size(min=1, max = 4000)
+    @ApiModelProperty(value = "The location of this target.", example = "162.222.1.3", required = true)
+    @Size(min = 1, max = 4000)
     @JsonProperty
     @Pattern(regexp = "^[^<>\\\\\\[\\]()%$]*$")
     private String location;
     @JsonProperty
+    @ApiModelProperty(value = "Key value pairs of target / scanner specific values.",
+            example = "{\"NMAP_START_PORT\":34, \"NMAP_IP\":\"162.222.1.3\", \"NMAP_END_PORT\": 125}", required = false)
     private Map<String, Object> attributes = new HashMap<>();
 
     public String getName() {
@@ -68,7 +77,7 @@ public class Target {
     }
 
     public void appendOrUpdateAttribute(String key, Object value) {
-        if(attributes.get(key) != null){
+        if (attributes.get(key) != null) {
             attributes.remove(key);
         }
         attributes.put(key, value);
@@ -76,10 +85,7 @@ public class Target {
 
     @Override
     public String toString() {
-        return "Target{" +
-                "name='" + name + '\'' +
-                ", location='" + location + '\'' +
-                ", attributes=" + attributes +
-                '}';
+        return "Target{" + "name='" + name + '\'' + ", location='" + location + '\'' + ", attributes=" + attributes
+                + '}';
     }
 }

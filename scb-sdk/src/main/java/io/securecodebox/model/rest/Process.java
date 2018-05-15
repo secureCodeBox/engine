@@ -21,11 +21,15 @@ package io.securecodebox.model.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.swagger.annotations.ApiModel;
 
 /**
+ * The representation of a camunda process.
+ *
  * @author Rüdiger Heins - iteratec GmbH
  * @since 29.04.18
  */
+@ApiModel(description = "The representation of a camunda process.")
 @JsonPropertyOrder(alphabetic = true)
 public class Process {
 

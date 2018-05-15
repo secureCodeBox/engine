@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
@@ -40,9 +42,9 @@ import java.util.UUID;
  * @author Rüdiger Heins - iteratec GmbH
  * @since 08.03.18
  */
-@JsonPropertyOrder(
-        { "id", "name", "description", "category", "osiLayer", "severity", "reference", "hint", "attributes",
-                "location" })
+@ApiModel(description="This type represents findings found by a scanner.")
+@JsonPropertyOrder({ "id", "name", "description", "category", "osiLayer", "severity", "reference", "hint", "attributes",
+        "location" })
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Finding {
 
@@ -50,25 +52,34 @@ public class Finding {
      * Id of the finding. Must be unique for every finding.
      */
     @NotNull
-    @JsonProperty("id")
+    @JsonProperty(value = "id", required = true)
+    @ApiModelProperty(value = "The id of the finding.", example = "3dd4840c-81ae-4fed-90b5-b3eea3d4c701",
+            required = true)
     private UUID id;
     @Max(4000)
     @Pattern(regexp = "^[^<>\\\\/\\[\\]()%$]*$")
+    @ApiModelProperty(value = "The name of the finding.", example = "Open Port", required = true)
     private String name;
     @Pattern(regexp = "^[^<>\\\\/\\[\\]()%$]*$")
+    @ApiModelProperty(value = "The name of the finding.", example = "The DNS Port is open.")
     private String description;
 
     @Pattern(regexp = "^[^<>\\\\/\\[\\]()%$]*$")
+    @ApiModelProperty(value = "The category of this finding.", example = "Infrastructure", required = true)
     private String category;
     @JsonProperty(value = "osi_layer", required = false)
+    @ApiModelProperty(value = "The osi layer of this finding.", example ="NETWORK")
     private OsiLayer osiLayer;
+    @ApiModelProperty(value = "The severity of this finding.", example ="HIGH")
     private Severity severity;
 
+    @ApiModelProperty(value = "An additional external Reference.", example ="CVE-2018-1196")
     private Reference reference;
 
     /**
      * An additional solution hint for a finding found. For example SQL-Injection: Please think about using prepared statements.
      */
+    @ApiModelProperty(value = "An additional solution hint for a finding found.", example ="SQL-Injection: Please think about using prepared statements.")
     private String hint;
 
     /**
@@ -82,8 +93,10 @@ public class Finding {
      * NMAP_IP: 162.222.1.3
      * NMAP_PORT: 82
      */
+    @ApiModelProperty(value = "The location of this finding.", example ="tcp://162.222.1.3:53", required = true)
     private String location;
 
+    @ApiModelProperty(value = "Key value pairs of scanner specific values.", example ="{\"NMAP_PORT\":34, \"NMAP_IP\":\"162.222.1.3\"}", required = false)
     private Map<String, Object> attributes = new HashMap<>();
 
     public UUID getId() {
@@ -199,8 +212,8 @@ public class Finding {
         Finding finding = (Finding) o;
         return Objects.equals(id, finding.id) && Objects.equals(name, finding.name) && Objects.equals(description,
                 finding.description) && Objects.equals(category, finding.category) && osiLayer == finding.osiLayer
-                && severity == finding.severity && Objects.equals(reference, finding.reference) && Objects.equals(
-                hint, finding.hint) && Objects.equals(attributes, finding.attributes);
+                && severity == finding.severity && Objects.equals(reference, finding.reference) && Objects.equals(hint,
+                finding.hint) && Objects.equals(attributes, finding.attributes);
     }
 
     @Override
