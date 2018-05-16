@@ -29,106 +29,95 @@
         });
 
         camForm.on('variables-restored', function () {
-            $scope.targetName = camForm.variableManager.variableValue('NMAP_TARGET_NAME');
             $scope.context = camForm.variableManager.variableValue('PROCESS_CONTEXT');
 
-            $scope.portScannerId = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
-            $scope.portScannerTarget = camForm.variableManager.variableValue('NMAP_TARGET');
-            $scope.portScannerParameter = camForm.variableManager.variableValue('NMAP_PARAMETER');
-            $scope.portScannerResult = JSON.parse(camForm.variableManager.variableValue('PROCESS_FINDINGS'));
-
-            $scope.groupedResults = $scope.portScannerResult.reduce(
-                    function (carry, item) {
-                    console.log(item.attributes.ip_address);
-                        if (!carry.hasOwnProperty(item.attributes.ip_address)) {
-                            carry[item.attributes.ip_address] = [];
-                        }
-                        carry[item.attributes.ip_address].push(item);
-                        return carry;
-                    },
-                    {}
-            );
+            $scope.scannerId = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
+            $scope.scannerResult = JSON.parse(camForm.variableManager.variableValue('PROCESS_FINDINGS'));
+            $scope.scannerTargets = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
         });
     </script>
+    <div ng-repeat="target in scannerTargets">
+        <h2>Portscan results for "{{ target.name }}"</h2>
 
-    <h2>Portscan results for "{{ targetName }}"</h2>
+        <div class="row">
+            <div class="col-xs-2"><label>Scanner Id:</label></div>
+            <div class="col-xs-10">{{ scannerId }}</div>
+        </div>
+        <div class="row">
+            <div class="col-xs-2"><label>Target Location:</label></div>
+            <div class="col-xs-10">{{ target.location }}</div>
+        </div>
+        <div class="row">
+            <div class="col-xs-2"><label>Business Context:</label></div>
+            <div class="col-xs-10">{{ context }}</div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
 
-    <div class="row">
-        <div class="col-xs-12">
+                <div class="well well-sm"
+                     style="color: inherit;">
+                    <table class="table table-striped">
+                        <tr>
+                            <th>Host:</th>
+                            <th>Name:</th>
+                            <th>Category:</th>
+                            <th>Severity:</th>
+                            <th>Reference:</th>
+                        </tr>
+                        <tr class="danger" ng-repeat="result in scannerResult">
+                            <td>{{ result.location }}</td>
+                            <td>{{ result.name }}</td>
+                            <td>{{ result.category }}</td>
+                            <td>
+                                <div ng-switch on="result.severity">
+                                <span class="label label-danger" ng-switch-when="HIGH">
+                                    <i aria-hidden="true"
+                                       class="glyphicon glyphicon-fire"></i>
+                                    {{ result.severity }}
+                                </span>
 
-            <div>
-                <div>
-                    <label>Port scanner Id:</label>
-                    <a href="{{ NMAP_TARGET }}">{{ portScannerId }}</a>
-                </div>
-                <div>
-                    <label>Target Host:</label>
-                    <a href="{{ NMAP_TARGET }}">{{ portScannerTarget.trim().split(' ').join(', ') }}</a>
-                </div>
-                <div>
-                    <label>Business Context:</label>
-                    <code>{{ context }}</code>
-                </div>
-            </div>
+                                    <span class="label label-warning" ng-switch-when="MEDIUM">
+                                    <i aria-hidden="true"
+                                       class="glyphicon glyphicon glyphicon-alert"></i>
+                                    {{ result.severity }}
+                                </span>
 
-            <div class="form-group hidden">
-                <label>Result:</label>
-                <code>{{ portScannerResult }}</code>
-            </div>
+                                    <span class="label label-primary" ng-switch-when="LOW">
+                                    <i aria-hidden="true"
+                                       class="glyphicon glyphicon-warning-sign"></i>
+                                    {{ result.severity }}
+                                </span>
 
-            <div class="well well-sm"
-                 style="color: inherit;"
-                 ng-repeat="(address, host) in groupedResults">
-                <strong>Results for Host: {{ address }}</strong>
-                <table class="table table-striped">
-                    <tr>
-                        <th>Host:</th>
-                        <th>Port:</th>
-                        <th>Name:</th>
-                        <th>Protocol:</th>
-                        <th>State:</th>
-                        <th>Action:</th>
-                    </tr>
-                    <tr class="danger" ng-repeat="port in host">
-                        <td>{{ address }}</td>
-                        <td>{{ port.attributes.port }}</td>
-                        <td>{{ port.attributes.service }}</td>
-                        <td>{{ port.attributes.protocol }}</td>
-                        <td>
-                            <span class="label label-danger">
-                                <i aria-hidden="true"
-                                   class="glyphicon glyphicon-fire"></i>
-                                Open
-                            </span>
-                        </td>
-                        <td>
-                            <span class="label label-success ng-binding">
-                                <i aria-hidden="true"
-                                   class="glyphicon glyphicon-ok"></i>
-                                Ignore
-                            </span>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            
-            <h2>Approve Result</h2>
-            <!-- reporting configuration -->
-            <div class="form-group">
-                <label for="selectResultApproved">Approve Result</label>
-                <div id="selectResultApproved" class="controls">
-                    <!--select box -->
-                    <select required
-                            class="form-control"
-                            name="resultApproved"
-                            cam-variable-name="PROCESS_RESULT_APPROVED"
-                            cam-variable-type="String">
-                        <option value="approved" checked>Approved (Finished)</option>
-                        <option value="disapproved">Not Approved (Restart Scan)</option>
-                    </select>
+                                    <span class="label label-default" ng-switch-default>
+                                    <i aria-hidden="true"
+                                       class="glyphicon glyphicon-education"></i>
+                                    {{ result.severity }}
+                                </span>
+
+                            </td>
+                            <td> {{ result.reference.id }}
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </div>
 
+        </div>
+    </div>
+    <h2>Approve Result</h2>
+    <!-- reporting configuration -->
+    <div class="form-group">
+        <label for="selectResultApproved">Approve Result</label>
+        <div id="selectResultApproved" class="controls">
+            <!--select box -->
+            <select required
+                    class="form-control"
+                    name="resultApproved"
+                    cam-variable-name="PROCESS_RESULT_APPROVED"
+                    cam-variable-type="String">
+                <option value="approved" checked>Approved (finished)</option>
+                <option value="disapproved">Not Approved (finished)</option>
+            </select>
         </div>
     </div>
 </form>
