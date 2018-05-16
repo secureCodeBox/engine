@@ -7,6 +7,36 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <!-- Maven Central project information -->
+    <name>SecureCodeBox Engine</name>
+    <description>The secureCodeBox provides a toolchain for continuous security scanning of applications to find the
+        low-hanging fruit issues early in the development process and free the resources of the penetration tester to
+        concentrate on the major security issues.
+    </description>
+    <url>https://github.com/secureCodeBox/secureCodeBox</url>
+
+    <developers>
+        <developer>
+            <id>iteratec.de</id>
+            <name>iteratec GmbH security group</name>
+            <organization>iteratec GmbH</organization>
+            <organizationUrl>https://www.iteratec.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/secureCodeBox/engine.git</connection>
+        <developerConnection>scm:git:ssh://github.com:secureCodeBox/engine.git</developerConnection>
+        <url>https://github.com/secureCodeBox/engine/tree/master</url>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
     <properties>
         <!--
             IMPORTANT: camunda.version and camunda.spring.boot.starter.version must be compatible
@@ -176,11 +206,11 @@
             <build>
                 <pluginManagement>
                     <plugins>
-                    <plugin>
-                        <groupId>io.github.swagger2markup</groupId>
-                        <artifactId>swagger2markup-maven-plugin</artifactId>
-                        <version>1.3.3</version>
-                    </plugin>
+                        <plugin>
+                            <groupId>io.github.swagger2markup</groupId>
+                            <artifactId>swagger2markup-maven-plugin</artifactId>
+                            <version>1.3.3</version>
+                        </plugin>
                     </plugins>
                 </pluginManagement>
             </build>
