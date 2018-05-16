@@ -1,3 +1,5 @@
+#set( $component = $package.replace(".", "_") )
+
 /*
  *
  *  SecureCodeBox (SCB)
@@ -36,7 +38,7 @@ import org.springframework.stereotype.Component;
  * @author Rüdiger Heins - iteratec GmbH
  * @since 04.04.18
  */
-@Component("$package.SummaryGeneratorDelegate")
+@Component("${component}_SummaryGeneratorDelegate")
 public class SummaryGeneratorDelegate implements JavaDelegate {
 
     private static final Logger LOG = LoggerFactory.getLogger(SummaryGeneratorDelegate.class);

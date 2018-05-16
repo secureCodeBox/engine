@@ -1,3 +1,4 @@
+#set( $component = $package.replace(".", "_") )
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.12.0">
   <bpmn:process id="$processTopic" name="$processName Scan" isExecutable="true" camunda:versionTag="3" camunda:historyTimeToLive="30">
@@ -47,7 +48,7 @@
       <bpmn:outgoing>SequenceFlow_PortscanFinished</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_SummaryCreated" name="summary created" sourceRef="ServiceTask_CreateSummary" targetRef="ExclusiveGateway_AutomatedFinish" />
-    <bpmn:serviceTask id="ServiceTask_CreateSummary" name="Create Report Summary" camunda:asyncBefore="true" camunda:class="${package}.SummaryGeneratorDelegate">
+    <bpmn:serviceTask id="ServiceTask_CreateSummary" name="Create Report Summary" camunda:asyncBefore="true" camunda:delegateExpression="${dollar}{${component}_SummaryGeneratorDelegate}">
       <bpmn:extensionElements />
       <bpmn:incoming>SequenceFlow_PortscanFinished</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_SummaryCreated</bpmn:outgoing>

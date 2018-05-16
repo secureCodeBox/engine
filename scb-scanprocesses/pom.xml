@@ -22,14 +22,4 @@
         <module>sslyze-process</module>
     </modules>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>io.securecodebox.core</groupId>
-                <artifactId>sdk</artifactId>
-                <version>${project.parent.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
 </project>

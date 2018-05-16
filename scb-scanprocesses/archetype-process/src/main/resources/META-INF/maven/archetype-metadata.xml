@@ -46,9 +46,12 @@
                 <exclude>forms/**</exclude>
             </excludes>
         </fileSet>
-
         <fileSet filtered="false" packaged="false" encoding="UTF-8">
             <directory>src/main/resources/forms/</directory>
+        </fileSet>
+
+        <fileSet filtered="true" packaged="false" encoding="UTF-8">
+            <directory>src/test/</directory>
         </fileSet>
     </fileSets>
 

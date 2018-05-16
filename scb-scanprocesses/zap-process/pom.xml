@@ -16,11 +16,11 @@
             <groupId>io.securecodebox.core</groupId>
             <artifactId>sdk</artifactId>
         </dependency>
+
+        <!-- Test Dependencies -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>provided</scope>
-            <version>1.3.168</version>
         </dependency>
         <dependency>
             <groupId>org.camunda.bpm.springboot</groupId>
@@ -31,18 +31,15 @@
             <groupId>org.camunda.bpm.extension.mockito</groupId>
             <artifactId>camunda-bpm-mockito</artifactId>
             <scope>test</scope>
-            <version>3.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.camunda.bpm.extension</groupId>
             <artifactId>camunda-bpm-assert-scenario</artifactId>
-            <version>0.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.camunda.bpm.extension</groupId>
             <artifactId>camunda-bpm-process-test-coverage</artifactId>
-            <version>0.3.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -31,7 +31,6 @@
             <groupId>org.camunda.bpm.extension.mockito</groupId>
             <artifactId>camunda-bpm-mockito</artifactId>
             <scope>test</scope>
-            <version>3.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.camunda.bpm.springboot</groupId>

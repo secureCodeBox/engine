@@ -39,26 +39,32 @@
             <artifactId>sdk</artifactId>
             <version>${dollar}{parent.version}</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.camunda.bpm.springboot</groupId>-->
-        <!--<artifactId>camunda-bpm-spring-boot-starter-test</artifactId>-->
-        <!--<scope>test</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>org.camunda.bpm.extension.mockito</groupId>-->
-        <!--<artifactId>camunda-bpm-mockito</artifactId>-->
-        <!--<scope>test</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>org.camunda.bpm.extension</groupId>-->
-        <!--<artifactId>camunda-bpm-assert-scenario</artifactId>-->
-        <!--<scope>test</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>org.camunda.bpm.extension</groupId>-->
-        <!--<artifactId>camunda-bpm-process-test-coverage</artifactId>-->
-        <!--<scope>test</scope>-->
-        <!--</dependency>-->
+
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.camunda.bpm.springboot</groupId>
+            <artifactId>camunda-bpm-spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.camunda.bpm.extension.mockito</groupId>
+            <artifactId>camunda-bpm-mockito</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.camunda.bpm.extension</groupId>
+            <artifactId>camunda-bpm-assert-scenario</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.camunda.bpm.extension</groupId>
+            <artifactId>camunda-bpm-process-test-coverage</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>
