@@ -1,0 +1,126 @@
+<!--
+  ~ /*
+  ~ * SecureCodeBox (SCB)
+  ~ * Copyright 2015-2018 iteratec GmbH
+  ~ *
+  ~ * Licensed under the Apache License, Version 2.0 (the "License");
+  ~ * you may not use this file except in compliance with the License.
+  ~ * You may obtain a copy of the License at
+  ~ *
+  ~ * 	http://www.apache.org/licenses/LICENSE-2.0
+  ~ *
+  ~ * Unless required by applicable law or agreed to in writing, software
+  ~ * distributed under the License is distributed on an "AS IS" BASIS,
+  ~ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ * See the License for the specific language governing permissions and
+  ~ * limitations under the License.
+  ~ */
+  -->
+
+<form role="form" name="configure-reporting">
+	<script cam-script type="text/form-script">
+		camForm.on('form-loaded', function() {
+			camForm.variableManager.fetchVariable('PROCESS_TARGETS');
+		  	camForm.variableManager.fetchVariable('PROCESS_CONTEXT');
+
+		  	camForm.variableManager.fetchVariable('PROCESS_FINDINGS');
+		});
+
+		camForm.on('variables-restored', function() {
+		    $scope.context = camForm.variableManager.variableValue('PROCESS_CONTEXT');
+
+			$scope.result = JSON.parse(camForm
+					.variableManager
+					.variableValue('PROCESS_FINDINGS'))
+					.reduce(
+						function (carry, element) {
+							var key = element.attributes.ip_address + ':' + element.attributes.port;
+
+							if(!carry.hasOwnProperty(key)){
+								carry[key] = [];
+							}
+							carry[key].push(element);
+							return carry;
+						},
+						{}
+					);
+
+			var targets = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
+
+			$scope.firstTarget = targets[0];
+			$scope.otherTargetsLength = targets.length - 1;
+		});
+	</script>
+
+	<h2>
+		Nikto-Scan results for "{{ firstTarget.name }}"
+		<span ng-if="otherTargetsLength > 0">, and {{otherTargetsLength}} other Targets.</span>
+	</h2>
+
+	<div class="row">
+		<div class="col-xs-12">
+			<div>
+				<label>Target Host:</label>
+				<p>{{ firstTarget.location }}</p>
+			</div>
+			<div>
+				<label>Scanned Ports:</label>
+				<p>{{ firstTarget.attributes.NIKTO_PORTS }}</p>
+			</div>
+			<div>
+				<label>Additional Arguments:</label>
+				<p>
+					<span ng-if="!firstTarget.attributes.NIKTO_PARAMETER">None</span>
+					<code ng-if="firstTarget.attributes.NIKTO_PARAMETER">{{firstTarget.attributes.NIKTO_PARAMETER}}</code>
+				</p>
+			</div>
+			<div class="form-group hidden">
+				<label>Result:</label>
+				<code>{{ result }}</code>
+			</div>
+
+			<div class="well well-sm"
+				 style="color: inherit;"
+				 ng-repeat="(host, group) in result">
+				<strong>Results for Host: {{ host }}</strong>
+				<table class="table table-striped">
+					<tr>
+						<th>Path:</th>
+						<th>Method:</th>
+						<th>Description:</th>
+						<th>Action:</th>
+					</tr>
+					<tr class="danger" ng-repeat="finding in group">
+						<td style="max-width: 175px; overflow: scroll">{{ finding.location }}</td>
+						<td>{{ finding.attributes.http_method }}</td>
+						<td>{{ finding.name }}</td>
+						<td>
+							<span class="label label-success ng-binding">
+								<i aria-hidden="true"
+								   class="glyphicon glyphicon-ok"></i>
+								Ignore
+							</span>
+						</td>
+					</tr>
+				</table>
+			</div>
+
+			<h2>Approve Result</h2>
+			<!-- reporting configuration -->
+			<div class="form-group">
+				<div class="controls">
+					<label for="selectResultApproved">Approve Result</label>
+					<select required
+							id="selectResultApproved"
+							class="form-control"
+							name="resultApproved"
+							cam-variable-name="PROCESS_RESULT_APPROVED"
+							cam-variable-type="String">
+						<option value="approved" selected>Approved (Finished)</option>
+						<option value="dissapproved">Not Approved (Restart Scan)</option>
+					</select>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>

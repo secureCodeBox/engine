@@ -2,7 +2,7 @@ package io.securecodebox.model.execution;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
-import io.securecodebox.scanprocess.delegate.TransformFindingsToTargetsDelegate;
+import io.securecodebox.scanprocess.listener.TransformFindingsToTargetsListener;
 import junit.framework.AssertionFailedError;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.variable.value.ObjectValue;
@@ -21,7 +21,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
-public class TransformFindingsToTargetsDelegateTest {
+public class TransformFindingsToTargetsListenerTest {
 
     private static final String input = "[\n" +
             "  {\n" +
@@ -73,17 +73,15 @@ public class TransformFindingsToTargetsDelegateTest {
                 "  }\n" +
                 "]";
 
-        testTransformationOfTargetToFindings(input);
+        testTransformationOfTargetToFindings(input, generateExpectedResult());
     }
 
     @Test
     public void testWithCorrectInputShouldSucceed(){
-        testTransformationOfTargetToFindings(input);
+        testTransformationOfTargetToFindings(input, generateExpectedResult());
     }
 
-    public void testTransformationOfTargetToFindings(String input){
-
-        final List<Target> expectedResult = generateExpectedResult();
+    public void testTransformationOfTargetToFindings(String input, List<Target> expectedResult){
 
         try {
 
@@ -98,7 +96,7 @@ public class TransformFindingsToTargetsDelegateTest {
 
             when(delegateExecution.getVariable(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenReturn(input);
 
-            TransformFindingsToTargetsDelegate delegate = new TransformFindingsToTargetsDelegate();
+            TransformFindingsToTargetsListener delegate = new TransformFindingsToTargetsListener();
             delegate.notify(delegateExecution);
 
         }
@@ -106,6 +104,23 @@ public class TransformFindingsToTargetsDelegateTest {
             e.printStackTrace();
             fail(e.getMessage());
         }
+    }
+
+    @Test
+    public void testApplyingOfAttributeMapping(){
+
+        String attributeMapping = "[{\"from\":\"statusCode\",\"to\":\"CODE\"}]";
+
+        when(delegateExecution.getVariable(eq(DefaultFields.PROCESS_ATTRIBUTE_MAPPING.name()))).thenReturn(attributeMapping);
+
+        final List<Target> expectedResult = generateExpectedResult();
+        for(Target t : expectedResult) {
+            Object value = t.getAttributes().get("statusCode");
+            t.getAttributes().remove("statusCode");
+            t.getAttributes().put("CODE", value);
+        }
+
+        testTransformationOfTargetToFindings(input, expectedResult);
     }
 
     private static List<Target> generateExpectedResult(){

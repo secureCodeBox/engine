@@ -20,6 +20,7 @@
         <module>nikto-process</module>
         <module>zap-process</module>
         <module>sslyze-process</module>
+        <module>combined-nmap-nikto-scanprocess</module>
     </modules>
 
 </project>

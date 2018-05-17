@@ -247,7 +247,7 @@ public class ZapProcessTest {
         Scenario scenario = Scenario.run(zapProcess).startByKey(PROCESS_ID, defaultVariables).execute();
 
         assertThat(scenario.instance(zapProcess)).isWaitingAt(RUN_SCANNER_TASK);
-        verifyExecutionListenerMock("transformFindingsToTargetsDelegate");
+        verifyExecutionListenerMock("transformFindingsToTargetsListener");
     }
 
     @Test
