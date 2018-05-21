@@ -163,6 +163,9 @@
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
+            <properties>
+                <activatedProfiles>docs</activatedProfiles>
+            </properties>
             <build>
                 <plugins>
                     <plugin>

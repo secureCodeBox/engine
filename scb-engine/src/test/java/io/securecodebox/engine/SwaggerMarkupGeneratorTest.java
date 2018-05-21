@@ -20,6 +20,7 @@
 package io.securecodebox.engine;
 
 import io.securecodebox.engine.rest.SwaggerConfiguration;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,13 +46,14 @@ import java.nio.file.Paths;
  * @author Rüdiger Heins - iteratec GmbH
  * @since 09.05.18
  */
+@Ignore("Ignored as the application context is dirtied by the process engine. Gets called from ScanJobResourceTest test...")
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = { SecureCodeBoxEngine.class, SwaggerConfiguration.class })
 @AutoConfigureMockMvc
 public class SwaggerMarkupGeneratorTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    public MockMvc mockMvc;
 
     @Test
     public void testCreateSwaggerFile() throws Exception {
@@ -68,8 +70,8 @@ public class SwaggerMarkupGeneratorTest {
     }
 
     private Path getTargetFolderPath() {
-        return Paths.get(new File(
-                        SwaggerMarkupGeneratorTest.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent(),
-                "swagger.json");
+        return Paths.get(
+                new File(SwaggerMarkupGeneratorTest.class.getProtectionDomain().getCodeSource().getLocation().getPath())
+                        .getParent(), "swagger.json");
     }
 }

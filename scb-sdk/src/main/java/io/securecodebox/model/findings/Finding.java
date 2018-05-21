@@ -57,14 +57,14 @@ public class Finding {
             required = true)
     private UUID id;
     @Max(4000)
-    @Pattern(regexp = "^[^<>\\\\/\\[\\]()%$]*$")
+    @Pattern(regexp = "^[^<>\\\\/\\[\\]{}()%$]*$")
     @ApiModelProperty(value = "The name of the finding.", example = "Open Port", required = true)
     private String name;
-    @Pattern(regexp = "^[^<>\\\\/\\[\\]()%$]*$")
+    @Pattern(regexp = "^[^<>\\\\/\\[\\]{}()%$]*$")
     @ApiModelProperty(value = "The name of the finding.", example = "The DNS Port is open.")
     private String description;
 
-    @Pattern(regexp = "^[^<>\\\\/\\[\\]()%$]*$")
+    @Pattern(regexp = "^[^<>\\\\/\\[\\]{}()%$]*$")
     @ApiModelProperty(value = "The category of this finding.", example = "Infrastructure", required = true)
     private String category;
     @JsonProperty(value = "osi_layer", required = false)

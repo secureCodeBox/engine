@@ -48,12 +48,12 @@ public class Reference {
 
     @ApiModelProperty(value = "The id of this reverence.", example = "CVE-2017-15707", required = true)
     @Max(4000)
-    @Pattern(regexp = "^[^<>\\\\/\\[\\]()%$]*$")
+    @Pattern(regexp = "^[^<>\\\\/\\[\\]{}()%$]*$")
     private String id;
 
     @ApiModelProperty(value = "The source of this reverence.",
             example = "https://www.cvedetails.com/cve/CVE-2017-15707/", required = true)
-    @Pattern(regexp = "^[^<>\\\\\\[\\]()%$]*$")
+    @Pattern(regexp = "^[^<>\\\\\\[\\]{}()%$]*$")
     private String source;
 
     public String getId() {

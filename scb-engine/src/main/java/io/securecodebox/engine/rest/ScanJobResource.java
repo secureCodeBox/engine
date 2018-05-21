@@ -33,6 +33,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.camunda.bpm.engine.ProcessEngine;
+import org.camunda.bpm.engine.exception.NotFoundException;
 import org.camunda.bpm.engine.externaltask.ExternalTask;
 import org.camunda.bpm.engine.externaltask.ExternalTaskQueryBuilder;
 import org.camunda.bpm.engine.externaltask.LockedExternalTask;
@@ -109,6 +110,7 @@ public class ScanJobResource {
     @ApiResponses(
             value = { @ApiResponse(code = 200, message = "Successful delivery of the result.", response = void.class),
                     @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
+                    @ApiResponse(code = 404, message = "Unable to find jobId"),
                     @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
     @RequestMapping(method = RequestMethod.POST, value = "{id}/result")
@@ -131,8 +133,12 @@ public class ScanJobResource {
                     ProcessVariableHelper.generateObjectValue(result.getRawFindings()));
         }
 
-        engine.getExternalTaskService().complete(id.toString(), result.getScannerId().toString(), variables);
-
+        try {
+            engine.getExternalTaskService().complete(id.toString(), result.getScannerId().toString(), variables);
+        } catch (NotFoundException e) {
+            LOG.info("Can not find taskId {}", id, e);
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok().build();
     }
 

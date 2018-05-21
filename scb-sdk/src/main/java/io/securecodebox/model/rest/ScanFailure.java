@@ -43,13 +43,13 @@ public class ScanFailure {
     @ApiModelProperty(value = "Short error message why this failure happened.",
             example = "The host down.securecodebox.io is nor reachable!")
     @JsonProperty
-    @Pattern(regexp = "^[\\w\\r.!?+-]*$")
+    @Pattern(regexp = "^[\\w\\s\\r.!?+-_]*$")
     private String errorMessage;
 
     @ApiModelProperty(value = "Provide more details, if there are any, why this failure happened.",
             example = "It was not possible to resolve a DNS entry!")
     @JsonProperty
-    @Pattern(regexp = "^[\\w\\r.!?+-]*$")
+    @Pattern(regexp = "^[\\w\\s\\r.!?+-_]*$")
     private String errorDetails;
 
     public UUID getScannerId() {
