@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -44,14 +43,35 @@ import java.util.UUID;
 import static org.junit.Assert.fail;
 
 /**
+ * This tests is a integration test for http body validation
+ *
  * @author Rüdiger Heins - iteratec GmbH
  * @since 21.05.18
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { SecureCodeBoxEngine.class })
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class ScanJobResourceTest {
+public class ScanJobResourceValidationTest {
+
+    public static final String SWAGGER_UI_SUCCESS_BODY =
+            "{\n" + "  \"findings\": [\n" + "    {\n" + "      \"attributes\": {\n" + "        \"NMAP_PORT\": 34,\n"
+                    + "        \"NMAP_IP\": \"162.222.1.3\"\n" + "      },\n"
+                    + "      \"category\": \"Infrastructure\",\n"
+                    + "      \"description\": \"The DNS Port is open.\",\n"
+                    + "      \"hint\": \"SQL-Injection: Please think about using prepared statements.\",\n"
+                    + "      \"id\": \"3dd4840c-81ae-4fed-90b5-b3eea3d4c701\",\n"
+                    + "      \"location\": \"tcp://162.222.1.3:53\",\n" + "      \"name\": \"Open Port\",\n"
+                    + "      \"osi_layer\": \"NETWORK\",\n" + "      \"reference\": {\n"
+                    + "        \"id\": \"CVE-2017-15707\",\n"
+                    + "        \"source\": \"https://www.cvedetails.com/cve/CVE-2017-15707/\"\n" + "      },\n"
+                    + "      \"severity\": \"HIGH\"\n" + "    }\n" + "  ],\n" + "  \"rawFindings\": \"string\",\n"
+                    + "  \"scannerId\": \"5dd0840c-81ae-4fed-90b5-b3eea3d4c701\",\n" + "  \"scannerType\": \"nmap\"\n"
+                    + "}";
+    public static final String SWAGGER_UI_FAILURE_BODY =
+            "{\n" + "  \"errorDetails\": \"It was not possible to resolve a DNS entry!\",\n"
+                    + "  \"errorMessage\": \"The host down.securecodebox.io is nor reachable!\",\n"
+                    + "  \"scannerId\": \"29bf7fd3-8512-4d73-a28f-608e493cd726\"\n" + "}";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -59,7 +79,7 @@ public class ScanJobResourceTest {
     private ObjectMapper objectMapper;
 
     @Test
-    public void testInvalidScannerTypeWhitespace() throws Exception {
+    public void testSuccessResourceInvalidScannerTypeWhitespace() throws Exception {
 
         ScanResult scanResult = generateScanResult("test scanner");
 
@@ -70,7 +90,7 @@ public class ScanJobResourceTest {
     }
 
     @Test
-    public void testInvalidScannerTypeChar() throws Exception {
+    public void testSuccessResourceInvalidScannerTypeChar() throws Exception {
 
         ScanResult scanResult = generateScanResult("test!scanner");
 
@@ -81,7 +101,7 @@ public class ScanJobResourceTest {
     }
 
     @Test
-    public void testInvalidScannerTypeChar2() throws Exception {
+    public void testSuccessResourceInvalidScannerTypeChar2() throws Exception {
 
         ScanResult scanResult = generateScanResult("test{scanner");
 
@@ -92,7 +112,7 @@ public class ScanJobResourceTest {
     }
 
     @Test
-    public void testInvalidScannerTypeChar3() throws Exception {
+    public void testSuccessResourceInvalidScannerTypeChar3() throws Exception {
 
         ScanResult scanResult = generateScanResult("test(scanner");
 
@@ -103,7 +123,7 @@ public class ScanJobResourceTest {
     }
 
     @Test
-    public void testValidScannerType() throws Exception {
+    public void testSuccessResourceValidScannerType() throws Exception {
 
         ScanResult scanResult = generateScanResult("test_scanner");
 
@@ -114,7 +134,16 @@ public class ScanJobResourceTest {
     }
 
     @Test
-    public void testInvalidUUID() throws Exception {
+    public void testSuccessResourceValidSwaggerUi() throws Exception {
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/box/jobs/29bf7fd3-8512-4d73-a28f-608e493cd722/result")
+                .content(SWAGGER_UI_SUCCESS_BODY)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    public void testSuccessResourceInvalidUUID() throws Exception {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/box/jobs/29bf7fd3-8512-4d73-a28f-608e493cd722/result")
                 .content(
@@ -135,7 +164,7 @@ public class ScanJobResourceTest {
     }
 
     @Test
-    public void testInvalidFindingUUID() throws Exception {
+    public void testSuccessResourceInvalidFindingUUID() throws Exception {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/box/jobs/29bf7fd3-8512-4d73-a28f-608e493cd722/result")
                 .content(
@@ -145,7 +174,7 @@ public class ScanJobResourceTest {
     }
 
     @Test
-    public void testInvalidFindingName() throws Exception {
+    public void testSuccessResourceInvalidFindingName() throws Exception {
 
         // Testing: \
         mockMvc.perform(MockMvcRequestBuilders.post("/box/jobs/29bf7fd3-8512-4d73-a28f-608e493cd722/result")
@@ -184,7 +213,7 @@ public class ScanJobResourceTest {
     }
 
     @Test
-    public void testInvalidFindingDescription() throws Exception {
+    public void testSuccessResourceInvalidFindingDescription() throws Exception {
 
         // Testing: \
         mockMvc.perform(MockMvcRequestBuilders.post("/box/jobs/29bf7fd3-8512-4d73-a28f-608e493cd722/result")
@@ -223,7 +252,7 @@ public class ScanJobResourceTest {
     }
 
     @Test
-    public void testInvalidFindingCategory() throws Exception {
+    public void testSuccessResourceInvalidFindingCategory() throws Exception {
 
         // Testing: \
         mockMvc.perform(MockMvcRequestBuilders.post("/box/jobs/29bf7fd3-8512-4d73-a28f-608e493cd722/result")
@@ -262,7 +291,7 @@ public class ScanJobResourceTest {
     }
 
     @Test
-    public void testInvalidFindingHint() throws Exception {
+    public void testSuccessResourceInvalidFindingHint() throws Exception {
 
         // Testing: \
         mockMvc.perform(MockMvcRequestBuilders.post("/box/jobs/29bf7fd3-8512-4d73-a28f-608e493cd722/result")
@@ -301,7 +330,7 @@ public class ScanJobResourceTest {
     }
 
     @Test
-    public void testInvalidFindingOsi() throws Exception {
+    public void testSuccessResourceInvalidFindingOsi() throws Exception {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/box/jobs/29bf7fd3-8512-4d73-a28f-608e493cd722/result")
                 .content(
@@ -317,7 +346,7 @@ public class ScanJobResourceTest {
     }
 
     @Test
-    public void testInvalidFindingSeverity() throws Exception {
+    public void testSuccessResourceInvalidFindingSeverity() throws Exception {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/box/jobs/29bf7fd3-8512-4d73-a28f-608e493cd722/result")
                 .content(
@@ -332,8 +361,17 @@ public class ScanJobResourceTest {
         }
     }
 
+    @Test
+    public void testFailureResourceValidSwaggerUi() throws Exception {
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/box/jobs/16f7f8bc-5cd1-11e8-ae96-ce3a6d282fee/failure")
+                .content(SWAGGER_UI_FAILURE_BODY)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
     /**
-     * WORKAROUND for ApplicationContext loadin issues {@see camunda-spring-boot-starter 288}{@link SwaggerMarkupGeneratorTest}
+     * WORKAROUND for ApplicationContext loading issues {@see camunda-spring-boot-starter 288}{@link SwaggerMarkupGeneratorTest}
      */
     @Test
     public void testExecuteSwagger() throws Exception {

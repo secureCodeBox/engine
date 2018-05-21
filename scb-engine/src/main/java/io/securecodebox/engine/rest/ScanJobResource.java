@@ -146,6 +146,7 @@ public class ScanJobResource {
     @ApiResponses(
             value = { @ApiResponse(code = 200, message = "Successful delivery of the failure.", response = void.class),
                     @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
+                    @ApiResponse(code = 404, message = "Unable to find jobId"),
                     @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
     @RequestMapping(method = RequestMethod.POST, value = "{id}/failure")
@@ -164,14 +165,16 @@ public class ScanJobResource {
                 .withRetriesLeft()
                 .singleResult();
 
-        if (externalTask != null && externalTask.getRetries() != null && externalTask.getRetries() > 0) {
+        if (externalTask == null) {
+            LOG.info("Can not find taskId {}", id);
+            return ResponseEntity.notFound().build();
+        } else if (externalTask.getRetries() != null && externalTask.getRetries() > 0) {
             retriesLeft = externalTask.getRetries() - 1;
         }
 
         engine.getExternalTaskService()
                 .handleFailure(id.toString(), result.getScannerId().toString(), result.getErrorMessage(),
                         result.getErrorDetails(), retriesLeft, 1000);
-
         return ResponseEntity.ok().build();
     }
 
