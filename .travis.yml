@@ -29,20 +29,8 @@ deploy:
      script: bash deploy.sh
      on:
        branch: develop
-
   -  provider: script
      skip_cleanup: true
      script: bash deploy.sh
      on:
        branch: master
-
-  - provider: releases
-    file_glob: true
-    draft: true
-    file:
-      - scb-engine/target/*.jar
-      - scb-scanprocesses/**/target/*.jar
-      - scb-sdk/target/*.jar
-    skip_cleanup: true
-    on:
-      branch: master
