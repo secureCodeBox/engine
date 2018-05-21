@@ -27,6 +27,14 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
+    <!-- Maven Central project information -->
+    <name>SecureCodeBox Process Archetype</name>
+    <description>The secureCodeBox provides a toolchain for continuous security scanning of applications to find the
+        low-hanging fruit issues early in the development process and free the resources of the penetration tester to
+        concentrate on the major security issues.
+    </description>
+    <url>https://github.com/secureCodeBox</url>
+
     <artifactId>archetype-process</artifactId>
     <packaging>jar</packaging>
     <version>0.0.1-SNAPSHOT</version>
@@ -36,26 +44,6 @@
             <groupId>io.securecodebox.core</groupId>
             <artifactId>sdk</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.camunda.bpm.springboot</groupId>-->
-            <!--<artifactId>camunda-bpm-spring-boot-starter-test</artifactId>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.camunda.bpm.extension.mockito</groupId>-->
-            <!--<artifactId>camunda-bpm-mockito</artifactId>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.camunda.bpm.extension</groupId>-->
-            <!--<artifactId>camunda-bpm-assert-scenario</artifactId>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.camunda.bpm.extension</groupId>-->
-            <!--<artifactId>camunda-bpm-process-test-coverage</artifactId>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
     </dependencies>
 
 </project>

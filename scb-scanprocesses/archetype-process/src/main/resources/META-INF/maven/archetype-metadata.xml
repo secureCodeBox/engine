@@ -24,33 +24,34 @@
 
     <requiredProperties>
         <requiredProperty key="processName" validationRegex="[a-zA-Z_-]*"/>
+        <requiredProperty key="processTopic" validationRegex="[a-zA-Z0-9_-]*"/>
     </requiredProperties>
 
     <fileSets>
         <fileSet filtered="true" packaged="false" encoding="UTF-8">
             <directory>src/main/java/</directory>
             <includes>
-                <include>**/**ProcessInitConfiguration.java</include>
+                <include>io/securecodebox/scanprocess/ProcessInitConfiguration.java</include>
             </includes>
         </fileSet>
         <fileSet filtered="true" packaged="true" encoding="UTF-8">
             <directory>src/main/java/</directory>
-            <excludes>
-                <exclude>**/**ProcessInitConfiguration.java</exclude>
-            </excludes>
+            <includes>
+                <include>SummaryGeneratorDelegate.java</include>
+            </includes>
         </fileSet>
         <fileSet filtered="true" packaged="false" encoding="UTF-8">
             <directory>src/main/resources/</directory>
             <excludes>
-                <exclude>**/**.html</exclude>
+                <exclude>forms/**</exclude>
             </excludes>
         </fileSet>
-
         <fileSet filtered="false" packaged="false" encoding="UTF-8">
             <directory>src/main/resources/forms/</directory>
-            <excludes>
-                <exclude>**/**.bpmn</exclude>
-            </excludes>
+        </fileSet>
+
+        <fileSet filtered="true" packaged="false" encoding="UTF-8">
+            <directory>src/test/</directory>
         </fileSet>
     </fileSets>
 

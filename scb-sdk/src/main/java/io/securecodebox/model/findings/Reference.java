@@ -21,6 +21,8 @@ package io.securecodebox.model.findings;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Pattern;
@@ -37,14 +39,21 @@ import java.util.Objects;
  * @author Rüdiger Heins - iteratec GmbH
  * @since 08.03.18
  */
+@ApiModel(
+        description = "Reference to further details. This can be a reference to Common Vulnerabilities and Exposures, node security, owasp or other...")
+
 @JsonPropertyOrder({ "id", "source" })
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Reference {
 
+    @ApiModelProperty(value = "The id of this reverence.", example = "CVE-2017-15707", required = true)
     @Max(4000)
-    @Pattern(regexp = "^[^<>\\\\/\\[\\]()%$]*$")
+    @Pattern(regexp = "^[^<>\\\\/\\[\\]{}()%$]*$")
     private String id;
-    @Pattern(regexp = "^[^<>\\\\\\[\\]()%$]*$")
+
+    @ApiModelProperty(value = "The source of this reverence.",
+            example = "https://www.cvedetails.com/cve/CVE-2017-15707/", required = true)
+    @Pattern(regexp = "^[^<>\\\\\\[\\]{}()%$]*$")
     private String source;
 
     public String getId() {

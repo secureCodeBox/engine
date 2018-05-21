@@ -33,6 +33,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.camunda.bpm.engine.ProcessEngine;
+import org.camunda.bpm.engine.exception.NotFoundException;
 import org.camunda.bpm.engine.externaltask.ExternalTask;
 import org.camunda.bpm.engine.externaltask.ExternalTaskQueryBuilder;
 import org.camunda.bpm.engine.externaltask.LockedExternalTask;
@@ -47,9 +48,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -84,10 +83,13 @@ public class ScanJobResource {
             @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
     @RequestMapping(method = RequestMethod.POST, value = "/lock/{topic:[a-zA-Z0-9_\\-]*}/{scannerId}")
-    public ResponseEntity<ScanConfiguration> lockJob(@ApiParam(defaultValue = "nmap_portscan",
-            value = "Topic name for the Process, be shure only to use: [A-Za-z0-9-_]") @PathVariable String topic,
+    public ResponseEntity<ScanConfiguration> lockJob(
+            @ApiParam(defaultValue = "nmap_portscan", example = "nmap_portscan",
+                    value = "Topic name for the Process, be shure only to use: [A-Za-z0-9-_]",
+                    required = true) @PathVariable String topic,
             @ApiParam(value = "UUID of the job.", required = true, type = "UUID",
-                    defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID scannerId) {
+                    defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726",
+                    example = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID scannerId) {
         ExternalTaskQueryBuilder externalTaskQueryBuilder = engine.getExternalTaskService()
                 .fetchAndLock(1, scannerId.toString());
         externalTaskQueryBuilder.topic(topic, LOCK_DURATION_MS);
@@ -108,11 +110,13 @@ public class ScanJobResource {
     @ApiResponses(
             value = { @ApiResponse(code = 200, message = "Successful delivery of the result.", response = void.class),
                     @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
+                    @ApiResponse(code = 404, message = "Unable to find jobId"),
                     @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
     @RequestMapping(method = RequestMethod.POST, value = "{id}/result")
     public ResponseEntity completeJob(@ApiParam(value = "UUID of the job.", required = true, type = "UUID",
-            defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID id,
+            defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726",
+            example = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID id,
             @Valid @RequestBody ScanResult result) {
 
         LOG.debug("Received scan result {}", result);
@@ -129,8 +133,12 @@ public class ScanJobResource {
                     ProcessVariableHelper.generateObjectValue(result.getRawFindings()));
         }
 
-        engine.getExternalTaskService().complete(id.toString(), result.getScannerId().toString(), variables);
-
+        try {
+            engine.getExternalTaskService().complete(id.toString(), result.getScannerId().toString(), variables);
+        } catch (NotFoundException e) {
+            LOG.info("Can not find taskId {}", id, e);
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok().build();
     }
 
@@ -138,11 +146,13 @@ public class ScanJobResource {
     @ApiResponses(
             value = { @ApiResponse(code = 200, message = "Successful delivery of the failure.", response = void.class),
                     @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
+                    @ApiResponse(code = 404, message = "Unable to find jobId"),
                     @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
     @RequestMapping(method = RequestMethod.POST, value = "{id}/failure")
     public ResponseEntity failJob(@ApiParam(value = "UUID of the job.", required = true, type = "UUID",
-            defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID id,
+            defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726",
+            example = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID id,
             @Valid @RequestBody ScanFailure result) {
 
         int retriesLeft = 0;
@@ -155,14 +165,16 @@ public class ScanJobResource {
                 .withRetriesLeft()
                 .singleResult();
 
-        if (externalTask != null && externalTask.getRetries() != null && externalTask.getRetries() > 0) {
+        if (externalTask == null) {
+            LOG.info("Can not find taskId {}", id);
+            return ResponseEntity.notFound().build();
+        } else if (externalTask.getRetries() != null && externalTask.getRetries() > 0) {
             retriesLeft = externalTask.getRetries() - 1;
         }
 
         engine.getExternalTaskService()
                 .handleFailure(id.toString(), result.getScannerId().toString(), result.getErrorMessage(),
                         result.getErrorDetails(), retriesLeft, 1000);
-
         return ResponseEntity.ok().build();
     }
 

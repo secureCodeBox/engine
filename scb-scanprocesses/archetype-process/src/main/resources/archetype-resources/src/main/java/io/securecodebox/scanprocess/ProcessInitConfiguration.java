@@ -22,8 +22,15 @@ package io.securecodebox.scanprocess;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * The secureCodeBox by default only scans for components in the package io.securecodebox.scanprocess.
+ * <p>
+ * This configuration ensures that your defined package $package also gets scanned, please don't move or remove this configuration.
+ *
+ * @author Rüdiger Heins - iteratec GmbH
+ * @since 09.05.18
+ */
 @ComponentScan("$package")
 @Configuration
 public class ProcessInitConfiguration {
-
 }

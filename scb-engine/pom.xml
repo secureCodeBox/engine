@@ -158,6 +158,43 @@
                 </dependency>
             </dependencies>
         </profile>
+        <profile>
+            <id>docs</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <activatedProfiles>docs</activatedProfiles>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.github.swagger2markup</groupId>
+                        <artifactId>swagger2markup-maven-plugin</artifactId>
+
+                        <configuration>
+                            <swaggerInput>${project.build.directory}/swagger.json</swaggerInput>
+                            <outputDir>${project.build.directory}/docs/</outputDir>
+                            <outputFile>${project.build.directory}/docs/api-doc</outputFile>
+                            <config>
+                                <swagger2markup.markupLanguage>MARKDOWN</swagger2markup.markupLanguage>
+                                <swagger2markup.interDocumentCrossReferencesEnabled>true
+                                </swagger2markup.interDocumentCrossReferencesEnabled>
+                                <swagger2markup.generatedExamplesEnabled>true</swagger2markup.generatedExamplesEnabled>
+                            </config>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>convertSwagger2markup</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
 
     </profiles>
 
