@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiModel;
 
 /**
  * Representation of the OSI-Layer-Model.
- * Further informations: {@link https://en.wikipedia.org/wiki/OSI_model}
+ * Further information: https://en.wikipedia.org/wiki/OSI_model
  *
  * @author Rüdiger Heins - iteratec GmbH
  * @since 08.03.18
