@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.11.3">
-  <bpmn:process id="combined-nmap-nikto-process" name="Kombinierter Nmap-Nikto Scan" isExecutable="true" camunda:versionTag="3" camunda:historyTimeToLive="30">
+  <bpmn:process id="combined-nmap-nikto-process" name="Nmap-Nikto Scan" isExecutable="true" camunda:versionTag="3" camunda:historyTimeToLive="30">
     <bpmn:startEvent id="StartEvent_ConfigurePortscan" name="target configured" camunda:formKey="embedded:app:forms/configure-nmap-nikto-target.html">
       <bpmn:extensionElements>
         <camunda:executionListener delegateExpression="${checkForAutomatedRunListener}" event="start" />
       </bpmn:extensionElements>
       <bpmn:outgoing>SequenceFlow_TargetConfigured</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:exclusiveGateway id="ExclusiveGateway_AdvancedConfiguration" name="Configure port scan details?">
+    <bpmn:exclusiveGateway id="ExclusiveGateway_AdvancedConfiguration" name="Configure scan details?">
       <bpmn:incoming>SequenceFlow_ManualStart</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_DefaultConfig</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_AdvancedConfig</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_TargetConfigured" sourceRef="StartEvent_ConfigurePortscan" targetRef="ExclusiveGateway_AutomatedStart" />
     <bpmn:sequenceFlow id="SequenceFlow_DefaultConfig" name="default configuration" sourceRef="ExclusiveGateway_AdvancedConfiguration" targetRef="ServiceTask_DoPortscan">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${NMAP_CONFIGURATION_TYPE == 'default'}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${CONFIGURATION_TYPE == 'default'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:endEvent id="EndEvent_FinishedPortscan" name="Port Scan finished">
       <bpmn:incoming>SequenceFlow_ResultApproved</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_AutomatedFinish</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:userTask id="UserTask_ConfigureAdvancedPortscan" name="Configure advanced portscan" camunda:formKey="embedded:app:forms/nmap/configure-port-scanner-details.html">
+    <bpmn:userTask id="UserTask_ConfigureAdvancedPortscan" name="Configure advanced scan" camunda:formKey="embedded:app:forms/configure-nmap-nikto-scanner-details.html">
       <bpmn:incoming>SequenceFlow_AdvancedConfig</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_ResultRejected</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_PortscanConfigured</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="SequenceFlow_AdvancedConfig" name="advanced configuration" sourceRef="ExclusiveGateway_AdvancedConfiguration" targetRef="UserTask_ConfigureAdvancedPortscan">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${NMAP_CONFIGURATION_TYPE == 'advanced'}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${CONFIGURATION_TYPE == 'advanced'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_PortscanConfigured" name="portscan configured" sourceRef="UserTask_ConfigureAdvancedPortscan" targetRef="ServiceTask_DoPortscan" />
     <bpmn:sequenceFlow id="SequenceFlow_ResultReviewed" name="result reviewed" sourceRef="UserTask_ApproveResults" targetRef="ExclusiveGateway_ResultApproved" />
-    <bpmn:userTask id="UserTask_ApproveResults" name="Review scan results" camunda:formKey="embedded:app:forms/nikto/approve-webserver-scanner-results.html" camunda:candidateGroups="_securebox_admin, _securebox_productowner, _securebox_developer, approver">
+    <bpmn:userTask id="UserTask_ApproveResults" name="Review scan results" camunda:formKey="embedded:app:forms/approve-nmap-nikto-scanner-results.html" camunda:candidateGroups="_securebox_admin, _securebox_productowner, _securebox_developer, approver">
       <bpmn:extensionElements>
         <camunda:formData />
       </bpmn:extensionElements>
@@ -108,7 +108,7 @@
       <bpmndi:BPMNShape id="ExclusiveGateway_0mfy3qa_di" bpmnElement="ExclusiveGateway_AdvancedConfiguration" isMarkerVisible="true">
         <dc:Bounds x="277" y="95" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="267" y="64" width="70" height="25" />
+          <dc:Bounds x="264" y="64" width="77" height="24" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_093mevy_di" bpmnElement="SequenceFlow_TargetConfigured">

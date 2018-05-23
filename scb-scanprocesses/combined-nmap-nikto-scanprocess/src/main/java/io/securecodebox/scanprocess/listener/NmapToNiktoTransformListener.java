@@ -25,20 +25,12 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
             List<Target> newTargets = objectMapper.readValue(objectMapper.readValue(findingsAsString, String.class),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
 
-            if (delegateExecution.getVariable(DefaultFields.PROCESS_ATTRIBUTE_MAPPING.name()) != null) {
-                List<Attribute> attributeMapping = objectMapper.readValue((String) delegateExecution.getVariable(
-                        DefaultFields.PROCESS_ATTRIBUTE_MAPPING.name()),
-                        objectMapper.getTypeFactory().constructCollectionType(List.class, Attribute.class));
-
-                for (Target target : newTargets) {
-                    target.setLocation((String)target.getAttributes().get("hostname"));
-                    for (Attribute attribute : attributeMapping) {
-                        Object value = target.getAttributes().get(attribute.getFrom());
-                        if (value != null) {
-                            target.getAttributes().remove(attribute.getFrom());
-                            target.getAttributes().put(attribute.getTo(), value);
-                        }
-                    }
+            for (Target target : newTargets) {
+                target.setLocation((String)target.getAttributes().get("hostname"));
+                Object port = target.getAttributes().get("port");
+                if (port != null) {
+                    target.getAttributes().remove("port");
+                    target.getAttributes().put("NIKTO_PORTS", port);
                 }
             }
 

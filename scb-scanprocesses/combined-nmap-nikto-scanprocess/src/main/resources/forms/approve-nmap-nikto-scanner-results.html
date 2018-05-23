@@ -29,51 +29,60 @@
 		camForm.on('variables-restored', function() {
 		    $scope.context = camForm.variableManager.variableValue('PROCESS_CONTEXT');
 
-			$scope.result = JSON.parse(camForm
-					.variableManager
-					.variableValue('PROCESS_FINDINGS'))
-					.reduce(
-						function (carry, element) {
-							var key = element.attributes.ip_address + ':' + element.attributes.port;
+			$scope.result = JSON.parse(camForm.variableManager.variableValue('PROCESS_FINDINGS'))
+				.reduce(
+					function (carry, element) {
+						var key = element.attributes.hostname + " (" + element.attributes.ip_address + '):' + element.attributes.port;
 
-							if(!carry.hasOwnProperty(key)){
-								carry[key] = [];
-							}
-							carry[key].push(element);
-							return carry;
-						},
-						{}
-					);
+						if(!carry.hasOwnProperty(key)){
+							carry[key] = [];
+						}
+						carry[key].push(element);
+						return carry;
+					},
+					{}
+				);
 
 			var targets = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
+			$scope.portsScannedByTargets = targets.reduce((groups, target) => {
+				let hostname = target["location"];
+				(groups[hostname] = groups[hostname] || []).push(target);
+				return groups;
+			}, {});
+
+			console.log("portsScannedByTargets: " + JSON.stringify($scope.portsScannedByTargets));
+
+			$scope.ports = new Map(Object.entries($scope.portsScannedByTargets));
+			$scope.ports.forEach((value, key, map) => $scope.ports.set(key, value.reduce((acc, target) =>
+    			acc + (acc != "" ? ", " : "") + target['attributes']['NIKTO_PORTS'], "")));
+
+			console.log("ports: " + $scope.ports);
 
 			$scope.firstTarget = targets[0];
 			$scope.otherTargetsLength = targets.length - 1;
 		});
 	</script>
 
-	<h2>
-		Nikto-Scan results for "{{ firstTarget.name }}"
-		<span ng-if="otherTargetsLength > 0">, and {{otherTargetsLength}} other Targets.</span>
-	</h2>
+	<h2>Nmap-Nikto-Scan results for Targets:</h2>
+
+	<table class="table col-xs-12">
+		<thead>
+			<tr>
+				<th>Target Host</th>
+				<th>Scanned Ports</th>
+			</tr>
+		</thead>
+		<tbody>
+		<tr ng-repeat="(hostname, targets) in portsScannedByTargets">
+			<td>{{ hostname }} ({{targets[0]['attributes']['ip_address']}} )</td>
+			<td>{{ports.get(hostname)}}</td>
+		</tr>
+		</tbody>
+	</table>
 
 	<div class="row">
 		<div class="col-xs-12">
-			<div>
-				<label>Target Host:</label>
-				<p>{{ firstTarget.location }}</p>
-			</div>
-			<div>
-				<label>Scanned Ports:</label>
-				<p>{{ firstTarget.attributes.NIKTO_PORTS }}</p>
-			</div>
-			<div>
-				<label>Additional Arguments:</label>
-				<p>
-					<span ng-if="!firstTarget.attributes.NIKTO_PARAMETER">None</span>
-					<code ng-if="firstTarget.attributes.NIKTO_PARAMETER">{{firstTarget.attributes.NIKTO_PARAMETER}}</code>
-				</p>
-			</div>
+
 			<div class="form-group hidden">
 				<label>Result:</label>
 				<code>{{ result }}</code>
