@@ -19,6 +19,20 @@
         <developer>
             <id>iteratec.de</id>
             <name>iteratec GmbH security group</name>
+            <email>security@iteratec.de</email>
+            <organization>iteratec GmbH</organization>
+            <organizationUrl>https://www.iteratec.com</organizationUrl>
+        </developer>
+
+        <developer>
+            <id>rseedorf</id>
+            <name>Robert Seedorf</name>
+            <organization>iteratec GmbH</organization>
+            <organizationUrl>https://www.iteratec.com</organizationUrl>
+        </developer>
+        <developer>
+            <id>rheins</id>
+            <name>Rüdiger Heins</name>
             <organization>iteratec GmbH</organization>
             <organizationUrl>https://www.iteratec.com</organizationUrl>
         </developer>
