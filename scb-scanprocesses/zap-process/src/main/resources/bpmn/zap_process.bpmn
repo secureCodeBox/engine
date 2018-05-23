@@ -51,7 +51,7 @@
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="ServiceTask_StartSpider" name="Run the (OWASP ZAP) Spider" camunda:asyncBefore="true" camunda:type="external" camunda:topic="zap_spider">
       <bpmn:extensionElements>
-        <camunda:executionListener delegateExpression="${transformFindingsToTargetsDelegate}" event="end" />
+        <camunda:executionListener delegateExpression="${transformFindingsToTargetsListener}" event="end" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_AutomatedStart</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0tb0m80</bpmn:incoming>
