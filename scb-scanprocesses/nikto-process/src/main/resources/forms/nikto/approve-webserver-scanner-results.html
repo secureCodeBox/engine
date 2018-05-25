@@ -88,19 +88,11 @@
 						<th>Path:</th>
 						<th>Method:</th>
 						<th>Description:</th>
-						<th>Action:</th>
 					</tr>
 					<tr class="danger" ng-repeat="finding in group">
 						<td style="max-width: 175px; overflow: scroll">{{ finding.location }}</td>
 						<td>{{ finding.attributes.http_method }}</td>
 						<td>{{ finding.name }}</td>
-						<td>
-							<span class="label label-success ng-binding">
-								<i aria-hidden="true"
-								   class="glyphicon glyphicon-ok"></i>
-								Ignore
-							</span>
-						</td>
 					</tr>
 				</table>
 			</div>
