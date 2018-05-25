@@ -108,7 +108,6 @@ public class DefaultProcessTest {
         //Creating a map of default variables for the process
         defaultVariables.put(DefaultFields.PROCESS_AUTOMATED.name(), true);
         defaultVariables.put(DefaultFields.PROCESS_CONTEXT.name(), "BodgeIT");
-        defaultVariables.put(DefaultFields.PROCESS_MARK_FALSE_POSITIVE.name(), false);
 
         /*
         Mocking everything in the BPMN Model
