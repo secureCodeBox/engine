@@ -22,8 +22,22 @@
 <form role="form" name="configure-target">
 
 	<script cam-script type="text/form-script">
-        camForm.on('form-loaded', function () {
-			$scope.target = {'name':'BodgeIT Public Host', 'location': 'bodgeit', 'attributes': { 'NIKTO_PORTS': '80'}};
+		camForm.on('form-loaded', function () {
+            camForm.variableManager.fetchVariable('DEFAULT_CONTEXT');
+            camForm.variableManager.fetchVariable('DEFAULT_TARGET_NAME');
+            camForm.variableManager.fetchVariable('DEFAULT_TARGET_LOCATION');
+        });
+
+        camForm.on('variables-fetched', function () {
+			$scope.context = camForm.variableManager.variableValue('DEFAULT_CONTEXT');
+
+			$scope.target = {
+				name: camForm.variableManager.variableValue('DEFAULT_TARGET_NAME'),
+				location: camForm.variableManager.variableValue('DEFAULT_TARGET_LOCATION'),
+				attributes: {
+					NIKTO_PORTS: '80'
+				}
+			};
         });
 
         camForm.on('submit', function () {
@@ -69,7 +83,7 @@
 						   class="form-control"
 						   id="NIKTO_TARGET"
 						   type="text"
-						   placeholder=""
+						   placeholder="Hostname/IP address"
 						   ng-minlength="5"
 						   ng-maxlength="100"
 						   name="NIKTO_TARGET"
@@ -109,8 +123,8 @@
 							placeholder="Project/Team/System"
 							ng-required="false"
 							ng-maxlength="50"
-							name="PROCESS_CONTEXT"
-							value="BodgeIT" />
+							ng-model="context"
+							name="PROCESS_CONTEXT" />
 				</div>
 			</div>
 
