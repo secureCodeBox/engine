@@ -4,6 +4,12 @@
     <bpmn:startEvent id="StartEvent_ConfigurePortscan" name="target configured" camunda:formKey="embedded:app:forms/configure-nmap-nikto-target.html">
       <bpmn:extensionElements>
         <camunda:executionListener delegateExpression="${checkForAutomatedRunListener}" event="start" />
+        <camunda:formData>
+          <camunda:formField id="DEFAULT_CONTEXT" type="string" defaultValue="${propertyValueProvider.defaultContext}" />
+          <camunda:formField id="DEFAULT_TARGET_NAME" type="string" defaultValue="${propertyValueProvider.defaultTargetName}" />
+          <camunda:formField id="DEFAULT_TARGET_LOCATION" type="string" defaultValue="${propertyValueProvider.defaultTargetLocation}" />
+          <camunda:formField id="DEFAULT_TARGET_URI" type="string" defaultValue="${propertyValueProvider.defaultTargetUri}" />
+        </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>SequenceFlow_TargetConfigured</bpmn:outgoing>
     </bpmn:startEvent>

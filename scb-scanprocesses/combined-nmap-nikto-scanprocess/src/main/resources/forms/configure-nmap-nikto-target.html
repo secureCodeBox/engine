@@ -23,24 +23,26 @@
 
     <script cam-script type="text/form-script">
         camForm.on('form-loaded', function () {
-            camForm.variableManager.fetchVariable('PROCESS_TARGETS');
+            camForm.variableManager.fetchVariable('DEFAULT_CONTEXT');
+            camForm.variableManager.fetchVariable('DEFAULT_TARGET_NAME');
+            camForm.variableManager.fetchVariable('DEFAULT_TARGET_LOCATION');
         });
 
         camForm.on('variables-fetched', function () {
-            $scope.targets = camForm.variableManager.variableValue('PROCESS_TARGETS');
-            console.log("targets: "+$scope.targets);
+            $scope.context = camForm.variableManager.variableValue('DEFAULT_CONTEXT');
 
-            if($scope.targets === undefined || angular.equals([], $scope.targets)) {
-                $scope.targetList = [];
-                $scope.targetList.push({'name':'BodgeIT Public Host', 'location': 'bodgeit'});
-            }
-            if($scope.attributeMapping === undefined){
-                $scope.attributeMapping = [];
-                $scope.attributeMapping.push({'from': 'port', 'to': 'NIKTO_PORTS'});
-            }
+            $scope.targetList = [{
+                name: camForm.variableManager.variableValue('DEFAULT_TARGET_NAME'),
+                location: camForm.variableManager.variableValue('DEFAULT_TARGET_LOCATION')
+            }];
+
+            $scope.attributeMapping = [];
+            $scope.attributeMapping.push({'from': 'port', 'to': 'NIKTO_PORTS'});
+
             $scope.addTarget = function () {
                 $scope.targetList.push({'name':'', 'location': ''});
             };
+
             $scope.addAttributeMapping = function () {
                 $scope.attributeMapping.push({'from': '', 'to': ''});
             }
@@ -55,7 +57,6 @@
         });
 
         camForm.on('submit', function () {
-            camForm.variableManager.destroyVariable('PROCESS_TARGETS');
             camForm.variableManager.createVariable({
                 name: 'PROCESS_TARGETS',
                 type: 'Object',
@@ -97,10 +98,9 @@
                     </div>
                     <div class="col-xs-6">
                         <label>Target Hosts</label>
-                        <span>Hostname/ IP-Address</span>
                         <input required class="form-control"
                                type="text"
-                               placeholder="bodgeit"
+                               placeholder="Hostname/IP address"
                                ng-minlength="3"
                                ng-maxlength="100"
                                ng-model="target.location"
@@ -132,8 +132,8 @@
                            placeholder="Project/Team/System"
                            ng-required="false"
                            ng-maxlength="50"
-                           name="context"
-                           value="BodgeIT"/>
+                           ng-model="context"
+                           name="context" />
                 </div>
             </div>
 

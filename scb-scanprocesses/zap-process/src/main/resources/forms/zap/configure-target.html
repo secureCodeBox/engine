@@ -4,24 +4,24 @@
 
 	<script cam-script type="text/form-script">
         camForm.on('form-loaded', function () {
-            camForm.variableManager.fetchVariable('PROCESS_TARGETS');
+            camForm.variableManager.fetchVariable('DEFAULT_CONTEXT');
+            camForm.variableManager.fetchVariable('DEFAULT_TARGET_NAME');
+            camForm.variableManager.fetchVariable('DEFAULT_TARGET_URI');
         });
-        camForm.on('variables-fetched', function () {
-            $scope.targets = camForm.variableManager.variableValue('PROCESS_TARGETS');
-            console.log("targets: "+$scope.targets);
 
-            if($scope.targets === undefined || angular.equals([], $scope.targets)) {
-                $scope.targetList = [];
-                $scope.targetList.push({
-					'name':'BodgeIT Public Host',
-					'location': 'http://bodgeit:8080/bodgeit',
-                	'attributes': {
-					    'ZAP_BASE_URL':'http://bodgeit:8080/bodgeit',
-						'ZAP_SPIDER_CONFIGURATION_TYPE': 'default',
-						'ZAP_SCANNER_CONFIGURATION_TYPE': 'default'
-					}
-                });
-            }
+        camForm.on('variables-fetched', function () {
+            $scope.context = camForm.variableManager.variableValue('DEFAULT_CONTEXT');
+
+            $scope.targetList = [{
+				name: camForm.variableManager.variableValue('DEFAULT_TARGET_NAME'),
+				location: camForm.variableManager.variableValue('DEFAULT_TARGET_URI'),
+				attributes: {
+					ZAP_BASE_URL: camForm.variableManager.variableValue('DEFAULT_TARGET_URI'),
+					ZAP_SPIDER_CONFIGURATION_TYPE: 'default',
+					ZAP_SCANNER_CONFIGURATION_TYPE: 'default'
+				}
+			}];
+
             $scope.addTarget = function () {
                 $scope.targetList.push({'name':'', 'location': ''});
             };
@@ -36,7 +36,6 @@
         });
 
         camForm.on('submit', function () {
-            camForm.variableManager.destroyVariable('PROCESS_TARGETS');
             camForm.variableManager.createVariable({
                 name: 'PROCESS_TARGETS',
                 type: 'Object',
@@ -123,10 +122,9 @@
 						</div>
 						<div class="col-xs-4">
 							<label>Target Hosts</label>
-							<span>Hostname/ IP-Address</span>
 							<input required class="form-control"
 								   type="text"
-								   placeholder="http://bodgeit:8080/bodgeit"
+								   placeholder="Hostname/IP address"
 								   ng-minlength="3"
 								   ng-model="target.location"
 								   ng-keydown="checkForEnter($event)"
@@ -134,10 +132,10 @@
 						</div>
 						<!-- Target Name -->
 						<div class="col-xs-4">
-							<label>Base Url</label>
+							<label>Base URL</label>
 							<input required class="form-control"
 								   type="text"
-								   placeholder="http://bodgeit:8080/bodgeit"
+								   placeholder="ZAP Base URL"
 								   ng-model="target.attributes.ZAP_BASE_URL"
 								   ng-minlength="3"/>
 						</div>
@@ -219,8 +217,8 @@
 						   placeholder="Project/Team/System"
 						   ng-required="false"
 						   ng-maxlength="50"
-						   name="context"
-						   value="BodgeIT"/>
+						   ng-model="context"
+						   name="context" />
 				</div>
 			</div>
 		</div>
