@@ -205,6 +205,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                         serializeAndRemoveList(report.getExecution().getScanners(), "findings", "rawFindings"));
                 reportAsMap.put("type", TYPE_REPORT);
                 reportAsMap.put("execution", execution);
+                reportAsMap.put("scanner_type", report.getExecution().getScannerType());
                 reportAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
 
                 LOG.info("Timestamp: " + new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
@@ -217,7 +218,6 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
                     Map<String, Object> findingAsMap = serializeAndRemove(f);
                     findingAsMap.put("type", TYPE_FINDING);
-                    findingAsMap.put("execution", execution);
                     findingAsMap.put("report_id", report.getId());
                     findingAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
 

@@ -91,4 +91,7 @@ public interface ScanProcessExecution {
     @JsonIgnore
     public abstract String getTenantId();
 
+    @JsonIgnore
+    public abstract String getScannerType();
+
 }
