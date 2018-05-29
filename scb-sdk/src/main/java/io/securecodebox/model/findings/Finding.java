@@ -228,4 +228,41 @@ public class Finding {
                 + ", reference=" + reference + ", hint='" + hint + '\'' + ", location='" + location + '\''
                 + ", attributes=" + attributes + '}';
     }
+    
+    public boolean equalsIgnoringId(Finding other){
+        if(this == other){
+            return true;
+        }
+
+        if(other == null){
+            return false;
+        }
+
+        boolean attributesEqual = true;
+
+        for(String key : this.getAttributes().keySet()){
+            if(!equalsOrBothNull(this.getAttributes().get(key), other.getAttributes().get(key))){
+                attributesEqual = false;
+            }
+        }
+
+        return equalsOrBothNull( this.getLocation(), other.getLocation()) &&
+               equalsOrBothNull( this.getCategory(), other.getCategory()) &&
+               equalsOrBothNull( this.getDescription(), other.getDescription()) &&
+               equalsOrBothNull( this.getHint(), other.getHint()) &&
+               equalsOrBothNull( this.getName(), other.getName()) &&
+               equalsOrBothNull( this.getOsiLayer(), other.getOsiLayer()) &&
+                ((this.getReference() == null && other.getReference() == null) ||
+                    (this.getReference() != null && this.getReference().equalsIgnoreId(other.getReference()))) &&
+               equalsOrBothNull( this.getSeverity(), other.getSeverity()) &&
+               attributesEqual;
+    }
+
+    private boolean equalsOrBothNull(Object first, Object second){
+
+        if (first == null)
+            return second == null;
+        else
+            return second != null && first.equals(second);
+    }
 }
