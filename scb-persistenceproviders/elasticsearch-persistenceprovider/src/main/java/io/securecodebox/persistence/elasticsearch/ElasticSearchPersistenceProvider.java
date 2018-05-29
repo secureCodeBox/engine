@@ -124,7 +124,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     String mapping = readFileResource("mapping.json");
                     LOG.info("Initialize with mapping: " + mapping);
                     if (mapping != null) {
-                        createIndexRequest.mapping("_doc", mapping, XContentType.JSON);
+//                        createIndexRequest.mapping("_doc", mapping, XContentType.JSON);
                     }
                     highLevelClient.indices().create(createIndexRequest);
                 }
@@ -219,6 +219,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     Map<String, Object> findingAsMap = serializeAndRemove(f);
                     findingAsMap.put("type", TYPE_FINDING);
                     findingAsMap.put("report_id", report.getId());
+                    findingAsMap.put("scanner_type", report.getExecution().getScannerType());
                     findingAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
 
                     IndexRequest findingIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
