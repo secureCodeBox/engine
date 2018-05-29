@@ -11,7 +11,17 @@ This is the main component of the _secureCodeBox_ it's a [Camunda][camunda] [BPM
  * [Project Description][scb-project]
  * [Developer Guide][scb-developer-guide]
  * [User Guide][scb-user-guide]
- 
+
+# Configuration Options
+To configure the SCB engine specify the following environment variables:
+
+| Environment Variable                  | Description                        | Example Value               |
+| ------------------------------------- | ---------------------------------- | --------------------------- |
+| SECURECODEBOX_DEFAULT_TARGET_NAME     | Default target identifier          | BodgeIT Public Host         |
+| SECURECODEBOX_DEFAULT_TARGET_LOCATION | Default target hostname/ip address | bodgeit                     |
+| SECURECODEBOX_DEFAULT_TARGET_URI      | Default target URI/URL             | http://bodgeit:8080/bodgeit |
+| SECURECODEBOX_DEFAULT_CONTEXT         | Default business context           | BodgeIT                     |
+
 # Development
 
 ## Local setup
