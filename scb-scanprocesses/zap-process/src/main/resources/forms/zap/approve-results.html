@@ -29,6 +29,19 @@
 
     });
 
+        camForm.on('submit', function () {
+            camForm.variableManager.destroyVariable('PROCESS_FINDINGS');
+            camForm.variableManager.createVariable({
+                name: 'PROCESS_FINDINGS',
+                type: 'Object',
+                value: JSON.stringify([$scope.findings]),
+                valueInfo: {
+                    serializationDataFormat: 'application/json',
+                    objectTypeName: 'java.lang.String'
+                }
+            });
+        });
+
  </script>
  
  	<h2>OWASP ZAP Scan Results for "{{ context }}"</h2>
@@ -57,6 +70,7 @@
 						<th>Severity:</th>
 						<th>Location:</th>
 						<th>Hint:</th>
+						<th>Action:</th>
 					</tr>
 					<tr class="danger" ng-repeat="finding in findings">
 						<td>{{ finding.name }}</td>
@@ -77,6 +91,9 @@
 									tooltip="{{finding.hint}}" tooltip-trigger="focus">
 								Show hint
 							</button>
+						</td>
+						<td>
+							<manual-false-positive finding="finding"></manual-false-positive>
 						</td>
 					</tr>
 				</table>
