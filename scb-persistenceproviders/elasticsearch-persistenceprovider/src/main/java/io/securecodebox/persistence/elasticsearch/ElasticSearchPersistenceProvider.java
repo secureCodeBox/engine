@@ -85,14 +85,6 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
     private String tenantId = null;
 
-    /**
-     * For developing convenience
-     * If this is true then the index, where the data will be saved will be deleted and freshly recreated before
-     * saving anything
-     * TODO: REMOVE THIS BEFORE GOING INTO PRODUCTION
-     */
-    private boolean deleteBeforeCreate = false;
-
     private void init() {
 
         LOG.info("Initializing ElasticSearchPersistenceProvider");
@@ -105,28 +97,11 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
             LOG.info("ElasticSearch connected?: " + connected);
             if (connected) {
-                if (indexExists(indexName) && deleteBeforeCreate) {
-                    /**
-                     * The next lines are just for developing purposes and will be removed later
-                     * TODO: REMOVE THESE LINES BEFORE GOING INTO PRODUCTION
-                     */
-
-                    LOG.info("Deleting Index " + indexName);
-                    DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(indexName);
-                    highLevelClient.indices().delete(deleteIndexRequest);
-                }
                 if (!indexExists(indexName)) {
 
                     //The index doesn't exist until now, so we create it
                     LOG.info("Index " + indexName + " doesn't exist. Creating it...");
                     CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
-
-                    //todo: maybe declare the mapping file name in the properties (Not sure if we need the mapping anymore)
-                    String mapping = readFileResource("mapping.json");
-                    LOG.info("Initialize with mapping: " + mapping);
-                    if (mapping != null) {
-//                        createIndexRequest.mapping("_doc", mapping, XContentType.JSON);
-                    }
                     highLevelClient.indices().create(createIndexRequest);
                 }
 
