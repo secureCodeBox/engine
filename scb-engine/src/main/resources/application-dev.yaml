@@ -9,4 +9,4 @@ logging.level.io.securecodebox: TRACE
 # Configure which persistence provider you would like to choose
 # - none
 # - elasticsearch
-securecodebox.persistence.provider: none
+securecodebox.persistence.provider: elasticsearch

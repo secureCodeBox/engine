@@ -31,6 +31,7 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -132,6 +133,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                 //Checking once more, in case anything went wrong during index creation
                 if (indexExists(indexName)) {
                     initialized = true;
+                    initializeKibana();
                 }
             } else {
                 LOG.error("ElasticSearch doesn't respond. Please check if it is up and running");
@@ -336,5 +338,85 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
             result.add(serializeAndRemove(o, toRemove));
         }
         return result;
+    }
+
+    /**
+     * A prerequisite for calling this method is that there exists at least one index in ES with the name "securecodebox..."
+     * @throws IOException
+     */
+    private void initializeKibana() throws IOException {
+
+        if(!indexExists(".kibana")) {
+
+            LOG.info(".kibana index doesn't exist. Creating it...");
+
+            //Create Kibana Index
+            CreateIndexRequest createIndexRequest = new CreateIndexRequest(".kibana");
+            String mapping = readFileResource("kibana-mapping.json");
+            if (mapping != null) {
+                createIndexRequest.mapping("doc", mapping, XContentType.JSON);
+            }
+            highLevelClient.indices().create(createIndexRequest);
+        }
+
+        SearchRequest searchRequest = new SearchRequest(".kibana");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(
+                QueryBuilders.boolQuery()
+                        .must(QueryBuilders.matchQuery("type", "index-pattern"))
+                        .must(QueryBuilders.matchQuery("index-pattern.title", "securecodebox*")));
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse = highLevelClient.search(searchRequest);
+        boolean searchFailure = searchResponse.isTimedOut() || (searchResponse.status() != RestStatus.OK);
+        if (searchFailure) {
+            LOG.error("Searching the index failed. Skipping kibana initialization...");
+            return;
+        }
+
+        LOG.info("SearchResponse from .kibana index-pattern Search: " + searchResponse);
+
+        if (searchResponse.getHits().totalHits == 0) {
+
+            LOG.info("Index Pattern securecodebox* doesn't exist. Creating it...");
+
+            //The index-pattern "securecodebox*" doesn't exist, we need to create it along with the import objects
+
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            String kibanaFile = readFileResource("kibana-imports.json");
+            List<KibanaData> dataElements = objectMapper.readValue(kibanaFile, objectMapper.getTypeFactory().constructCollectionType(List.class, KibanaData.class));
+
+            BulkRequest bulkRequest = new BulkRequest();
+            for(KibanaData data: dataElements) {
+                IndexRequest indexRequest = new IndexRequest(data.getIndex(), data.getType(), data.getId());
+                indexRequest.source(objectMapper.writeValueAsString(data.getSource()), XContentType.JSON);
+                bulkRequest.add(indexRequest);
+            }
+            highLevelClient.bulkAsync(bulkRequest, new ActionListener<BulkResponse>() {
+                @Override
+                public void onResponse(BulkResponse bulkItemResponses) {
+                    if (bulkItemResponses.hasFailures()) {
+                        LOG.error("There were failures in creating the kibana data. Kibana index may be corrupted. Deleting..");
+                        DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(".kibana");
+                        try {
+                            highLevelClient.indices().delete(deleteIndexRequest);
+                        }
+                        catch (IOException e){
+                            LOG.error("Kibana index could not be successfully deleted and might be corrupted. Delete it manually!");
+                        }
+                    } else {
+                        LOG.info("Successfully created kibana data");
+                    }
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    LOG.error("Could not import kibana data");
+                }
+            });
+        }
+        else {
+            LOG.info("Index Pattern securecodebox* exists. Assuming that searches, visualizations and dashboards are imported.");
+        }
     }
 }

@@ -13,7 +13,7 @@ logging.level.io.securecodebox: INFO
 # Configure which persistence provider you would like to choose
 # - none
 # - elasticsearch
-securecodebox.persistence.provider: none
+securecodebox.persistence.provider: elasticsearch
 
 # Configuration for the elasticsearch persistence provider:
 securecodebox.persistence.elasticsearch.host: persistence-elasticsearch
