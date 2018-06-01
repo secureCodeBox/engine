@@ -30,11 +30,34 @@
     </script>
 
     <script cam-script type="text/form-script">
+        $scope.target = {
+            location: '',
+            name: '',
+            attributes: {
+                ARACHNI_DOM_DEPTH_LIMIT: '',
+                ARACHNI_DIR_DEPTH_LIMIT: '',
+                ARACHNI_PAGE_LIMIT: '',
+                ARACHNI_EXCLUDE_PATTERNS: '',
+                ARACHNI_INCLUDE_PATTERNS: '',
+                ARACHNI_SCAN_METHODS: '',
+                ARACHNI_AUTHENTICATION: '',
+                ARACHNI_COOKIE_STRING: '',
+                ARACHNI_LOGIN_URL: '',
+                ARACHNI_LOGIN_CREDENTIALS: '',
+                ARACHNI_LOGIN_CHECK: '',
+                ARACHNI_LOGIN_ADVANCED_SCRIPT_TYPE: '',
+                ARACHNI_LOGIN_ADVANCED_SCRIPT: '',
+                ARACHNI_LOGIN_ADVANCED_SCRIPT_NAME: '',
+                ARACHNI_LOGIN_ADVANCED_SCRIPT_ARGS: '',
+                ARACHNI_LOGIN_ADVANCED_CHECK_URL: '',
+                ARACHNI_LOGIN_ADVANCED_CHECK_PATTERN: ''
+            }
+        };
+
         $scope.cookies = {}
 
         camForm.on('submit', function () {
             // setting the used scan methods
-            securitychecks();
             camForm.variableManager.createVariable({
                 name: 'arachni_scan_methods',
                 type: 'String',
@@ -70,30 +93,6 @@
     </script>
 
     <script type="text/javascript">
-        function securitychecks() {
-            switch (ArachniProfileSelector.value) {
-                case "default":
-                    window.scannerchecks = '*';
-                    break;
-                case "xss":
-                    window.scannerchecks = '*xss*';
-                    break;
-                case "injection":
-                    window.scannerchecks = '*injection*';
-                    break;
-                case "common":
-                    window.scannerchecks = '*common*';
-                    break;
-                case "password":
-                    window.scannerchecks = '*password*';
-                    break;
-                case "directories":
-                    window.scannerchecks = '*directories*';
-                    break;
-            }
-            console.log(window.scannerchecks);
-        }
-
         // TODO update plugin
         function updateCredentials() {
             var url = document.getElementById('arachni_login_url').value;
@@ -271,14 +270,15 @@
                 <label for="ArachniProfileSelector">Selection of Arachni-Scan Profile</label><br>
                 <!--select box -->
                 <select id="ArachniProfileSelector"
+                        ng-bind="target.attribute.ARACHNI_SCAN_METHODS"
                         class="form-control"
                         name="profile Selection">
-                    <option value="default" checked>Default</option>
-                    <option value="xss">XSS</option>
-                    <option value="injection">Injections</option>
-                    <option value="common">Common Files/Directories</option>
-                    <option value="password">Password Vulnerabilities</option>
-                    <option value="directories">Directories</option>
+                    <option value="*" checked>Default</option>
+                    <option value="*xss*">XSS</option>
+                    <option value="*injection*">Injections</option>
+                    <option value="*common*">Common Files/Directories</option>
+                    <option value="*password*">Password Vulnerabilities</option>
+                    <option value="*directories*">Directories</option>
                 </select>
             </div>
 
