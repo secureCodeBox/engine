@@ -1,0 +1,458 @@
+<!--
+  ~ /*
+  ~ * SecureCodeBox (SCB)
+  ~ * Copyright 2015-2018 iteratec GmbH
+  ~ *
+  ~ * Licensed under the Apache License, Version 2.0 (the "License");
+  ~ * you may not use this file except in compliance with the License.
+  ~ * You may obtain a copy of the License at
+  ~ *
+  ~ * 	http://www.apache.org/licenses/LICENSE-2.0
+  ~ *
+  ~ * Unless required by applicable law or agreed to in writing, software
+  ~ * distributed under the License is distributed on an "AS IS" BASIS,
+  ~ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ * See the License for the specific language governing permissions and
+  ~ * limitations under the License.
+  ~ */
+  -->
+
+<h2>Please configure the Vulnerability Scan</h2>
+<form role="form" name="configure-target">
+
+    <script>
+        var scannerchecks = "";
+        var scannerscope = "";
+        var credentials = "";
+
+        var cookies = {};
+        var cookieString = '';
+    </script>
+
+    <script cam-script type="text/form-script">
+        $scope.cookies = {}
+
+        camForm.on('submit', function () {
+            // setting the used scan methods
+            securitychecks();
+            camForm.variableManager.createVariable({
+                name: 'arachni_scan_methods',
+                type: 'String',
+                value: window.scannerchecks
+            });
+            // setting the used scan scope
+            updatescope();
+            camForm.variableManager.createVariable({
+                name: 'arachni_scan_scope',
+                type: 'String',
+                value: window.scannerscope
+            });
+            // setting the used scan credentials
+            updateCredentials();
+            camForm.variableManager.createVariable({
+                name: 'arachni_authentication',
+                type: 'String',
+                value: window.credentials
+            });
+
+
+            updateCookiesString();
+            camForm.variableManager.createVariable({
+                name: 'arachni_cookie_string',
+                type: 'String',
+                value: window.cookieString
+            });
+
+            // window.alert('test');
+            // submitPrevented = true;
+
+        });
+    </script>
+
+    <script type="text/javascript">
+        function securitychecks() {
+            switch (ArachniProfileSelector.value) {
+                case "default":
+                    window.scannerchecks = '*';
+                    break;
+                case "xss":
+                    window.scannerchecks = '*xss*';
+                    break;
+                case "injection":
+                    window.scannerchecks = '*injection*';
+                    break;
+                case "common":
+                    window.scannerchecks = '*common*';
+                    break;
+                case "password":
+                    window.scannerchecks = '*password*';
+                    break;
+                case "directories":
+                    window.scannerchecks = '*directories*';
+                    break;
+            }
+            console.log(window.scannerchecks);
+        }
+
+        // TODO update plugin
+        function updateCredentials() {
+            var url = document.getElementById('arachni_login_url').value;
+            console.log('used login URL :' + url);
+            var login = document.getElementById('arachni_login_credentials').value;
+            console.log('used credential-string' + login);
+            var check = document.getElementById('arachni_login_check').value;
+            console.log('used login check : ' + check);
+            if (url.length > 0 && login.length > 0 && check.length > 0) {
+                window.credentials = '"plugins": {"autologin": { "url": "' + url + '","parameters": "' + login + '","check": "' + check + '"}}';
+            }
+            else {
+                window.credentials = null;
+            }
+            // console.log(updateCredentials());
+        }
+
+        function updatescope() {
+            if (document.getElementById('include_path_patterns').value.length > 0) {
+                var include = document.getElementById('include_path_patterns').value;
+            }
+            else {
+                include = null;
+            }
+            if (document.getElementById('exclude_path_patterns').value.length > 0) {
+                var exclude = document.getElementById('exclude_path_patterns').value;
+            }
+            else {
+                exclude = null;
+            }
+            if (document.getElementById('dom_depth_limit').value.length > 0) {
+                var dom = document.getElementById('dom_depth_limit').value;
+            }
+            else {
+                var dom = null;
+            }
+            if (document.getElementById('directory_depth_limit').value.length > 0) {
+                var directory = document.getElementById('directory_depth_limit').value;
+            }
+            else {
+                directory = null;
+            }
+            if (document.getElementById('page_limit').value.length > 0) {
+                var pages = document.getElementById('page_limit').value;
+            }
+            else {
+                pages = null;
+            }
+            // console.log('include : ',include,' | exclude : ',exclude,'| dom: ',dom,'| directory : ',directory,'| pages : ',pages);
+            window.scannerscope = '"scope" : {' + include + exclude + dom + directory + pages;
+            if (window.scannerscope.length > 11) {
+                window.scannerscope = window.scannerscope.substring(0, window.scannerscope.length - 1)
+                window.scannerscope += '}';
+            }
+            else {
+                window.scannerscope = '"scope" : {}';
+            }
+            console.log(window.scannerscope);
+        }
+
+        function togglediv(id) {
+            var div = document.getElementById(id);
+            div.style.display == 'none' ? div.style.display = 'block' : div.style.display = 'none';
+        }
+
+        function addCookie() {
+            var key = document.getElementById("cookieName");
+            var val = document.getElementById("cookieValue");
+            var div = document.getElementById("savedCookies");
+            cookies[key.value] = val.value;
+
+            var span = document.createElement("span");
+            var brk = document.createElement("br");
+            span.innerHTML = key.value + ": " + val.value;
+
+            div.appendChild(span);
+            div.appendChild(brk);
+
+            key.value = "";
+            val.value = "";
+
+        }
+
+        function updateCookiesString() {
+            if (Object.keys(window.cookies).length === 0
+                && window.cookies.constructor === Object) {
+                window.cookieString = ''
+            } else {
+                for (var key in window.cookies) {
+                    window.cookieString = window.cookieString + key + '=' + window.cookies[key] + '; ';
+                }
+                console.log(window.cookieString);
+                window.cookieString = window.cookieString.substring(0, window.cookieString.length - 2);
+                console.log(window.cookieString);
+            }
+        }
+    </script>
+    <div class="row">
+        <div class="col-xs-12">
+            <h3>Vulnerability Target</h3>
+
+            <!-- Target Name -->
+            <div class="form-group">
+                <label for="inputTargetName">Target Name</label>
+                <div class="controls">
+                    <input required class="form-control"
+                           id="inputTargetName"
+                           cam-variable-type="String"
+                           cam-variable-name="targetName"
+                           type="text"
+                           placeholder="Public Site Name"
+                           ng-minlength="2"
+                           ng-maxlength="30"
+                           name="targetName"
+                           value="BodgeIT Public Host"/>
+                </div>
+            </div>
+
+            <!-- Target URL -->
+            <div class="form-group">
+                <label for="inputTargetUrl">Target Host</label>
+                <div class="controls">
+                    <input required class="form-control"
+                           id="inputTargetUrl"
+                           cam-variable-type="String"
+                           cam-variable-name="arachni_scanner_target"
+                           type="text"
+                           placeholder="http://bodgeit:8080/bodgeit"
+                           ng-minlength="9"
+                           ng-maxlength="100"
+                           ng-pattern="/^(http:\/\/.*)|(https:\/\/.*)/"
+                           name="arachniScannerTarget"
+                           value="http://bodgeit:8080/bodgeit"
+                    />
+                </div>
+            </div>
+
+            <!-- Context (Project/Team/System...) -->
+            <div class="form-group">
+                <label for="inputContext">Business Context (Project/Team/System)</label>
+                <div class="controls">
+                    <input class="form-control"
+                           id="inputContext"
+                           cam-variable-type="String"
+                           cam-variable-name="context"
+                           type="text"
+                           placeholder="Project/Team/System"
+                           ng-required="false"
+                           ng-maxlength="50"
+                           name="context"
+                           value="BodgeIT"/>
+                </div>
+            </div>
+
+            <!-- vulnerability scan types -->
+            <div class="form-group">
+                <label for="selectArachniScannerConfigurationType">Type of the vulnerability scanner
+                    configuration</label>
+                <div class="controls">
+                    <!--select box - predefined vs advanced-->
+                    <select required onchange="togglediv('arachniProfiles');togglediv('arachniScope');"
+                            id="selectArachniScannerConfigurationType"
+                            class="form-control"
+                            name="configurationType"
+                            cam-variable-name="ArachniScannerConfigurationType"
+                            cam-variable-type="String">
+                        <option value="predefined" checked>Predefined</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Selection of vulnerability profiles -->
+            <div id="arachniProfiles" style="display: block">
+                <label for="ArachniProfileSelector">Selection of Arachni-Scan Profile</label><br>
+                <!--select box -->
+                <select id="ArachniProfileSelector"
+                        class="form-control"
+                        name="profile Selection">
+                    <option value="default" checked>Default</option>
+                    <option value="xss">XSS</option>
+                    <option value="injection">Injections</option>
+                    <option value="common">Common Files/Directories</option>
+                    <option value="password">Password Vulnerabilities</option>
+                    <option value="directories">Directories</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <div class="controls">
+                    <label for="inputFalsePositiveFilter">Enable False/Positive Filtering?</label>
+                    <input class="form-control"
+                           id="inputFalsePositiveFilter"
+                           cam-variable-type="Boolean"
+                           cam-variable-name="markFalsePositive"
+                           type="checkbox"
+                           name="falsePositiveFilter"/>
+                </div>
+            </div>
+
+            <br>
+            <button class="btn btn-info pull-right" onclick="togglediv('arachniScope');" type="button"
+                    style="width: 30%"><span class="glyphicon glyphicon-search "></span> Define the scans scope
+            </button>
+            <div id="arachniScope" name="scopeDefinition" style="display: none">
+                <br>
+                <label for="include_path_patterns">Included paths of the scanner, express them like :
+                    regex-pattern,regex-pattern2 etc.</label> <br>
+                <input id="include_path_patterns" cam-variable-name="arachni_include_patterns"
+                       cam-variable-type="String" class="form-control">
+                <br>
+                <label for="exclude_path_patterns">Excluded paths of the scanner, express them like :
+                    regex-pattern,regex-pattern2 etc.</label> <br>
+                <input id="exclude_path_patterns" cam-variable-name="arachni_exclude_patterns"
+                       cam-variable-type="String" class="form-control">
+                <br>
+                <label for="dom_depth_limit">Limit of DOM depth</label> <br>
+                <input id="dom_depth_limit" cam-variable-name="arachni_dom_depth_limit" cam-variable-type="String"
+                       ng-pattern="/^[0-9]*$/" class="form-control">
+                <br>
+                <label for="directory_depth_limit">Limit of directory depths</label> <br>
+                <input id="directory_depth_limit" cam-variable-name="arachni_dir_depth_limit" cam-variable-type="String"
+                       ng-pattern="/^[0-9]*$/" class="form-control">
+                <br>
+                <label for="page_limit">Limit of scanned pages</label> <br>
+                <input id="page_limit" cam-variable-name="arachni_page_limit" cam-variable-type="String"
+                       ng-pattern="/^[0-9]*$/" class="form-control">
+            </div>
+            <br> <br>
+            <button class="btn btn-info pull-right" onclick="togglediv('arachniLogin');" type="button"
+                    style="width: 30%"><span class="glyphicon glyphicon-user "></span> Define the login credentials
+            </button>
+            <div id="arachniLogin" name="authenticationDefinition" style="display: none">
+                <br>
+                <label for="arachni_login_url">Define the URL to the login</label><br>
+                <!-- TODO update Regex for credentials -->
+                <input id="arachni_login_url" cam-variable-name="arachni_login_url" ng-minlength="9"
+                       cam-variable-type="String" ng-pattern="/^(http:\/\/.*)|(https:\/\/.*)/" class="form-control">
+                <br>
+                <!-- Target URL -->
+                <label for="arachni_login_credentials">Provide the credentials for the login form : e.g. <code>usernameform=<b>newusername</b>&passwordform=<b>secretpassword</b></code></label><br>
+                <input id="arachni_login_credentials" cam-variable-name="arachni_login_credentials"
+                       cam-variable-type="String" ng-pattern="/.+=.+&.+=.+/" class="form-control"/>
+                <br>
+                <label for="arachni_login_check">Provide information which is only shown when logged in, e.g. <code><b>logout</b></code></label>
+                <br>
+                <input id="arachni_login_check" cam-variable-name="arachni_login_check" ng-pattern="/.{3,}/"
+                       cam-variable-type="String" class="form-control">
+                <!--  Testing Area-->
+            </div>
+
+            <br><br>
+
+            <button class="btn btn-info pull-right" onclick="togglediv('arachniAdvancedLogin');" type="button"
+                    style="width: 30%"><span class="glyphicon glyphicon-user "></span> Advanced Login Configuration
+            </button>
+            <div id="arachniAdvancedLogin" name="advancedAuthenticationDefinition" style="display: none">
+                <br>
+                <label for="arachni_login_advanced_script_name">User an existing script on the arachni
+                    service:</label><br>
+                <small>Please use only one, this or the text area below</small>
+                <input
+                        id="arachni_login_advanced_script_name"
+                        name="arachni_login_advanced_script_name"
+                        class="form-control"
+                        type="text"
+                        cam-variable-name="arachni_login_advanced_script_name"
+                        cam-variable-type="String"
+                />
+
+                <br>
+                <!-- Login Script Language -->
+                <label for="arachni_login_advanced_script_type">Login Script Language</label><br>
+                <select id="arachni_login_advanced_script_type"
+                        class="form-control"
+                        name="arachni_login_advanced_script_type"
+                        cam-variable-name="arachni_login_advanced_script_type"
+                        cam-variable-type="String"
+                >
+                    <option value="ruby" checked>Ruby</option>
+                    <option value="javascript">JavaScript</option>
+                </select>
+                <br>
+                <!-- Login Script -->
+                <label for="arachni_login_advanced_script">Write a Script to login to the Application</label><br>
+                <small>Check <a
+                        href="http://support.arachni-scanner.com/discussions/questions/13047-create-logon-script-for-angularjs">this
+                    Thread</a> for an example
+                </small>
+                <textarea
+                        id="arachni_login_advanced_script"
+                        name="arachni_login_advanced_script"
+                        class="form-control"
+                        rows="10"
+                        cam-variable-name="arachni_login_advanced_script"
+                        cam-variable-type="String"
+                ></textarea>
+                <br>
+
+                <!-- Session Check URL -->
+                <label for="arachni_login_advanced_check_url">
+                    URL Arachni will try to check to verify that the Login worked
+                </label>
+                <br>
+                <input id="arachni_login_advanced_check_url"
+                       name="arachni_login_advanced_check_url"
+                       cam-variable-name="arachni_login_advanced_check_url"
+                       cam-variable-type="String"
+                       class="form-control"
+                />
+                <br>
+                <!-- Session Check Pattern -->
+                <label for="arachni_login_advanced_check_pattern">Pattern in the response that indicated a succesful
+                    login.</label><br>
+                <input id="arachni_login_advanced_check_pattern"
+                       name="arachni_login_advanced_check_pattern"
+                       cam-variable-name="arachni_login_advanced_check_pattern"
+                       cam-variable-type="String"
+                       class="form-control"
+                />
+            </div>
+
+            <br><br>
+
+            <button class="btn btn-info pull-right" onclick="togglediv('arachniSitemap');" type="button"
+                    style="width: 30%"><span class="glyphicon glyphicon-home "></span> Sitemap
+            </button>
+            <div id="arachniSitemap" name="sitemap-div" style="display: none">
+                <p>If the arachni Spider isn't capable to spider your app reliably you can use the field below to extend
+                    the scope by a sitemap.</p>
+                <label for="sitemap">List of URL's to extend the arachni scope. </label><br>
+                <textarea
+                        id="sitemap"
+                        name="sitemap"
+                        class="form-control"
+                        rows="10"
+                        cam-variable-name="sitemap"
+                        cam-variable-type="String"
+                ></textarea>
+            </div>
+
+            <br> <br>
+            <button class="btn btn-info pull-right" onclick="togglediv('arachniCookies');" type="button"
+                    style="width: 30%"><span class="glyphicon glyphicon-cog "></span> Set cookies for scan
+            </button>
+            <div id="arachniCookies" name="authenticationDefinition" style="display: none">
+                <br>
+                <label>Define Cookies:</label><br>
+                <div id="savedCookies"></div>
+                <label for="cookieName">Name</label><br>
+                <input id="cookieName" cam-variable-name="cookieName" class="form-control"/><br>
+                <label for="cookieValue">Value</label><br>
+                <input id="cookieValue" cam-variable-name="cookieValue" class="form-control"/><br>
+                <button id="addCookieBtn" onclick="addCookie()">Add cookie</button>
+                <br>
+            </div>
+
+        </div>
+    </div>
+    </div>
+</form>
+
