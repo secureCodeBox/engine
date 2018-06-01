@@ -54,105 +54,10 @@
             }
         };
 
-        $scope.cookies = {}
-
-        camForm.on('submit', function () {
-            // setting the used scan methods
-            camForm.variableManager.createVariable({
-                name: 'arachni_scan_methods',
-                type: 'String',
-                value: window.scannerchecks
-            });
-            // setting the used scan scope
-            updatescope();
-            camForm.variableManager.createVariable({
-                name: 'arachni_scan_scope',
-                type: 'String',
-                value: window.scannerscope
-            });
-            // setting the used scan credentials
-            updateCredentials();
-            camForm.variableManager.createVariable({
-                name: 'arachni_authentication',
-                type: 'String',
-                value: window.credentials
-            });
-
-
-            updateCookiesString();
-            camForm.variableManager.createVariable({
-                name: 'arachni_cookie_string',
-                type: 'String',
-                value: window.cookieString
-            });
-
-            // window.alert('test');
-            // submitPrevented = true;
-
-        });
+        $scope.cookies = {};
     </script>
 
     <script type="text/javascript">
-        // TODO update plugin
-        function updateCredentials() {
-            var url = document.getElementById('arachni_login_url').value;
-            console.log('used login URL :' + url);
-            var login = document.getElementById('arachni_login_credentials').value;
-            console.log('used credential-string' + login);
-            var check = document.getElementById('arachni_login_check').value;
-            console.log('used login check : ' + check);
-            if (url.length > 0 && login.length > 0 && check.length > 0) {
-                window.credentials = '"plugins": {"autologin": { "url": "' + url + '","parameters": "' + login + '","check": "' + check + '"}}';
-            }
-            else {
-                window.credentials = null;
-            }
-            // console.log(updateCredentials());
-        }
-
-        function updatescope() {
-            if (document.getElementById('include_path_patterns').value.length > 0) {
-                var include = document.getElementById('include_path_patterns').value;
-            }
-            else {
-                include = null;
-            }
-            if (document.getElementById('exclude_path_patterns').value.length > 0) {
-                var exclude = document.getElementById('exclude_path_patterns').value;
-            }
-            else {
-                exclude = null;
-            }
-            if (document.getElementById('dom_depth_limit').value.length > 0) {
-                var dom = document.getElementById('dom_depth_limit').value;
-            }
-            else {
-                var dom = null;
-            }
-            if (document.getElementById('directory_depth_limit').value.length > 0) {
-                var directory = document.getElementById('directory_depth_limit').value;
-            }
-            else {
-                directory = null;
-            }
-            if (document.getElementById('page_limit').value.length > 0) {
-                var pages = document.getElementById('page_limit').value;
-            }
-            else {
-                pages = null;
-            }
-            // console.log('include : ',include,' | exclude : ',exclude,'| dom: ',dom,'| directory : ',directory,'| pages : ',pages);
-            window.scannerscope = '"scope" : {' + include + exclude + dom + directory + pages;
-            if (window.scannerscope.length > 11) {
-                window.scannerscope = window.scannerscope.substring(0, window.scannerscope.length - 1)
-                window.scannerscope += '}';
-            }
-            else {
-                window.scannerscope = '"scope" : {}';
-            }
-            console.log(window.scannerscope);
-        }
-
         function togglediv(id) {
             var div = document.getElementById(id);
             div.style.display == 'none' ? div.style.display = 'block' : div.style.display = 'none';
@@ -173,7 +78,6 @@
 
             key.value = "";
             val.value = "";
-
         }
 
         function updateCookiesString() {
@@ -200,12 +104,9 @@
                 <div class="controls">
                     <input required class="form-control"
                            id="inputTargetName"
-                           cam-variable-type="String"
-                           cam-variable-name="targetName"
+                           ng-bind="target.name"
                            type="text"
                            placeholder="Public Site Name"
-                           ng-minlength="2"
-                           ng-maxlength="30"
                            name="targetName"
                            value="BodgeIT Public Host"/>
                 </div>
@@ -217,12 +118,9 @@
                 <div class="controls">
                     <input required class="form-control"
                            id="inputTargetUrl"
-                           cam-variable-type="String"
-                           cam-variable-name="arachni_scanner_target"
+                           ng-bind="target.location"
                            type="text"
                            placeholder="http://bodgeit:8080/bodgeit"
-                           ng-minlength="9"
-                           ng-maxlength="100"
                            ng-pattern="/^(http:\/\/.*)|(https:\/\/.*)/"
                            name="arachniScannerTarget"
                            value="http://bodgeit:8080/bodgeit"
@@ -247,41 +145,6 @@
                 </div>
             </div>
 
-            <!-- vulnerability scan types -->
-            <div class="form-group">
-                <label for="selectArachniScannerConfigurationType">Type of the vulnerability scanner
-                    configuration</label>
-                <div class="controls">
-                    <!--select box - predefined vs advanced-->
-                    <select required onchange="togglediv('arachniProfiles');togglediv('arachniScope');"
-                            id="selectArachniScannerConfigurationType"
-                            class="form-control"
-                            name="configurationType"
-                            cam-variable-name="ArachniScannerConfigurationType"
-                            cam-variable-type="String">
-                        <option value="predefined" checked>Predefined</option>
-                        <option value="advanced">Advanced</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Selection of vulnerability profiles -->
-            <div id="arachniProfiles" style="display: block">
-                <label for="ArachniProfileSelector">Selection of Arachni-Scan Profile</label><br>
-                <!--select box -->
-                <select id="ArachniProfileSelector"
-                        ng-bind="target.attribute.ARACHNI_SCAN_METHODS"
-                        class="form-control"
-                        name="profile Selection">
-                    <option value="*" checked>Default</option>
-                    <option value="*xss*">XSS</option>
-                    <option value="*injection*">Injections</option>
-                    <option value="*common*">Common Files/Directories</option>
-                    <option value="*password*">Password Vulnerabilities</option>
-                    <option value="*directories*">Directories</option>
-                </select>
-            </div>
-
             <br>
             <button class="btn btn-info pull-right" onclick="togglediv('arachniScope');" type="button"
                     style="width: 30%"><span class="glyphicon glyphicon-search "></span> Define the scans scope
@@ -290,126 +153,155 @@
                 <br>
                 <label for="include_path_patterns">Included paths of the scanner, express them like :
                     regex-pattern,regex-pattern2 etc.</label> <br>
-                <input id="include_path_patterns" cam-variable-name="arachni_include_patterns"
-                       cam-variable-type="String" class="form-control">
+                <input id="include_path_patterns"
+                       ng-bind="target.attributes.ARACHNI_INCLUDE_PATTERNS"
+                       class="form-control" />
                 <br>
+
                 <label for="exclude_path_patterns">Excluded paths of the scanner, express them like :
                     regex-pattern,regex-pattern2 etc.</label> <br>
-                <input id="exclude_path_patterns" cam-variable-name="arachni_exclude_patterns"
-                       cam-variable-type="String" class="form-control">
+                <input id="exclude_path_patterns"
+                       ng-bind="target.attributes.ARACHNI_EXCLUDE_PATTERNS"
+                       class="form-control" />
                 <br>
+
                 <label for="dom_depth_limit">Limit of DOM depth</label> <br>
-                <input id="dom_depth_limit" cam-variable-name="arachni_dom_depth_limit" cam-variable-type="String"
-                       ng-pattern="/^[0-9]*$/" class="form-control">
+                <input id="dom_depth_limit"
+                       ng-bind="target.attributes.ARACHNI_DOM_DEPTH_LIMIT"
+                       type="number"
+                       class="form-control">
                 <br>
+
                 <label for="directory_depth_limit">Limit of directory depths</label> <br>
-                <input id="directory_depth_limit" cam-variable-name="arachni_dir_depth_limit" cam-variable-type="String"
-                       ng-pattern="/^[0-9]*$/" class="form-control">
+                <input id="directory_depth_limit"
+                       ng-bind="target.attributes.ARACHNI_DIR_DEPTH_LIMIT"
+                       type="number"
+                       class="form-control" />
                 <br>
+
                 <label for="page_limit">Limit of scanned pages</label> <br>
-                <input id="page_limit" cam-variable-name="arachni_page_limit" cam-variable-type="String"
-                       ng-pattern="/^[0-9]*$/" class="form-control">
+                <input id="page_limit"
+                       ng-bind="target.attributes.ARACHNI_PAGE_LIMIT"
+                       type="number"
+                       class="form-control" />
             </div>
+
             <br> <br>
-            <button class="btn btn-info pull-right" onclick="togglediv('arachniLogin');" type="button"
-                    style="width: 30%"><span class="glyphicon glyphicon-user "></span> Define the login credentials
+
+            <button class="btn btn-info pull-right"
+                    onclick="togglediv('arachniLogin');"
+                    type="button"
+                    style="width: 30%">
+                <span class="glyphicon glyphicon-user "></span> Define the login credentials
             </button>
             <div id="arachniLogin" name="authenticationDefinition" style="display: none">
                 <br>
                 <label for="arachni_login_url">Define the URL to the login</label><br>
-                <!-- TODO update Regex for credentials -->
-                <input id="arachni_login_url" cam-variable-name="arachni_login_url" ng-minlength="9"
-                       cam-variable-type="String" ng-pattern="/^(http:\/\/.*)|(https:\/\/.*)/" class="form-control">
+                <input id="arachni_login_url"
+                       ng-bind="target.attributes.ARACHNI_LOGIN_URL"
+                       ng-pattern="/^(http:\/\/.*)|(https:\/\/.*)/"
+                       class="form-control" />
                 <br>
-                <!-- Target URL -->
+
                 <label for="arachni_login_credentials">Provide the credentials for the login form : e.g. <code>usernameform=<b>newusername</b>&passwordform=<b>secretpassword</b></code></label><br>
-                <input id="arachni_login_credentials" cam-variable-name="arachni_login_credentials"
-                       cam-variable-type="String" ng-pattern="/.+=.+&.+=.+/" class="form-control"/>
+                <input id="arachni_login_credentials"
+                       ng-bind="target.attributes.ARACHNI_LOGIN_CREDENTIALS"
+                       ng-pattern="/.+=.+&.+=.+/"
+                       class="form-control" />
+
                 <br>
+
                 <label for="arachni_login_check">Provide information which is only shown when logged in, e.g. <code><b>logout</b></code></label>
+                <input id="arachni_login_check"
+                       ng-bind="target.attributes.ARACHNI_LOGIN_CHECK"
+                       class="form-control" />
                 <br>
-                <input id="arachni_login_check" cam-variable-name="arachni_login_check" ng-pattern="/.{3,}/"
-                       cam-variable-type="String" class="form-control">
-                <!--  Testing Area-->
             </div>
 
             <br><br>
 
-            <button class="btn btn-info pull-right" onclick="togglediv('arachniAdvancedLogin');" type="button"
-                    style="width: 30%"><span class="glyphicon glyphicon-user "></span> Advanced Login Configuration
-            </button>
-            <div id="arachniAdvancedLogin" name="advancedAuthenticationDefinition" style="display: none">
-                <br>
-                <label for="arachni_login_advanced_script_name">User an existing script on the arachni
-                    service:</label><br>
-                <small>Please use only one, this or the text area below</small>
-                <input
-                        id="arachni_login_advanced_script_name"
-                        name="arachni_login_advanced_script_name"
-                        class="form-control"
-                        type="text"
-                        cam-variable-name="arachni_login_advanced_script_name"
-                        cam-variable-type="String"
-                />
+            <!--<button class="btn btn-info pull-right"-->
+                    <!--onclick="togglediv('arachniAdvancedLogin');"-->
+                    <!--type="button"-->
+                    <!--style="width: 30%">-->
+                <!--<span class="glyphicon glyphicon-user "></span> Advanced Login Configuration-->
+            <!--</button>-->
+            <!--<div id="arachniAdvancedLogin" style="display: none">-->
+                <!--<br>-->
+                <!--<label for="arachni_login_advanced_script_name">-->
+                    <!--User an existing script on the arachni service:-->
+                <!--</label><br>-->
+                <!--<small>Please use only one, this or the text area below</small>-->
+                <!--<input-->
+                        <!--id="arachni_login_advanced_script_name"-->
+                        <!--name="arachni_login_advanced_script_name"-->
+                        <!--class="form-control"-->
+                        <!--type="text"-->
+                        <!--cam-variable-name="arachni_login_advanced_script_name"-->
+                        <!--cam-variable-type="String"-->
+                <!--/>-->
 
-                <br>
-                <!-- Login Script Language -->
-                <label for="arachni_login_advanced_script_type">Login Script Language</label><br>
-                <select id="arachni_login_advanced_script_type"
-                        class="form-control"
-                        name="arachni_login_advanced_script_type"
-                        cam-variable-name="arachni_login_advanced_script_type"
-                        cam-variable-type="String"
-                >
-                    <option value="ruby" checked>Ruby</option>
-                    <option value="javascript">JavaScript</option>
-                </select>
-                <br>
-                <!-- Login Script -->
-                <label for="arachni_login_advanced_script">Write a Script to login to the Application</label><br>
-                <small>Check <a
-                        href="http://support.arachni-scanner.com/discussions/questions/13047-create-logon-script-for-angularjs">this
-                    Thread</a> for an example
-                </small>
-                <textarea
-                        id="arachni_login_advanced_script"
-                        name="arachni_login_advanced_script"
-                        class="form-control"
-                        rows="10"
-                        cam-variable-name="arachni_login_advanced_script"
-                        cam-variable-type="String"
-                ></textarea>
-                <br>
+                <!--<br>-->
+                <!--&lt;!&ndash; Login Script Language &ndash;&gt;-->
+                <!--<label for="arachni_login_advanced_script_type">Login Script Language</label><br>-->
+                <!--<select id="arachni_login_advanced_script_type"-->
+                        <!--class="form-control"-->
+                        <!--name="arachni_login_advanced_script_type"-->
+                        <!--cam-variable-name="arachni_login_advanced_script_type"-->
+                        <!--cam-variable-type="String"-->
+                <!--&gt;-->
+                    <!--<option value="ruby" checked>Ruby</option>-->
+                    <!--<option value="javascript">JavaScript</option>-->
+                <!--</select>-->
+                <!--<br>-->
+                <!--&lt;!&ndash; Login Script &ndash;&gt;-->
+                <!--<label for="arachni_login_advanced_script">Write a Script to login to the Application</label><br>-->
+                <!--<small>Check <a-->
+                        <!--href="http://support.arachni-scanner.com/discussions/questions/13047-create-logon-script-for-angularjs">this-->
+                    <!--Thread</a> for an example-->
+                <!--</small>-->
+                <!--<textarea-->
+                        <!--id="arachni_login_advanced_script"-->
+                        <!--name="arachni_login_advanced_script"-->
+                        <!--class="form-control"-->
+                        <!--rows="10"-->
+                        <!--cam-variable-name="arachni_login_advanced_script"-->
+                        <!--cam-variable-type="String"-->
+                <!--&gt;</textarea>-->
+                <!--<br>-->
 
-                <!-- Session Check URL -->
-                <label for="arachni_login_advanced_check_url">
-                    URL Arachni will try to check to verify that the Login worked
-                </label>
-                <br>
-                <input id="arachni_login_advanced_check_url"
-                       name="arachni_login_advanced_check_url"
-                       cam-variable-name="arachni_login_advanced_check_url"
-                       cam-variable-type="String"
-                       class="form-control"
-                />
-                <br>
-                <!-- Session Check Pattern -->
-                <label for="arachni_login_advanced_check_pattern">Pattern in the response that indicated a succesful
-                    login.</label><br>
-                <input id="arachni_login_advanced_check_pattern"
-                       name="arachni_login_advanced_check_pattern"
-                       cam-variable-name="arachni_login_advanced_check_pattern"
-                       cam-variable-type="String"
-                       class="form-control"
-                />
-            </div>
+                <!--&lt;!&ndash; Session Check URL &ndash;&gt;-->
+                <!--<label for="arachni_login_advanced_check_url">-->
+                    <!--URL Arachni will try to check to verify that the Login worked-->
+                <!--</label>-->
+                <!--<br>-->
+                <!--<input id="arachni_login_advanced_check_url"-->
+                       <!--name="arachni_login_advanced_check_url"-->
+                       <!--cam-variable-name="arachni_login_advanced_check_url"-->
+                       <!--cam-variable-type="String"-->
+                       <!--class="form-control"-->
+                <!--/>-->
+                <!--<br>-->
+                <!--&lt;!&ndash; Session Check Pattern &ndash;&gt;-->
+                <!--<label for="arachni_login_advanced_check_pattern">Pattern in the response that indicated a succesful-->
+                    <!--login.</label><br>-->
+                <!--<input id="arachni_login_advanced_check_pattern"-->
+                       <!--name="arachni_login_advanced_check_pattern"-->
+                       <!--cam-variable-name="arachni_login_advanced_check_pattern"-->
+                       <!--cam-variable-type="String"-->
+                       <!--class="form-control"-->
+                <!--/>-->
+            <!--</div>-->
 
             <br><br>
 
-            <button class="btn btn-info pull-right" onclick="togglediv('arachniSitemap');" type="button"
-                    style="width: 30%"><span class="glyphicon glyphicon-home "></span> Sitemap
+            <button class="btn btn-info pull-right"
+                    onclick="togglediv('arachniSitemap');"
+                    type="button"
+                    style="width: 30%">
+                <span class="glyphicon glyphicon-home "></span> Sitemap
             </button>
-            <div id="arachniSitemap" name="sitemap-div" style="display: none">
+            <div id="arachniSitemap" style="display: none">
                 <p>If the arachni Spider isn't capable to spider your app reliably you can use the field below to extend
                     the scope by a sitemap.</p>
                 <label for="sitemap">List of URL's to extend the arachni scope. </label><br>
@@ -443,4 +335,3 @@
     </div>
     </div>
 </form>
-
