@@ -12,7 +12,8 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
-        <activatedProfiles>dev</activatedProfiles>
+        <!-- NEVER EVER CHANGE THIS!!! -->
+        <activatedProfiles>prod</activatedProfiles>
     </properties>
 
     <dependencies>
