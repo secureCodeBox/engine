@@ -79,6 +79,7 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
 
     @Override
     public synchronized void addScanner(Scanner scanner) {
+
         List<Scanner> scanners = getJsonFromProcessVariableModifiable(DefaultFields.PROCESS_SCANNERS, Scanner.class);
         scanners.add(scanner);
         writeToProcess(DefaultFields.PROCESS_SCANNERS, scanners);
@@ -152,5 +153,10 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
     public String getTenantId() {
         StringValue tenantId = execution.<StringValue>getVariableTyped(DefaultFields.PROCESS_TENANT_ID.name());
         return tenantId != null ? tenantId.getValue() : null;
+    }
+
+    @Override
+    public String getScannerType(){
+        return (String) execution.getVariable(DefaultFields.PROCESS_SCANNER_TYPE.name());
     }
 }

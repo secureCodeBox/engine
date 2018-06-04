@@ -25,14 +25,15 @@ var camTasklistConf = {
 //     }
         // names of angular modules defined in your custom script files.
         // will be added to the 'cam.tasklist.custom' as dependencies
-        ngDeps: ['trust-resource-url'],
+        ngDeps: ['trust-resource-url', 'manual-false-positive'],
 
         // RequireJS modules to load.
-        deps: ['trust-resource-url'],
+        deps: ['trust-resource-url', 'manual-false-positive'],
 
         // RequreJS path definitions
         paths: {
-            'trust-resource-url': './scripts/trust-resource-module/script'
+            'trust-resource-url': './scripts/trust-resource-module/script',
+            'manual-false-positive': './scripts/components/manualFalsePositive'
         }
    }
 };

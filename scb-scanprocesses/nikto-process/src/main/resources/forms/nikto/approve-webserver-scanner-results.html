@@ -18,7 +18,7 @@
   -->
 
 <form role="form" name="configure-reporting">
-	<script cam-script type="text/form-script">
+    <script cam-script type="text/form-script">
 		camForm.on('form-loaded', function() {
 			camForm.variableManager.fetchVariable('PROCESS_TARGETS');
 		  	camForm.variableManager.fetchVariable('PROCESS_CONTEXT');
@@ -50,69 +50,86 @@
 			$scope.firstTarget = targets[0];
 			$scope.otherTargetsLength = targets.length - 1;
 		});
-	</script>
 
-	<h2>
-		Nikto-Scan results for "{{ firstTarget.name }}"
-		<span ng-if="otherTargetsLength > 0">, and {{otherTargetsLength}} other Targets.</span>
-	</h2>
+        camForm.on('submit', function () {
+            camForm.variableManager.destroyVariable('PROCESS_FINDINGS');
+            camForm.variableManager.createVariable({
+                name: 'PROCESS_FINDINGS',
+                type: 'Object',
+                value: JSON.stringify([$scope.result]),
+                valueInfo: {
+                    serializationDataFormat: 'application/json',
+                    objectTypeName: 'java.lang.String'
+                }
+            });
+        });
+    </script>
 
-	<div class="row">
-		<div class="col-xs-12">
-			<div>
-				<label>Target Host:</label>
-				<p>{{ firstTarget.location }}</p>
-			</div>
-			<div>
-				<label>Scanned Ports:</label>
-				<p>{{ firstTarget.attributes.NIKTO_PORTS }}</p>
-			</div>
-			<div>
-				<label>Additional Arguments:</label>
-				<p>
-					<span ng-if="!firstTarget.attributes.NIKTO_PARAMETER">None</span>
-					<code ng-if="firstTarget.attributes.NIKTO_PARAMETER">{{firstTarget.attributes.NIKTO_PARAMETER}}</code>
-				</p>
-			</div>
-			<div class="form-group hidden">
-				<label>Result:</label>
-				<code>{{ result }}</code>
-			</div>
+    <h2>
+        Nikto-Scan results for "{{ firstTarget.name }}"
+        <span ng-if="otherTargetsLength > 0">, and {{otherTargetsLength}} other Targets.</span>
+    </h2>
 
-			<div class="well well-sm"
-				 style="color: inherit;"
-				 ng-repeat="(host, group) in result">
-				<strong>Results for Host: {{ host }}</strong>
-				<table class="table table-striped">
-					<tr>
-						<th>Path:</th>
-						<th>Method:</th>
-						<th>Description:</th>
-					</tr>
-					<tr class="danger" ng-repeat="finding in group">
-						<td style="max-width: 175px; overflow: scroll">{{ finding.location }}</td>
-						<td>{{ finding.attributes.http_method }}</td>
-						<td>{{ finding.name }}</td>
-					</tr>
-				</table>
-			</div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div>
+                <label>Target Host:</label>
+                <p>{{ firstTarget.location }}</p>
+            </div>
+            <div>
+                <label>Scanned Ports:</label>
+                <p>{{ firstTarget.attributes.NIKTO_PORTS }}</p>
+            </div>
+            <div>
+                <label>Additional Arguments:</label>
+                <p>
+                    <span ng-if="!firstTarget.attributes.NIKTO_PARAMETER">None</span>
+                    <code ng-if="firstTarget.attributes.NIKTO_PARAMETER">{{firstTarget.attributes.NIKTO_PARAMETER}}</code>
+                </p>
+            </div>
+            <div class="form-group hidden">
+                <label>Result:</label>
+                <code>{{ result }}</code>
+            </div>
 
-			<h2>Approve Result</h2>
-			<!-- reporting configuration -->
-			<div class="form-group">
-				<div class="controls">
-					<label for="selectResultApproved">Approve Result</label>
-					<select required
-							id="selectResultApproved"
-							class="form-control"
-							name="resultApproved"
-							cam-variable-name="PROCESS_RESULT_APPROVED"
-							cam-variable-type="String">
-						<option value="approved" selected>Approved (Finished)</option>
-						<option value="dissapproved">Not Approved (Restart Scan)</option>
-					</select>
-				</div>
-			</div>
-		</div>
-	</div>
+            <div class="well well-sm"
+                 style="color: inherit;"
+                 ng-repeat="(host, group) in result">
+                <strong>Results for Host: {{ host }}</strong>
+                <table class="table table-striped">
+                    <tr>
+                        <th>Path:</th>
+                        <th>Method:</th>
+                        <th>Description:</th>
+                        <th>Action:</th>
+                    </tr>
+                    <tr class="danger" ng-repeat="finding in group">
+                        <td style="max-width: 175px; overflow: scroll">{{ finding.location }}</td>
+                        <td>{{ finding.attributes.http_method }}</td>
+                        <td>{{ finding.name }}</td>
+                        <td>
+                            <manual-false-positive finding="finding"></manual-false-positive>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <h2>Approve Result</h2>
+            <!-- reporting configuration -->
+            <div class="form-group">
+                <div class="controls">
+                    <label for="selectResultApproved">Approve Result</label>
+                    <select required
+                            id="selectResultApproved"
+                            class="form-control"
+                            name="resultApproved"
+                            cam-variable-name="PROCESS_RESULT_APPROVED"
+                            cam-variable-type="String">
+                        <option value="approved" selected>Approved (Finished)</option>
+                        <option value="dissapproved">Not Approved (Restart Scan)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
 </form>

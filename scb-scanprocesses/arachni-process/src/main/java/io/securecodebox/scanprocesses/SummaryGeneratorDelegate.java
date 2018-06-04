@@ -1,3 +1,4 @@
+
 /*
  *
  *  SecureCodeBox (SCB)
@@ -17,15 +18,12 @@
  * /
  */
 
-package io.securecodebox.scanprocess.delegate;
+package io.securecodebox.scanprocesses;
 
-import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.Report;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
-import io.securecodebox.model.findings.Finding;
 import io.securecodebox.persistence.PersistenceProvider;
-import io.securecodebox.scanprocess.ProcessVariableHelper;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
@@ -33,14 +31,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.LinkedList;
-import java.util.List;
-
 /**
+ * Example process saving results to the persistence.
+ *
  * @author Rüdiger Heins - iteratec GmbH
  * @since 04.04.18
  */
-@Component
+@Component("io_securecodebox_scanprocesses_SummaryGeneratorDelegate")
 public class SummaryGeneratorDelegate implements JavaDelegate {
 
     private static final Logger LOG = LoggerFactory.getLogger(SummaryGeneratorDelegate.class);
@@ -53,14 +50,8 @@ public class SummaryGeneratorDelegate implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution delegateExecution) {
-
-        List<Finding> findings = new LinkedList<>(ProcessVariableHelper.readListFromValue(
-                (String) delegateExecution.getVariable(DefaultFields.PROCESS_FINDINGS.name()), Finding.class));
-        removeDuplicates(findings);
-        delegateExecution.removeVariable(DefaultFields.PROCESS_FINDINGS.name());
-        delegateExecution.setVariable(DefaultFields.PROCESS_FINDINGS.name(), ProcessVariableHelper.generateObjectValue(findings));
-
         ScanProcessExecution scanProcessExecution = executionFactory.get(delegateExecution);
+
         Report report = new Report(scanProcessExecution);
         persist(report);
     }
@@ -74,32 +65,10 @@ public class SummaryGeneratorDelegate implements JavaDelegate {
         LOG.trace("starting scan report persistence. {}", report);
 
         try {
-
-            if (persistenceProvider != null) {
-                persistenceProvider.persist(report);
-            }
+            persistenceProvider.persist(report);
         } catch (Exception e) {
             LOG.error("Unexpected Error while trying to init a persistence provider!", e);
         }
-    }
-
-    private static void removeDuplicates(List<Finding> findings){
-
-        List<Finding> withoutDuplicates = new LinkedList<>();
-        for(Finding f : findings){
-            boolean contains = false;
-            for(Finding fi : withoutDuplicates){
-                if(fi.equalsIgnoringId(f)){
-                    contains = true;
-                }
-            }
-            if(!contains){
-                withoutDuplicates.add(f);
-            }
-        }
-
-        findings.clear();
-        findings.addAll(withoutDuplicates);
     }
 
 }
