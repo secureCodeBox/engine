@@ -31,6 +31,7 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -78,19 +79,20 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     @Value("${securecodebox.persistence.elasticsearch.index.prefix}")
     private String indexPrefix;
 
+    /**
+     * For developing convenience
+     * If this is true then the index where findings
+     * will be saved will be deleted and freshly recreated before
+     * saving anything
+     */
+    @Value("${securecodebox.persistence.elasticsearch.index.delete_on_init}")
+    private boolean deleteOnInit;
+
     private boolean initialized = false;
     private RestHighLevelClient highLevelClient;
     private boolean connected = false;
 
     private String tenantId = null;
-
-    /**
-     * For developing convenience
-     * If this is true then the index, where the data will be saved will be deleted and freshly recreated before
-     * saving anything
-     * TODO: REMOVE THIS BEFORE GOING INTO PRODUCTION
-     */
-    private boolean deleteBeforeCreate = false;
 
     private void init() {
 
@@ -104,12 +106,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
             LOG.info("ElasticSearch connected?: " + connected);
             if (connected) {
-                if (indexExists(indexName) && deleteBeforeCreate) {
-                    /**
-                     * The next lines are just for developing purposes and will be removed later
-                     * TODO: REMOVE THESE LINES BEFORE GOING INTO PRODUCTION
-                     */
-
+                if (indexExists(indexName) && deleteOnInit) {
                     LOG.info("Deleting Index " + indexName);
                     DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(indexName);
                     highLevelClient.indices().delete(deleteIndexRequest);
@@ -120,7 +117,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     LOG.info("Index " + indexName + " doesn't exist. Creating it...");
                     CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
 
-                    //todo: maybe declare the mapping file name in the properties (Not sure if we need the mapping anymore)
+                    // TODO maybe declare the mapping file name in the properties
                     String mapping = readFileResource("mapping.json");
                     LOG.info("Initialize with mapping: " + mapping);
                     if (mapping != null) {
@@ -132,6 +129,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                 //Checking once more, in case anything went wrong during index creation
                 if (indexExists(indexName)) {
                     initialized = true;
+                    initializeKibana();
                 }
             } else {
                 LOG.error("ElasticSearch doesn't respond. Please check if it is up and running");
@@ -199,12 +197,15 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
                 String dateTimeFormatToPersist = "yyyy-MM-dd'T'HH:mm:ss";
 
+				// TODO create separate data types for reports and findings
                 Map<String, Object> reportAsMap = serializeAndRemove(report, "findings", "execution");
                 Map<String, Object> execution = serializeAndRemove(report.getExecution(), "findings", "scanners");
                 execution.put("scanners",
                         serializeAndRemoveList(report.getExecution().getScanners(), "findings", "rawFindings"));
                 reportAsMap.put("type", TYPE_REPORT);
                 reportAsMap.put("execution", execution);
+                // TODO remove this. scanner_type is accessible via execution attribute
+                reportAsMap.put("scanner_type", report.getExecution().getScannerType());
                 reportAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
 
                 LOG.info("Timestamp: " + new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
@@ -219,6 +220,8 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     findingAsMap.put("type", TYPE_FINDING);
                     findingAsMap.put("execution", execution);
                     findingAsMap.put("report_id", report.getId());
+					// TODO remove this. scanner_type is accessible via execution attribute
+                    findingAsMap.put("scanner_type", report.getExecution().getScannerType());
                     findingAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
 
                     IndexRequest findingIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
@@ -335,5 +338,85 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
             result.add(serializeAndRemove(o, toRemove));
         }
         return result;
+    }
+
+    /**
+     * A prerequisite for calling this method is that there exists at least one index in ES with the name "securecodebox..."
+     * @throws IOException
+     */
+    private void initializeKibana() throws IOException {
+
+        if(!indexExists(".kibana")) {
+
+            LOG.info(".kibana index doesn't exist. Creating it...");
+
+            //Create Kibana Index
+            CreateIndexRequest createIndexRequest = new CreateIndexRequest(".kibana");
+            String mapping = readFileResource("kibana-mapping.json");
+            if (mapping != null) {
+                createIndexRequest.mapping("doc", mapping, XContentType.JSON);
+            }
+            highLevelClient.indices().create(createIndexRequest);
+        }
+
+        SearchRequest searchRequest = new SearchRequest(".kibana");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(
+                QueryBuilders.boolQuery()
+                        .must(QueryBuilders.matchQuery("type", "index-pattern"))
+                        .must(QueryBuilders.matchQuery("index-pattern.title", "securecodebox*")));
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse = highLevelClient.search(searchRequest);
+        boolean searchFailure = searchResponse.isTimedOut() || (searchResponse.status() != RestStatus.OK);
+        if (searchFailure) {
+            LOG.error("Searching the index failed. Skipping kibana initialization...");
+            return;
+        }
+
+        LOG.info("SearchResponse from .kibana index-pattern Search: " + searchResponse);
+
+        if (searchResponse.getHits().totalHits == 0) {
+
+            LOG.info("Index Pattern securecodebox* doesn't exist. Creating it...");
+
+            //The index-pattern "securecodebox*" doesn't exist, we need to create it along with the import objects
+
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            String kibanaFile = readFileResource("kibana-imports.json");
+            List<KibanaData> dataElements = objectMapper.readValue(kibanaFile, objectMapper.getTypeFactory().constructCollectionType(List.class, KibanaData.class));
+
+            BulkRequest bulkRequest = new BulkRequest();
+            for(KibanaData data: dataElements) {
+                IndexRequest indexRequest = new IndexRequest(data.getIndex(), data.getType(), data.getId());
+                indexRequest.source(objectMapper.writeValueAsString(data.getSource()), XContentType.JSON);
+                bulkRequest.add(indexRequest);
+            }
+            highLevelClient.bulkAsync(bulkRequest, new ActionListener<BulkResponse>() {
+                @Override
+                public void onResponse(BulkResponse bulkItemResponses) {
+                    if (bulkItemResponses.hasFailures()) {
+                        LOG.error("There were failures in creating the kibana data. Kibana index may be corrupted. Deleting..");
+                        DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(".kibana");
+                        try {
+                            highLevelClient.indices().delete(deleteIndexRequest);
+                        }
+                        catch (IOException e){
+                            LOG.error("Kibana index could not be successfully deleted and might be corrupted. Delete it manually!");
+                        }
+                    } else {
+                        LOG.info("Successfully created kibana data");
+                    }
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    LOG.error("Could not import kibana data");
+                }
+            });
+        }
+        else {
+            LOG.info("Index Pattern securecodebox* exists. Assuming that searches, visualizations and dashboards are imported.");
+        }
     }
 }
