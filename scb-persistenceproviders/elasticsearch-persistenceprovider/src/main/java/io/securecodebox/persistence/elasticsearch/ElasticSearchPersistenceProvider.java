@@ -197,7 +197,6 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
                 String dateTimeFormatToPersist = "yyyy-MM-dd'T'HH:mm:ss";
 
-				// TODO create separate data types for reports and findings
                 Map<String, Object> reportAsMap = serializeAndRemove(report, "findings", "execution");
                 Map<String, Object> execution = serializeAndRemove(report.getExecution(), "findings", "scanners");
                 execution.put("scanners",
