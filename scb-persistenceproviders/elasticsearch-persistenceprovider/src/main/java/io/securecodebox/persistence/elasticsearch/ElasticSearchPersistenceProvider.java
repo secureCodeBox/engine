@@ -116,13 +116,6 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     //The index doesn't exist until now, so we create it
                     LOG.info("Index " + indexName + " doesn't exist. Creating it...");
                     CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
-
-                    // TODO maybe declare the mapping file name in the properties
-                    String mapping = readFileResource("mapping.json");
-                    LOG.info("Initialize with mapping: " + mapping);
-                    if (mapping != null) {
-                        createIndexRequest.mapping("_doc", mapping, XContentType.JSON);
-                    }
                     highLevelClient.indices().create(createIndexRequest);
                 }
 
