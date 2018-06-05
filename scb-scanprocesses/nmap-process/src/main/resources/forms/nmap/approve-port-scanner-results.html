@@ -21,10 +21,6 @@
 
     <script cam-script type="text/form-script">
         camForm.on('form-loaded', function () {
-            camForm.variableManager.fetchVariable('NMAP_TARGET_NAME');
-            camForm.variableManager.fetchVariable('NMAP_TARGET');
-            camForm.variableManager.fetchVariable('NMAP_PARAMETER');
-
             camForm.variableManager.fetchVariable('PROCESS_CONTEXT');
             camForm.variableManager.fetchVariable('PROCESS_TARGETS');
             camForm.variableManager.fetchVariable('PROCESS_FINDINGS');
@@ -32,8 +28,14 @@
         });
 
         camForm.on('variables-restored', function () {
-            $scope.targetName = camForm.variableManager.variableValue('NMAP_TARGET_NAME');
             $scope.context = camForm.variableManager.variableValue('PROCESS_CONTEXT');
+
+            var targets = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
+
+            $scope.firstTarget = targets[0];
+		    $scope.otherTargetsLength = targets.length - 1;
+
+
 
             $scope.portScannerId = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
             $scope.portScannerTarget = camForm.variableManager.variableValue('NMAP_TARGET');
@@ -54,7 +56,10 @@
         });
     </script>
 
-    <h2>Portscan results for "{{ targetName }}"</h2>
+    <h2>
+        Portscan results for "{{ firstTarget.name }}"
+        <span ng-if="otherTargetsLength > 0">, and {{otherTargetsLength}} other targets.</span>
+    </h2>
 
     <div class="row">
         <div class="col-xs-12">
@@ -62,21 +67,23 @@
             <div>
                 <div>
                     <label>Port scanner Id:</label>
-                    <a href="{{ NMAP_TARGET }}">{{ portScannerId }}</a>
+                    <p>{{ portScannerId }}</p>
                 </div>
                 <div>
                     <label>Target Host:</label>
-                    <a href="{{ NMAP_TARGET }}">{{ portScannerTarget.trim().split(' ').join(', ') }}</a>
+                    <p>{{ firstTarget.location }}</p>
                 </div>
                 <div>
                     <label>Business Context:</label>
                     <code>{{ context }}</code>
                 </div>
             </div>
-
-            <div class="form-group hidden">
-                <label>Result:</label>
-                <code>{{ portScannerResult }}</code>
+            <div>
+                <label>Additional Arguments:</label>
+                <p>
+                    <span ng-if="!firstTarget.attributes.NMAP_PARAMETER">None</span>
+                    <code ng-if="firstTarget.attributes.NMAP_PARAMETER">{{firstTarget.attributes.NMAP_PARAMETER}}</code>
+                </p>
             </div>
 
             <div class="well well-sm"
