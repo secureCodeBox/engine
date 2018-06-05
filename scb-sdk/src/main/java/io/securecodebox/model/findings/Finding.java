@@ -73,6 +73,10 @@ public class Finding {
     @ApiModelProperty(value = "The severity of this finding.", example ="HIGH")
     private Severity severity;
 
+    @JsonProperty(value = "false_positive", required = false)
+    @ApiModelProperty(value = "If the finding is a false positive.", example ="false")
+    private boolean falsePositive;
+
     @ApiModelProperty(value = "An additional external Reference.", example ="CVE-2018-1196")
     private Reference reference;
 
@@ -201,6 +205,14 @@ public class Finding {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public boolean isFalsePositive() {
+        return falsePositive;
+    }
+
+    public void setFalsePositive(boolean falsePositive) {
+        this.falsePositive = falsePositive;
     }
 
     @Override
