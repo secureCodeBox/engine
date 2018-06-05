@@ -50,6 +50,29 @@
 			$scope.firstTarget = targets[0];
 			$scope.otherTargetsLength = targets.length - 1;
 		});
+
+		 camForm.on('submit', function () {
+            // remap Findings to layout.
+        	var findings=[];
+			for(var element in $scope.groupedResults) {
+			    $scope.groupedResults[element].forEach(
+			        finding=>{
+			            findings.push(finding);
+
+			        });
+			}
+
+            camForm.variableManager.destroyVariable('PROCESS_FINDINGS');
+            camForm.variableManager.createVariable({
+                name: 'PROCESS_FINDINGS',
+                type: 'Object',
+                value: JSON.stringify(findings),
+                valueInfo: {
+                    serializationDataFormat: 'application/json',
+                    objectTypeName: 'java.lang.String'
+                }
+            });
+        });
 	</script>
 
 	<h2>
@@ -87,6 +110,7 @@
 						<th>Description</th>
 						<th>Category</th>
 						<th>Severity</th>
+						<th>Action</th>
 					</tr>
 					<tr ng-repeat="r in res">
 						<td>{{ r.name }}</td>
@@ -127,6 +151,9 @@
                                 	Info
                             	</span>
 							</span>
+						</td>
+						<td>
+							<manual-false-positive finding="r"></manual-false-positive>
 						</td>
 					</tr>
 				</table>
