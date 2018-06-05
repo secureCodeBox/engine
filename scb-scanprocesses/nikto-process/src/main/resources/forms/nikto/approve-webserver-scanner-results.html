@@ -51,12 +51,23 @@
 			$scope.otherTargetsLength = targets.length - 1;
 		});
 
+
         camForm.on('submit', function () {
+            // remap Findings to layout.
+        	var findings=[];
+			for(var element in $scope.result) {
+			    $scope.result[element].forEach(
+			        finding=>{
+			            findings.push(finding);
+
+			        });
+			}
+
             camForm.variableManager.destroyVariable('PROCESS_FINDINGS');
             camForm.variableManager.createVariable({
                 name: 'PROCESS_FINDINGS',
                 type: 'Object',
-                value: JSON.stringify([$scope.result]),
+                value: JSON.stringify(findings),
                 valueInfo: {
                     serializationDataFormat: 'application/json',
                     objectTypeName: 'java.lang.String'
