@@ -56,7 +56,6 @@ public class ZapProcessTest {
     private static final String RUN_SPIDER_TASK = "ServiceTask_StartSpider";
     private static final String RUN_SCANNER_TASK = "ServiceTask_StartScanner";
     private static final String CREATE_SUMMARY_TASK = "ServiceTask_CreateSummary";
-    private static final String MARK_FALSE_POSITIVE_TASK = "ServiceTask_MarkFalsePositive";
 
     private final Map<String, Object> defaultVariables = new HashMap<>();
 
@@ -77,7 +76,6 @@ public class ZapProcessTest {
 
         defaultVariables.put(DefaultFields.PROCESS_AUTOMATED.name(), false);
         defaultVariables.put(DefaultFields.PROCESS_CONTEXT.name(), "BodgeIT");
-        defaultVariables.put(DefaultFields.PROCESS_MARK_FALSE_POSITIVE.name(), false);
 
         defaultVariables.put("ZAP_AUTHENTICATION", false);
         defaultVariables.put("ZAP_SPIDER_CONFIGURATION_TYPE", "default");
@@ -247,7 +245,7 @@ public class ZapProcessTest {
         Scenario scenario = Scenario.run(zapProcess).startByKey(PROCESS_ID, defaultVariables).execute();
 
         assertThat(scenario.instance(zapProcess)).isWaitingAt(RUN_SCANNER_TASK);
-        verifyExecutionListenerMock("transformFindingsToTargetsDelegate");
+        verifyExecutionListenerMock("transformFindingsToTargetsListener");
     }
 
     @Test
@@ -300,22 +298,6 @@ public class ZapProcessTest {
         assertThat(scenario.instance(zapProcess)).hasPassed(APPROVE_RESULTS_TASK);
         assertThat(scenario.instance(zapProcess)).variables().containsEntry(DefaultFields.PROCESS_RESULT_APPROVED.name(), "disapproved");
         assertThat(scenario.instance(zapProcess)).isWaitingAt(RUN_SPIDER_TASK);
-    }
-
-    @Test
-    public void testMarkFalsePositiveCalled(){
-
-        Map<String, Object> variables = new HashMap<>(defaultVariables);
-        changeVariable(variables, "PROCESS_AUTOMATED", true);
-        changeVariable(variables, DefaultFields.PROCESS_MARK_FALSE_POSITIVE.name(), true);
-
-        when(zapProcess.waitsAtServiceTask(MARK_FALSE_POSITIVE_TASK)).thenReturn(task -> {
-            startExternalMockProcess("task_mark_false_positive");
-        });
-        Scenario scenario = Scenario.run(zapProcess).startByKey(PROCESS_ID, variables).execute();
-        assertThat(scenario.instance(zapProcess)).isEnded();
-        assertThat(scenario.instance(zapProcess)).hasPassed(MARK_FALSE_POSITIVE_TASK);
-        verifyJavaDelegateMock("summaryGeneratorDelegate");
     }
 
     /**

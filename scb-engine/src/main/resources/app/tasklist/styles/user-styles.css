@@ -166,3 +166,7 @@ button.region-toggle .icon-bar {
 .glyphicon-fire {
     color: #FFF;
 }
+
+.label-info {
+    background-color: #150fd1;
+}

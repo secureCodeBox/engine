@@ -73,6 +73,10 @@ public class Finding {
     @ApiModelProperty(value = "The severity of this finding.", example ="HIGH")
     private Severity severity;
 
+    @JsonProperty(value = "false_positive", required = false)
+    @ApiModelProperty(value = "If the finding is a false positive.", example ="false")
+    private boolean falsePositive;
+
     @ApiModelProperty(value = "An additional external Reference.", example ="CVE-2018-1196")
     private Reference reference;
 
@@ -203,6 +207,14 @@ public class Finding {
         this.location = location;
     }
 
+    public boolean isFalsePositive() {
+        return falsePositive;
+    }
+
+    public void setFalsePositive(boolean falsePositive) {
+        this.falsePositive = falsePositive;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -227,5 +239,42 @@ public class Finding {
                 + ", category='" + category + '\'' + ", osiLayer=" + osiLayer + ", severity=" + severity
                 + ", reference=" + reference + ", hint='" + hint + '\'' + ", location='" + location + '\''
                 + ", attributes=" + attributes + '}';
+    }
+    
+    public boolean equalsIgnoringId(Finding other){
+        if(this == other){
+            return true;
+        }
+
+        if(other == null){
+            return false;
+        }
+
+        boolean attributesEqual = true;
+
+        for(String key : this.getAttributes().keySet()){
+            if(!equalsOrBothNull(this.getAttributes().get(key), other.getAttributes().get(key))){
+                attributesEqual = false;
+            }
+        }
+
+        return equalsOrBothNull( this.getLocation(), other.getLocation()) &&
+               equalsOrBothNull( this.getCategory(), other.getCategory()) &&
+               equalsOrBothNull( this.getDescription(), other.getDescription()) &&
+               equalsOrBothNull( this.getHint(), other.getHint()) &&
+               equalsOrBothNull( this.getName(), other.getName()) &&
+               equalsOrBothNull( this.getOsiLayer(), other.getOsiLayer()) &&
+                ((this.getReference() == null && other.getReference() == null) ||
+                    (this.getReference() != null && this.getReference().equalsIgnoreId(other.getReference()))) &&
+               equalsOrBothNull( this.getSeverity(), other.getSeverity()) &&
+               attributesEqual;
+    }
+
+    private boolean equalsOrBothNull(Object first, Object second){
+
+        if (first == null)
+            return second == null;
+        else
+            return second != null && first.equals(second);
     }
 }

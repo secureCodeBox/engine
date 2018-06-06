@@ -86,4 +86,10 @@ public class Reference {
     public int hashCode() {
         return Objects.hash(id, source);
     }
+
+    public boolean equalsIgnoreId(Reference other){
+        return other != null &&
+                ((source == null && other.source == null) ||
+                        (source != null && source.equals(other.source)));
+    }
 }

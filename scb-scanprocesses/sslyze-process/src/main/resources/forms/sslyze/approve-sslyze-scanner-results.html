@@ -22,39 +22,142 @@
 		camForm.on('form-loaded', function() {
 			camForm.variableManager.fetchVariable('PROCESS_TARGETS');
 		  	camForm.variableManager.fetchVariable('PROCESS_CONTEXT');
-
 		  	camForm.variableManager.fetchVariable('PROCESS_FINDINGS');
+		  	camForm.variableManager.fetchVariable('PROCESS_SCANNER_ID');
 		});
 
 		camForm.on('variables-restored', function() {
 		    $scope.context = camForm.variableManager.variableValue('PROCESS_CONTEXT');
+		    $scope.scannerId = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
 
-			$scope.result = JSON.parse(camForm
+			// fetch and group results by target host
+			var result = JSON.parse(camForm
 					.variableManager
 					.variableValue('PROCESS_FINDINGS'));
+			$scope.groupedResults = result.reduce(
+                    function (carry, item) {
+                        if (!carry.hasOwnProperty(item.location)) {
+                            carry[item.location] = [];
+                        }
+                        carry[item.location].push(item);
+                        return carry;
+                    },
+                    {}
+            );
 
+			// fetch first target host
 			var targets = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
-
 			$scope.firstTarget = targets[0];
 			$scope.otherTargetsLength = targets.length - 1;
 		});
+
+		 camForm.on('submit', function () {
+            // remap Findings to layout.
+        	var findings=[];
+			for(var element in $scope.groupedResults) {
+			    $scope.groupedResults[element].forEach(
+			        finding=>{
+			            findings.push(finding);
+
+			        });
+			}
+
+            camForm.variableManager.destroyVariable('PROCESS_FINDINGS');
+            camForm.variableManager.createVariable({
+                name: 'PROCESS_FINDINGS',
+                type: 'Object',
+                value: JSON.stringify(findings),
+                valueInfo: {
+                    serializationDataFormat: 'application/json',
+                    objectTypeName: 'java.lang.String'
+                }
+            });
+        });
 	</script>
 
 	<h2>
-		SSLyze-Scan results for "{{ firstTarget.name }}"
-		<span ng-if="otherTargetsLength > 0">, and {{otherTargetsLength}} other Targets.</span>
+		SSLyze scan results for "{{ firstTarget.name }}"
+		<span ng-if="otherTargetsLength > 0">, and {{otherTargetsLength}} other targets.</span>
 	</h2>
 
 	<div class="row">
 		<div class="col-xs-12">
 			<div>
+				<label>SSLyze scanner Id:</label>
+				{{ scannerId }}
+			</div>
+			<div>
 				<label>Target Host:</label>
-				<p>{{ firstTarget.location }}</p>
+				{{ firstTarget.location }}
+			</div>
+			<div>
+				<label>Business Context:</label>
+				<code>{{ context }}</code>
 			</div>
 
-			Not yet Implemented!
+			<div class="form-group hidden">
+				<label>Result:</label>
+				<code>{{ result }}</code>
+			</div>
 
-			<pre>{{$scope.result}}</pre>
+			<div class="well well-sm"
+				 style="color: inherit;"
+				 ng-repeat="(host, res) in groupedResults">
+				<strong>Results for Host: {{ host }}</strong>
+				<table class="table table-striped">
+					<tr>
+						<th>Finding</th>
+						<th>Description</th>
+						<th>Category</th>
+						<th>Severity</th>
+						<th>Action</th>
+					</tr>
+					<tr ng-repeat="r in res">
+						<td>{{ r.name }}</td>
+						<td>
+							<div>
+								{{ r.description }}
+							</div>
+							<div ng-show="r.attributes != null">
+								<table class="table table-striped">
+									<tr>
+										<th>Name</th>
+										<th>Value</th>
+									</tr>
+									<tr ng-repeat="(name, value) in r.attributes">
+										<td>{{ name }}</td>
+										<td>{{ value }}</td>
+									</tr>
+								</table>
+							</div>
+						</td>
+						<td>{{ r.category }}</td>
+						<td>
+							<span ng-switch="r.severity">
+								<span ng-switch-when="HIGH" class="label label-danger">
+                                	<i aria-hidden="true" class="glyphicon glyphicon-exclamation-sign"></i>
+                                	High
+                            	</span>
+								<span ng-switch-when="MEDIUM" class="label label-warning">
+                                	<i aria-hidden="true" class="glyphicon glyphicon-chevron-up"></i>
+                                	Medium
+                            	</span>
+								<span ng-switch-when="LOW" class="label label-default">
+                                	<i aria-hidden="true" class="glyphicon glyphicon-chevron-down"></i>
+                                	Low
+                            	</span>
+								<span ng-switch-default class="label label-info">
+                                	<i aria-hidden="true" class="glyphicon glyphicon-info-sign"></i>
+                                	Info
+                            	</span>
+							</span>
+						</td>
+						<td>
+							<manual-false-positive finding="r"></manual-false-positive>
+						</td>
+					</tr>
+				</table>
+			</div>
 
 			<h2>Approve Result</h2>
 			<!-- reporting configuration -->

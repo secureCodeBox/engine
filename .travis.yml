@@ -18,31 +18,24 @@ script:
   - echo -en "travis_fold:start:Test\r"
   - mvn test -Pdependency-check -q -B
   - echo -en "travis_fold:end:Test\r"
+  - export REPO=securecodebox/engine
+  - export TAG=$TRAVIS_BRANCH
   - echo -en "travis_fold:start:Docker_Build\r"
-  - docker build -t securecodebox/engine:oss .
+  - docker build -t $REPO:$TAG .
+  - docker tag $REPO:$TAG $REPO:oss;
+  - docker tag $REPO:$TAG $REPO:latest;
+  - docker tag $REPO:$TAG $REPO:$TRAVIS_BUILD_NUMBER;
   - echo -en "travis_fold:end:Docker_Build\r"
   - docker images
 
 deploy:
   -  provider: script
      skip_cleanup: true
-     script: bash deploy.sh
+     script: bash .travis/deployDockerHub.sh
      on:
        branch: develop
-
   -  provider: script
      skip_cleanup: true
-     script: bash deploy.sh
+     script: bash .travis/deployDockerHub.sh
      on:
        branch: master
-
-  - provider: releases
-    file_glob: true
-    draft: true
-    file:
-      - scb-engine/target/*.jar
-      - scb-scanprocesses/**/target/*.jar
-      - scb-sdk/target/*.jar
-    skip_cleanup: true
-    on:
-      branch: master

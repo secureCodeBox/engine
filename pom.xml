@@ -19,6 +19,20 @@
         <developer>
             <id>iteratec.de</id>
             <name>iteratec GmbH security group</name>
+            <email>security@iteratec.de</email>
+            <organization>iteratec GmbH</organization>
+            <organizationUrl>https://www.iteratec.com</organizationUrl>
+        </developer>
+
+        <developer>
+            <id>rseedorf</id>
+            <name>Robert Seedorf</name>
+            <organization>iteratec GmbH</organization>
+            <organizationUrl>https://www.iteratec.com</organizationUrl>
+        </developer>
+        <developer>
+            <id>rheins</id>
+            <name>Rüdiger Heins</name>
             <organization>iteratec GmbH</organization>
             <organizationUrl>https://www.iteratec.com</organizationUrl>
         </developer>
@@ -46,7 +60,7 @@
         <camunda.spring.boot.starter.version>2.3.0</camunda.spring.boot.starter.version>
         <!-- END IMPORTANT -->
 
-        <spring-boot.version>1.5.12.RELEASE</spring-boot.version>
+        <spring-boot.version>1.5.13.RELEASE</spring-boot.version>
         <swagger-version>2.9.0</swagger-version>
     </properties>
 
@@ -238,6 +252,62 @@
                     </plugins>
                 </pluginManagement>
             </build>
+        </profile>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.0.1</version>
+                        <executions>
+                            <execution>
+                                <id>generate-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.10.4</version>
+                        <executions>
+                            <execution>
+                                <id>generate-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <distributionManagement>
+                <repository>
+                    <id>maven-central-release</id>
+                    <name>Maven Central Release Repo</name>
+                    <!-- Replace by central repo -->
+                    <url>https://down.securecodeboc.io</url>
+                </repository>
+            </distributionManagement>
+
         </profile>
     </profiles>
 </project>

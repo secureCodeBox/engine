@@ -27,10 +27,6 @@
         camForm.on('variables-fetched', function () {
             $scope.targets = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
             $scope.target = $scope.targets[0];
-
-            if($scope.targets === undefined || angular.equals([], $scope.targets)) {
-                $scope.target = {'name':'BodgeIT Public Host', 'location': 'bodgeit', 'attributes': { 'SSLYZE_PARAMETER': '' }};
-            }
         });
 
         camForm.on('submit', function () {

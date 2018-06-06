@@ -22,8 +22,22 @@
 <form role="form" name="configure-target">
 
 	<script cam-script type="text/form-script">
-        camForm.on('form-loaded', function () {
-			$scope.target = {'name':'BodgeIT Public Host', 'location': 'bodgeit', 'attributes': { 'SSLYZE_PARAMETER': ''}};
+		camForm.on('form-loaded', function () {
+            camForm.variableManager.fetchVariable('DEFAULT_CONTEXT');
+            camForm.variableManager.fetchVariable('DEFAULT_TARGET_NAME');
+            camForm.variableManager.fetchVariable('DEFAULT_TARGET_LOCATION');
+        });
+
+		camForm.on('variables-fetched', function () {
+			$scope.context = camForm.variableManager.variableValue('DEFAULT_CONTEXT');
+
+			$scope.target = {
+				name: camForm.variableManager.variableValue('DEFAULT_TARGET_NAME'),
+				location: camForm.variableManager.variableValue('DEFAULT_TARGET_LOCATION'),
+				attributes: {
+					SSLYZE_PARAMETER: ''
+				}
+			};
         });
 
         camForm.on('submit', function () {
@@ -69,7 +83,7 @@
 						   class="form-control"
 						   id="SSLYZE_TARGET"
 						   type="text"
-						   placeholder=""
+						   placeholder="Hostname/IP address"
 						   ng-minlength="5"
 						   ng-maxlength="100"
 						   name="SSLYZE_TARGET"
@@ -84,27 +98,14 @@
 					<input
 							class="form-control"
 							id="inputContext"
-							cam-variable-type="String"
-							cam-variable-name="PROCESS_CONTEXT"
+                            cam-variable-type="String"
+                            cam-variable-name="PROCESS_CONTEXT"
 							type="text"
 							placeholder="Project/Team/System"
 							ng-required="false"
 							ng-maxlength="50"
-							name="PROCESS_CONTEXT"
-							value="BodgeIT" />
-				</div>
-			</div>
-
-			<div class="form-group">
-				<div class="controls">
-					<label for="PROCESS_MARK_FALSE_POSITIVE">Enable False/Positive Filtering?</label>
-					<input
-							class="form-control"
-							id="PROCESS_MARK_FALSE_POSITIVE"
-							cam-variable-type="Boolean"
-							cam-variable-name="PROCESS_MARK_FALSE_POSITIVE"
-							type="checkbox"
-							name="PROCESS_MARK_FALSE_POSITIVE" />
+							ng-model="context"
+							name="PROCESS_CONTEXT" />
 				</div>
 			</div>
 

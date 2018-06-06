@@ -2,26 +2,26 @@
 
 <form role="form" name="configure-target">
 
-	<script cam-script type="text/form-script">
+    <script cam-script type="text/form-script">
         camForm.on('form-loaded', function () {
-            camForm.variableManager.fetchVariable('PROCESS_TARGETS');
+            camForm.variableManager.fetchVariable('DEFAULT_CONTEXT');
+            camForm.variableManager.fetchVariable('DEFAULT_TARGET_NAME');
+            camForm.variableManager.fetchVariable('DEFAULT_TARGET_URI');
         });
-        camForm.on('variables-fetched', function () {
-            $scope.targets = camForm.variableManager.variableValue('PROCESS_TARGETS');
-            console.log("targets: "+$scope.targets);
 
-            if($scope.targets === undefined || angular.equals([], $scope.targets)) {
-                $scope.targetList = [];
-                $scope.targetList.push({
-					'name':'BodgeIT Public Host',
-					'location': 'http://bodgeit:8080/bodgeit',
-                	'attributes': {
-					    'ZAP_BASE_URL':'http://bodgeit:8080/bodgeit',
-						'ZAP_SPIDER_CONFIGURATION_TYPE': 'default',
-						'ZAP_SCANNER_CONFIGURATION_TYPE': 'default'
-					}
-                });
-            }
+        camForm.on('variables-fetched', function () {
+            $scope.context = camForm.variableManager.variableValue('DEFAULT_CONTEXT');
+
+            $scope.targetList = [{
+				name: camForm.variableManager.variableValue('DEFAULT_TARGET_NAME'),
+				location: camForm.variableManager.variableValue('DEFAULT_TARGET_URI'),
+				attributes: {
+					ZAP_BASE_URL: camForm.variableManager.variableValue('DEFAULT_TARGET_URI'),
+					ZAP_SPIDER_CONFIGURATION_TYPE: 'default',
+					ZAP_SCANNER_CONFIGURATION_TYPE: 'default'
+				}
+			}];
+
             $scope.addTarget = function () {
                 $scope.targetList.push({'name':'', 'location': ''});
             };
@@ -36,7 +36,9 @@
         });
 
         camForm.on('submit', function () {
-            camForm.variableManager.destroyVariable('PROCESS_TARGETS');
+            if (camForm.variableManager.variable('PROCESS_TARGETS') != undefined) {
+        	    camForm.variableManager.destroyVariable('PROCESS_TARGETS');
+        	}
             camForm.variableManager.createVariable({
                 name: 'PROCESS_TARGETS',
                 type: 'Object',
@@ -103,126 +105,116 @@
 			});
         });
 
+
     </script>
-	<div class="row">
+    <div class="row">
 
-		<div class="col-xs-12">
-			<h3>OWASP-ZAP Scan Target</h3>
+        <div class="col-xs-12">
+            <h3>OWASP-ZAP Scan Target</h3>
 
-			<div class="form-group">
-				<div class="controls form-group" style="background: #dfdfdf" ng-repeat="target in targetList track by $index">
-					<div class="row">
-						<div class="col-xs-3">
-							<label>Target Name</label>
-							<input required class="form-control"
-								   type="text"
-								   placeholder="Public Site Name"
-								   ng-minlength="2"
-								   ng-maxlength="30"
-								   ng-model="target.name"/>
-						</div>
-						<div class="col-xs-4">
-							<label>Target Hosts</label>
-							<span>Hostname/ IP-Address</span>
-							<input required class="form-control"
-								   type="text"
-								   placeholder="http://bodgeit:8080/bodgeit"
-								   ng-minlength="3"
-								   ng-model="target.location"
-								   ng-keydown="checkForEnter($event)"
-							/>
-						</div>
-						<!-- Target Name -->
-						<div class="col-xs-4">
-							<label>Base Url</label>
-							<input required class="form-control"
-								   type="text"
-								   placeholder="http://bodgeit:8080/bodgeit"
-								   ng-model="target.attributes.ZAP_BASE_URL"
-								   ng-minlength="3"/>
-						</div>
-						<div class="col-xs-1">
-							<button class="btn btn-danger btn-lg"
-									ng-click="targetList.splice($index, 1)"
-									ng-disabled="targetList.length === 1"
-									style="position: absolute; right: 15px; top: 0;">
-								<span class="glyphicon glyphicon-trash"></span>
-							</button>
-						</div>
-					</div>
+            <div class="form-group">
+                <div class="controls form-group" style="background: #dfdfdf"
+                     ng-repeat="target in targetList track by $index">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <label>Target Name</label>
+                            <input required class="form-control"
+                                   type="text"
+                                   placeholder="Public Site Name"
+                                   ng-minlength="2"
+                                   ng-maxlength="30"
+                                   ng-model="target.name"/>
+                        </div>
+                        <div class="col-xs-4">
+                            <label>Target Hosts</label>
+                            <input required class="form-control"
+                                   type="text"
+                                   placeholder="Hostname/IP address"
+                                   ng-minlength="3"
+                                   ng-model="target.location"
+                                   ng-keydown="checkForEnter($event)"
+                            />
+                        </div>
+                        <!-- Target Name -->
+                        <div class="col-xs-4">
+                            <label>Base URL</label>
+                            <input required class="form-control"
+                                   type="text"
+                                   placeholder="ZAP Base URL"
+                                   ng-model="target.attributes.ZAP_BASE_URL"
+                                   ng-minlength="3"/>
+                        </div>
+                        <div class="col-xs-1">
+                            <button class="btn btn-danger btn-lg"
+                                    ng-click="targetList.splice($index, 1)"
+                                    ng-disabled="targetList.length === 1"
+                                    style="position: absolute; right: 15px; top: 0;">
+                                <span class="glyphicon glyphicon-trash"></span>
+                            </button>
+                        </div>
+                    </div>
 
-					<!--Authentication-->
-					<div style="margin-top:10px; margin-bottom:10px">
-						<div class="form-check">
-							<input id="authentication"
-								   ng-model="target.attributes.ZAP_AUTHENTICATION"
-								   type="checkbox"
-								   name="authentication"
-								   class="form-check-input" />
-							<label for="authentication" style="white-space:nowrap">Scan with authentication (User Credentails)</label>
-						</div>
-					</div>
-					<!-- spider configuration -->
-					<div class="form-group">
-						<label for="selectSpiderConfigurationType">Type of the spider configuration</label>
-						<div class="controls">
-							<!--select box -->
-							<select required id="selectSpiderConfigurationType"
-									class="form-control"
-									name="configurationType"
-									ng-model="target.attributes.ZAP_SPIDER_CONFIGURATION_TYPE">
-								<option value="default" checked>Default</option>
-								<option value="advanced">Advanced</option>
-							</select>
-						</div>
-					</div>
+                    <!--Authentication-->
+                    <div style="margin-top:10px; margin-bottom:10px">
+                        <div class="form-check">
+                            <input id="authentication"
+                                   ng-model="target.attributes.ZAP_AUTHENTICATION"
+                                   type="checkbox"
+                                   name="authentication"
+                                   class="form-check-input"/>
+                            <label for="authentication" style="white-space:nowrap">Scan with authentication (User
+                                Credentails)</label>
+                        </div>
+                    </div>
+                    <!-- spider configuration -->
+                    <div class="form-group">
+                        <label for="selectSpiderConfigurationType">Type of the spider configuration</label>
+                        <div class="controls">
+                            <!--select box -->
+                            <select required id="selectSpiderConfigurationType"
+                                    class="form-control"
+                                    name="configurationType"
+                                    ng-model="target.attributes.ZAP_SPIDER_CONFIGURATION_TYPE">
+                                <option value="default" checked>Default</option>
+                                <option value="advanced">Advanced</option>
+                            </select>
+                        </div>
+                    </div>
 
-					<!-- scanner configuration -->
-					<div class="form-group">
-						<label for="selectScannerConfigurationType">Type of the scanner configuration</label>
-						<div class="controls">
-							<!--select box -->
-							<select required id="selectScannerConfigurationType"
-									class="form-control"
-									name="configurationType"
-									ng-model="target.attributes.ZAP_SCANNER_CONFIGURATION_TYPE">
-								<option value="default" checked>Default</option>
-								<option value="advanced">Advanced</option>
-							</select>
-						</div>
-					</div>
-				</div>
-				<button class="btn btn-primary" ng-click="addTarget()">Add Host</button>
-			</div>
+                    <!-- scanner configuration -->
+                    <div class="form-group">
+                        <label for="selectScannerConfigurationType">Type of the scanner configuration</label>
+                        <div class="controls">
+                            <!--select box -->
+                            <select required id="selectScannerConfigurationType"
+                                    class="form-control"
+                                    name="configurationType"
+                                    ng-model="target.attributes.ZAP_SCANNER_CONFIGURATION_TYPE">
+                                <option value="default" checked>Default</option>
+                                <option value="advanced">Advanced</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" ng-click="addTarget()">Add Host</button>
+            </div>
 
-			<div class="form-group">
-				<div class="controls">
-					<label for="inputFalsePositiveFilter">Enable False/Positive Filtering?</label>
-					<input class="form-control"
-						   id="inputFalsePositiveFilter"
-						   cam-variable-type="Boolean"
-						   cam-variable-name="PROCESS_MARK_FALSE_POSITIVE"
-						   type="checkbox"
-						   name="falsePositiveFilter"/>
-				</div>
-			</div>
-
-			<!-- Context (Project/Team/System...) -->
-			<div class="form-group">
-				<label for="inputContext">Business Context (Project/Team/System)</label>
-				<div class="controls">
-					<input class="form-control"
-						   id="inputContext"
-						   cam-variable-type="String"
-						   cam-variable-name="PROCESS_CONTEXT"
-						   type="text"
-						   placeholder="Project/Team/System"
-						   ng-required="false"
-						   ng-maxlength="50"
-						   name="context"
-						   value="BodgeIT"/>
-				</div>
-			</div>
-		</div>
-	</div>
+            <!-- Context (Project/Team/System...) -->
+            <div class="form-group">
+                <label for="inputContext">Business Context (Project/Team/System)</label>
+                <div class="controls">
+                    <input class="form-control"
+                           id="inputContext"
+                           cam-variable-type="String"
+                           cam-variable-name="PROCESS_CONTEXT"
+                           type="text"
+                           placeholder="Project/Team/System"
+                           ng-required="false"
+                           ng-maxlength="50"
+                           ng-model="context"
+                           name="context"/>
+                </div>
+            </div>
+        </div>
+    </div>
 </form>

@@ -19,3 +19,9 @@ securecodebox.persistence.provider: none
 securecodebox.persistence.elasticsearch.host: persistence-elasticsearch
 securecodebox.persistence.elasticsearch.port: 9200
 securecodebox.persistence.elasticsearch.index.prefix: securecodebox
+securecodebox.persistence.elasticsearch.index.delete_on_init: false
+
+securecodebox.default.target.name: BodgeIT Public Host
+securecodebox.default.target.location: bodgeit
+securecodebox.default.target.uri: http://bodgeit:8080/bodgeit
+securecodebox.default.context: BodgeIT
