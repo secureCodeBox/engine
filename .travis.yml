@@ -18,8 +18,13 @@ script:
   - echo -en "travis_fold:start:Test\r"
   - mvn test -Pdependency-check -q -B
   - echo -en "travis_fold:end:Test\r"
+  - export REPO=securecodebox/engine
+  - export TAG=$TRAVIS_BRANCH
   - echo -en "travis_fold:start:Docker_Build\r"
-  - docker build -t securecodebox/engine:oss .
+  - docker build -t $REPO:$TAG .
+  - docker tag $REPO:$TAG $REPO:oss;
+  - docker tag $REPO:$TAG $REPO:latest;
+  - docker tag $REPO:$TAG $REPO:$TRAVIS_BUILD_NUMBER;
   - echo -en "travis_fold:end:Docker_Build\r"
   - docker images
 
