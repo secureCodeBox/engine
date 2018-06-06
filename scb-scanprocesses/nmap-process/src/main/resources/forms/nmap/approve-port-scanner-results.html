@@ -29,18 +29,12 @@
 
         camForm.on('variables-restored', function () {
             $scope.context = camForm.variableManager.variableValue('PROCESS_CONTEXT');
-
-            var targets = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
-
-            $scope.firstTarget = targets[0];
-		    $scope.otherTargetsLength = targets.length - 1;
-
-
-
-            $scope.portScannerId = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
-            $scope.portScannerTarget = camForm.variableManager.variableValue('NMAP_TARGET');
-            $scope.portScannerParameter = camForm.variableManager.variableValue('NMAP_PARAMETER');
+            $scope.targets = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
             $scope.portScannerResult = JSON.parse(camForm.variableManager.variableValue('PROCESS_FINDINGS'));
+            $scope.portScannerId = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
+
+            $scope.firstTarget = $scope.targets[0];
+		    $scope.otherTargetsLength = $scope.targets.length - 1;
 
             $scope.groupedResults = $scope.portScannerResult.reduce(
                     function (carry, item) {
