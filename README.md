@@ -1,5 +1,6 @@
   ![Build Status](https://travis-ci.com/secureCodeBox/engine.svg?token=N5PJUt4SAUxNTYFZNtLj&branch=develop)
   [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+  [![Known Vulnerabilities](https://snyk.io/test/github/secureCodeBox/engine/badge.svg)](https://snyk.io/test/github/secureCodeBox/engine)
 
  # SecureCodeBox Engine – the Core
 
