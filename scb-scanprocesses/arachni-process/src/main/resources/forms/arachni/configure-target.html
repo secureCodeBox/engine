@@ -54,6 +54,7 @@
             }
         };
 
+        $scope.acceptLicense=false;
         $scope.cookies = {};
 
         camForm.on('submit', function () {
@@ -156,6 +157,18 @@
                            ng-maxlength="50"
                            name="context"
                            value="BodgeIT"/>
+                </div>
+            </div>
+            <!-- Arachni License -->
+            <div class="form-group">
+                <label for="inputLicense">I'm aware of and I do accept the <a href="https://github.com/Arachni/arachni/blob/master/LICENSE.md" target="_blank" style="text-decoration: underline;">Arachni license terms</a></label>
+                <div class="controls">
+                    <input class="form-control"
+                           id="inputLicense"
+                           type="checkbox"
+                           ng-required="true"
+                           name="acceptLicense"
+                           ng-model="acceptLicense"/>
                 </div>
             </div>
 
