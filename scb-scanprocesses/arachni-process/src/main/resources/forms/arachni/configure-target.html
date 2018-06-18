@@ -28,15 +28,6 @@
         }
     </style>
 
-    <script>
-        var scannerchecks = "";
-        var scannerscope = "";
-        var credentials = "";
-
-        var cookies = {};
-        var cookieString = '';
-    </script>
-
     <script cam-script type="text/form-script">
         $scope.target = {
             location: '',
@@ -58,7 +49,6 @@
         };
 
         $scope.acceptLicense=false;
-        $scope.cookies = {};
 
         camForm.on('submit', function () {
             $scope.target.attributes.ARACHNI_EXTEND_PATH = $scope.target.attributes.ARACHNI_EXTEND_PATH.split('\n');
@@ -80,38 +70,8 @@
             var div = document.getElementById(id);
             div.style.display == 'none' ? div.style.display = 'block' : div.style.display = 'none';
         }
-
-        function addCookie() {
-            var key = document.getElementById("cookieName");
-            var val = document.getElementById("cookieValue");
-            var div = document.getElementById("savedCookies");
-            cookies[key.value] = val.value;
-
-            var span = document.createElement("span");
-            var brk = document.createElement("br");
-            span.innerHTML = key.value + ": " + val.value;
-
-            div.appendChild(span);
-            div.appendChild(brk);
-
-            key.value = "";
-            val.value = "";
-        }
-
-        function updateCookiesString() {
-            if (Object.keys(window.cookies).length === 0
-                && window.cookies.constructor === Object) {
-                window.cookieString = ''
-            } else {
-                for (var key in window.cookies) {
-                    window.cookieString = window.cookieString + key + '=' + window.cookies[key] + '; ';
-                }
-                console.log(window.cookieString);
-                window.cookieString = window.cookieString.substring(0, window.cookieString.length - 2);
-                console.log(window.cookieString);
-            }
-        }
     </script>
+    
     <div class="row">
         <div class="col-xs-12">
             <h3>Vulnerability Target</h3>
@@ -290,19 +250,19 @@
                         ng-model="target.attributes.ARACHNI_EXTEND_PATH"
                 ></textarea>
             </div>
-            <div class="clearfix"></div>
 
-            <button class="btn btn-info pull-right scanner-btn" onclick="togglediv('arachniCookies');" type="button"><span class="glyphicon glyphicon-cog "></span> Set cookies for scan
+            <button class="btn btn-info pull-right scanner-btn" onclick="togglediv('arachniCookies');" type="button">
+                <span class="glyphicon glyphicon-cog "></span> Set cookies for scan
             </button>
+            <div class="clearfix"></div>
             <div id="arachniCookies" name="authenticationDefinition" style="display: none">
-                <br>
-                <label>Define Cookies:</label><br>
-                <div id="savedCookies"></div>
-                <label for="cookieName">Name</label><br>
-                <input id="cookieName" cam-variable-name="cookieName" class="form-control"/><br>
-                <label for="cookieValue">Value</label><br>
-                <input id="cookieValue" cam-variable-name="cookieValue" class="form-control"/><br>
-                <button id="addCookieBtn" onclick="addCookie()">Add cookie</button>
+                <p>Define a Cookies String which is used in every request:</p>
+                <label for="cookie_string">Cookie String (e.g. "foo=bar; baz=boo")</label><br>
+                <input 
+                    id="cookie_string"
+                    ng-model="target.attributes.ARACHNI_COOKIE_STRING"
+                    class="form-control"
+                    />
                 <br>
             </div>
         </div>
