@@ -20,6 +20,14 @@
 <h2>Please configure the Vulnerability Scan</h2>
 <form role="form" name="configure-target">
 
+    <style>
+        .scanner-btn{
+            margin: 4px 0;
+            width: 30%;
+            min-width: 120px;
+        }
+    </style>
+
     <script>
         var scannerchecks = "";
         var scannerscope = "";
@@ -40,18 +48,12 @@
                 ARACHNI_EXCLUDE_PATTERNS: '',
                 ARACHNI_INCLUDE_PATTERNS: '',
                 ARACHNI_SCAN_METHODS: '',
-                ARACHNI_AUTHENTICATION: '',
                 ARACHNI_COOKIE_STRING: '',
                 ARACHNI_EXTEND_PATH: '',
                 ARACHNI_LOGIN_URL: '',
                 ARACHNI_LOGIN_CREDENTIALS: '',
                 ARACHNI_LOGIN_CHECK: '',
-                ARACHNI_LOGIN_ADVANCED_SCRIPT_TYPE: '',
-                ARACHNI_LOGIN_ADVANCED_SCRIPT: '',
-                ARACHNI_LOGIN_ADVANCED_SCRIPT_NAME: '',
-                ARACHNI_LOGIN_ADVANCED_SCRIPT_ARGS: '',
-                ARACHNI_LOGIN_ADVANCED_CHECK_URL: '',
-                ARACHNI_LOGIN_ADVANCED_CHECK_PATTERN: ''
+                ARACHNI_LOGIN_SCRIPT_FILENAME: ''
             }
         };
 
@@ -174,8 +176,8 @@
             </div>
 
             <br>
-            <button class="btn btn-info pull-right" onclick="togglediv('arachniScope');" type="button"
-                    style="width: 30%"><span class="glyphicon glyphicon-search "></span> Define the scans scope
+            <button class="btn btn-info pull-right scanner-btn" onclick="togglediv('arachniScope');" type="button">
+                <span class="glyphicon glyphicon-search "></span> Define the scans scope
             </button>
             <div id="arachniScope" name="scopeDefinition" style="display: none">
                 <br>
@@ -213,13 +215,11 @@
                        type="number"
                        class="form-control" />
             </div>
+            <div class="clearfix"></div>
 
-            <br> <br>
-
-            <button class="btn btn-info pull-right"
+            <button class="btn btn-info pull-right scanner-btn"
                     onclick="togglediv('arachniLogin');"
-                    type="button"
-                    style="width: 30%">
+                    type="button">
                 <span class="glyphicon glyphicon-user "></span> Define the login credentials
             </button>
             <div id="arachniLogin" name="authenticationDefinition" style="display: none">
@@ -245,90 +245,39 @@
                        class="form-control" />
                 <br>
             </div>
+            <div class="clearfix"></div>
 
-            <br><br>
+            <button class="btn btn-info pull-right scanner-btn"
+                    onclick="togglediv('arachniLoginScript');"
+                    type="button">
+                <span class="glyphicon glyphicon-user "></span> Login Script Configuration
+            </button>
+            <div class="clearfix"></div>
+            <div id="arachniLoginScript" style="display: none">
+                <br>
+                <p>
+                    More advanced / involved way to authenticate the scanner.
+                    Uses an existing script (Ruby/JS) on the arachni service to login the scanner / create a session.
+                    You can mount scripts into the docker container using the exposed <code>/securecodebox/scripts/</code> volume.
+                    All scripts must be located in <code>/securecodebox/scripts/</code>.
+                    Only submit the filename and extension.
+                </p>
+                <label for="arachni_login_script_filename">Filename (e.g. login_example.rb)</label><br>
+                <input
+                        id="arachni_login_script_filename"
+                        name="arachni_login_script_filename"
+                        class="form-control"
+                        type="text"
+                        ng-model="target.attributes.ARACHNI_LOGIN_SCRIPT_FILENAME"
+                />
+            </div>
 
-            <!--<button class="btn btn-info pull-right"-->
-                    <!--onclick="togglediv('arachniAdvancedLogin');"-->
-                    <!--type="button"-->
-                    <!--style="width: 30%">-->
-                <!--<span class="glyphicon glyphicon-user "></span> Advanced Login Configuration-->
-            <!--</button>-->
-            <!--<div id="arachniAdvancedLogin" style="display: none">-->
-                <!--<br>-->
-                <!--<label for="arachni_login_advanced_script_name">-->
-                    <!--User an existing script on the arachni service:-->
-                <!--</label><br>-->
-                <!--<small>Please use only one, this or the text area below</small>-->
-                <!--<input-->
-                        <!--id="arachni_login_advanced_script_name"-->
-                        <!--name="arachni_login_advanced_script_name"-->
-                        <!--class="form-control"-->
-                        <!--type="text"-->
-                        <!--cam-variable-name="arachni_login_advanced_script_name"-->
-                        <!--cam-variable-type="String"-->
-                <!--/>-->
-
-                <!--<br>-->
-                <!--&lt;!&ndash; Login Script Language &ndash;&gt;-->
-                <!--<label for="arachni_login_advanced_script_type">Login Script Language</label><br>-->
-                <!--<select id="arachni_login_advanced_script_type"-->
-                        <!--class="form-control"-->
-                        <!--name="arachni_login_advanced_script_type"-->
-                        <!--cam-variable-name="arachni_login_advanced_script_type"-->
-                        <!--cam-variable-type="String"-->
-                <!--&gt;-->
-                    <!--<option value="ruby" checked>Ruby</option>-->
-                    <!--<option value="javascript">JavaScript</option>-->
-                <!--</select>-->
-                <!--<br>-->
-                <!--&lt;!&ndash; Login Script &ndash;&gt;-->
-                <!--<label for="arachni_login_advanced_script">Write a Script to login to the Application</label><br>-->
-                <!--<small>Check <a-->
-                        <!--href="http://support.arachni-scanner.com/discussions/questions/13047-create-logon-script-for-angularjs">this-->
-                    <!--Thread</a> for an example-->
-                <!--</small>-->
-                <!--<textarea-->
-                        <!--id="arachni_login_advanced_script"-->
-                        <!--name="arachni_login_advanced_script"-->
-                        <!--class="form-control"-->
-                        <!--rows="10"-->
-                        <!--cam-variable-name="arachni_login_advanced_script"-->
-                        <!--cam-variable-type="String"-->
-                <!--&gt;</textarea>-->
-                <!--<br>-->
-
-                <!--&lt;!&ndash; Session Check URL &ndash;&gt;-->
-                <!--<label for="arachni_login_advanced_check_url">-->
-                    <!--URL Arachni will try to check to verify that the Login worked-->
-                <!--</label>-->
-                <!--<br>-->
-                <!--<input id="arachni_login_advanced_check_url"-->
-                       <!--name="arachni_login_advanced_check_url"-->
-                       <!--cam-variable-name="arachni_login_advanced_check_url"-->
-                       <!--cam-variable-type="String"-->
-                       <!--class="form-control"-->
-                <!--/>-->
-                <!--<br>-->
-                <!--&lt;!&ndash; Session Check Pattern &ndash;&gt;-->
-                <!--<label for="arachni_login_advanced_check_pattern">Pattern in the response that indicated a succesful-->
-                    <!--login.</label><br>-->
-                <!--<input id="arachni_login_advanced_check_pattern"-->
-                       <!--name="arachni_login_advanced_check_pattern"-->
-                       <!--cam-variable-name="arachni_login_advanced_check_pattern"-->
-                       <!--cam-variable-type="String"-->
-                       <!--class="form-control"-->
-                <!--/>-->
-            <!--</div>-->
-
-            <br><br>
-
-            <button class="btn btn-info pull-right"
+            <button class="btn btn-info pull-right scanner-btn"
                     onclick="togglediv('arachniSitemap');"
-                    type="button"
-                    style="width: 30%">
+                    type="button">
                 <span class="glyphicon glyphicon-home "></span> Sitemap
             </button>
+            <div class="clearfix"></div>
             <div id="arachniSitemap" style="display: none">
                 <p>If the arachni Spider isn't capable to spider your app reliably you can use the field below to extend
                     the scope by a sitemap.</p>
@@ -341,10 +290,9 @@
                         ng-model="target.attributes.ARACHNI_EXTEND_PATH"
                 ></textarea>
             </div>
+            <div class="clearfix"></div>
 
-            <br> <br>
-            <button class="btn btn-info pull-right" onclick="togglediv('arachniCookies');" type="button"
-                    style="width: 30%"><span class="glyphicon glyphicon-cog "></span> Set cookies for scan
+            <button class="btn btn-info pull-right scanner-btn" onclick="togglediv('arachniCookies');" type="button"><span class="glyphicon glyphicon-cog "></span> Set cookies for scan
             </button>
             <div id="arachniCookies" name="authenticationDefinition" style="display: none">
                 <br>
@@ -357,7 +305,6 @@
                 <button id="addCookieBtn" onclick="addCookie()">Add cookie</button>
                 <br>
             </div>
-
         </div>
     </div>
     </div>
