@@ -47,8 +47,20 @@
                 ARACHNI_LOGIN_SCRIPT_FILENAME: ''
             }
         };
-
+        $scope.context = '';
         $scope.acceptLicense = false;
+
+        camForm.on('form-loaded', function () {
+            camForm.variableManager.fetchVariable('DEFAULT_CONTEXT');
+            camForm.variableManager.fetchVariable('DEFAULT_TARGET_NAME');
+            camForm.variableManager.fetchVariable('DEFAULT_TARGET_URI');
+        });
+
+        camForm.on('variables-fetched', function () {
+            $scope.context = camForm.variableManager.variableValue('DEFAULT_CONTEXT');
+            $scope.target.name = camForm.variableManager.variableValue('DEFAULT_TARGET_NAME');
+            $scope.target.location = camForm.variableManager.variableValue('DEFAULT_TARGET_URI');
+        });
 
         camForm.on('submit', function () {
             $scope.target.attributes.ARACHNI_EXTEND_PATH = $scope.target.attributes.ARACHNI_EXTEND_PATH.split('\n').filter(Boolean);
@@ -88,7 +100,7 @@
                            type="text"
                            placeholder="Public Site Name"
                            name="targetName"
-                           value="BodgeIT Public Host"/>
+                    />
                 </div>
             </div>
 
@@ -103,7 +115,6 @@
                            placeholder="http://bodgeit:8080/bodgeit"
                            ng-pattern="/^(http:\/\/.*)|(https:\/\/.*)/"
                            name="arachniScannerTarget"
-                           value="http://bodgeit:8080/bodgeit"
                     />
                 </div>
             </div>
@@ -119,9 +130,10 @@
                            type="text"
                            placeholder="Project/Team/System"
                            ng-required="false"
-                           ng-maxlength="50"
+                           ng-maxlength="256"
                            name="context"
-                           value="BodgeIT"/>
+                           ng-model="context"
+                    />
                 </div>
             </div>
             <!-- Arachni License -->
