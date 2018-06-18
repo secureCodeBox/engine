@@ -42,6 +42,7 @@
                 ARACHNI_SCAN_METHODS: '',
                 ARACHNI_AUTHENTICATION: '',
                 ARACHNI_COOKIE_STRING: '',
+                ARACHNI_EXTEND_PATH: '',
                 ARACHNI_LOGIN_URL: '',
                 ARACHNI_LOGIN_CREDENTIALS: '',
                 ARACHNI_LOGIN_CHECK: '',
@@ -58,12 +59,12 @@
         $scope.cookies = {};
 
         camForm.on('submit', function () {
-            var data=[];
-            data.push($scope.target);
+            $scope.target.attributes.ARACHNI_EXTEND_PATH = $scope.target.attributes.ARACHNI_EXTEND_PATH.split('\n');
+
             camForm.variableManager.createVariable({
                 name: 'PROCESS_TARGETS',
                 type: 'Object',
-                value: JSON.stringify(data),
+                value: JSON.stringify([$scope.target]),
                 valueInfo: {
                     serializationDataFormat: 'application/json',
                     objectTypeName: 'java.lang.String'
@@ -331,14 +332,13 @@
             <div id="arachniSitemap" style="display: none">
                 <p>If the arachni Spider isn't capable to spider your app reliably you can use the field below to extend
                     the scope by a sitemap.</p>
-                <label for="sitemap">List of URL's to extend the arachni scope. </label><br>
+                <label for="sitemap">List of URL's to extend the arachni scope.</label><br>
                 <textarea
                         id="sitemap"
                         name="sitemap"
                         class="form-control"
                         rows="10"
-                        cam-variable-name="sitemap"
-                        cam-variable-type="String"
+                        ng-model="target.attributes.ARACHNI_EXTEND_PATH"
                 ></textarea>
             </div>
 
