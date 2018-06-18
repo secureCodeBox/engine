@@ -52,6 +52,8 @@
 
         camForm.on('submit', function () {
             $scope.target.attributes.ARACHNI_EXTEND_PATH = $scope.target.attributes.ARACHNI_EXTEND_PATH.split('\n');
+            $scope.target.attributes.ARACHNI_INCLUDE_PATTERNS = $scope.target.attributes.ARACHNI_INCLUDE_PATTERNS.split('\n');
+            $scope.target.attributes.ARACHNI_EXCLUDE_PATTERNS = $scope.target.attributes.ARACHNI_EXCLUDE_PATTERNS.split('\n');
 
             camForm.variableManager.createVariable({
                 name: 'PROCESS_TARGETS',
@@ -140,19 +142,24 @@
                 <span class="glyphicon glyphicon-search "></span> Define the scans scope
             </button>
             <div id="arachniScope" name="scopeDefinition" style="display: none">
-                <br>
-                <label for="include_path_patterns">Included paths of the scanner, express them like :
-                    regex-pattern,regex-pattern2 etc.</label> <br>
-                <input id="include_path_patterns"
-                       ng-model="target.attributes.ARACHNI_INCLUDE_PATTERNS"
-                       class="form-control" />
+                <label for="include_path_patterns">Included paths of the scanner (e.g. ".*login"), (in-/exclude paths are exclusive, you can only use one!)</label> <br>
+                <textarea
+                        id="include_path_patterns"
+                        name="include_path_patterns"
+                        class="form-control"
+                        rows="5"
+                        ng-model="target.attributes.ARACHNI_INCLUDE_PATTERNS"
+                ></textarea>
                 <br>
 
-                <label for="exclude_path_patterns">Excluded paths of the scanner, express them like :
-                    regex-pattern,regex-pattern2 etc.</label> <br>
-                <input id="exclude_path_patterns"
-                       ng-model="target.attributes.ARACHNI_EXCLUDE_PATTERNS"
-                       class="form-control" />
+                <label for="exclude_path_patterns">Excluded paths of the scanner (e.g. "restricted/.*"), (in-/exclude paths are exclusive, you can only use one!)</label> <br>
+                <textarea
+                        id="exclude_path_patterns"
+                        name="exclude_path_patterns"
+                        class="form-control"
+                        rows="5"
+                        ng-model="target.attributes.ARACHNI_EXCLUDE_PATTERNS"
+                ></textarea>
                 <br>
 
                 <label for="dom_depth_limit">Limit of DOM depth</label> <br>
