@@ -21,7 +21,7 @@
 <form role="form" name="configure-target">
 
     <style>
-        .scanner-btn{
+        .scanner-btn {
             margin: 4px 0;
             width: 30%;
             min-width: 120px;
@@ -48,7 +48,7 @@
             }
         };
 
-        $scope.acceptLicense=false;
+        $scope.acceptLicense = false;
 
         camForm.on('submit', function () {
             $scope.target.attributes.ARACHNI_EXTEND_PATH = $scope.target.attributes.ARACHNI_EXTEND_PATH.split('\n').filter(Boolean);
@@ -73,7 +73,7 @@
             div.style.display == 'none' ? div.style.display = 'block' : div.style.display = 'none';
         }
     </script>
-    
+
     <div class="row">
         <div class="col-xs-12">
             <h3>Vulnerability Target</h3>
@@ -126,7 +126,9 @@
             </div>
             <!-- Arachni License -->
             <div class="form-group">
-                <label for="inputLicense">I'm aware of and I do accept the <a href="https://github.com/Arachni/arachni/blob/master/LICENSE.md" target="_blank" style="text-decoration: underline;">Arachni license terms</a></label>
+                <label for="inputLicense">I'm aware of and I do accept the <a
+                        href="https://github.com/Arachni/arachni/blob/master/LICENSE.md" target="_blank"
+                        style="text-decoration: underline;">Arachni license terms</a></label>
                 <div class="controls">
                     <input class="form-control"
                            id="inputLicense"
@@ -142,7 +144,8 @@
                 <span class="glyphicon glyphicon-search "></span> Define the scans scope
             </button>
             <div id="arachniScope" name="scopeDefinition" style="display: none">
-                <label for="include_path_patterns">Included paths of the scanner (e.g. ".*login"), (in-/exclude paths are exclusive, you can only use one!)</label> <br>
+                <label for="include_path_patterns">Included paths of the scanner (e.g. ".*login"), (in-/exclude paths
+                    are exclusive, you can only use one!)</label> <br>
                 <textarea
                         id="include_path_patterns"
                         name="include_path_patterns"
@@ -152,7 +155,8 @@
                 ></textarea>
                 <br>
 
-                <label for="exclude_path_patterns">Excluded paths of the scanner (e.g. "restricted/.*"), (in-/exclude paths are exclusive, you can only use one!)</label> <br>
+                <label for="exclude_path_patterns">Excluded paths of the scanner (e.g. "restricted/.*"), (in-/exclude
+                    paths are exclusive, you can only use one!)</label> <br>
                 <textarea
                         id="exclude_path_patterns"
                         name="exclude_path_patterns"
@@ -173,14 +177,14 @@
                 <input id="directory_depth_limit"
                        ng-model="target.attributes.ARACHNI_DIR_DEPTH_LIMIT"
                        type="number"
-                       class="form-control" />
+                       class="form-control"/>
                 <br>
 
                 <label for="page_limit">Limit of scanned pages</label> <br>
                 <input id="page_limit"
                        ng-model="target.attributes.ARACHNI_PAGE_LIMIT"
                        type="number"
-                       class="form-control" />
+                       class="form-control"/>
             </div>
             <div class="clearfix"></div>
 
@@ -195,21 +199,21 @@
                 <input id="arachni_login_url"
                        ng-model="target.attributes.ARACHNI_LOGIN_URL"
                        ng-pattern="/^(http:\/\/.*)|(https:\/\/.*)/"
-                       class="form-control" />
+                       class="form-control"/>
                 <br>
 
                 <label for="arachni_login_credentials">Provide the credentials for the login form : e.g. <code>usernameform=<b>newusername</b>&passwordform=<b>secretpassword</b></code></label><br>
                 <input id="arachni_login_credentials"
                        ng-model="target.attributes.ARACHNI_LOGIN_CREDENTIALS"
                        ng-pattern="/.+=.+&.+=.+/"
-                       class="form-control" />
+                       class="form-control"/>
 
                 <br>
 
                 <label for="arachni_login_check">Provide information which is only shown when logged in, e.g. <code><b>logout</b></code></label>
                 <input id="arachni_login_check"
                        ng-model="target.attributes.ARACHNI_LOGIN_CHECK"
-                       class="form-control" />
+                       class="form-control"/>
                 <br>
             </div>
             <div class="clearfix"></div>
@@ -225,7 +229,8 @@
                 <p>
                     More advanced / involved way to authenticate the scanner.
                     Uses an existing script (Ruby/JS) on the arachni service to login the scanner / create a session.
-                    You can mount scripts into the docker container using the exposed <code>/securecodebox/scripts/</code> volume.
+                    You can mount scripts into the docker container using the exposed
+                    <code>/securecodebox/scripts/</code> volume.
                     All scripts must be located in <code>/securecodebox/scripts/</code>.
                     Only submit the filename and extension.
                 </p>
@@ -265,11 +270,11 @@
             <div id="arachniCookies" name="authenticationDefinition" style="display: none">
                 <p>Define a Cookies String which is used in every request:</p>
                 <label for="cookie_string">Cookie String (e.g. "foo=bar; baz=boo")</label><br>
-                <input 
-                    id="cookie_string"
-                    ng-model="target.attributes.ARACHNI_COOKIE_STRING"
-                    class="form-control"
-                    />
+                <input
+                        id="cookie_string"
+                        ng-model="target.attributes.ARACHNI_COOKIE_STRING"
+                        class="form-control"
+                />
                 <br>
             </div>
         </div>
