@@ -51,9 +51,9 @@
         $scope.acceptLicense=false;
 
         camForm.on('submit', function () {
-            $scope.target.attributes.ARACHNI_EXTEND_PATH = $scope.target.attributes.ARACHNI_EXTEND_PATH.split('\n');
-            $scope.target.attributes.ARACHNI_INCLUDE_PATTERNS = $scope.target.attributes.ARACHNI_INCLUDE_PATTERNS.split('\n');
-            $scope.target.attributes.ARACHNI_EXCLUDE_PATTERNS = $scope.target.attributes.ARACHNI_EXCLUDE_PATTERNS.split('\n');
+            $scope.target.attributes.ARACHNI_EXTEND_PATH = $scope.target.attributes.ARACHNI_EXTEND_PATH.split('\n').filter(Boolean);
+            $scope.target.attributes.ARACHNI_INCLUDE_PATTERNS = $scope.target.attributes.ARACHNI_INCLUDE_PATTERNS.split('\n').filter(Boolean);
+            $scope.target.attributes.ARACHNI_EXCLUDE_PATTERNS = $scope.target.attributes.ARACHNI_EXCLUDE_PATTERNS.split('\n').filter(Boolean);
 
             camForm.variableManager.createVariable({
                 name: 'PROCESS_TARGETS',
