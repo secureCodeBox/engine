@@ -35,5 +35,5 @@ deploy:
 
 before_install:
   - openssl aes-256-cbc -K $encrypted_e1e85fb8c151_key -iv $encrypted_e1e85fb8c151_iv
-    -in security_at_iteratec-signing.key.enc -out security_at_iteratec-signing.key -d
+    -in .travis/security_at_iteratec-signing.key.enc -out .travis/security_at_iteratec-signing.key -d
     
