@@ -1,19 +1,12 @@
----
 sudo: true
-
 language: java
-
 services:
-  - docker
-
+- docker
 cache:
   directories:
-  - .autoconf
-  - $HOME/.m2
-
-# Skips useless mvn install from travis
+  - ".autoconf"
+  - "$HOME/.m2"
 install: true
-
 script:
   - echo -en "travis_fold:start:Test\r"
   - mvn test -Pdependency-check -q -B
@@ -39,3 +32,8 @@ deploy:
      script: bash .travis/deployDockerHub.sh
      on:
        branch: master
+
+before_install:
+  - openssl aes-256-cbc -K $encrypted_e1e85fb8c151_key -iv $encrypted_e1e85fb8c151_iv
+    -in security_at_iteratec-signing.key.enc -out security_at_iteratec-signing.key -d
+    
