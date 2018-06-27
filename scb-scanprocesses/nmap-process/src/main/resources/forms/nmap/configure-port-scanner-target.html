@@ -19,7 +19,7 @@
 
 <h2>Please configure the Port Scan</h2>
 
-<form role="form" name="configure-target">
+<form role="form" name="configure_target">
 
     <script cam-script type="text/form-script">
         camForm.on('form-loaded', function () {
@@ -72,13 +72,21 @@
             <div class="form-group">
                 <div class="controls row form-group" ng-repeat="target in targetList track by $index">
                     <div class="col-xs-5">
-                        <label>Target Name</label>
+                        <label for="inputPortScannerTarget">Target Name</label>
                         <input required class="form-control"
                                type="text"
+                               id="inputPortScannerTarget"
+                               name="inputPortScannerTarget"
                                placeholder="Public Site Name"
                                ng-minlength="2"
                                ng-maxlength="30"
-                               ng-model="target.name"/>
+                               ng-model="target.name"
+                               ng-pattern="/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/"
+                        />
+                        <p class="text-danger"
+                           ng-if="configure_target.inputPortScannerTarget.$touched && configure_target.inputPortScannerTarget.$invalid">
+                            The Target need to be a valid hostname or ip-address. (No protocol or port in the address)
+                        </p>
                     </div>
                     <div class="col-xs-6">
                         <label>Target Hosts</label>
