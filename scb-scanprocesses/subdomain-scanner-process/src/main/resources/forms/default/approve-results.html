@@ -62,7 +62,6 @@
                             <th>Name:</th>
                             <th>Category:</th>
                             <th>Severity:</th>
-                            <th>Reference:</th>
                         </tr>
                         <tr class="danger" ng-repeat="result in scannerResult">
                             <td>{{ result.location }}</td>
@@ -93,9 +92,6 @@
                                        class="glyphicon glyphicon-education"></i>
                                     {{ result.severity }}
                                 </span>
-
-                            </td>
-                            <td> {{ result.reference.id }}
                             </td>
                         </tr>
                     </table>
