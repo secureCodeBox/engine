@@ -74,8 +74,8 @@ import static org.mockito.Mockito.when;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@Deployment(resources = "bpmn/default_process.bpmn")
-public class DefaultProcessTest {
+@Deployment(resources = "bpmn/subdomain_scanner_process.bpmn")
+public class SubdomainScannerProcessTest {
 
     //Define the Process Activity IDs
     private static final String PROCESS_ID = "subdomain_scan";
@@ -127,7 +127,7 @@ public class DefaultProcessTest {
         then this guide is helpful:
         https://blog.akquinet.de/2016/11/04/camunda-bpm-test-your-processes-based-on-plain-old-java-delegates/
          */
-        autoMock("bpmn/default_process.bpmn");
+        autoMock("bpmn/subdomain_scanner_process.bpmn");
 
         /*
         Here we define a default behaviour for all the tasks in the BPMN model.
