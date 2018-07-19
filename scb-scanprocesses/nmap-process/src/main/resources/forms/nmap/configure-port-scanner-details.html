@@ -57,15 +57,16 @@
                 <div class="col-xs-4">
                     <!-- Port Scanner Target -->
                     <div class="form-group">
-                        <label>Target Host</label>
+                        <label for="inputPortScannerTarget">Target Host</label>
                         <div class="controls">
                             <input required class="form-control"
                                    id="inputPortScannerTarget"
+                                   name="inputPortScannerTarget"
                                    type="text"
-                                   ng-minlength="1"
-                                   ng-maxlength="100"
                                    ng-model="target.location"
-                                   disabled/>
+                                   ng-pattern="/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/"
+                                   disabled
+                            />
                         </div>
                     </div>
                 </div>
@@ -75,6 +76,8 @@
                         <label for="inputPortScannerParams">Advanced Parameter</label>
                         <div class="controls">
                             <input required class="form-control"
+                                   id="inputPortScannerParams"
+                                   name="inputPortScannerParams"
                                    cam-variable-type="String"
                                    type="text"
                                    ng-required="false"
