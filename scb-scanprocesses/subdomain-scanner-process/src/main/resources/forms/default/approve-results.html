@@ -20,6 +20,23 @@
 <form role="form" name="configure-reporting">
 
     <script cam-script type="text/form-script">
+        // Polyfill for IE
+        // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith
+        if (!String.prototype.endsWith) {
+            String.prototype.endsWith = function(search, this_len) {
+                if (this_len === undefined || this_len > this.length) {
+                    this_len = this.length;
+                }
+                return this.substring(this_len - search.length, this_len) === search;
+            };
+        }
+
+        $scope.findingsFor = function findingsFor (findings, location){
+            return findings.filter(function (finding) {
+                return finding.location.endsWith(location);
+            });
+        };
+
         camForm.on('form-loaded', function () {
 
             camForm.variableManager.fetchVariable('PROCESS_CONTEXT');
@@ -63,35 +80,36 @@
                             <th>Category:</th>
                             <th>Severity:</th>
                         </tr>
-                        <tr class="danger" ng-repeat="result in scannerResult">
+                        <tr class="danger" ng-repeat="result in findingsFor(scannerResult, target.location)">
                             <td>{{ result.location }}</td>
                             <td>{{ result.name }}</td>
                             <td>{{ result.category }}</td>
                             <td>
                                 <div ng-switch on="result.severity">
-                                <span class="label label-danger" ng-switch-when="HIGH">
-                                    <i aria-hidden="true"
-                                       class="glyphicon glyphicon-fire"></i>
-                                    {{ result.severity }}
-                                </span>
+                                    <span class="label label-danger" ng-switch-when="HIGH">
+                                        <i aria-hidden="true"
+                                           class="glyphicon glyphicon-fire"></i>
+                                        {{ result.severity }}
+                                    </span>
 
                                     <span class="label label-warning" ng-switch-when="MEDIUM">
-                                    <i aria-hidden="true"
-                                       class="glyphicon glyphicon glyphicon-alert"></i>
-                                    {{ result.severity }}
-                                </span>
+                                        <i aria-hidden="true"
+                                           class="glyphicon glyphicon glyphicon-alert"></i>
+                                        {{ result.severity }}
+                                    </span>
 
                                     <span class="label label-primary" ng-switch-when="LOW">
-                                    <i aria-hidden="true"
-                                       class="glyphicon glyphicon-warning-sign"></i>
-                                    {{ result.severity }}
-                                </span>
+                                        <i aria-hidden="true"
+                                           class="glyphicon glyphicon-warning-sign"></i>
+                                        {{ result.severity }}
+                                    </span>
 
                                     <span class="label label-default" ng-switch-default>
-                                    <i aria-hidden="true"
-                                       class="glyphicon glyphicon-education"></i>
-                                    {{ result.severity }}
-                                </span>
+                                        <i aria-hidden="true"
+                                           class="glyphicon glyphicon-education"></i>
+                                        {{ result.severity }}
+                                    </span>
+                                </div>
                             </td>
                         </tr>
                     </table>
