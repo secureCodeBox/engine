@@ -20,8 +20,10 @@
 <form role="form" name="configure-reporting">
 
     <script cam-script type="text/form-script">
-        // Polyfill for IE
-        // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith
+        /*
+        Polyfill for IE
+        See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith
+        */
         if (!String.prototype.endsWith) {
             String.prototype.endsWith = function(search, this_len) {
                 if (this_len === undefined || this_len > this.length) {
@@ -38,7 +40,6 @@
         };
 
         camForm.on('form-loaded', function () {
-
             camForm.variableManager.fetchVariable('PROCESS_CONTEXT');
             camForm.variableManager.fetchVariable('PROCESS_TARGETS');
             camForm.variableManager.fetchVariable('PROCESS_FINDINGS');
