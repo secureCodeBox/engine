@@ -23,7 +23,6 @@ import org.camunda.bpm.engine.FilterService;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.spring.boot.starter.configuration.impl.AbstractCamundaConfiguration;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 /**
  * This configuration file generates the default task list filter
@@ -32,11 +31,13 @@ import org.springframework.context.annotation.Profile;
  * @since 19.07.18
  */
 @Configuration
-@Profile({"dev"})
 public class DefaultTasklistFilterConfiguration extends AbstractCamundaConfiguration {
     @Override
     public void postProcessEngineBuild(final ProcessEngine processEngine) {
         final FilterService filterService = processEngine.getFilterService();
-        filterService.saveFilter(filterService.newTaskFilter("All Tasks"));
+
+        if(filterService.createTaskFilterQuery().list().isEmpty()) {
+            filterService.saveFilter(filterService.newTaskFilter("All Tasks"));
+        }
     }
 }
