@@ -38,7 +38,13 @@
             }];
 
             $scope.addTarget = function () {
-                $scope.targetList.push({'name':'', 'location': ''});
+                $scope.targetList.push({
+                    name: '',
+                    location: '',
+                    attributes: {
+                        NO_DNS: false
+                    }
+                });
             };
 
             $scope.checkForEnter = function ($event) {
@@ -99,6 +105,13 @@
                                 style="position: absolute; right: 15px; top: 0;">
                             <span class="glyphicon glyphicon-trash"></span>
                         </button>
+                    </div>
+                    <div class="col-xs-12 form-group">
+                        <label>
+                            <input type="checkbox"
+                                   ng-model="target.attributes.NO_DNS"
+                            /> Disable DNS Lookup for subdomain verification.
+                        </label>
                     </div>
                 </div>
                 <button class="btn btn-primary" ng-click="addTarget()">Add Host</button>
