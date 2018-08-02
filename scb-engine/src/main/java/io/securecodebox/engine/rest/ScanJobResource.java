@@ -161,7 +161,7 @@ public class ScanJobResource {
 
         ExternalTask externalTask = engine.getExternalTaskService()
                 .createExternalTaskQuery()
-                .executionId(id.toString())
+                .externalTaskId(id.toString())
                 .withRetriesLeft()
                 .singleResult();
 
