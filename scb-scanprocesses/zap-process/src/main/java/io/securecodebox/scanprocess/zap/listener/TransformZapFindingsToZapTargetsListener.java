@@ -72,7 +72,7 @@ public class TransformZapFindingsToZapTargetsListener implements ExecutionListen
         for (Target target: targets) {
             List<ZapSitemapEntry> targetSitemap = findings.stream()
                     .filter(finding -> (finding.getAttributes().get("ZAP_BASE_URL")).equals(target.getAttributes().get("ZAP_BASE_URL")))
-                    .map(finding -> new ZapSitemapEntry(finding.getLocation(), (String) finding.getAttributes().get("method")))
+                    .map(finding -> new ZapSitemapEntry(finding.getLocation(), (String) finding.getAttributes().get("method"), (String) finding.getAttributes().get("postData")))
                     .collect(Collectors.toList());
 
             target.getAttributes().put("ZAP_SITEMAP", targetSitemap);

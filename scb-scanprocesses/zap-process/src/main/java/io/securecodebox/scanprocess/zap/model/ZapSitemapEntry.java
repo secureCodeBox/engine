@@ -21,9 +21,10 @@ package io.securecodebox.scanprocess.zap.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ZapSitemapEntry {
-    public ZapSitemapEntry(String location, String method){
+    public ZapSitemapEntry(String location, String method, String payload){
         this.location = location;
         this.method = method;
+        this.payload = payload;
     }
 
     @JsonProperty("LOCATION")
@@ -31,4 +32,7 @@ public class ZapSitemapEntry {
 
     @JsonProperty("METHOD")
     public String method;
+
+    @JsonProperty("PAYLOAD")
+    public String payload;
 }
