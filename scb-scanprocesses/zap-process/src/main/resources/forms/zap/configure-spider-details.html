@@ -59,11 +59,9 @@
                 for (var index in $scope.targetList){
 
                     var target = $scope.targetList[index];
-                    debugger;
 
                     target["attributes"]["ZAP_SPIDER_INCLUDE_REGEX"] = splitOnNewline(target["attributes"]["ZAP_SPIDER_INCLUDE_REGEX"]);
                     target["attributes"]["ZAP_SPIDER_EXCLUDE_REGEX"] = splitOnNewline(target["attributes"]["ZAP_SPIDER_EXCLUDE_REGEX"]);
-                    debugger;
                     console.log(target);
                     var variablePath = target["attributes"]["ZAP_SPIDER_API_SPEC_URL"];
 

@@ -17,10 +17,8 @@
     	});
     	camForm.on('submit', function () {
     	    $scope.targetList = $scope.targetList.map(function (target) {
-				debugger;
 				target.attributes.ZAP_SCANNER_INCLUDE_REGEX = splitOnNewline(target.attributes.ZAP_SCANNER_INCLUDE_REGEX);
 				target.attributes.ZAP_SCANNER_EXCLUDE_REGEX = splitOnNewline(target.attributes.ZAP_SCANNER_EXCLUDE_REGEX);
-				debugger;
 				return target;
 			});
 
