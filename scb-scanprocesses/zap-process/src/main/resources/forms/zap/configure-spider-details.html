@@ -1,6 +1,13 @@
 <form role="form" name="configure-spider">
 
     <script cam-script type="text/form-script">
+        function splitOnNewline(text){
+            if(text === null || text === undefined || text === ""){
+                return [];
+            }
+            return text.split("\n");
+        }
+
         inject(['$http', 'Uri', function($http, Uri){
             camForm.on('form-loaded', function () {
                 camForm.variableManager.fetchVariable('PROCESS_TARGETS');
@@ -52,12 +59,16 @@
                 for (var index in $scope.targetList){
 
                     var target = $scope.targetList[index];
+                    debugger;
 
+                    target["attributes"]["ZAP_SPIDER_INCLUDE_REGEX"] = splitOnNewline(target["attributes"]["ZAP_SPIDER_INCLUDE_REGEX"]);
+                    target["attributes"]["ZAP_SPIDER_EXCLUDE_REGEX"] = splitOnNewline(target["attributes"]["ZAP_SPIDER_EXCLUDE_REGEX"]);
+                    debugger;
                     console.log(target);
                     var variablePath = target["attributes"]["ZAP_SPIDER_API_SPEC_URL"];
 
                     if(variablePath != null){
-                        var file = target["attributes"]["ZAP_SPIDER_API_SPEC_FILE"]
+                        var file = target["attributes"]["ZAP_SPIDER_API_SPEC_FILE"];
                         delete $scope.targetList[index]["attributes"]["ZAP_SPIDER_API_SPEC_FILE"];
 
                         var formdata = new FormData();
@@ -144,6 +155,7 @@
                                     <textarea class="form-control"
                                               id="inputSpiderIncludeRegexes"
                                               ng-model="target.attributes.ZAP_SPIDER_INCLUDE_REGEX"
+                                              ng-required="false"
                                               rows="5"
                                               name="spiderIncludeRegexes"></textarea>
                             </div>
