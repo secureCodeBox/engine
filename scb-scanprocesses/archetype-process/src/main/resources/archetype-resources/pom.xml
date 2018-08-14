@@ -65,6 +65,10 @@
             <artifactId>camunda-bpm-process-test-coverage</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.camunda.bpm.extension</groupId>
+            <artifactId>camunda-bpm-assert</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
