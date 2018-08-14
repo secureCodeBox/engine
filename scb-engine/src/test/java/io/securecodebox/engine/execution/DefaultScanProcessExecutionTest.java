@@ -79,14 +79,14 @@ public class DefaultScanProcessExecutionTest {
         when(executionMock.hasVariable(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenReturn(true);
         when(executionMock.getVariable(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenAnswer((answer) -> findingCache);
         doAnswer((Answer) invocation -> {
-            findingCache = (String) invocation.getArgumentAt(1, ObjectValueImpl.class).getValue();
+            findingCache = (String) ((ObjectValueImpl)invocation.getArgument(1)).getValue();
             return Void.TYPE;
         }).when(executionMock).setVariable(eq(DefaultFields.PROCESS_FINDINGS.name()), any());
 
         when(executionMock.hasVariable(eq(DefaultFields.PROCESS_TARGETS.name()))).thenReturn(true);
         when(executionMock.getVariable(eq(DefaultFields.PROCESS_TARGETS.name()))).thenAnswer((answer) -> targetCache);
         doAnswer((Answer) invocation -> {
-            targetCache = (String) invocation.getArgumentAt(1, ObjectValueImpl.class).getValue();
+            targetCache = (String) ((ObjectValueImpl)invocation.getArgument(1)).getValue();
             return Void.TYPE;
         }).when(executionMock).setVariable(eq(DefaultFields.PROCESS_TARGETS.name()), any());
     }
