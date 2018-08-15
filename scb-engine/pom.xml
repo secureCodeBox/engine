@@ -28,6 +28,12 @@
             <groupId>org.camunda.bpm.springboot</groupId>
             <artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-properties-migrator</artifactId>
+            <scope>runtime</scope>
+            <version>2.0.2.RELEASE</version>
+        </dependency>
 
         <!-- Enable the camunda rest API -->
         <dependency>
