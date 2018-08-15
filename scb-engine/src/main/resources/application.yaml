@@ -7,6 +7,8 @@ camunda.bpm:
   webapp:
     index-redirect-enabled: true
 
+spring.datasource.type: org.apache.tomcat.jdbc.pool.DataSource
+
 logging.level: INFO
 logging.level.io.securecodebox: INFO
 
