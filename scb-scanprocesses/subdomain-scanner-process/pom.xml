@@ -36,7 +36,7 @@
         <dependency>
             <groupId>io.securecodebox.core</groupId>
             <artifactId>sdk</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <!-- Test Dependencies -->
