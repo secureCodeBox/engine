@@ -37,7 +37,7 @@
             }];
 
             $scope.addTarget = function () {
-                $scope.targetList.push({'name':'', 'location': ''});
+                $scope.targetList.push({'name': '', 'location': ''});
             };
 
             $scope.checkForEnter = function ($event) {
@@ -72,30 +72,32 @@
             <div class="form-group">
                 <div class="controls row form-group" ng-repeat="target in targetList track by $index">
                     <div class="col-xs-5">
-                        <label for="inputPortScannerTarget">Target Name</label>
+                        <label>
+                            Target Name
+                        </label>
                         <input required class="form-control"
                                type="text"
-                               id="inputPortScannerTarget"
-                               name="inputPortScannerTarget"
+                               id="inputPortScannerName"
+                               name="inputPortScannerName"
                                placeholder="Public Site Name"
                                ng-minlength="2"
-                               ng-maxlength="30"
+                               ng-maxlength="128"
                                ng-model="target.name"
-                               ng-pattern="/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/"
                         />
-                        <p class="text-danger"
-                           ng-if="configure_target.inputPortScannerTarget.$touched && configure_target.inputPortScannerTarget.$invalid">
-                            The Target need to be a valid hostname or ip-address. (No protocol or port in the address)
-                        </p>
                     </div>
                     <div class="col-xs-6">
-                        <label>Target Hosts</label>
+                        <label>
+                            Target Hosts
+                        </label>
                         <input required class="form-control"
                                type="text"
                                placeholder="Hostname/IP address"
-                               ng-minlength="3"
-                               ng-maxlength="100"
+                               id="inputPortScannerTarget"
+                               name="inputPortScannerTarget"
+                               ng-minlength="2"
+                               ng-maxlength="256"
                                ng-model="target.location"
+                               ng-pattern="/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/"
                                ng-keydown="checkForEnter($event)"
                         />
                     </div>
@@ -125,7 +127,7 @@
                            ng-required="false"
                            ng-maxlength="50"
                            ng-model="context"
-                           name="context" />
+                           name="context"/>
                 </div>
             </div>
 
