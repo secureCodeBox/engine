@@ -208,9 +208,12 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                 BulkRequest bulkRequest = new BulkRequest();
                 for (Finding f : report.getFindings()) {
 
+                    Map<String, Object> findingExecution = new HashMap<>(execution);
+                    findingExecution.remove("targets");
+
                     Map<String, Object> findingAsMap = serializeAndRemove(f);
                     findingAsMap.put("type", TYPE_FINDING);
-                    findingAsMap.put("execution", execution);
+                    findingAsMap.put("execution", findingExecution);
                     findingAsMap.put("report_id", report.getId());
 					// TODO remove this. scanner_type is accessible via execution attribute
                     findingAsMap.put("scanner_type", report.getExecution().getScannerType());
