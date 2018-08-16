@@ -10,6 +10,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class TransformZapFindingsToZapTargetsListenerTest {
+    TransformZapFindingsToZapTargetsListener underTest=new TransformZapFindingsToZapTargetsListener();
     @Test
     public void shouldProperlyTransformFindingsToTargets() {
         try {
@@ -27,7 +28,7 @@ public class TransformZapFindingsToZapTargetsListenerTest {
 
             targets.add(target);
 
-            TransformZapFindingsToZapTargetsListener.transform(targets, findings);
+            underTest.transform(targets, findings);
 
             assertEquals(1, targets.size());
             assertTrue(targets.get(0).getAttributes().containsKey("ZAP_SITEMAP"));
@@ -74,7 +75,7 @@ public class TransformZapFindingsToZapTargetsListenerTest {
 
             targets.add(target2);
 
-            TransformZapFindingsToZapTargetsListener.transform(targets, findings);
+            underTest.transform(targets, findings);
 
             assertEquals(2, targets.size());
 
