@@ -1,5 +1,12 @@
 <form role="form" name="configure-scanner">
 	<script cam-script type="text/form-script">
+		function splitOnNewline(text){
+    		if(text === null || text === undefined || text === ""){
+    		    return [];
+			}
+			return text.split("\n");
+		}
+
     	camForm.on('form-loaded', function() {
       		camForm.variableManager.fetchVariable('PROCESS_TARGETS');
     	});
@@ -9,6 +16,12 @@
       		console.log("targets: " + $scope.targetList);
     	});
     	camForm.on('submit', function () {
+    	    $scope.targetList = $scope.targetList.map(function (target) {
+				target.attributes.ZAP_SCANNER_INCLUDE_REGEX = splitOnNewline(target.attributes.ZAP_SCANNER_INCLUDE_REGEX);
+				target.attributes.ZAP_SCANNER_EXCLUDE_REGEX = splitOnNewline(target.attributes.ZAP_SCANNER_EXCLUDE_REGEX);
+				return target;
+			});
+
             camForm.variableManager.destroyVariable('PROCESS_TARGETS');
             camForm.variableManager.createVariable({
                 name: 'PROCESS_TARGETS',
