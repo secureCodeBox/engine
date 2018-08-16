@@ -8,9 +8,6 @@ cache:
   - "$HOME/.m2"
 install: true
 script:
-  - echo -en "travis_fold:start:Test\r"
-  - mvn test -Pdependency-check -q -B
-  - echo -en "travis_fold:end:Test\r"
   - export REPO=securecodebox/engine
   - export TAG=$TRAVIS_BRANCH
   - echo -en "travis_fold:start:Docker_Build\r"
@@ -20,6 +17,10 @@ script:
   - docker tag $REPO:$TAG $REPO:$TRAVIS_BUILD_NUMBER;
   - echo -en "travis_fold:end:Docker_Build\r"
   - docker images
+  - echo -en "travis_fold:start:Test\r"
+  - mvn test -Pdependency-check -q -B
+  - echo -en "travis_fold:end:Test\r"
+
 
 deploy:
   -  provider: script
