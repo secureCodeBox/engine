@@ -126,28 +126,24 @@
                     <input class="form-control"
                            id="inputContext"
                            cam-variable-type="String"
-                           cam-variable-name="context"
+                           cam-variable-name="PROCESS_CONTEXT"
                            type="text"
                            placeholder="Project/Team/System"
                            ng-required="false"
-                           ng-maxlength="256"
-                           name="context"
+                           ng-maxlength="50"
                            ng-model="context"
-                    />
+                           name="context" />
                 </div>
             </div>
             <!-- Arachni License -->
             <div class="form-group">
-                <label for="inputLicense">I'm aware of and I do accept the <a
-                        href="https://github.com/Arachni/arachni/blob/master/LICENSE.md" target="_blank"
-                        style="text-decoration: underline;">Arachni license terms</a></label>
+                <label for="inputLicense">I'm aware of and I do accept the
+                    <a href="https://github.com/Arachni/arachni/blob/master/LICENSE.md" target="_blank"
+                        style="text-decoration: underline;">Arachni license terms</a>
+                </label>
                 <div class="controls">
-                    <input class="form-control"
-                           id="inputLicense"
-                           type="checkbox"
-                           ng-required="true"
-                           name="acceptLicense"
-                           ng-model="acceptLicense"/>
+                    <input class="form-control" id="inputLicense" type="checkbox" ng-required="true" name="acceptLicense" ng-model="acceptLicense"
+                    />
                 </div>
             </div>
 
@@ -156,123 +152,90 @@
                 <span class="glyphicon glyphicon-search "></span> Define the scans scope
             </button>
             <div id="arachniScope" name="scopeDefinition" style="display: none">
-                <label for="include_path_patterns">Included paths of the scanner (e.g. ".*login"), (in-/exclude paths
-                    are exclusive, you can only use one!)</label> <br>
-                <textarea
-                        id="include_path_patterns"
-                        name="include_path_patterns"
-                        class="form-control"
-                        rows="5"
-                        ng-model="target.attributes.ARACHNI_INCLUDE_PATTERNS"
-                ></textarea>
+                <label for="include_path_patterns">Included paths of the scanner (e.g. ".*login"), (in-/exclude paths are exclusive, you can only use one!)</label>
+                <br>
+                <textarea id="include_path_patterns" name="include_path_patterns" class="form-control" rows="5" ng-model="target.attributes.ARACHNI_INCLUDE_PATTERNS"></textarea>
                 <br>
 
-                <label for="exclude_path_patterns">Excluded paths of the scanner (e.g. "restricted/.*"), (in-/exclude
-                    paths are exclusive, you can only use one!)</label> <br>
-                <textarea
-                        id="exclude_path_patterns"
-                        name="exclude_path_patterns"
-                        class="form-control"
-                        rows="5"
-                        ng-model="target.attributes.ARACHNI_EXCLUDE_PATTERNS"
-                ></textarea>
+                <label for="exclude_path_patterns">Excluded paths of the scanner (e.g. "restricted/.*"), (in-/exclude paths are exclusive, you can only use
+                    one!)</label>
+                <br>
+                <textarea id="exclude_path_patterns" name="exclude_path_patterns" class="form-control" rows="5" ng-model="target.attributes.ARACHNI_EXCLUDE_PATTERNS"></textarea>
                 <br>
 
-                <label for="dom_depth_limit">Limit of DOM depth</label> <br>
-                <input id="dom_depth_limit"
-                       ng-model="target.attributes.ARACHNI_DOM_DEPTH_LIMIT"
-                       type="number"
-                       class="form-control">
+                <label for="dom_depth_limit">Limit of DOM depth</label>
+                <br>
+                <input id="dom_depth_limit" ng-model="target.attributes.ARACHNI_DOM_DEPTH_LIMIT" type="number" class="form-control">
                 <br>
 
-                <label for="directory_depth_limit">Limit of directory depths</label> <br>
-                <input id="directory_depth_limit"
-                       ng-model="target.attributes.ARACHNI_DIR_DEPTH_LIMIT"
-                       type="number"
-                       class="form-control"/>
+                <label for="directory_depth_limit">Limit of directory depths</label>
+                <br>
+                <input id="directory_depth_limit" ng-model="target.attributes.ARACHNI_DIR_DEPTH_LIMIT" type="number" class="form-control"
+                />
                 <br>
 
-                <label for="page_limit">Limit of scanned pages</label> <br>
-                <input id="page_limit"
-                       ng-model="target.attributes.ARACHNI_PAGE_LIMIT"
-                       type="number"
-                       class="form-control"/>
+                <label for="page_limit">Limit of scanned pages</label>
+                <br>
+                <input id="page_limit" ng-model="target.attributes.ARACHNI_PAGE_LIMIT" type="number" class="form-control" />
             </div>
             <div class="clearfix"></div>
 
-            <button class="btn btn-info pull-right scanner-btn"
-                    onclick="togglediv('arachniLogin');"
-                    type="button">
+            <button class="btn btn-info pull-right scanner-btn" onclick="togglediv('arachniLogin');" type="button">
                 <span class="glyphicon glyphicon-user "></span> Define the login credentials
             </button>
             <div id="arachniLogin" name="authenticationDefinition" style="display: none">
                 <br>
-                <label for="arachni_login_url">Define the URL to the login</label><br>
-                <input id="arachni_login_url"
-                       ng-model="target.attributes.ARACHNI_LOGIN_URL"
-                       ng-pattern="/^(http:\/\/.*)|(https:\/\/.*)/"
-                       class="form-control"/>
+                <label for="arachni_login_url">Define the URL to the login</label>
+                <br>
+                <input id="arachni_login_url" ng-model="target.attributes.ARACHNI_LOGIN_URL" ng-pattern="/^(http:\/\/.*)|(https:\/\/.*)/"
+                    class="form-control" />
                 <br>
 
-                <label for="arachni_login_credentials">Provide the credentials for the login form : e.g. <code>usernameform=<b>newusername</b>&passwordform=<b>secretpassword</b></code></label><br>
-                <input id="arachni_login_credentials"
-                       ng-model="target.attributes.ARACHNI_LOGIN_CREDENTIALS"
-                       ng-pattern="/.+=.+&.+=.+/"
-                       class="form-control"/>
+                <label for="arachni_login_credentials">Provide the credentials for the login form : e.g.
+                    <code>usernameform=<b>newusername</b>&passwordform=<b>secretpassword</b></code>
+                </label>
+                <br>
+                <input id="arachni_login_credentials" ng-model="target.attributes.ARACHNI_LOGIN_CREDENTIALS" ng-pattern="/.+=.+&.+=.+/" class="form-control"
+                />
 
                 <br>
 
-                <label for="arachni_login_check">Provide information which is only shown when logged in, e.g. <code><b>logout</b></code></label>
-                <input id="arachni_login_check"
-                       ng-model="target.attributes.ARACHNI_LOGIN_CHECK"
-                       class="form-control"/>
+                <label for="arachni_login_check">Provide information which is only shown when logged in, e.g.
+                    <code><b>logout</b></code>
+                </label>
+                <input id="arachni_login_check" ng-model="target.attributes.ARACHNI_LOGIN_CHECK" class="form-control" />
                 <br>
             </div>
             <div class="clearfix"></div>
 
-            <button class="btn btn-info pull-right scanner-btn"
-                    onclick="togglediv('arachniLoginScript');"
-                    type="button">
+            <button class="btn btn-info pull-right scanner-btn" onclick="togglediv('arachniLoginScript');" type="button">
                 <span class="glyphicon glyphicon-user "></span> Login Script Configuration
             </button>
             <div class="clearfix"></div>
             <div id="arachniLoginScript" style="display: none">
                 <br>
                 <p>
-                    More advanced / involved way to authenticate the scanner.
-                    Uses an existing script (Ruby/JS) on the arachni service to login the scanner / create a session.
-                    You can mount scripts into the docker container using the exposed
-                    <code>/securecodebox/scripts/</code> volume.
-                    All scripts must be located in <code>/securecodebox/scripts/</code>.
-                    Only submit the filename and extension.
+                    More advanced / involved way to authenticate the scanner. Uses an existing script (Ruby/JS) on the arachni service to login
+                    the scanner / create a session. You can mount scripts into the docker container using the exposed
+                    <code>/securecodebox/scripts/</code> volume. All scripts must be located in
+                    <code>/securecodebox/scripts/</code>. Only submit the filename and extension.
                 </p>
-                <label for="arachni_login_script_filename">Filename (e.g. login_example.rb)</label><br>
-                <input
-                        id="arachni_login_script_filename"
-                        name="arachni_login_script_filename"
-                        class="form-control"
-                        type="text"
-                        ng-model="target.attributes.ARACHNI_LOGIN_SCRIPT_FILENAME"
+                <label for="arachni_login_script_filename">Filename (e.g. login_example.rb)</label>
+                <br>
+                <input id="arachni_login_script_filename" name="arachni_login_script_filename" class="form-control" type="text" ng-model="target.attributes.ARACHNI_LOGIN_SCRIPT_FILENAME"
                 />
             </div>
 
-            <button class="btn btn-info pull-right scanner-btn"
-                    onclick="togglediv('arachniSitemap');"
-                    type="button">
+            <button class="btn btn-info pull-right scanner-btn" onclick="togglediv('arachniSitemap');" type="button">
                 <span class="glyphicon glyphicon-home "></span> Sitemap
             </button>
             <div class="clearfix"></div>
             <div id="arachniSitemap" style="display: none">
-                <p>If the arachni Spider isn't capable to spider your app reliably you can use the field below to extend
-                    the scope by a sitemap.</p>
-                <label for="sitemap">List of URL's to extend the arachni scope.</label><br>
-                <textarea
-                        id="sitemap"
-                        name="sitemap"
-                        class="form-control"
-                        rows="10"
-                        ng-model="target.attributes.ARACHNI_EXTEND_PATH"
-                ></textarea>
+                <p>If the arachni Spider isn't capable to spider your app reliably you can use the field below to extend the
+                    scope by a sitemap.</p>
+                <label for="sitemap">List of URL's to extend the arachni scope.</label>
+                <br>
+                <textarea id="sitemap" name="sitemap" class="form-control" rows="10" ng-model="target.attributes.ARACHNI_EXTEND_PATH"></textarea>
             </div>
 
             <button class="btn btn-info pull-right scanner-btn" onclick="togglediv('arachniCookies');" type="button">
@@ -281,12 +244,9 @@
             <div class="clearfix"></div>
             <div id="arachniCookies" name="authenticationDefinition" style="display: none">
                 <p>Define a Cookies String which is used in every request:</p>
-                <label for="cookie_string">Cookie String (e.g. "foo=bar; baz=boo")</label><br>
-                <input
-                        id="cookie_string"
-                        ng-model="target.attributes.ARACHNI_COOKIE_STRING"
-                        class="form-control"
-                />
+                <label for="cookie_string">Cookie String (e.g. "foo=bar; baz=boo")</label>
+                <br>
+                <input id="cookie_string" ng-model="target.attributes.ARACHNI_COOKIE_STRING" class="form-control" />
                 <br>
             </div>
         </div>

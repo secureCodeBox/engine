@@ -61,6 +61,11 @@ public class Report {
         return execution.getFindings();
     }
 
+    @JsonProperty("rawFindings")
+    public String getRawFindings(){
+        return execution.getRawFindings();
+    }
+
     @JsonProperty("report_id")
     public UUID getId(){
         return id;
