@@ -223,6 +223,10 @@
                             <failBuildOnCVSS>8</failBuildOnCVSS>
                             <format>ALL</format>
                             <suppressionFile>dependency-check-suppression.xml</suppressionFile>
+                            <!-- disabling the ODC .Net Analyser because we have no .dll to check. -->
+                            <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+                            <nuspecAnalyzerEnabled>false</nuspecAnalyzerEnabled>
+                            <nugetconfAnalyzerEnabled>false</nugetconfAnalyzerEnabled>
                         </configuration>
                         <executions>
                             <execution>
