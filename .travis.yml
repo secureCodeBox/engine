@@ -18,7 +18,7 @@ script:
   - echo -en "travis_fold:end:Docker_Build\r"
   - docker images
   - echo -en "travis_fold:start:Test\r"
-  - mvn test -Pdependency-check -q -B
+  - mvn install -Pdependency-check 
   - echo -en "travis_fold:end:Test\r"
 
 
