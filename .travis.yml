@@ -12,7 +12,7 @@ script:
   - mvn install -Pdependency-check
   - echo -en "travis_fold:end:Test\r"
   - export REPO=securecodebox/engine
-  - export TAG=$TRAVIS_BRANCH
+  - export TAG=$($TRAVIS_BRANCH | sed 's/\//-/g')
   - echo -en "travis_fold:start:Docker_Build\r"
   - docker build -t $REPO:$TAG .
   - docker tag $REPO:$TAG $REPO:oss;
@@ -21,18 +21,12 @@ script:
   - echo -en "travis_fold:end:Docker_Build\r"
   - docker images
 
-
 deploy:
-  -  provider: script
-     skip_cleanup: true
-     script: bash .travis/deployDockerHub.sh
-     on:
-       branch: develop
-  -  provider: script
-     skip_cleanup: true
-     script: bash .travis/deployDockerHub.sh
-     on:
-       branch: master
+  - provider: script
+    skip_cleanup: true
+    script: bash deploy.sh
+    on:
+      all_branches: true
 
 before_install:
   - openssl aes-256-cbc -K $encrypted_e1e85fb8c151_key -iv $encrypted_e1e85fb8c151_iv
