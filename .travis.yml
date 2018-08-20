@@ -12,7 +12,7 @@ script:
   - mvn install -Pdependency-check
   - echo -en "travis_fold:end:Test\r"
   - export REPO=securecodebox/engine
-  - export TAG=$($TRAVIS_BRANCH | sed 's/\//-/g')
+  - export TAG=$(echo $TRAVIS_BRANCH | sed 's/\//-/g')
   - echo -en "travis_fold:start:Docker_Build\r"
   - docker build -t $REPO:$TAG .
   - docker tag $REPO:$TAG $REPO:oss;
