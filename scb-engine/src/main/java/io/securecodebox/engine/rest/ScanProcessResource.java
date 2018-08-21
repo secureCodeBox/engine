@@ -49,6 +49,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * API / Endpoint for scan processes (camunda processes).
@@ -92,6 +93,7 @@ public class ScanProcessResource {
         Map<String, Object> values = new HashMap<>();
         values.put(DefaultFields.PROCESS_AUTOMATED.name(), true);
         values.put(DefaultFields.PROCESS_TARGETS.name(), ProcessVariableHelper.generateObjectValue(targets));
+        values.put(DefaultFields.PROCESS_CONTEXT.name(), getContext(targets));
 
         if (processCount == 1) {
             LOG.debug("Starting process for id {}", processKey);
@@ -126,4 +128,18 @@ public class ScanProcessResource {
         return ResponseEntity.ok(results);
     }
 
+    private String getContext(List<Target> targets){
+        String context = String.join(
+                ",",
+                targets.stream()
+                        .map((Target::getName))
+                        .filter(name -> !name.equals(""))
+                        .collect(Collectors.toSet())
+        );
+
+        if(context.equals("")){
+            return "Unnamed";
+        }
+        return context;
+    }
 }
