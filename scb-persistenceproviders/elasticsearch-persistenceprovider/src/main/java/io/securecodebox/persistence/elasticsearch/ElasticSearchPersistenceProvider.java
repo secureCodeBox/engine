@@ -193,6 +193,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                 }
 
                 String dateTimeFormatToPersist = "yyyy-MM-dd'T'HH:mm:ss";
+                BulkRequest bulkRequest = new BulkRequest();
 
                 Map<String, Object> reportAsMap = serializeAndRemove(report, "findings", "execution");
                 Map<String, Object> execution = serializeAndRemove(report.getExecution(), "findings", "scanners");
@@ -209,17 +210,21 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                 IndexRequest reportIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
                 reportIndexRequest.source(objectMapper.writeValueAsString(reportAsMap), XContentType.JSON);
 
-                BulkRequest bulkRequest = new BulkRequest();
-                for (Finding f : report.getFindings()) {
+                // Persist the execution as report document in elasticsearch
+                bulkRequest.add(reportIndexRequest);
 
-                    Map<String, Object> findingExecution = new HashMap<>(execution);
-                    findingExecution.remove("targets");
+                // Create a lightweight execution object copy without targets for the findings persistence (to prevent duplicated data)
+                Map<String, Object> findingExecution = new HashMap<>(execution);
+                findingExecution.remove("targets");
+
+                // Persist each finding as a separate document in elasticsearch (with a lightweight object)
+                for (Finding f : report.getFindings()) {
 
                     Map<String, Object> findingAsMap = serializeAndRemove(f);
                     findingAsMap.put("type", indexTypeNameForFindings);
                     findingAsMap.put("execution", findingExecution);
                     findingAsMap.put("report_id", report.getId());
-					// TODO remove this. scanner_type is accessible via execution attribute
+                    // TODO remove this. scanner_type is accessible via execution attribute
                     findingAsMap.put("scanner_type", report.getExecution().getScannerType());
                     findingAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
 
@@ -227,7 +232,6 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     findingIndexRequest.source(objectMapper.writeValueAsString(findingAsMap), XContentType.JSON);
                     bulkRequest.add(findingIndexRequest);
                 }
-                bulkRequest.add(reportIndexRequest);
 
                 LOG.info("Persisting Report and Findings...");
                 highLevelClient.bulkAsync(bulkRequest, new ActionListener<BulkResponse>() {
