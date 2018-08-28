@@ -80,7 +80,7 @@ public class ScanProcessResource {
             @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{processKey}")
-    public ResponseEntity<UUID> getProcesses(
+    public ResponseEntity<UUID> startProcess(
             @ApiParam(value = "The key of the process to be started. See GET /box/processes.", example = "nmap-process",
                     required = true) @PathVariable String processKey, @Valid @RequestBody StartProcessRequest config) {
 
