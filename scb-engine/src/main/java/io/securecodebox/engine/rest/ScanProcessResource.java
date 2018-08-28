@@ -21,6 +21,7 @@ package io.securecodebox.engine.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
+import io.securecodebox.model.execution.StartProcessRequest;
 import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.rest.Process;
 import io.securecodebox.scanprocess.ProcessVariableHelper;
@@ -81,7 +82,7 @@ public class ScanProcessResource {
     @RequestMapping(method = RequestMethod.PUT, value = "/{processKey}")
     public ResponseEntity<UUID> getProcesses(
             @ApiParam(value = "The key of the process to be started. See GET /box/processes.", example = "nmap-process",
-                    required = true) @PathVariable String processKey, @Valid @RequestBody List<Target> targets) {
+                    required = true) @PathVariable String processKey, @Valid @RequestBody StartProcessRequest config) {
 
         long processCount = engine.getRepositoryService()
                 .createProcessDefinitionQuery()
@@ -92,8 +93,8 @@ public class ScanProcessResource {
 
         Map<String, Object> values = new HashMap<>();
         values.put(DefaultFields.PROCESS_AUTOMATED.name(), true);
-        values.put(DefaultFields.PROCESS_TARGETS.name(), ProcessVariableHelper.generateObjectValue(targets));
-        values.put(DefaultFields.PROCESS_CONTEXT.name(), getContext(targets));
+        values.put(DefaultFields.PROCESS_TARGETS.name(), ProcessVariableHelper.generateObjectValue(config.getTargets()));
+        values.put(DefaultFields.PROCESS_CONTEXT.name(), config.getContext());
 
         if (processCount == 1) {
             LOG.debug("Starting process for id {}", processKey);
@@ -126,20 +127,5 @@ public class ScanProcessResource {
         allProcesses.forEach(element -> results.add(new Process(element.getId(), element.getName(), element.getKey())));
 
         return ResponseEntity.ok(results);
-    }
-
-    private String getContext(List<Target> targets){
-        String context = String.join(
-                ",",
-                targets.stream()
-                        .map((Target::getName))
-                        .filter(name -> !name.equals(""))
-                        .collect(Collectors.toSet())
-        );
-
-        if(context.equals("")){
-            return "Unnamed";
-        }
-        return context;
     }
 }
