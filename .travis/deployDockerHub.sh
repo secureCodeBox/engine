@@ -3,11 +3,24 @@
 echo "Docker Login"
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 echo "Pushing to Dockerhub"
-if [[ $TRAVIS_BRANCH =~ ^master|develop$ ]]
+if [[ $TRAVIS_BRANCH =~ ^develop$ ]]
 then
-    echo "Pushing all tags"
-    echo $(docker push securecodebox/engine)
+    echo "Develop Build: Pushing develop tag"
+    
+    echo $(docker tag $REPO:$TAG $REPO:develop)
+    echo $(docker tag $REPO:$TAG $REPO:develop-$TRAVIS_COMMIT)
+
+    echo $(docker push $REPO:develop)
+    echo $(docker push $REPO:develop-$TRAVIS_COMMIT)
+    
+elif [ -z "$TRAVIS_TAG" ]
+then
+    echo "Tagged Release: Pushing versioned docker image." 
+    echo $(docker tag $REPO:$TAG $REPO:$TRAVIS_TAG)
+    echo $(docker tag $REPO:$TAG $REPO:latest)
+    echo $(docker push $REPO:$TRAVIS_TAG)
+    echo $(docker push $REPO:latest)
 else
-    echo "Pushing only branch Tag"
-    echo $(docker push securecodebox/engine:$TAG)
+    echo "Feature Branch: Pushing only branch Tag"
+    echo $(docker push $REPO:$TAG)
 fi
