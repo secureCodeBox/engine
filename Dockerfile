@@ -28,7 +28,7 @@ WORKDIR /scb-engine
 EXPOSE 8080
 
 LABEL org.opencontainers.image.title="secureCodeBox Engine" \
-    org.opencontainers.image.description="Orchastrating various security scans." \
+    org.opencontainers.image.description="Orchestrating various security scans." \
     org.opencontainers.image.authors="iteratec GmbH" \
     org.opencontainers.image.vendor="iteratec GmbH" \
     org.opencontainers.image.documentation="https://github.com/secureCodeBox/secureCodeBox" \
