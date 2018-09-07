@@ -17,22 +17,22 @@ window.camWelcomeConf = {
    links: [
      {
        label: 'SecureCodeBox Docs',
-       href: 'https://docs.security.iteratec.de',
+       href: 'https://securecodebox.github.io/secureCodeBox/',
        description: 'Documentation'
      },
-     {
-       label: 'SecureCodeBox Kibana',
-       href: 'http://xkcd.org',
-       description: 'Dashboard and Reporting'
-     },
+     // {
+     //   label: 'SecureCodeBox Kibana',
+     //   href: 'https://xkcd.org',
+     //   description: 'Dashboard and Reporting'
+     // },
      {
        label: 'SecureCodeBox Website',
-       href: 'https://www.iteratec.de',
+       href: 'https://www.securecodebox.io',
        description: 'Public SecureCodeBox Website'
      },
      {
        label: 'SecureCodeBox Slack',
-       href: 'https://secureCodeBox.slack.com',
+       href: 'https://join.slack.com/t/securecodebox/shared_invite/enQtMzc2MTIxNDg2NzIwLTI1MWUzNzVmZTY5MWNkMmQwNTA1YjZmYjQyM2FhY2ZiYjBlNmVkYWVjZWUxZTY1OTk1MTlmNmI0ZGJjZGIxYzU',
        description: 'Public Slack Channel for FAQ and direct contact.'
      }
    ]

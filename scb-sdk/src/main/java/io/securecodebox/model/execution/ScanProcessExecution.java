@@ -64,6 +64,12 @@ public interface ScanProcessExecution {
     public abstract List<Finding> getFindings();
 
     /**
+     * Returns the RawFindings directly attached to the process. Mostly it's the result of the last step.
+     */
+    @JsonIgnore
+    public abstract String getRawFindings();
+
+    /**
      * Clears the Findings currently attached to this process findings.
      * If the process has multiple scanners you might want to have a look into getScanners().
      */

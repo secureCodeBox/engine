@@ -22,6 +22,7 @@
         <module>sslyze-process</module>
         <module>combined-nmap-nikto-scanprocess</module>
         <module>arachni-process</module>
+        <module>subdomain-scanner-process</module>
   </modules>
 
 </project>

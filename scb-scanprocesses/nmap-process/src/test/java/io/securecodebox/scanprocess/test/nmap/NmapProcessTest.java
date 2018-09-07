@@ -75,11 +75,11 @@ import static org.mockito.Mockito.when;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@Deployment(resources = "bpmn/nmap_process_raw.bpmn")
+@Deployment(resources = "bpmn/nmap_process.bpmn")
 public class NmapProcessTest {
 
     //Define the Process Activity IDs
-    private static final String PROCESS_ID = "nmap-process-raw";
+    private static final String PROCESS_ID = "nmap-process";
     private static final String DO_PORTSCAN_TASK_ID = "ServiceTask_DoPortscan";
     private static final String TRANSFORM_RESULTS_TASK_ID = "ServiceTask_TransformResult";
     private static final String CREATE_REPORT_TASK_ID = "ServiceTask_CreateSummary";
@@ -128,7 +128,7 @@ public class NmapProcessTest {
         then this guide is helpful:
         https://blog.akquinet.de/2016/11/04/camunda-bpm-test-your-processes-based-on-plain-old-java-delegates/
          */
-        autoMock("bpmn/nmap_process_raw.bpmn");
+        autoMock("bpmn/nmap_process.bpmn");
 
         /*
         Here we define a default behaviour for all the tasks in the BPMN model.

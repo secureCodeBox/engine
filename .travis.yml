@@ -1,41 +1,30 @@
----
 sudo: true
-
 language: java
-
 services:
-  - docker
-
+- docker
 cache:
   directories:
-  - .autoconf
-  - $HOME/.m2
-
-# Skips useless mvn install from travis
+  - ".autoconf"
+  - "$HOME/.m2"
 install: true
-
 script:
   - echo -en "travis_fold:start:Test\r"
-  - mvn test -Pdependency-check -q -B
+  - mvn install -Pdependency-check
   - echo -en "travis_fold:end:Test\r"
   - export REPO=securecodebox/engine
-  - export TAG=$TRAVIS_BRANCH
+  - export TAG=$(echo $TRAVIS_BRANCH | sed 's/\//-/g')
   - echo -en "travis_fold:start:Docker_Build\r"
-  - docker build -t $REPO:$TAG .
-  - docker tag $REPO:$TAG $REPO:oss;
-  - docker tag $REPO:$TAG $REPO:latest;
-  - docker tag $REPO:$TAG $REPO:$TRAVIS_BUILD_NUMBER;
+  - docker build -t $REPO:$TAG --build-arg="BUILD_DATE=$(date --rfc-3339=seconds)" --build-arg=VERSION=$TRAVIS_TAG --build-arg=COMMIT_ID=$TRAVIS_COMMIT --build-arg=BRANCH=$TRAVIS_BRANCH --build-arg=REPOSITORY_URL="https://github.com/secureCodeBox/engine" .
   - echo -en "travis_fold:end:Docker_Build\r"
   - docker images
 
 deploy:
-  -  provider: script
-     skip_cleanup: true
-     script: bash .travis/deployDockerHub.sh
-     on:
-       branch: develop
-  -  provider: script
-     skip_cleanup: true
-     script: bash .travis/deployDockerHub.sh
-     on:
-       branch: master
+  - provider: script
+    skip_cleanup: true
+    script: bash .travis/deployDockerHub.sh
+    on:
+      all_branches: true
+
+before_install:
+  - openssl aes-256-cbc -K $encrypted_e1e85fb8c151_key -iv $encrypted_e1e85fb8c151_iv
+    -in .travis/security_at_iteratec-signing.key.enc -out .travis/security_at_iteratec-signing.key -d

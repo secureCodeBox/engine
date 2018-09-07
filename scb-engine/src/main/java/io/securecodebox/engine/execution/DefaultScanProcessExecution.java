@@ -114,6 +114,11 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
     }
 
     @Override
+    public String getRawFindings() {
+        return (String) execution.getVariable(DefaultFields.PROCESS_RAW_FINDINGS.name());
+    }
+
+    @Override
     public void clearFindings() {
         writeToProcess(DefaultFields.PROCESS_FINDINGS, new LinkedList<>());
     }
