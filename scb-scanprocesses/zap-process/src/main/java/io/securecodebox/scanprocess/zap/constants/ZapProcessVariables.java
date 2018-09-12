@@ -1,6 +1,5 @@
 package io.securecodebox.scanprocess.zap.constants;
 
-public enum ZAPAttributes {
-    ZAP_SITEMAP,
+public enum ZapProcessVariables {
     ZAP_SKIP_SPIDER;
 }

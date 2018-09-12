@@ -18,10 +18,12 @@
  */
 package io.securecodebox.scanprocess.zap.listener;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.model.execution.Target;
-import io.securecodebox.scanprocess.zap.constants.ZAPAttributes;
+import io.securecodebox.scanprocess.zap.constants.ZapProcessVariables;
+import io.securecodebox.scanprocess.zap.constants.ZapTargetAttributes;
 import java.util.List;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
@@ -39,7 +41,7 @@ public class IsSitemapProvidedListener implements ExecutionListener {
 
     @Override
     public void notify(DelegateExecution execution) throws Exception {
-        LOG.info("Check if all Targets provide a sitemap");
+        LOG.debug("Check if all Targets provide a sitemap");
         ScanProcessExecution scanProcess = processExecutionFactory.get(execution);
         List<Target> targets = scanProcess.getTargets();
 
@@ -48,16 +50,17 @@ public class IsSitemapProvidedListener implements ExecutionListener {
                 .count() == 0;
 
         if(allTargetsHaveSitemap){
-            LOG.info("-> All Targets have sitemap. Set ZAP_SKIP_SPIDER variable");
-            execution.setVariable(ZAPAttributes.ZAP_SKIP_SPIDER.name(),true);
+            LOG.debug("-> All Targets have sitemap. Set ZAP_SKIP_SPIDER to true");
+            execution.setVariable(ZapProcessVariables.ZAP_SKIP_SPIDER.name(),true);
         } else {
-            LOG.info("-> NOT All Targets have sitemap");
-            execution.setVariable(ZAPAttributes.ZAP_SKIP_SPIDER.name(),false);
+            LOG.debug("-> NOT all Targets have sitemap. Set ZAP_SKIP_SPIDER to false");
+            execution.setVariable(ZapProcessVariables.ZAP_SKIP_SPIDER.name(),false);
         }
     }
 
-    private boolean hasSitemap(Target target){
-        if (target.getAttributes().containsKey(ZAPAttributes.ZAP_SITEMAP.name())) {
+    @VisibleForTesting
+    boolean hasSitemap(Target target){
+        if (target.getAttributes().containsKey(ZapTargetAttributes.ZAP_SITEMAP.name())) {
             return true;
         } else {
             return false;
