@@ -18,7 +18,6 @@
  */
 package io.securecodebox.scanprocess.zap.listener;
 
-import com.google.common.annotations.VisibleForTesting;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.model.execution.Target;
@@ -58,7 +57,6 @@ public class IsSitemapProvidedListener implements ExecutionListener {
         }
     }
 
-    @VisibleForTesting
     boolean hasSitemap(Target target){
         if (target.getAttributes().containsKey(ZapTargetAttributes.ZAP_SITEMAP.name())) {
             return true;

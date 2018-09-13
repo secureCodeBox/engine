@@ -42,12 +42,6 @@
             <artifactId>camunda-bpm-process-test-coverage</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>23.0</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
 </project>
