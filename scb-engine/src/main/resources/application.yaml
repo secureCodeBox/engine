@@ -25,3 +25,8 @@ securecodebox.default.target.name: BodgeIT Public Host
 securecodebox.default.target.location: bodgeit
 securecodebox.default.target.uri: http://bodgeit:8080/bodgeit
 securecodebox.default.context: BodgeIT
+
+# Configure Secure CodeBox rest api protection
+# - basic auth
+# - none
+securecodebox.rest.auth: basic auth

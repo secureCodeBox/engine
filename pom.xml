@@ -117,6 +117,11 @@
                 <artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
                 <version>${camunda.spring.boot.starter.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-security</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.camunda.bpm.springboot</groupId>
@@ -154,11 +159,6 @@
                 <version>${swagger-version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-security</artifactId>
-                <version>${spring-boot.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>io.securecodebox.core</groupId>
