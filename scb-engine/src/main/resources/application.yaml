@@ -4,8 +4,8 @@
 spring.profiles.active: ${activatedProfiles}
 
 camunda.bpm:
-  webapp:
-    index-redirect-enabled: true
+  webapp.index-redirect-enabled: true
+  authorization.enabled: true
 
 logging.level: INFO
 logging.level.io.securecodebox: INFO
