@@ -29,6 +29,13 @@ public class PropertyValueProvider {
     @Value("${securecodebox.default.target.location}")
     private String defaultTargetLocation;
 
+    @Value("${securecodebox.rest.user.scanner-default.user-id}")
+    private String defaultUserScannerId;
+
+    @Value("${securecodebox.rest.user.scanner-default.password}")
+    private String defaultUserScannerPassword;
+
+
     /**
      * Default target access URI
      */
@@ -49,5 +56,13 @@ public class PropertyValueProvider {
 
     public String getDefaultTargetUri() {
         return defaultTargetUri;
+    }
+
+    String getDefaultUserScannerId() {
+        return defaultUserScannerId;
+    }
+
+    String getDefaultUserScannerPassword() {
+        return defaultUserScannerPassword;
     }
 }
