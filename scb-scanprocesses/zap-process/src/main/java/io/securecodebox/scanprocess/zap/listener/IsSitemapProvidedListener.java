@@ -58,11 +58,7 @@ public class IsSitemapProvidedListener implements ExecutionListener {
     }
 
     boolean hasSitemap(Target target){
-        if (target.getAttributes().containsKey(ZapTargetAttributes.ZAP_SITEMAP.name())) {
-            return true;
-        } else {
-            return false;
-        }
+        return target.getAttributes().containsKey(ZapTargetAttributes.ZAP_SITEMAP.name());
     }
 
 }

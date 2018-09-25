@@ -19,6 +19,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -72,7 +73,7 @@ public class IsSitemapProvidedListenerTest {
         underTest.notify(execution);
 
         //then
-        verify(execution, times(0)).setVariable(ZapProcessVariables.ZAP_SKIP_SPIDER.name(),true);
+        verify(execution, never()).setVariable(ZapProcessVariables.ZAP_SKIP_SPIDER.name(),true);
         verify(execution, times(1)).setVariable(ZapProcessVariables.ZAP_SKIP_SPIDER.name(),false);
     }
 
