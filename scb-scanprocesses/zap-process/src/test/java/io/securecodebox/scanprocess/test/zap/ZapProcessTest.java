@@ -117,7 +117,7 @@ public class ZapProcessTest {
                 task -> startExternalMockProcess("zap_scan"));
 
         Mocks.register("isSitemapProvidedListener", (ExecutionListener) delegateExecution ->
-                delegateExecution.setVariable(ZapProcessVariables.ZAP_SKIP_SPIDER.name(), false)
+                delegateExecution.setVariable(ZapProcessVariables.SKIP_SPIDER.name(), false)
         );
     }
 
@@ -252,7 +252,7 @@ public class ZapProcessTest {
     public void shouldSkipSpiderTaskIfSitemapProvided(){
         // given
         Mocks.register("isSitemapProvidedListener", (ExecutionListener) delegateExecution ->
-            delegateExecution.setVariable(ZapProcessVariables.ZAP_SKIP_SPIDER.name(), true)
+            delegateExecution.setVariable(ZapProcessVariables.SKIP_SPIDER.name(), true)
         );
 
         // when

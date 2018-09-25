@@ -49,11 +49,11 @@ public class IsSitemapProvidedListener implements ExecutionListener {
                 .count() == 0;
 
         if(allTargetsHaveSitemap){
-            LOG.debug("-> All Targets have sitemap. Set ZAP_SKIP_SPIDER to true");
-            execution.setVariable(ZapProcessVariables.ZAP_SKIP_SPIDER.name(),true);
+            LOG.debug("-> All Targets have sitemap. Set SKIP_SPIDER to true");
+            execution.setVariable(ZapProcessVariables.SKIP_SPIDER.name(),true);
         } else {
-            LOG.debug("-> NOT all Targets have sitemap. Set ZAP_SKIP_SPIDER to false");
-            execution.setVariable(ZapProcessVariables.ZAP_SKIP_SPIDER.name(),false);
+            LOG.debug("-> NOT all Targets have sitemap. Set SKIP_SPIDER to false");
+            execution.setVariable(ZapProcessVariables.SKIP_SPIDER.name(),false);
         }
     }
 

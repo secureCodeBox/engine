@@ -55,7 +55,7 @@ public class IsSitemapProvidedListenerTest {
         underTest.notify(execution);
 
         //then
-        verify(execution, times(1)).setVariable(ZapProcessVariables.ZAP_SKIP_SPIDER.name(),true);
+        verify(execution, times(1)).setVariable(ZapProcessVariables.SKIP_SPIDER.name(),true);
     }
 
     @Test
@@ -73,8 +73,8 @@ public class IsSitemapProvidedListenerTest {
         underTest.notify(execution);
 
         //then
-        verify(execution, never()).setVariable(ZapProcessVariables.ZAP_SKIP_SPIDER.name(),true);
-        verify(execution, times(1)).setVariable(ZapProcessVariables.ZAP_SKIP_SPIDER.name(),false);
+        verify(execution, never()).setVariable(ZapProcessVariables.SKIP_SPIDER.name(),true);
+        verify(execution, times(1)).setVariable(ZapProcessVariables.SKIP_SPIDER.name(),false);
     }
 
     @Test
