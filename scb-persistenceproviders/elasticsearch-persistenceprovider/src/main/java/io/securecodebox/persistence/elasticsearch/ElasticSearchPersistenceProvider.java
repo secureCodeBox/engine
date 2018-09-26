@@ -263,14 +263,14 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         }
     }
 
-    private String transformContextForElasticsearchIndexCompatability(){
-        if(context != null){
+    private String transformContextForElasticsearchIndexCompatability() {
+        if (context != null) {
             String contextIndex = context.toLowerCase().replace(" ", "_") + "_";
 
-            try{
+            try {
                 MetaDataCreateIndexService.validateIndexOrAliasName(contextIndex, InvalidIndexNameException::new);
                 return contextIndex;
-            } catch(InvalidIndexNameException e){
+            } catch (InvalidIndexNameException e) {
                 LOG.error("Context name contains chars which are invalid to be a elasticsearch index name. Please change the context name so that a context specific index can be created.");
             }
         }
@@ -285,7 +285,6 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
      */
     private String getElasticIndexName() {
         Date date = Date.from(Instant.now());
-        
         SimpleDateFormat sdf = new SimpleDateFormat(indexDatePattern);
         String dateAsString = sdf.format(date);
         String indexName = indexPrefix + "_" + transformContextForElasticsearchIndexCompatability() + dateAsString;
@@ -372,7 +371,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
      */
     private void initializeKibana() throws IOException {
 
-        if(!indexExists(".kibana")) {
+        if (!indexExists(".kibana")) {
 
             LOG.info(".kibana index doesn't exist. Creating it...");
 
@@ -413,7 +412,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
             List<KibanaData> dataElements = objectMapper.readValue(kibanaFile, objectMapper.getTypeFactory().constructCollectionType(List.class, KibanaData.class));
 
             BulkRequest bulkRequest = new BulkRequest();
-            for(KibanaData data: dataElements) {
+            for (KibanaData data : dataElements) {
                 IndexRequest indexRequest = new IndexRequest(data.getIndex(), data.getType(), data.getId());
                 indexRequest.source(objectMapper.writeValueAsString(data.getSource()), XContentType.JSON);
                 bulkRequest.add(indexRequest);
@@ -426,8 +425,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                         DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(".kibana");
                         try {
                             highLevelClient.indices().delete(deleteIndexRequest);
-                        }
-                        catch (IOException e){
+                        } catch (IOException e) {
                             LOG.error("Kibana index could not be successfully deleted and might be corrupted. Delete it manually!");
                         }
                     } else {
@@ -440,8 +438,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     LOG.error("Could not import kibana data");
                 }
             });
-        }
-        else {
+        } else {
             LOG.info("Index Pattern securecodebox* exists. Assuming that searches, visualizations and dashboards are imported already.");
         }
     }
