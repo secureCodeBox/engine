@@ -37,8 +37,10 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.cluster.metadata.MetaDataCreateIndexService;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.indices.InvalidIndexNameException;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
@@ -93,7 +95,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     private RestHighLevelClient highLevelClient;
     private boolean connected = false;
 
-    private String tenantId = null;
+    private String context = null;
 
     /**
      * Initializes elasticsearch with an secureCodeBox specific index based on the configuration settings.
@@ -145,7 +147,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
             return;
         }
 
-        this.tenantId = report.getTenantId();
+        this.context = report.getContext();
 
         if (!initialized || !indexExists(getElasticIndexName())) {
             init();
@@ -261,6 +263,21 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         }
     }
 
+    private String transformContextForElasticsearchIndexCompatability(){
+        if(context != null){
+            String contextIndex = context.toLowerCase().replace(" ", "_") + "_";
+
+            try{
+                MetaDataCreateIndexService.validateIndexOrAliasName(contextIndex, InvalidIndexNameException::new);
+                return contextIndex;
+            } catch(InvalidIndexNameException e){
+                LOG.error("Context name contains chars which are invalid to be a elasticsearch index name. Please change the context name so that a context specific index can be created.");
+            }
+        }
+
+        return "";
+    }
+
     /**
      * Returns the elasticsearch indexName, based on the current dateTime and configuration.
      *
@@ -268,10 +285,10 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
      */
     private String getElasticIndexName() {
         Date date = Date.from(Instant.now());
-
+        
         SimpleDateFormat sdf = new SimpleDateFormat(indexDatePattern);
         String dateAsString = sdf.format(date);
-        String indexName = indexPrefix + "_" + ((tenantId != null) ? tenantId + "_" : "") + dateAsString;
+        String indexName = indexPrefix + "_" + transformContextForElasticsearchIndexCompatability() + dateAsString;
         return indexName.toLowerCase();
     }
 
