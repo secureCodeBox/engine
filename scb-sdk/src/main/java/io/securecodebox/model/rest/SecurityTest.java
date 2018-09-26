@@ -27,11 +27,17 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(description = "A security scan contains the description of a target and the description of the method used to test the target for security defects.")
 public class SecurityTest{
     @JsonProperty
-    @ApiModelProperty("Context references the larger scope the security test. In most cases this is equal to the name of the project.")
+    @ApiModelProperty(
+        value = "Context references the larger scope the security test. In most cases this is equal to the name of the project.",
+        example = "JuiceShop"
+    )
     String context;
 
     @JsonProperty("securitytest")
-    @ApiModelProperty("Security test to perform on the target.")
+    @ApiModelProperty(
+        value = "Security test to perform on the target.",
+        example = "nmap"
+    )
     String securityTest;
 
     @JsonProperty
