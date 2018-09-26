@@ -78,7 +78,7 @@ import static org.mockito.Mockito.when;
 public class DefaultProcessTest {
 
     //Define the Process Activity IDs
-    private static final String PROCESS_ID = "arachni_webapplicationscan";
+    private static final String PROCESS_ID = "arachni-process";
     private static final String DO_SCAN_TASK_ID = "ServiceTask_DoScan";
     private static final String CREATE_REPORT_TASK_ID = "ServiceTask_CreateSummary";
     private static final String APPROVE_RESULTS_TASK_ID = "UserTask_ApproveResults";
