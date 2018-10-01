@@ -133,11 +133,11 @@
       <bpmn:outgoing>SequenceFlow_18v3nda</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_1cve6n9" name="no sitemap" sourceRef="ExclusiveGateway_IsSitemapProvided" targetRef="ServiceTask_StartSpider">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ZAP_SKIP_SPIDER != true}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${SKIP_SPIDER != true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_WebserverScanFinisched" name="finished&#10;&#10;" sourceRef="ServiceTask_StartSpider" targetRef="ServiceTask_StartScanner" />
     <bpmn:sequenceFlow id="SequenceFlow_18v3nda" name="sitemap already provided" sourceRef="ExclusiveGateway_IsSitemapProvided" targetRef="ServiceTask_StartScanner">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ZAP_SKIP_SPIDER == true}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${SKIP_SPIDER == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:textAnnotation id="TextAnnotation_1cimbzw">
       <bpmn:text>Configure a new security-scan process. The inital configuration must contain a target URL. The advanced configuration could be used to configure each component in detail.</bpmn:text>
