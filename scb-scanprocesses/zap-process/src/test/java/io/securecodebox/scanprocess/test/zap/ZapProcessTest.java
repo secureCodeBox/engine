@@ -4,12 +4,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.execution.Target;
+import io.securecodebox.scanprocess.zap.constants.ZapProcessVariables;
+import io.securecodebox.scanprocess.zap.listener.IsSitemapProvidedListener;
 import org.camunda.bpm.engine.ExternalTaskService;
 import org.camunda.bpm.engine.ProcessEngineException;
+import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.engine.externaltask.LockedExternalTask;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
+import org.camunda.bpm.engine.test.mock.Mocks;
 import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
@@ -66,6 +70,9 @@ public class ZapProcessTest {
     @Mock
     private ProcessScenario zapProcess;
 
+    @Mock
+    private IsSitemapProvidedListener isSitemapProvidedListener;
+
     /**
      * Executed before every test-case
      * In this method default variables for the process and a default behaviour for the mocks
@@ -108,6 +115,10 @@ public class ZapProcessTest {
                 task -> startExternalMockProcess("zap_spider"));
         when(zapProcess.waitsAtServiceTask(RUN_SCANNER_TASK)).thenReturn(
                 task -> startExternalMockProcess("zap_scan"));
+
+        Mocks.register("isSitemapProvidedListener", (ExecutionListener) delegateExecution ->
+                delegateExecution.setVariable(ZapProcessVariables.SKIP_SPIDER.name(), false)
+        );
     }
 
     @Test
@@ -235,6 +246,20 @@ public class ZapProcessTest {
         }
 
         assertThat(scenario.instance(zapProcess)).isWaitingAt(RUN_SPIDER_TASK);
+    }
+
+    @Test
+    public void shouldSkipSpiderTaskIfSitemapProvided(){
+        // given
+        Mocks.register("isSitemapProvidedListener", (ExecutionListener) delegateExecution ->
+            delegateExecution.setVariable(ZapProcessVariables.SKIP_SPIDER.name(), true)
+        );
+
+        // when
+        ProcessInstance processInstance = startProcessInstance(defaultVariables);
+
+        // then
+        assertThat(processInstance).isWaitingAt(RUN_SCANNER_TASK);
     }
 
     @Test
