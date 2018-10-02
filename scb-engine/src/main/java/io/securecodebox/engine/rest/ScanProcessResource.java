@@ -21,6 +21,7 @@ package io.securecodebox.engine.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
+import io.securecodebox.model.execution.StartProcessRequest;
 import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.rest.Process;
 import io.securecodebox.scanprocess.ProcessVariableHelper;
@@ -49,6 +50,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * API / Endpoint for scan processes (camunda processes).
@@ -78,9 +80,9 @@ public class ScanProcessResource {
             @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{processKey}")
-    public ResponseEntity<UUID> getProcesses(
+    public ResponseEntity<UUID> startProcess(
             @ApiParam(value = "The key of the process to be started. See GET /box/processes.", example = "nmap-process",
-                    required = true) @PathVariable String processKey, @Valid @RequestBody List<Target> targets) {
+                    required = true) @PathVariable String processKey, @Valid @RequestBody StartProcessRequest config) {
 
         long processCount = engine.getRepositoryService()
                 .createProcessDefinitionQuery()
@@ -91,7 +93,8 @@ public class ScanProcessResource {
 
         Map<String, Object> values = new HashMap<>();
         values.put(DefaultFields.PROCESS_AUTOMATED.name(), true);
-        values.put(DefaultFields.PROCESS_TARGETS.name(), ProcessVariableHelper.generateObjectValue(targets));
+        values.put(DefaultFields.PROCESS_TARGETS.name(), ProcessVariableHelper.generateObjectValue(config.getTargets()));
+        values.put(DefaultFields.PROCESS_CONTEXT.name(), config.getContext());
 
         if (processCount == 1) {
             LOG.debug("Starting process for id {}", processKey);
@@ -125,5 +128,4 @@ public class ScanProcessResource {
 
         return ResponseEntity.ok(results);
     }
-
 }
