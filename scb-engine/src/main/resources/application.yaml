@@ -32,7 +32,7 @@ securecodebox.default.context: BodgeIT
 securecodebox.rest.auth: basic auth
 
 # Configure a technical user for the scanner services. This user allows the scanner services to authenticate on the engines rest api.
-# (if not configured, a user has to be added manually in the camunda ui)
+# (If not set as environment variable, a user has to be added manually in the camunda ui.)
 securecodebox.rest.user.scanner-default:
-  user-id:
-  password:
+  user-id: ${SECURECODEBOX_USER_SCANNER:}
+  password: ${SECURECODEBOX_USER_SCANNER_PW:}
