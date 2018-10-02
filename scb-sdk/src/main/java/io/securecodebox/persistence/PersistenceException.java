@@ -16,19 +16,12 @@
  *  limitations under the License.
  * /
  */
-
 package io.securecodebox.persistence;
 
-import io.securecodebox.model.Report;
-import io.securecodebox.model.execution.ScanProcessExecution;
-import org.springframework.stereotype.Component;
+public abstract class PersistenceException extends RuntimeException{
+    protected String message;
 
-import java.util.Map;
-
-/**
- * A general interface representing a persistence service to store and retrieve content objects.
- */
-public interface PersistenceProvider {
-
-    void persist(Report report) throws PersistenceException;
+    public String getMessage(){
+        return message;
+    }
 }
