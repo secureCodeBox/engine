@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.model.Report;
 import io.securecodebox.model.findings.Finding;
+import io.securecodebox.persistence.PersistenceException;
 import io.securecodebox.persistence.PersistenceProvider;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.ActionListener;
@@ -140,7 +141,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     }
 
     @Override
-    public void persist(Report report) {
+    public void persist(Report report) throws PersistenceException{
 
         if (report == null) {
             LOG.warn("The given Report is null, nothing to persist.");
@@ -263,6 +264,12 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         }
     }
 
+    private static class InvalidContextNameForElkIndex extends PersistenceException{
+        public InvalidContextNameForElkIndex(String contextName) {
+            this.message = "Cannot create custom elasticsearch index for context name '" + contextName + "' as it contains reserved characters. Please choose a different context name.";
+        }
+    }
+
     private String transformContextForElasticsearchIndexCompatability() {
         if (context != null) {
             String contextIndex = context.toLowerCase().replace(" ", "_") + "_";
@@ -272,6 +279,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                 return contextIndex;
             } catch (InvalidIndexNameException e) {
                 LOG.error("Context name contains chars which are invalid to be a elasticsearch index name. Please change the context name so that a context specific index can be created.");
+                throw new InvalidContextNameForElkIndex(context);
             }
         }
 
