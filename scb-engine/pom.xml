@@ -29,11 +29,6 @@
             <artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId>
         </dependency>
 
-        <!-- Enable the camunda rest API -->
-        <dependency>
-            <groupId>org.camunda.bpm.springboot</groupId>
-            <artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
-        </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
