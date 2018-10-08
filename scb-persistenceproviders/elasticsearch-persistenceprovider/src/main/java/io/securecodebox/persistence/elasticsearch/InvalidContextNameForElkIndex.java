@@ -16,11 +16,13 @@
  *  limitations under the License.
  * /
  */
-package io.securecodebox.persistence;
 
-public abstract class PersistenceException extends RuntimeException{
+package io.securecodebox.persistence.elasticsearch;
 
-    public PersistenceException(String message) {
+import io.securecodebox.persistence.PersistenceException;
+
+class InvalidContextNameForElkIndex extends PersistenceException {
+    public InvalidContextNameForElkIndex(String message) {
         super(message);
     }
 }
