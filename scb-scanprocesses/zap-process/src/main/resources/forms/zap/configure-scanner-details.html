@@ -51,27 +51,13 @@
                     <div class="form-group">
                         <label for="inputScannerDelay">Scanner delay in ms</label>
                         <div class="controls">
-                            <input required class="form-control"
+                            <input class="form-control"
                                    id="inputScannerDelay"
                                    ng-model="target.attributes.ZAP_SCANNER_DELAY_IN_MS"
                                    type="number"
                                    min="1"
                                    max="1000"
                                    name="inputScannerDelay"/>
-                        </div>
-                    </div>
-
-					<!-- Scanner host per scan -->
-                    <div class="form-group">
-                        <label for="inputHostPerScan">Host per scan</label>
-                        <div class="controls">
-                            <input class="form-control"
-                                   id="inputHostPerScan"
-                                   ng-model="target.attributes.ZAP_HOST_PER_SCAN"
-                                   type="number"
-                                   min="1"
-                                   max="10"
-                                   name="inputHostPerScan"/>
                         </div>
                     </div>
 
