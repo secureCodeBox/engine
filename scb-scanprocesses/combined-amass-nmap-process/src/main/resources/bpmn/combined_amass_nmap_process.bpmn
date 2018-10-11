@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.12.0">
-  <bpmn:process id="amass-nmap-process" name="amassNmapProcess Scan" isExecutable="true" camunda:versionTag="3" camunda:historyTimeToLive="30">
-    <bpmn:startEvent id="StartEvent_Configure" name="target configured" camunda:formKey="embedded:app:forms/default/configure-target.html">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.0.1">
+  <bpmn:process id="amass-nmap-process" name="Combined Amass-Nmap Scan" isExecutable="true" camunda:versionTag="3" camunda:historyTimeToLive="30">
+    <bpmn:startEvent id="StartEvent_Configure" name="target configured" camunda:formKey="embedded:app:forms/amass-nmap/configure-target.html">
       <bpmn:extensionElements>
         <camunda:executionListener delegateExpression="${checkForAutomatedRunListener}" event="start" />
         <camunda:formData>
@@ -19,7 +19,7 @@
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_PortscanFinished" name="finished&#10;&#10;" sourceRef="ServiceTask_DoScan" targetRef="ExclusiveGateway_AutomatedFinish" />
     <bpmn:sequenceFlow id="SequenceFlow_ResultReviewed" name="result reviewed" sourceRef="UserTask_ApproveResults" targetRef="ExclusiveGateway_ResultApproved" />
-    <bpmn:userTask id="UserTask_ApproveResults" name="Review scan results" camunda:formKey="embedded:app:forms/default/approve-results.html" camunda:candidateGroups="_securebox_admin, _securebox_productowner, _securebox_developer, approver">
+    <bpmn:userTask id="UserTask_ApproveResults" name="Review scan results" camunda:formKey="embedded:app:forms/amass-nmap/approve-results.html" camunda:candidateGroups="_securebox_admin, _securebox_productowner, _securebox_developer, approver">
       <bpmn:extensionElements>
         <camunda:formData />
       </bpmn:extensionElements>
@@ -32,7 +32,7 @@
       <bpmn:outgoing>SequenceFlow_ResultRejected</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_ResultApproved" name="result approved" sourceRef="ExclusiveGateway_ResultApproved" targetRef="ServiceTask_CreateSummary">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${PROCESS_RESULT_APPROVED == 'approved'}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_RESULT_APPROVED == 'approved'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_AutomatedFinish" name="is automated run?">
       <bpmn:incoming>SequenceFlow_PortscanFinished</bpmn:incoming>
@@ -61,7 +61,7 @@
     <bpmn:dataObjectReference id="DataObjectReference_0vhjx0n" name="PROCESS_FINDINGS" dataObjectRef="DataObject_0lpf2y8" />
     <bpmn:dataObject id="DataObject_0lpf2y8" />
     <bpmn:sequenceFlow id="SequenceFlow_ResultRejected" name="result rejected" sourceRef="ExclusiveGateway_ResultApproved" targetRef="DoesNothingTask">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${PROCESS_RESULT_APPROVED == 'disapproved'}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_RESULT_APPROVED == 'disapproved'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:task id="DoesNothingTask" name="Does Nothing">
       <bpmn:incoming>SequenceFlow_ResultRejected</bpmn:incoming>
