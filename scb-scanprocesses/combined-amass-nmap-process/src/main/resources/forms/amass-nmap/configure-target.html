@@ -38,7 +38,13 @@
             }];
 
             $scope.addTarget = function () {
-                $scope.targetList.push({'name':'', 'location': ''});
+                $scope.targetList.push({
+                    name: '',
+                    location: '',
+                    attributes: {
+                        NO_DNS: false
+                    }
+                });
             };
 
             $scope.checkForEnter = function ($event) {
@@ -51,7 +57,6 @@
         });
 
         camForm.on('submit', function () {
-            camForm.variableManager.destroyVariable('PROCESS_TARGETS');
             camForm.variableManager.createVariable({
                 name: 'PROCESS_TARGETS',
                 type: 'Object',
@@ -83,10 +88,10 @@
                                ng-model="target.name"/>
                     </div>
                     <div class="col-xs-6">
-                        <label>Target Hosts</label>
+                        <label>Domain</label>
                         <input required class="form-control"
                                type="text"
-                               placeholder="Hostname/IP address"
+                               placeholder="example.com"
                                ng-minlength="3"
                                ng-maxlength="100"
                                ng-model="target.location"
@@ -100,6 +105,13 @@
                                 style="position: absolute; right: 15px; top: 0;">
                             <span class="glyphicon glyphicon-trash"></span>
                         </button>
+                    </div>
+                    <div class="col-xs-12 form-group">
+                        <label>
+                            <input type="checkbox"
+                                   ng-model="target.attributes.NO_DNS"
+                            /> Disable DNS Lookup for subdomain verification.
+                        </label>
                     </div>
                 </div>
                 <button class="btn btn-primary" ng-click="addTarget()">Add Host</button>
