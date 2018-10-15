@@ -15,6 +15,10 @@ logging.level.io.securecodebox: INFO
 # - elasticsearch
 securecodebox.persistence.provider: none
 
+# Configuration for the s3 persistence provider:
+securecodebox.persistence.s3.bucket: abc-def
+securecodebox.persistence.s3.region: eu-central-1
+
 # Configuration for the elasticsearch persistence provider:
 securecodebox.persistence.elasticsearch.host: persistence-elasticsearch
 securecodebox.persistence.elasticsearch.port: 9200
