@@ -20,6 +20,7 @@ package io.securecodebox.engine.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
+import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.rest.SecurityTest;
 import io.securecodebox.scanprocess.ProcessVariableHelper;
 import io.swagger.annotations.*;
@@ -78,7 +79,7 @@ public class SecurityTestRessource {
     @RequestMapping(method = RequestMethod.PUT)
     public ResponseEntity<List<UUID>> startSecurityTests(@Valid @RequestBody List<SecurityTest> securityTests) {
 
-        for(SecurityTest securityTest : securityTests){
+        for (SecurityTest securityTest : securityTests) {
             long processCount = engine.getRepositoryService()
                     .createProcessDefinitionQuery()
                     .active()
@@ -86,21 +87,24 @@ public class SecurityTestRessource {
                     .latestVersion()
                     .count();
 
-            if(processCount == 0) {
+            if (processCount == 0) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            } else if(processCount > 1){
+            } else if (processCount > 1) {
                 return ResponseEntity.status(HttpStatus.MULTIPLE_CHOICES).build();
             }
         }
 
         List<UUID> processInstances = new LinkedList<>();
 
-        for (SecurityTest securityTest: securityTests) {
+        for (SecurityTest securityTest : securityTests) {
             Map<String, Object> values = new HashMap<>();
+
+            List<Target> targets = new LinkedList<>();
+            targets.add(securityTest.getTarget());
 
             values.put(DefaultFields.PROCESS_AUTOMATED.name(), true);
             values.put(DefaultFields.PROCESS_CONTEXT.name(), securityTest.getContext());
-            values.put(DefaultFields.PROCESS_TARGETS.name(), ProcessVariableHelper.generateObjectValue(securityTest.getTarget()));
+            values.put(DefaultFields.PROCESS_TARGETS.name(), ProcessVariableHelper.generateObjectValue(targets));
 
             ProcessInstance instance = engine.getRuntimeService().startProcessInstanceByKey(securityTest.getProcessDefinitionKey(), values);
             processInstances.add(UUID.fromString(instance.getProcessInstanceId()));
