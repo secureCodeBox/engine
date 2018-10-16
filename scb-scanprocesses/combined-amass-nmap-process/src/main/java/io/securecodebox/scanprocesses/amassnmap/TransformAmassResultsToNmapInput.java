@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.execution.Target;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
@@ -14,7 +12,6 @@ import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import sun.rmi.runtime.Log;
 
 @Component
 public class TransformAmassResultsToNmapInput implements JavaDelegate {
@@ -37,7 +34,8 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
                     objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
 
             for (Target target : newTargets) {
-                target.getAttributes().put("hostname", target.getLocation());
+                target.getAttributes().put("hostname", target.getName());
+                target.setLocation(target.getName());
                 target.setName("My Name Dummy");
                 // remove target configs
             }
@@ -61,13 +59,4 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
 
 
     }
-
-//    private String removeProtocollFromUrl(String url) throws URISyntaxException {
-//        LOG.info("URL:" + url);
-//        URI uri = new URI(url);
-//        //TODO: not correct yet
-//        String path = uri.getHost() + uri.getPath(); // split whatever you need
-//        LOG.info("PATH:" + path);
-//        return path;
-//    }
 }
