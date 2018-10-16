@@ -21,26 +21,21 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
     @Override
     public void execute(DelegateExecution execution) throws Exception {
 
-        LOG.info("----------------------------------------");
-        LOG.info("Trying to convert amass output to nmap input");
-        LOG.info("----------------------------------------");
-
+        LOG.debug("Converting amass output to nmap input");
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String findingsAsString = objectMapper.writeValueAsString(execution.getVariable(DefaultFields.PROCESS_FINDINGS.name()));
-
             List<Target> newTargets = objectMapper.readValue(objectMapper.readValue(findingsAsString, String.class),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
 
             for (Target target : newTargets) {
+                //TODO: this is not correct; Fix location in amass scan and use location instead
                 target.getAttributes().put("hostname", target.getName());
                 target.setLocation(target.getName());
-                target.setName("My Name Dummy");
-                // remove target configs
             }
 
-            LOG.info("Created Targets out of Findings: " + newTargets);
+            LOG.debug("Transformed findings to new targets: " + newTargets);
 
             ObjectValue objectValue = Variables.objectValue(objectMapper.writeValueAsString(newTargets))
                     .serializationDataFormat(Variables.SerializationDataFormats.JSON)
@@ -50,13 +45,11 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
             // SET NMAP PROCESS VARIABLES
             execution.setVariable("NMAP_CONFIGURATION_TYPE","default");
 
-            LOG.info("FINISHED TransformAmassResultsToNmapInput Service Task. -> Start nmap");
+            LOG.debug("Finished TransformAmassResultsToNmapInput Service Task. Continue with nmap scan");
 
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("Can't write field to process!", e);
         }
-
-
-
     }
+
 }
