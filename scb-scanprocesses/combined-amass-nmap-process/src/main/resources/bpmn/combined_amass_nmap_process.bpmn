@@ -25,6 +25,9 @@
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_01m9zqu" sourceRef="ServiceTask_1dd1dj3" targetRef="Task_1f5zay9" />
     <bpmn:serviceTask id="ServiceTask_0c66toa" name="Run nmap&#10;port scan" camunda:asyncBefore="true" camunda:type="external" camunda:topic="nmap_portscan">
+      <bpmn:extensionElements>
+        <camunda:executionListener delegateExpression="${removeUnresolvableHostFindings}" event="end" />
+      </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0p5mwz6</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0x38sun</bpmn:outgoing>
     </bpmn:serviceTask>
