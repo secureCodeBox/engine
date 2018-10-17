@@ -24,10 +24,10 @@ deploy:
     script: bash .travis/deployDockerHub.sh
     on:
       all_branches: true
-      condition: "$TRAVIS_PULL_REQUEST" = "false"
+      condition: $TRAVIS_PULL_REQUEST = false
 
 before_install:
-  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ];
+  - if [ "$TRAVIS_PULL_REQUEST" = "false" ];
      then bash -c "openssl aes-256-cbc -K $encrypted_e1e85fb8c151_key -iv $encrypted_e1e85fb8c151_iv
        -in .travis/security_at_iteratec-signing.key.enc -out .travis/security_at_iteratec-signing.key -d";
-    fi'
+    fi
