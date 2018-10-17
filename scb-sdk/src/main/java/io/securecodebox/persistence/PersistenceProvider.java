@@ -30,5 +30,5 @@ import java.util.Map;
  */
 public interface PersistenceProvider {
 
-    void persist(Report report);
+    void persist(Report report) throws PersistenceException;
 }

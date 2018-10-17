@@ -17,15 +17,12 @@
  * /
  */
 
-package io.securecodebox.constants;
+package io.securecodebox.persistence.elasticsearch;
 
-/**
- * @author Rüdiger Heins - iteratec GmbH
- * @since 09.03.18
- */
+import io.securecodebox.persistence.PersistenceException;
 
-public enum DefaultFields {
-    PROCESS_CONTEXT, PROCESS_SCANNER_ID, PROCESS_SCANNER_TYPE, PROCESS_AUTOMATED, PROCESS_FINDINGS,
-    PROCESS_RAW_FINDINGS, PROCESS_SCANNERS, PROCESS_TARGETS,
-    PROCESS_RESULT_APPROVED, PROCESS_ATTRIBUTE_MAPPING
+class InvalidContextNameForElkIndex extends PersistenceException {
+    public InvalidContextNameForElkIndex(String message) {
+        super(message);
+    }
 }

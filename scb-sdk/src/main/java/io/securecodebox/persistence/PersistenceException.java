@@ -16,16 +16,11 @@
  *  limitations under the License.
  * /
  */
+package io.securecodebox.persistence;
 
-package io.securecodebox.constants;
+public abstract class PersistenceException extends RuntimeException{
 
-/**
- * @author Rüdiger Heins - iteratec GmbH
- * @since 09.03.18
- */
-
-public enum DefaultFields {
-    PROCESS_CONTEXT, PROCESS_SCANNER_ID, PROCESS_SCANNER_TYPE, PROCESS_AUTOMATED, PROCESS_FINDINGS,
-    PROCESS_RAW_FINDINGS, PROCESS_SCANNERS, PROCESS_TARGETS,
-    PROCESS_RESULT_APPROVED, PROCESS_ATTRIBUTE_MAPPING
+    public PersistenceException(String message) {
+        super(message);
+    }
 }

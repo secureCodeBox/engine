@@ -90,8 +90,8 @@ public class Report {
     }
 
     @JsonIgnore
-    public String getTenantId(){
-        return execution.getTenantId();
+    public String getContext(){
+        return execution.getContext();
     }
 
     @Override
