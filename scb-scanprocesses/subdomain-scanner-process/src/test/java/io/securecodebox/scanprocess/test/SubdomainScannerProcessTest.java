@@ -20,7 +20,7 @@
 package io.securecodebox.scanprocess.test;
 
 import io.securecodebox.constants.DefaultFields;
-import io.securecodebox.scanprocesses.SummaryGeneratorDelegate;
+import io.securecodebox.scanprocess.delegate.SummaryGeneratorDelegate;
 import org.camunda.bpm.engine.ExternalTaskService;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.delegate.Expression;

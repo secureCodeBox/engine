@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.model.Report;
 import io.securecodebox.model.findings.Finding;
+import io.securecodebox.persistence.PersistenceException;
 import io.securecodebox.persistence.PersistenceProvider;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.ActionListener;
@@ -37,8 +38,10 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.cluster.metadata.MetaDataCreateIndexService;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.indices.InvalidIndexNameException;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
@@ -93,7 +96,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     private RestHighLevelClient highLevelClient;
     private boolean connected = false;
 
-    private String tenantId = null;
+    private String context = null;
 
     /**
      * Initializes elasticsearch with an secureCodeBox specific index based on the configuration settings.
@@ -138,14 +141,14 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     }
 
     @Override
-    public void persist(Report report) {
+    public void persist(Report report) throws PersistenceException{
 
         if (report == null) {
             LOG.warn("The given Report is null, nothing to persist.");
             return;
         }
 
-        this.tenantId = report.getTenantId();
+        this.context = report.getContext();
 
         if (!initialized || !indexExists(getElasticIndexName())) {
             init();
@@ -261,6 +264,22 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         }
     }
 
+    private String transformContextForElasticsearchIndexCompatability() {
+        if (context != null) {
+            String contextIndex = context.toLowerCase().replace(" ", "_") + "_";
+
+            try {
+                MetaDataCreateIndexService.validateIndexOrAliasName(contextIndex, InvalidIndexNameException::new);
+                return contextIndex;
+            } catch (InvalidIndexNameException e) {
+                LOG.error("Context name contains chars which are invalid to be a elasticsearch index name. Please change the context name so that a context specific index can be created.");
+                throw new InvalidContextNameForElkIndex("Cannot create custom elasticsearch index for context name '" + context + "' as it contains reserved characters. Please choose a different context name.");
+            }
+        }
+
+        return "";
+    }
+
     /**
      * Returns the elasticsearch indexName, based on the current dateTime and configuration.
      *
@@ -268,10 +287,9 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
      */
     private String getElasticIndexName() {
         Date date = Date.from(Instant.now());
-
         SimpleDateFormat sdf = new SimpleDateFormat(indexDatePattern);
         String dateAsString = sdf.format(date);
-        String indexName = indexPrefix + "_" + ((tenantId != null) ? tenantId + "_" : "") + dateAsString;
+        String indexName = indexPrefix + "_" + transformContextForElasticsearchIndexCompatability() + dateAsString;
         return indexName.toLowerCase();
     }
 
@@ -355,7 +373,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
      */
     private void initializeKibana() throws IOException {
 
-        if(!indexExists(".kibana")) {
+        if (!indexExists(".kibana")) {
 
             LOG.info(".kibana index doesn't exist. Creating it...");
 
@@ -396,7 +414,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
             List<KibanaData> dataElements = objectMapper.readValue(kibanaFile, objectMapper.getTypeFactory().constructCollectionType(List.class, KibanaData.class));
 
             BulkRequest bulkRequest = new BulkRequest();
-            for(KibanaData data: dataElements) {
+            for (KibanaData data : dataElements) {
                 IndexRequest indexRequest = new IndexRequest(data.getIndex(), data.getType(), data.getId());
                 indexRequest.source(objectMapper.writeValueAsString(data.getSource()), XContentType.JSON);
                 bulkRequest.add(indexRequest);
@@ -409,8 +427,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                         DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(".kibana");
                         try {
                             highLevelClient.indices().delete(deleteIndexRequest);
-                        }
-                        catch (IOException e){
+                        } catch (IOException e) {
                             LOG.error("Kibana index could not be successfully deleted and might be corrupted. Delete it manually!");
                         }
                     } else {
@@ -423,8 +440,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     LOG.error("Could not import kibana data");
                 }
             });
-        }
-        else {
+        } else {
             LOG.info("Index Pattern securecodebox* exists. Assuming that searches, visualizations and dashboards are imported already.");
         }
     }
