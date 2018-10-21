@@ -36,7 +36,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.*;
 
-@Api(description = "Scan Tests Resource", produces = "application/json", consumes = "application/json")
+@Api(value = "security-tests",
+        description = "Starting new security test instances.",
+        produces = "application/json",
+        consumes = "application/json")
 @RestController
 @RequestMapping(value = "/box/security-tests")
 public class SecurityTestRessource {
@@ -49,7 +52,9 @@ public class SecurityTestRessource {
     @Autowired
     ObjectMapper objectMapper;
 
-    @ApiOperation(value = "Creates a new scan tests.")
+    @ApiOperation(value = "Starts new security tests.",
+                    notes = "Starts new security tests, based on a given list of security test configurations."
+    )
     @ApiResponses(value = {
             @ApiResponse(
                     code = 201,
@@ -64,7 +69,7 @@ public class SecurityTestRessource {
             ),
             @ApiResponse(
                     code = 400,
-                    message = "Incomplete or inconsistent Request"
+                    message = "Incomplete or inconsistent Request."
             ),
             @ApiResponse(
                     code = 404,

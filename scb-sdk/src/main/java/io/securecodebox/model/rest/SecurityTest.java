@@ -24,24 +24,27 @@ import io.securecodebox.model.execution.Target;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel(description = "A security scan contains the description of a target and the description of the method used to test the target for security defects.")
-public class SecurityTest{
+@ApiModel(description = "A security test contains the concrete configuration of a target to test and the description of the test scan used to test the target for security defects.")
+public class SecurityTest {
+
+    public static final String PROCESS_NAME_SUFFIX = "-process";
+
     @JsonProperty
     @ApiModelProperty(
-        value = "Context references the larger scope the security test. In most cases this is equal to the name of the project.",
-        example = "JuiceShop"
+        value = "Context references the larger scope the security test. In most cases this is equal to the name of the project, team name or a domain.",
+        example = "Feature Team 1"
     )
     String context;
 
     @JsonProperty("securitytest")
     @ApiModelProperty(
-        value = "Security test to perform on the target.",
+        value = "The Name of the security test to perform on the target.",
         example = "nmap"
     )
     String securityTest;
 
     @JsonProperty
-    @ApiModelProperty("The target of the security test.")
+    @ApiModelProperty("The target configuration of the security test.")
     Target target;
 
     public String getContext() {
@@ -70,6 +73,6 @@ public class SecurityTest{
 
     @JsonIgnore
     public String getProcessDefinitionKey(){
-        return this.getSecurityTest() + "-process";
+        return this.getSecurityTest() + PROCESS_NAME_SUFFIX;
     }
 }
