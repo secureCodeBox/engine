@@ -53,7 +53,10 @@ public class SecurityTestRessource {
     ObjectMapper objectMapper;
 
     @ApiOperation(value = "Starts new security tests.",
-                    notes = "Starts new security tests, based on a given list of security test configurations."
+                    notes = "Starts new security tests, based on a given list of security test configurations.",
+                    authorizations = {
+                            @Authorization(value="basicAuth")
+                    }
     )
     @ApiResponses(value = {
             @ApiResponse(

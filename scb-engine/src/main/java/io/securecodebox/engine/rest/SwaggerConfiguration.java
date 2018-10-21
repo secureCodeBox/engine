@@ -27,13 +27,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.BasicAuth;
 import springfox.documentation.service.Contact;
+import springfox.documentation.service.SecurityScheme;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
@@ -73,8 +76,12 @@ public class SwaggerConfiguration {
                 .ignoredParameterTypes(Principal.class)
                 .useDefaultResponseMessages(false)
                 .consumes(Sets.newHashSet("application/json"))
-                .produces(Sets.newHashSet("application/json"));
+                .produces(Sets.newHashSet("application/json"))
+                .securitySchemes(Collections.singletonList(securityScheme()));
     }
     // @formatter:on
 
+    private SecurityScheme securityScheme() {
+        return new BasicAuth("basicAuth");
+    }
 }
