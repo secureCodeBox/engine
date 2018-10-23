@@ -46,6 +46,34 @@
 
 					<div class="well">Target: <a href="{{ target.location }}">{{ target.location }}</a> </div>
 
+					<!-- Scanner delay in ms -->
+                    <div class="form-group">
+                        <label for="inputScannerDelay">Scanner delay in ms</label>
+                        <div class="controls">
+                            <input class="form-control"
+                                   id="inputScannerDelay"
+                                   ng-model="target.attributes.ZAP_SCANNER_DELAY_IN_MS"
+                                   type="number"
+                                   min="1"
+                                   max="1000"
+                                   name="inputScannerDelay"/>
+                        </div>
+                    </div>
+
+					<!-- Scanner threads per scan -->
+                    <div class="form-group">
+                        <label for="inputThreadsPerHost">Threads per host</label>
+                        <div class="controls">
+                            <input class="form-control"
+                                   id="inputThreadsPerHost"
+                                   ng-model="target.attributes.ZAP_THREADS_PER_HOST"
+                                   type="number"
+                                   min="1"
+                                   max="50"
+                                   name="inputThreadsPerHost"/>
+                        </div>
+                    </div>
+
 					<!-- includeRegexes -->
 					<div class="form-group">
 						  <label for="inputScannerIncludeRegexes">Include RegExe's</label>
