@@ -79,7 +79,8 @@ public class CombinedAmassNmapProcessTest {
 
     //Define the Process Activity IDs
     private static final String PROCESS_ID = "amass-nmap-process";
-    private static final String DO_SCAN_TASK_ID = "ServiceTask_DoScan";
+    private static final String DO_AMASS_SCAN_TASK_ID = "ServiceTask_DoAmassScan";
+    private static final String DO_NMAP_SCAN_TASK_ID = "ServiceTask_DoNmapScan";
     private static final String CREATE_REPORT_TASK_ID = "ServiceTask_CreateSummary";
     private static final String APPROVE_RESULTS_TASK_ID = "UserTask_ApproveResults";
 
@@ -143,7 +144,8 @@ public class CombinedAmassNmapProcessTest {
          */
         when(process.waitsAtUserTask(Mockito.anyString())).thenReturn(TaskDelegate::complete);
         when(process.waitsAtServiceTask(Mockito.anyString())).thenReturn(ExternalTaskDelegate::complete);
-        when(process.waitsAtServiceTask(DO_SCAN_TASK_ID)).thenReturn(task -> startExternalMockProcess("amass-nmap-process"));
+        when(process.waitsAtServiceTask(DO_AMASS_SCAN_TASK_ID)).thenReturn(task -> startExternalMockProcess("subdomain_scan"));
+        when(process.waitsAtServiceTask(DO_NMAP_SCAN_TASK_ID)).thenReturn(task -> startExternalMockProcess("nmap_portscan"));
     }
 
     @Test
@@ -159,7 +161,7 @@ public class CombinedAmassNmapProcessTest {
         ProcessInstance processInstance = runtimeService().startProcessInstanceByKey(PROCESS_ID, defaultVariables);
 
         assertThat(processInstance).isStarted();
-        assertThat(processInstance).isWaitingAt(DO_SCAN_TASK_ID);
+        assertThat(processInstance).isWaitingAt(DO_AMASS_SCAN_TASK_ID);
     }
 
     @Test
