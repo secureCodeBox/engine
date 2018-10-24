@@ -62,6 +62,7 @@
 
         <spring-boot.version>1.5.13.RELEASE</spring-boot.version>
         <swagger-version>2.9.0</swagger-version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <modules>
