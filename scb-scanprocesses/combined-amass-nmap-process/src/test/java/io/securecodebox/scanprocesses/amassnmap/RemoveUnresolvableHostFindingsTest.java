@@ -1,3 +1,22 @@
+/*
+ *
+ *  SecureCodeBox (SCB)
+ *  Copyright 2015-2018 iteratec GmbH
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  	http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ * /
+ */
+
 package io.securecodebox.scanprocesses.amassnmap;
 
 import io.securecodebox.model.execution.ScanProcessExecution;
@@ -37,7 +56,7 @@ public class RemoveUnresolvableHostFindingsTest {
     @Test
     public void shouldRemoveUnresolvableHostFinding() throws Exception {
         when(processExecutionFactory.get(any())).thenReturn(scanProcess);
-        List<Finding> findings = creageDummyFindings();
+        List<Finding> findings = createDummyFindings();
         when(scanProcess.getFindings()).thenReturn(findings);
 
         classUnderTest.notify(execution);
@@ -46,7 +65,7 @@ public class RemoveUnresolvableHostFindingsTest {
         verify(scanProcess, times(2)).appendFinding(any());
     }
 
-    private List<Finding> creageDummyFindings() {
+    private List<Finding> createDummyFindings() {
         Finding f1 = new Finding();
         f1.setCategory("Open Port");
         Finding f2 = new Finding();
