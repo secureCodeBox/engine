@@ -10,3 +10,7 @@ logging.level.io.securecodebox: TRACE
 # - none
 # - elasticsearch
 securecodebox.persistence.provider: none
+
+securecodebox.rest.user.scanner-default:
+  user-id: default-scanner
+  password: scan

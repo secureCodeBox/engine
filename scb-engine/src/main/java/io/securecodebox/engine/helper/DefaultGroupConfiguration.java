@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 
+
 /**
  * This configuration file generates the default group approver and
  *
@@ -37,15 +38,17 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DefaultGroupConfiguration extends AbstractCamundaConfiguration {
 
+    public static final String GROUP_SCANNER = "scanner";
+    public static final String GROUP_APPROVER = "approver";
+
     private static final Logger LOG = LoggerFactory.getLogger(DefaultGroupConfiguration.class);
 
     @Override
     public void postProcessEngineBuild(final ProcessEngine processEngine) {
 
         final IdentityService identityService = processEngine.getIdentityService();
-        createGroup(identityService, "approver");
-        createGroup(identityService, "scanner");
-
+        createGroup(identityService, GROUP_APPROVER);
+        createGroup(identityService, GROUP_SCANNER);
     }
 
     private void createGroup(IdentityService identityService, String group) {
@@ -58,4 +61,5 @@ public class DefaultGroupConfiguration extends AbstractCamundaConfiguration {
             LOG.info("Created default secureCodeBox group: {}", approverGroup.getName());
         }
     }
+
 }
