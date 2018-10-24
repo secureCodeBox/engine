@@ -16,6 +16,7 @@ COPY --from=builder ./scb-scanprocesses/nikto-process/target/nikto-process-0.0.1
 COPY --from=builder ./scb-scanprocesses/nmap-process/target/nmap-process-0.0.1-SNAPSHOT.jar /scb-engine/lib/
 COPY --from=builder ./scb-scanprocesses/test-process/target/test-process-0.0.1-SNAPSHOT.jar /scb-engine/lib/
 COPY --from=builder ./scb-scanprocesses/zap-process/target/zap-process-0.0.1-SNAPSHOT.jar /scb-engine/lib/
+COPY --from=builder ./scb-scanprocesses/combined-amass-nmap-process/target/combined-amass-nmap-process-0.0.1-SNAPSHOT.jar /scb-engine/lib/
 COPY --from=builder ./scb-scanprocesses/combined-nmap-nikto-scanprocess/target/combined-nmap-nikto-scanprocess-0.0.1-SNAPSHOT.jar /scb-engine/lib/
 COPY --from=builder ./scb-scanprocesses/sslyze-process/target/sslyze-process-0.0.1-SNAPSHOT.jar /scb-engine/lib/
 COPY --from=builder ./scb-scanprocesses/arachni-process/target/arachni-process-1.0-SNAPSHOT.jar /scb-engine/lib/
