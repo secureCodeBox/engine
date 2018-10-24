@@ -29,10 +29,14 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
             List<Target> newTargets = objectMapper.readValue(objectMapper.readValue(findingsAsString, String.class),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
 
+
+            String nmapProfile = (String) execution.getVariable(ProcessVariables.NMAP_CONFIGURATION_PROFILE.name());
+
             for (Target target : newTargets) {
                 //TODO: this is not correct; Fix location in amass scan and use location instead
                 target.getAttributes().put("hostname", target.getName());
                 target.setLocation(target.getName());
+                setNmapProfile(nmapProfile, target);
             }
 
             LOG.debug("Transformed findings to new targets: " + newTargets);
@@ -49,6 +53,19 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
 
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("Can't write field to process!", e);
+        }
+    }
+
+    private void setNmapProfile(String nmapProfile, Target target) {
+        switch (NmapConfigProfile.valueOf(nmapProfile)) {
+            case HTTP_PORTS:
+                target.appendOrUpdateAttribute("NMAP_PARAMETER", NmapConfigProfile.HTTP_PORTS.getParameter());
+                break;
+            case TOP_100_PORTS:
+                target.appendOrUpdateAttribute("NMAP_PARAMETER", NmapConfigProfile.TOP_100_PORTS.getParameter());
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown nmap profile for combined scan");
         }
     }
 

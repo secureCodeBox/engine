@@ -24,18 +24,22 @@
     <script cam-script type="text/form-script">
         camForm.on('form-loaded', function () {
             camForm.variableManager.fetchVariable('DEFAULT_CONTEXT');
-            camForm.variableManager.fetchVariable('DEFAULT_TARGET_NAME');
-            camForm.variableManager.fetchVariable('DEFAULT_TARGET_LOCATION');
-            camForm.variableManager.fetchVariable('DEFAULT_TARGET_URI');
+            <!--camForm.variableManager.fetchVariable('DEFAULT_TARGET_NAME');-->
+            <!--camForm.variableManager.fetchVariable('DEFAULT_TARGET_LOCATION');-->
+            <!--camForm.variableManager.fetchVariable('DEFAULT_TARGET_URI');-->
         });
 
         camForm.on('variables-fetched', function () {
             $scope.context = camForm.variableManager.variableValue('DEFAULT_CONTEXT');
 
             $scope.targetList = [{
-                name: camForm.variableManager.variableValue('DEFAULT_TARGET_NAME'),
-                location: camForm.variableManager.variableValue('DEFAULT_TARGET_LOCATION')
+                attributes: { "NO_DNS": true}
             }];
+
+            $scope.nmapConfigProfiles = [
+                {label: "HTTP Ports (80,8080,443,8443)", value: "HTTP_PORTS", selected: true},
+                {label: "Top 100 Ports", value: "TOP_100_PORTS"}
+            ]
         });
 
         camForm.on('submit', function () {
@@ -61,11 +65,12 @@
                         <label>Target Name</label>
                         <input required class="form-control"
                                type="text"
-                               placeholder="Public domain name"
+                               placeholder="example.com Test Scan"
                                ng-minlength="2"
                                ng-maxlength="30"
                                ng-model="target.name"/>
                     </div>
+
                     <div class="col-xs-6">
                         <label>Target Domain</label>
                         <input required class="form-control"
@@ -74,18 +79,21 @@
                                ng-minlength="3"
                                ng-maxlength="100"
                                ng-model="target.location"
-                               ng-keydown="checkForEnter($event)"
                         />
-                    </div>
-                    <div class="col-xs-12 form-group">
-                        <label>
-                            <input type="checkbox"
-                                   ng-model="target.attributes.NO_DNS"
-                            /> Disable DNS Lookup for subdomain verification.
-                        </label>
                     </div>
                 </div>
                 <code class="hidden">{{ targetList }}</code>
+            </div>
+
+            <!-- Nmap Port Config -->
+            <div class="form-group">
+                <label for="inputNmapConfig">Nmap Port Config</label>
+                <div class="controls">
+                    <select id="inputNmapConfig" cam-variable-name="NMAP_CONFIGURATION_PROFILE" cam-variable-type="String">
+                        <option ng-repeat="profile in nmapConfigProfiles"
+                                value="{{profile.value}}" ng-selected="profile.selected">{{profile.label}}</option>
+                    </select>
+                </div>
             </div>
 
             <!-- Context (Project/Team/System...) -->
