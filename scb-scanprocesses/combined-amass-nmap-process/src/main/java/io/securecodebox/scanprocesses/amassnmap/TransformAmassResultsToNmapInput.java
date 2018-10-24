@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.execution.Target;
+import io.securecodebox.model.findings.Finding;
+import java.util.ArrayList;
 import java.util.List;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
@@ -26,20 +28,20 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String findingsAsString = objectMapper.writeValueAsString(execution.getVariable(DefaultFields.PROCESS_FINDINGS.name()));
-            List<Target> newTargets = objectMapper.readValue(objectMapper.readValue(findingsAsString, String.class),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
-
+            List<Finding> findings = objectMapper.readValue(objectMapper.readValue(findingsAsString, String.class),
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, Finding.class));
 
             String nmapProfile = (String) execution.getVariable(ProcessVariables.NMAP_CONFIGURATION_PROFILE.name());
 
-            for (Target target : newTargets) {
-                //TODO: this is not correct; Fix location in amass scan and use location instead
-                target.getAttributes().put("hostname", target.getName());
-                target.setLocation(target.getName());
+            List<Target> newTargets = new ArrayList<>();
+            for (Finding finding : findings) {
+                Target target = new Target();
+                target.setLocation(finding.getLocation());
                 setNmapProfile(nmapProfile, target);
+                newTargets.add(target);
             }
 
-            LOG.debug("Transformed findings to new targets: " + newTargets);
+            LOG.debug("Transformed findings to new newTargets: " + newTargets);
 
             ObjectValue objectValue = Variables.objectValue(objectMapper.writeValueAsString(newTargets))
                     .serializationDataFormat(Variables.SerializationDataFormats.JSON)
