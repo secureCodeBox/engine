@@ -12,13 +12,19 @@
     	});
     	camForm.on('variables-restored', function() {
       		$scope.targetList = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
+      		$scope.targetList.forEach (target => {
+      			if (!target.attributes.ZAP_REPLACER_RULES) {
+      				target.attributes.ZAP_REPLACER_RULES = [];
+      			}
+      		});
       		console.log("setting variables to scope");
-      		console.log("targets: " + $scope.targetList);
+      		console.log("targets: ", $scope.targetList);
     	});
     	camForm.on('submit', function () {
     	    $scope.targetList = $scope.targetList.map(function (target) {
 				target.attributes.ZAP_SCANNER_INCLUDE_REGEX = splitOnNewline(target.attributes.ZAP_SCANNER_INCLUDE_REGEX);
 				target.attributes.ZAP_SCANNER_EXCLUDE_REGEX = splitOnNewline(target.attributes.ZAP_SCANNER_EXCLUDE_REGEX);
+				target.attributes.ZAP_REPLACER_RULES.forEach (rule => delete rule.b_enabled);
 				return target;
 			});
 
@@ -33,6 +39,60 @@
                 }
        		});
         });
+        const EXAMPLE_REPLACER_RULES = {
+			CSP: { "matchType":"RESP_HEADER",
+				"description":"Remove CSP",
+				"matchString":"Content-Security Policy",
+				"initiators":"",
+				"matchRegex":"false",
+				"replacement":"",
+				"enabled":"true"},
+			HSTS: { "matchType":"RESP_HEADER",
+				"description":"Remove HSTS",
+				"matchString":"Strict-Transport-Security",
+				"initiators":"",
+				"matchRegex":"false",
+				"replacement":"",
+				"enabled":"true"},
+			AUTH: { "matchType":"REQ_HEADER",
+				"description":"Add a special Authentication Headerl",
+				"matchString":"Authorization: Basic QWxhZGRpbjpPcGVuU2VzYW1l",
+				"initiators":"",
+				"matchRegex":"false",
+				"replacement":"Authorization: Basic QWxhZGRpbjpPcGVuU2VzYW1l",
+				"enabled":"true"}
+        };
+        $scope.addReplacerRule = function (target, name) {
+        	var rule = null;
+        	if (name && EXAMPLE_REPLACER_RULES[name]) {
+        		rule = EXAMPLE_REPLACER_RULES[name];
+        	} else {
+        		var k = Object.keys (EXAMPLE_REPLACER_RULES);
+        		rule = EXAMPLE_REPLACER_RULES[k[k.length * Math.random () | 0]];
+        	}
+        	target.attributes.ZAP_REPLACER_RULES.push (Object.assign ({ b_enabled: rule.enabled === 'true' }, rule));
+        };
+        const ruleIDs = [];
+        $scope.ruleId = function (rule) {
+        	var id = ruleIDs.find (test => test.description === rule.description);
+        	if (id) return id.id;
+        	ruleIDs.push ({
+				description: rule.description,
+				id: ruleIDs.length.toString ()
+			});
+        };
+        $scope.enableDisable = function (rule) {
+        	rule.enabled = rule.b_enabled ? 'true' : 'false';
+        };
+        $scope.removeRule = function (target, rule) {
+        	var rules = target.attributes.ZAP_REPLACER_RULES;
+        	for (var i = 0; i < rules.length; i++) {
+        		if (rules[i] === rule) {
+        			rules.splice (i, 1);
+        			break;
+        		}
+        	}
+        };
   	</script>
 
 	<div ng-repeat="target in targetList track by $index">
@@ -96,6 +156,69 @@
 									  name="scannerExcludeRegexes"
 									  id="inputScannerExcludeRegexes"></textarea>
 						  </div>
+					</div>
+
+					<!-- replacerRules -->
+					<div class="form-group" ng-repeat="rule in target.attributes.ZAP_REPLACER_RULES">
+						<label>Replacer Rule: {{ rule.description }}</label>
+						<div class="controls" style="border: 1px solid #aaa; border-radius: 2px; padding: 6px 12px">
+							<table style="width: 100%">
+								<tr>
+									<td colspan="2">
+										<input type="checkbox" id="chk{{ ruleId (rule) }}" ng-model="rule.b_enabled" ng-change="enableDisable (rule)" />
+										<label for="chk{{ ruleId (rule) }}">Rule enabled</label>
+										<button type="button" class="btn" style="float: right" ng-click="removeRule (target, rule)">❌</button>
+									</td>
+								</tr>
+								<tr>
+									<td style="padding-bottom: .5em; padding-right:.5em">Description:</td>
+									<td style="padding-bottom: .5em; width: 100%">
+										<input type="text" class="form-control" ng-model="rule.description" ng-disabled="!rule.b_enabled" placeholder="Description" />
+									</td>
+								</tr>
+								<tr>
+									<td style="padding-bottom: .5em; padding-right:.5em">Match type:</td>
+									<td style="padding-bottom: .5em; width: 100%">
+										<select class="form-control" ng-model="rule.matchType" ng-disabled="!rule.b_enabled">
+											<option value="REQ_HEADER">Request header</option>
+											<option value="REQ_BODY">Request body</option>
+											<option value="RESP_HEADER">Response header</option>
+											<option value="RESP_BODY">Response body</option>
+										</select>
+									</td>
+								</tr>
+								<tr>
+									<td style="padding-bottom: .5em; padding-right:.5em; vertical-align: top">Match text:</td>
+									<td style="padding-bottom: .5em; width: 100%">
+										<input type="radio" name="mro{{ ruleId(rule) }}" id="mro{{ ruleId(rule) }}t" ng-model="rule.matchRegex" value="false" />
+										<label for="mro{{ ruleId(rule) }}t" style="font-weight: normal">String</label>
+										&nbsp;
+										<input type="radio" name="mro{{ ruleId(rule) }}" id="mro{{ ruleId(rule) }}f" ng-model="rule.matchRegex" value="true" />
+										<label for="mro{{ ruleId(rule) }}f" style="font-weight: normal">Regex</label>
+										<br />
+										<input type="text" class="form-control" ng-model="rule.matchString" ng-disabled="!rule.b_enabled" placeholder="E.g. Content-Security Policy" />
+									</td>
+								</tr>
+								<tr>
+									<td style="padding-bottom: .5em; padding-right:.5em">Replacement:</td>
+									<td style="padding-bottom: .5em; width: 100%">
+										<input type="text" class="form-control" ng-model="rule.replacement" ng-disabled="!rule.b_enabled" placeholder="Replacement for matched text" />
+									</td>
+								</tr>
+								<tr>
+									<td style="padding-bottom: .5em; padding-right:.5em">initiators:</td>
+									<td style="padding-bottom: .5em; width: 100%">
+										<input type="text" class="form-control" ng-model="rule.initiators" ng-disabled="!rule.b_enabled" placeholder="Applicable ZAP initiators (modules)" />
+									</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+					<div style="border: 1px solid #aaa; border-radius: 2px; padding: 6px 12px">
+						Add sample ZAP replacer rules:<br />
+						<button ng-click="addReplacerRule (target, 'CSP')" type="button" class="btn btn-default">Add CSP replacer rule</button>
+						<button ng-click="addReplacerRule (target, 'HSTS')" type="button" class="btn btn-default">Add HSTS replacer rule</button>
+						<button ng-click="addReplacerRule (target, 'AUTH')" type="button" class="btn btn-default">Add AUTH replacer rule</button>
 					</div>
 
 				</div>
