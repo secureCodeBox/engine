@@ -41,7 +41,12 @@ public class SecurityTest {
         value = "The Name of the security test to perform on the target.",
         example = "nmap"
     )
-    String securityTest;
+@JsonProperty("name")
+    @ApiModelProperty(
+        value = "The Name of the security test to perform on the target.",
+        example = "nmap"
+    )
+    String name;
 
     @JsonProperty
     @ApiModelProperty("The target configuration of the security test.")
