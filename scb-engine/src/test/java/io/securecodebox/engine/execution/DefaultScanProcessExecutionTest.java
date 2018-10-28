@@ -177,7 +177,7 @@ public class DefaultScanProcessExecutionTest {
         underTest.appendTarget(TestHelper.createBaiscTarget());
         underTest.appendTarget(TestHelper.createTarget("http://w1.w2.www", "some wired"));
 
-        Mockito.verify(executionMock, times(2)).setVariable(eq(DefaultFields.PROCESS_TARGETS.name()), anyString());
+        Mockito.verify(executionMock, times(2)).setVariable(eq(DefaultFields.PROCESS_TARGETS.name()), any());
 
         ScanProcessExecution processExecution = processExecutionFactory.get(executionMock);
 
