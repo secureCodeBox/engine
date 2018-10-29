@@ -36,12 +36,7 @@ public class SecurityTest {
     )
     String context;
 
-    @JsonProperty("securitytest")
-    @ApiModelProperty(
-        value = "The Name of the security test to perform on the target.",
-        example = "nmap"
-    )
-@JsonProperty("name")
+    @JsonProperty("name")
     @ApiModelProperty(
         value = "The Name of the security test to perform on the target.",
         example = "nmap"
@@ -60,12 +55,12 @@ public class SecurityTest {
         this.context = context;
     }
 
-    public String getSecurityTest() {
-        return securityTest;
+    public String getName() {
+        return name;
     }
 
-    public void setSecurityTest(String securityTest) {
-        this.securityTest = securityTest;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Target getTarget() {
@@ -78,6 +73,6 @@ public class SecurityTest {
 
     @JsonIgnore
     public String getProcessDefinitionKey(){
-        return this.getSecurityTest() + PROCESS_NAME_SUFFIX;
+        return this.getName() + PROCESS_NAME_SUFFIX;
     }
 }
