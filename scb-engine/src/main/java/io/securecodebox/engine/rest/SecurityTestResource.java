@@ -42,9 +42,9 @@ import java.util.*;
         consumes = "application/json")
 @RestController
 @RequestMapping(value = "/box/security-tests")
-public class SecurityTestRessource {
+public class SecurityTestResource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SecurityTestRessource.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SecurityTestResource.class);
 
     @Autowired
     ProcessEngine engine;
