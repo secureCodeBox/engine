@@ -1,0 +1,93 @@
+/*
+ *
+ *  SecureCodeBox (SCB)
+ *  Copyright 2015-2018 iteratec GmbH
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  	http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ * /
+ */
+
+package io.securecodebox.scanprocesses.amassnmap;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.securecodebox.constants.DefaultFields;
+import io.securecodebox.model.execution.Target;
+import io.securecodebox.model.findings.Finding;
+import java.util.ArrayList;
+import java.util.List;
+import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.delegate.JavaDelegate;
+import org.camunda.bpm.engine.variable.Variables;
+import org.camunda.bpm.engine.variable.value.ObjectValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+@Component
+public class TransformAmassResultsToNmapInput implements JavaDelegate {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TransformAmassResultsToNmapInput.class);
+
+    @Override
+    public void execute(DelegateExecution execution) throws Exception {
+
+        LOG.debug("Converting amass output to nmap input");
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String findingsAsString = objectMapper.writeValueAsString(execution.getVariable(DefaultFields.PROCESS_FINDINGS.name()));
+            List<Finding> findings = objectMapper.readValue(objectMapper.readValue(findingsAsString, String.class),
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, Finding.class));
+
+            String nmapProfile = (String) execution.getVariable(ProcessVariables.NMAP_CONFIGURATION_PROFILE.name());
+
+            List<Target> newTargets = new ArrayList<>();
+            for (Finding finding : findings) {
+                Target target = new Target();
+                target.setLocation(finding.getLocation());
+                setNmapProfile(nmapProfile, target);
+                newTargets.add(target);
+            }
+
+            LOG.debug("Transformed findings to new newTargets: " + newTargets);
+
+            ObjectValue objectValue = Variables.objectValue(objectMapper.writeValueAsString(newTargets))
+                    .serializationDataFormat(Variables.SerializationDataFormats.JSON)
+                    .create();
+            execution.setVariable(DefaultFields.PROCESS_TARGETS.name(), objectValue);
+
+            // SET NMAP PROCESS VARIABLES
+            execution.setVariable("NMAP_CONFIGURATION_TYPE","default");
+
+            LOG.debug("Finished TransformAmassResultsToNmapInput Service Task. Continue with nmap scan");
+
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Can't write field to process!", e);
+        }
+    }
+
+    private void setNmapProfile(String nmapProfile, Target target) {
+        switch (NmapConfigProfile.valueOf(nmapProfile)) {
+            case HTTP_PORTS:
+                target.appendOrUpdateAttribute("NMAP_PARAMETER", NmapConfigProfile.HTTP_PORTS.getParameter());
+                break;
+            case TOP_100_PORTS:
+                target.appendOrUpdateAttribute("NMAP_PARAMETER", NmapConfigProfile.TOP_100_PORTS.getParameter());
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown nmap profile for combined scan");
+        }
+    }
+
+}

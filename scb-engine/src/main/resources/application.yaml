@@ -4,8 +4,8 @@
 spring.profiles.active: ${activatedProfiles}
 
 camunda.bpm:
-  webapp:
-    index-redirect-enabled: true
+  webapp.index-redirect-enabled: true
+  authorization.enabled: true
 
 logging.level: INFO
 logging.level.io.securecodebox: INFO
@@ -25,3 +25,14 @@ securecodebox.default.target.name: BodgeIT Public Host
 securecodebox.default.target.location: bodgeit
 securecodebox.default.target.uri: http://bodgeit:8080/bodgeit
 securecodebox.default.context: BodgeIT
+
+# Configure Secure CodeBox rest api protection
+# - basic auth
+# - none
+securecodebox.rest.auth: basic auth
+
+# Configure a technical user for the scanner services. This user allows the scanner services to authenticate on the engines rest api.
+# (If not set as environment variable, a user has to be added manually in the camunda ui.)
+securecodebox.rest.user.scanner-default:
+  user-id: ${SECURECODEBOX_USER_SCANNER:}
+  password: ${SECURECODEBOX_USER_SCANNER_PW:}

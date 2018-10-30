@@ -62,6 +62,7 @@
 
         <spring-boot.version>1.5.13.RELEASE</spring-boot.version>
         <swagger-version>2.9.0</swagger-version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <modules>
@@ -117,6 +118,11 @@
                 <artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
                 <version>${camunda.spring.boot.starter.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-security</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.camunda.bpm.springboot</groupId>
@@ -153,6 +159,7 @@
                 <artifactId>springfox-swagger-ui</artifactId>
                 <version>${swagger-version}</version>
             </dependency>
+
 
             <dependency>
                 <groupId>io.securecodebox.core</groupId>

@@ -17,12 +17,14 @@ This is the main component of the _secureCodeBox_ it's a [Camunda][camunda] [BPM
 # Configuration Options
 To configure the SCB engine specify the following environment variables:
 
-| Environment Variable                  | Description                        | Example Value               |
-| ------------------------------------- | ---------------------------------- | --------------------------- |
-| SECURECODEBOX_DEFAULT_TARGET_NAME     | Default target identifier          | BodgeIT Public Host         |
-| SECURECODEBOX_DEFAULT_TARGET_LOCATION | Default target hostname/ip address | bodgeit                     |
-| SECURECODEBOX_DEFAULT_TARGET_URI      | Default target URI/URL             | http://bodgeit:8080/bodgeit |
-| SECURECODEBOX_DEFAULT_CONTEXT         | Default business context           | BodgeIT                     |
+| Environment Variable                  | Description                           | Example Value               |
+| ------------------------------------- | ------------------------------------- | --------------------------- |
+| SECURECODEBOX_DEFAULT_TARGET_NAME     | Default target identifier             | BodgeIT Public Host         |
+| SECURECODEBOX_DEFAULT_TARGET_LOCATION | Default target hostname/ip address    | bodgeit                     |
+| SECURECODEBOX_DEFAULT_TARGET_URI      | Default target URI/URL                | http://bodgeit:8080/bodgeit |
+| SECURECODEBOX_DEFAULT_CONTEXT         | Default business context              | BodgeIT                     |
+| SECURECODEBOX_USER_SCANNER            | Default user for scanner services     | default-scanner             |
+| SECURECODEBOX_USER_SCANNER_PW         | Default password for scanner services | AStrongPassword-NotThisOne! |
 
 # Development
 

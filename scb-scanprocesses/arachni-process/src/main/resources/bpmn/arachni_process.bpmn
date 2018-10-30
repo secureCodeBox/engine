@@ -50,7 +50,7 @@
       <bpmn:outgoing>SequenceFlow_PortscanFinished</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_SummaryCreated" name="summary created" sourceRef="ServiceTask_CreateSummary" targetRef="ExclusiveGateway_AutomatedFinish" />
-    <bpmn:serviceTask id="ServiceTask_CreateSummary" name="Create Report Summary" camunda:asyncBefore="true" camunda:delegateExpression="${io_securecodebox_scanprocesses_SummaryGeneratorDelegate}">
+    <bpmn:serviceTask id="ServiceTask_CreateSummary" name="Create Report Summary" camunda:asyncBefore="true" camunda:delegateExpression="${summaryGeneratorDelegate}">
       <bpmn:extensionElements />
       <bpmn:incoming>SequenceFlow_PortscanFinished</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_SummaryCreated</bpmn:outgoing>

@@ -26,6 +26,7 @@ import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.rest.Result;
+import io.securecodebox.persistence.PersistenceException;
 import io.securecodebox.persistence.PersistenceProvider;
 import io.securecodebox.scanprocess.ProcessVariableHelper;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -83,10 +84,12 @@ public class SummaryGeneratorDelegate implements JavaDelegate {
         LOG.trace("starting scan report persistence. {}", report);
 
         try {
-
             if (persistenceProvider != null) {
                 persistenceProvider.persist(report);
             }
+        } catch (PersistenceException e) {
+            LOG.error("Persistence provider errored while trying to save report. Going to create incident.", e);
+            throw e;
         } catch (Exception e) {
             LOG.error("Unexpected Error while trying to init a persistence provider!", e);
         }

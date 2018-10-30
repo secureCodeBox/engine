@@ -158,12 +158,6 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
     }
 
     @Override
-    public String getTenantId() {
-        StringValue tenantId = execution.<StringValue>getVariableTyped(DefaultFields.PROCESS_TENANT_ID.name());
-        return tenantId != null ? tenantId.getValue() : null;
-    }
-
-    @Override
     public String getScannerType(){
         return (String) execution.getVariable(DefaultFields.PROCESS_SCANNER_TYPE.name());
     }
