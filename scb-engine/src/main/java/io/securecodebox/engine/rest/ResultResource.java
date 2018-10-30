@@ -21,6 +21,7 @@ package io.securecodebox.engine.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.Report;
+import io.securecodebox.model.rest.Result;
 import io.swagger.annotations.*;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.history.HistoricVariableInstance;
@@ -81,7 +82,7 @@ public class ResultResource {
         )
     })
     @RequestMapping(method = RequestMethod.PUT, value = "/{securityTestId}")
-    public ResponseEntity<Report> getResult(
+    public ResponseEntity<Result> getResult(
             @Valid @PathVariable @ApiParam(value = "UUID of the security-test for which the result should be fetched.", required = true) UUID securityTestId
     ) {
 
@@ -99,7 +100,7 @@ public class ResultResource {
 
         try {
             String resultString = objectMapper.readValue(resultsDoubilySerialized, String.class);
-            Report result = objectMapper.readValue(resultString, Report.class);
+            Result result = objectMapper.readValue(resultString, Result.class);
             return ResponseEntity.ok(result);
         } catch (IOException e) {
             LOG.error("Could not deserialize security-test result. {}", e);
