@@ -85,7 +85,15 @@ public class SecurityTestResource {
             )
     })
     @RequestMapping(method = RequestMethod.PUT)
-    public ResponseEntity<List<UUID>> startSecurityTests(@Valid @RequestBody List<SecurityTest> securityTests) {
+    public ResponseEntity<List<UUID>> startSecurityTests(
+            @Valid
+            @RequestBody
+            @ApiParam(
+                value = "A list with all security-test which should be performed.",
+                required = true
+            )
+            List<SecurityTest> securityTests
+    ) {
 
         for (SecurityTest securityTest : securityTests) {
             long processCount = engine.getRepositoryService()
