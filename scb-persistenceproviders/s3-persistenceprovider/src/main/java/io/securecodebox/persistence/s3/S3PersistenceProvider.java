@@ -23,12 +23,12 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.model.Report;
 import io.securecodebox.persistence.PersistenceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -37,14 +37,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
-@ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "none")
+@ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "s3")
 @Component
 public class S3PersistenceProvider implements PersistenceProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(S3PersistenceProvider.class);
 
-//    @Autowired
-    private ObjectMapper mapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper mapper;
 
     @Value("${securecodebox.persistence.s3.bucket}")
     private String bucketName;
