@@ -26,7 +26,7 @@ COPY --from=builder ./scb-persistenceproviders/elasticsearch-persistenceprovider
 
 WORKDIR /scb-engine
 
-COPY dockerfiles/init.sh ./init.sh
+COPY dockerfiles/init.sh .
 RUN chmod +x ./init.sh
 
 EXPOSE 8443
@@ -43,4 +43,4 @@ LABEL org.opencontainers.image.title="secureCodeBox Engine" \
     org.opencontainers.image.revision=$COMMIT_ID \
     org.opencontainers.image.created=$BUILD_DATE
 
-CMD [ "dockerfiles/init.sh" ]
+CMD ["./init.sh"]
