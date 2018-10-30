@@ -20,11 +20,14 @@
 package io.securecodebox.engine.execution;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.Scanner;
 import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.findings.Finding;
+import io.securecodebox.model.rest.Result;
 import io.securecodebox.scanprocess.ProcessVariableHelper;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.variable.value.BooleanValue;
@@ -163,5 +166,14 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
     @Override
     public String getScannerType(){
         return (String) execution.getVariable(DefaultFields.PROCESS_SCANNER_TYPE.name());
+    }
+
+    @Override
+    public void saveResultToVariable(Result result) throws JsonProcessingException{
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        String reportJson = objectMapper.writeValueAsString(result);
+
+        this.execution.setVariable(DefaultFields.PROCESS_RESULT.toString(), ProcessVariableHelper.generateObjectValue(reportJson));
     }
 }

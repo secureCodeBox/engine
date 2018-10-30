@@ -19,11 +19,13 @@
 
 package io.securecodebox.scanprocess.delegate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.Report;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.model.findings.Finding;
+import io.securecodebox.model.rest.Result;
 import io.securecodebox.persistence.PersistenceProvider;
 import io.securecodebox.scanprocess.ProcessVariableHelper;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -62,6 +64,13 @@ public class SummaryGeneratorDelegate implements JavaDelegate {
 
         ScanProcessExecution scanProcessExecution = executionFactory.get(delegateExecution);
         Report report = new Report(scanProcessExecution);
+
+        try {
+            scanProcessExecution.saveResultToVariable(Result.fromExecution(scanProcessExecution));
+        } catch (JsonProcessingException e) {
+            LOG.error("Could not save result to process variables.");
+        }
+
         persist(report);
     }
 
