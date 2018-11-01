@@ -74,11 +74,11 @@ public class ScanJobResource {
                 @Authorization(value="basicAuth")
             })
 
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful retrieval of the scan Job",
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful retrieval of the scan job",
             response = ScanConfiguration.class),
-            @ApiResponse(code = 204, message = "No scanjob available", response = void.class),
+            @ApiResponse(code = 204, message = "No scan job available", response = void.class),
             @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
-
+            @ApiResponse(code = 401, message = "Unauthenticated", response = void.class),
             @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
     @RequestMapping(method = RequestMethod.POST, value = "/lock/{topic:[a-zA-Z0-9_\\-]*}/{scannerId}")

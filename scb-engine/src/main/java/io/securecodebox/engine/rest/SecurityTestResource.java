@@ -77,6 +77,11 @@ public class SecurityTestResource {
                     message = "Incomplete or inconsistent Request."
             ),
             @ApiResponse(
+                    code = 401,
+                    message = "Unauthenticated",
+                    response = void.class
+            ),
+            @ApiResponse(
                     code = 404,
                     message = "Could not find definition for specified security test.",
                     response = void.class

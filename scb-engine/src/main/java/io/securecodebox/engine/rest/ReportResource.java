@@ -70,6 +70,11 @@ public class ReportResource {
             response = void.class
         ),
         @ApiResponse(
+            code = 401,
+            message = "Unauthenticated",
+            response = void.class
+        ),
+        @ApiResponse(
             code = 404,
             message = "No report found for the security-test id.",
             response = void.class
