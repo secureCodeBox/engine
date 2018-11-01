@@ -37,6 +37,8 @@ import static org.junit.Assert.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityTestResourceTest {
@@ -76,5 +78,32 @@ public class SecurityTestResourceTest {
         ResponseEntity<List<UUID>> response = classUnderTest.startSecurityTests(Arrays.asList(secTest));
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    public void shouldReturnAMultipleChoicesErrorIfThereAreMultipleProcessesForTheSecurityTestName() throws Exception {
+        willThrow(new ProcessService.DuplicateProcessDefinitionForKeyException()).given(processServiceDummy).checkProcessExistence(any());
+
+        SecurityTest secTest = new SecurityTest();
+        secTest.setName("this-process-key-has-multiple-implementations");
+
+        ResponseEntity<List<UUID>> response = classUnderTest.startSecurityTests(Arrays.asList(secTest));
+
+        assertEquals(HttpStatus.MULTIPLE_CHOICES, response.getStatusCode());
+    }
+
+    @Test
+    public void shouldStartAProcessAndReturnItsUUID() throws Exception {
+        given(processServiceDummy.startProcess(any())).willReturn(UUID.fromString("47bd8786-84f2-49ed-9ca9-20ed22be532b"));
+
+        SecurityTest secTest = new SecurityTest();
+        secTest.setName("this-process-is-ok");
+
+        ResponseEntity<List<UUID>> response = classUnderTest.startSecurityTests(Arrays.asList(secTest));
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(Arrays.asList(UUID.fromString("47bd8786-84f2-49ed-9ca9-20ed22be532b")), response.getBody());
+
+        verify(processServiceDummy, times(1)).startProcess(secTest);
     }
 }
