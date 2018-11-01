@@ -18,43 +18,63 @@
  */
 package io.securecodebox.engine.rest;
 
-import io.securecodebox.engine.SecureCodeBoxEngine;
+import io.securecodebox.engine.service.ProcessService;
+import io.securecodebox.model.rest.SecurityTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = {SecureCodeBoxEngine.class})
-@AutoConfigureMockMvc
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
+
+import static org.junit.Assert.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Matchers.any;
+
+@RunWith(MockitoJUnitRunner.class)
 public class SecurityTestResourceTest {
-    @Autowired
-    private MockMvc mockMvc;
+    @InjectMocks
+    SecurityTestResource classUnderTest;
 
-    private static String nonExistingSecurityTestPayload = "[\n" +
-            "  {\n" +
-            "    \"context\": \"foobar\",\n" +
-            "    \"name\": \"this-test-will-never-ever-exist\",\n" +
-            "    \"target\": {\n" +
-            "      \"location\": \"bodgeit\",\n" +
-            "      \"name\": \"foobar\",\n" +
-            "      \"attributes\": {}\n" +
-            "    }\n" +
-            "  }\n" +
-            "]";
+    @Mock
+    ProcessService processServiceDummy;
+
+    // security-test list endpoint
 
     @Test
-    public void shouldReturnA404OnUnknownSecurityTestName() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.put("/box/security-tests")
-                .content(nonExistingSecurityTestPayload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    public void shouldReturnAllAvailableProcessKeys() throws Exception {
+        given(processServiceDummy.getAvailableProcessKeys()).willReturn(Arrays.asList("foo", "bar"));
+        ResponseEntity<List<String>> response = classUnderTest.getSecurityTestDefinitions();
+
+        assertEquals(Arrays.asList("foo", "bar"), response.getBody());
+    }
+
+    @Test
+    public void shouldReturnAnEmptyListIfNoProcessesAreAvailable() throws Exception {
+        given(processServiceDummy.getAvailableProcessKeys()).willReturn(new LinkedList<>());
+        ResponseEntity<List<String>> response = classUnderTest.getSecurityTestDefinitions();
+
+        assertEquals(new LinkedList<>(), response.getBody());
+    }
+
+    // start security-test endpoint
+
+    @Test
+    public void shouldReturnAnErrorWhenNoSuchProcessIsAvailible() throws Exception {
+        willThrow(new ProcessService.NonExistentProcessException()).given(processServiceDummy).checkProcessExistence(any());
+
+        SecurityTest secTest = new SecurityTest();
+        secTest.setName("this-process-will-never-exist");
+
+        ResponseEntity<List<UUID>> response = classUnderTest.startSecurityTests(Arrays.asList(secTest));
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 }
