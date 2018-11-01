@@ -21,11 +21,10 @@ package io.securecodebox.scanprocess.delegate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.securecodebox.constants.DefaultFields;
-import io.securecodebox.model.Report;
+import io.securecodebox.model.rest.Report;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.model.findings.Finding;
-import io.securecodebox.model.rest.Result;
 import io.securecodebox.persistence.PersistenceException;
 import io.securecodebox.persistence.PersistenceProvider;
 import io.securecodebox.scanprocess.ProcessVariableHelper;
@@ -67,7 +66,7 @@ public class SummaryGeneratorDelegate implements JavaDelegate {
         Report report = new Report(scanProcessExecution);
 
         try {
-            scanProcessExecution.saveResultToVariable(Result.fromExecution(scanProcessExecution));
+            scanProcessExecution.saveReportToVariable(report);
         } catch (JsonProcessingException e) {
             LOG.error("Could not save result to process variables.");
         }

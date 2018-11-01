@@ -27,11 +27,7 @@ import io.securecodebox.model.rest.ScanConfiguration;
 import io.securecodebox.model.rest.ScanFailure;
 import io.securecodebox.model.rest.ScanResult;
 import io.securecodebox.scanprocess.ProcessVariableHelper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.exception.NotFoundException;
 import org.camunda.bpm.engine.externaltask.ExternalTask;
@@ -73,7 +69,10 @@ public class ScanJobResource {
     ObjectMapper objectMapper;
 
     @ApiOperation(value = "Lock a scan job for the given topic",
-            notes = "Returns a scan job for the given topic / capability, if there is one.")
+            notes = "Returns a scan job for the given topic / capability, if there is one.",
+            authorizations = {
+                @Authorization(value="basicAuth")
+            })
 
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful retrieval of the scan Job",
             response = ScanConfiguration.class),
@@ -106,7 +105,10 @@ public class ScanJobResource {
         }
     }
 
-    @ApiOperation(value = "Send a scan result for the previously locked job.")
+    @ApiOperation(value = "Send a scan result for the previously locked job.",
+            authorizations = {
+                    @Authorization(value="basicAuth")
+            })
     @ApiResponses(
             value = { @ApiResponse(code = 200, message = "Successful delivery of the result.", response = void.class),
                     @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
@@ -142,7 +144,10 @@ public class ScanJobResource {
         return ResponseEntity.ok().build();
     }
 
-    @ApiOperation(value = "Send a scan failure for the previously locked job.")
+    @ApiOperation(value = "Send a scan failure for the previously locked job.",
+            authorizations = {
+                    @Authorization(value="basicAuth")
+            })
     @ApiResponses(
             value = { @ApiResponse(code = 200, message = "Successful delivery of the failure.", response = void.class),
                     @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),

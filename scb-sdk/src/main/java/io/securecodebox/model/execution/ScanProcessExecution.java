@@ -24,8 +24,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.securecodebox.model.rest.Report;
 import io.securecodebox.model.findings.Finding;
-import io.securecodebox.model.rest.Result;
 
 import java.util.List;
 import java.util.UUID;
@@ -100,5 +100,5 @@ public interface ScanProcessExecution {
     public abstract String getScannerType();
 
     @JsonIgnore
-    void saveResultToVariable(Result result) throws JsonProcessingException;
+    void saveReportToVariable(Report report) throws JsonProcessingException;
 }

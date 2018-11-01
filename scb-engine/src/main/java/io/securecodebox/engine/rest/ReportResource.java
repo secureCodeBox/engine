@@ -20,7 +20,7 @@ package io.securecodebox.engine.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
-import io.securecodebox.model.rest.Result;
+import io.securecodebox.model.rest.Report;
 import io.swagger.annotations.*;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.history.HistoricVariableInstance;
@@ -36,15 +36,15 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-@Api(value = "results",
-        description = "Gets the results of security-tests.",
+@Api(value = "reports",
+        description = "Gets the reports of security-tests.",
         produces = "application/json",
         consumes = "application/json")
 @RestController
-@RequestMapping(value = "/box/results")
-public class ResultResource {
+@RequestMapping(value = "/box/reports")
+public class ReportResource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SecurityTestResource.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ReportResource.class);
 
     @Autowired
     ProcessEngine engine;
@@ -52,8 +52,8 @@ public class ResultResource {
     @Autowired
     ObjectMapper objectMapper;
 
-    @ApiOperation(value = "Get the results from security-tests.",
-            notes = "Gets one result of a single security-test.",
+    @ApiOperation(value = "Get the report of security-tests.",
+            notes = "Gets one report of a single security-test.",
             authorizations = {
                     @Authorization(value="basicAuth")
             }
@@ -61,8 +61,8 @@ public class ResultResource {
     @ApiResponses(value = {
         @ApiResponse(
             code = 200,
-            message = "Successful fetched a result for a security-test.",
-            response = UUID.class
+            message = "Successful fetched a report for a security-test.",
+            response = Report.class
         ),
         @ApiResponse(
             code = 400,
@@ -71,7 +71,7 @@ public class ResultResource {
         ),
         @ApiResponse(
             code = 404,
-            message = "No result found for the security-test id.",
+            message = "No report found for the security-test id.",
             response = void.class
         ),
         @ApiResponse(
@@ -80,14 +80,14 @@ public class ResultResource {
             response = void.class
         )
     })
-    @RequestMapping(method = RequestMethod.PUT, value = "/{securityTestId}")
-    public ResponseEntity<Result> getResult(
-            @Valid @PathVariable @ApiParam(value = "UUID of the security-test for which the result should be fetched.", required = true) UUID securityTestId
+    @RequestMapping(method = RequestMethod.GET, value = "/{securityTestId}")
+    public ResponseEntity<Report> getReport(
+            @Valid @PathVariable @ApiParam(value = "UUID of the security-test for which the report should be fetched.", required = true) UUID securityTestId
     ) {
 
         List<HistoricVariableInstance> variables = engine.getHistoryService()
                 .createHistoricVariableInstanceQuery()
-                .variableName(DefaultFields.PROCESS_RESULT.name())
+                .variableName(DefaultFields.PROCESS_REPORT.name())
                 .processInstanceId(securityTestId.toString())
                 .list();
 
@@ -95,14 +95,14 @@ public class ResultResource {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        String resultsDoubilySerialized = (String) variables.get(0).getValue();
+        String reportDoubilySerialized = (String) variables.get(0).getValue();
 
         try {
-            String resultString = objectMapper.readValue(resultsDoubilySerialized, String.class);
-            Result result = objectMapper.readValue(resultString, Result.class);
-            return ResponseEntity.ok(result);
+            String reportString = objectMapper.readValue(reportDoubilySerialized, String.class);
+            Report report = objectMapper.readValue(reportString, Report.class);
+            return ResponseEntity.ok(report);
         } catch (IOException e) {
-            LOG.error("Could not deserialize security-test result. {}", e);
+            LOG.error("Could not deserialize security-test report. {}", e);
         }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

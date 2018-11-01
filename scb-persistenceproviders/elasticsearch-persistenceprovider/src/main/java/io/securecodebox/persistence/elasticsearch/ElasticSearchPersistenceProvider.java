@@ -22,7 +22,7 @@ package io.securecodebox.persistence.elasticsearch;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.securecodebox.model.Report;
+import io.securecodebox.model.rest.Report;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.persistence.PersistenceException;
 import io.securecodebox.persistence.PersistenceProvider;
@@ -198,14 +198,8 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                 String dateTimeFormatToPersist = "yyyy-MM-dd'T'HH:mm:ss";
                 BulkRequest bulkRequest = new BulkRequest();
 
-                Map<String, Object> reportAsMap = serializeAndRemove(report, "findings", "execution");
-                Map<String, Object> execution = serializeAndRemove(report.getExecution(), "findings", "scanners");
-                execution.put("scanners",
-                        serializeAndRemoveList(report.getExecution().getScanners(), "findings", "rawFindings"));
+                Map<String, Object> reportAsMap = serializeAndRemove(report, "findings", "raw_findings");
                 reportAsMap.put("type", indexTypeNameForReports);
-                reportAsMap.put("execution", execution);
-                // TODO remove this. scanner_type is accessible via execution attribute
-                reportAsMap.put("scanner_type", report.getExecution().getScannerType());
                 reportAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
 
                 LOG.debug("Timestamp: " + new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
@@ -216,19 +210,14 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                 // Persist the execution as report document in elasticsearch
                 bulkRequest.add(reportIndexRequest);
 
-                // Create a lightweight execution object copy without targets for the findings persistence (to prevent duplicated data)
-                Map<String, Object> findingExecution = new HashMap<>(execution);
-                findingExecution.remove("targets");
-
                 // Persist each finding as a separate document in elasticsearch (with a lightweight object)
                 for (Finding f : report.getFindings()) {
 
                     Map<String, Object> findingAsMap = serializeAndRemove(f);
                     findingAsMap.put("type", indexTypeNameForFindings);
-                    findingAsMap.put("execution", findingExecution);
                     findingAsMap.put("report_id", report.getId());
-                    // TODO remove this. scanner_type is accessible via execution attribute
-                    findingAsMap.put("scanner_type", report.getExecution().getScannerType());
+                    findingAsMap.put("security_test_id", report.getSecurityTestId());
+                    findingAsMap.put("scanner_type", report.getScannerType());
                     findingAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
 
                     IndexRequest findingIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");

@@ -25,6 +25,7 @@ import io.securecodebox.model.rest.SecurityTest;
 import io.securecodebox.scanprocess.ProcessVariableHelper;
 import io.swagger.annotations.*;
 import org.camunda.bpm.engine.ProcessEngine;
+import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +36,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Api(value = "security-tests",
-        description = "Starting new security test instances.",
+        description = "Manage security-tests.",
         produces = "application/json",
         consumes = "application/json")
 @RestController
@@ -126,6 +128,40 @@ public class SecurityTestResource {
             processInstances.add(UUID.fromString(instance.getProcessInstanceId()));
         }
 
-        return ResponseEntity.ok(processInstances);
+        return ResponseEntity.status(HttpStatus.CREATED).body(processInstances);
+    }
+
+    @ApiOperation(value = "Lists all available security-test definitions.",
+            authorizations = {
+                    @Authorization(value="basicAuth")
+            }
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    code = 200,
+                    message = "Successfully listed all available security-test definitions.",
+                    response = UUID.class,
+                    responseContainer = "List"
+            ),
+            @ApiResponse(
+                    code = 500,
+                    message = "Unknown technical error occurred."
+            )
+    })
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<List<String>> getSecurityTestDefinitions(){
+        List<ProcessDefinition> allProcesses = engine.getRepositoryService()
+                .createProcessDefinitionQuery()
+                .active()
+                .latestVersion()
+                .list();
+
+        List<String> securityTests = allProcesses
+                .stream()
+                .map(ProcessDefinition::getKey)
+                .map(def -> def.replace(SecurityTest.PROCESS_NAME_SUFFIX, ""))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(securityTests);
     }
 }

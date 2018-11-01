@@ -18,7 +18,7 @@
  */
 package io.securecodebox.persistence;
 
-import io.securecodebox.model.Report;
+import io.securecodebox.model.rest.Report;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

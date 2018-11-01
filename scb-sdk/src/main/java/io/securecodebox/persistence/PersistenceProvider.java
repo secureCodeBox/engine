@@ -19,11 +19,7 @@
 
 package io.securecodebox.persistence;
 
-import io.securecodebox.model.Report;
-import io.securecodebox.model.execution.ScanProcessExecution;
-import org.springframework.stereotype.Component;
-
-import java.util.Map;
+import io.securecodebox.model.rest.Report;
 
 /**
  * A general interface representing a persistence service to store and retrieve content objects.

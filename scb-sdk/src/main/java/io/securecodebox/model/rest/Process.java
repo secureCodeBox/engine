@@ -31,6 +31,7 @@ import io.swagger.annotations.ApiModel;
  */
 @ApiModel(description = "The representation of a camunda process.")
 @JsonPropertyOrder(alphabetic = true)
+@Deprecated
 public class Process {
 
     @JsonProperty

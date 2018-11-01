@@ -26,6 +26,7 @@ import io.securecodebox.engine.execution.DefaultScanProcessExecution;
 import io.securecodebox.engine.execution.DefaultScanProcessExecutionTest;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.findings.Finding;
+import io.securecodebox.model.rest.Report;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.junit.Test;
 
