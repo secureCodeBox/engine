@@ -20,19 +20,17 @@
 package io.securecodebox.model.rest;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.findings.Severity;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.Objects;
 
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
@@ -43,12 +41,24 @@ import static java.util.stream.Collectors.groupingBy;
  */
 public class Report {
     @JsonProperty("report_id")
+    @ApiModelProperty(
+            value = "Id for the report.",
+            example = "4e598d7c-5872-4aa0-8e01-770312a00847"
+    )
     private UUID id = UUID.randomUUID();
 
     @JsonProperty("security_test_id")
+    @ApiModelProperty(
+            value = "Id for the securityTest.",
+            example = "6f68fe0b-9002-4851-a329-145c489ccbc6"
+    )
     private UUID securityTestId;
 
     @JsonProperty("context")
+    @ApiModelProperty(
+            value = "Context references the larger scope the security test. In most cases this is equal to the name of the project, team name or a domain.",
+            example = "Feature Team 1"
+    )
     private String context;
 
     @JsonProperty("findings")
@@ -61,12 +71,24 @@ public class Report {
     private List<Target> targets;
 
     @JsonProperty("scanner_type")
+    @ApiModelProperty(
+            value = "The most severe severity in the findings.",
+            example = "nmap"
+    )
     private String scannerType;
 
     @JsonProperty("severity_highest")
+    @ApiModelProperty(
+            value = "The most severe severity in the findings.",
+            example = "HIGH"
+    )
     private Severity highestSeverity;
 
     @JsonProperty("severity_overview")
+    @ApiModelProperty(
+            value = "Gives an overview of the occurrences of different severities in the findings.",
+            example = "{ \"INFORMATIONAL\": 13 }"
+    )
     private Map<Severity, Long> severityOverview;
 
     public Report(){}
