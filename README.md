@@ -26,6 +26,16 @@ To configure the SCB engine specify the following environment variables:
 | SECURECODEBOX_USER_SCANNER            | Default user for scanner services     | default-scanner             |
 | SECURECODEBOX_USER_SCANNER_PW         | Default password for scanner services | AStrongPassword-NotThisOne! |
 
+## Server Configuration
+Additionally all properties defined in scb-engine/src/main/resources/application.yaml can be overwritten via environment variables.
+This allows you to e.g. enable https using:
+
+| Environment Variable                  | Description                           | Example Value               |
+| ------------------------------------- | ------------------------------------- | --------------------------- |
+| SERVER_PORT                           | Defines the server port               | 8443                        |
+| SERVER_SSL_ENABLED                    | Enables http over ssl                 | true                        |
+| SERVER_SSL_KEY_STORE_PASSWORD         | Password to the java keystore         | AStrongPassword-NotThisOne! |
+
 # Development
 
 ## Local setup

@@ -1,7 +1,3 @@
-server:
-  port: 8080
-  ssl.enabled: false
-
 camunda.bpm:
   admin-user:
     id: kermit
