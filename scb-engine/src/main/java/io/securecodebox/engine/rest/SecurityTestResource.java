@@ -19,14 +19,9 @@
 package io.securecodebox.engine.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.securecodebox.constants.DefaultFields;
-import io.securecodebox.model.execution.Target;
+import io.securecodebox.engine.service.ProcessService;
 import io.securecodebox.model.rest.SecurityTest;
-import io.securecodebox.scanprocess.ProcessVariableHelper;
 import io.swagger.annotations.*;
-import org.camunda.bpm.engine.ProcessEngine;
-import org.camunda.bpm.engine.repository.ProcessDefinition;
-import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +31,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Api(value = "security-tests",
         description = "Manage security-tests.",
@@ -49,7 +43,7 @@ public class SecurityTestResource {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityTestResource.class);
 
     @Autowired
-    ProcessEngine engine;
+    ProcessService processService;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -103,16 +97,11 @@ public class SecurityTestResource {
     ) {
 
         for (SecurityTest securityTest : securityTests) {
-            long processCount = engine.getRepositoryService()
-                    .createProcessDefinitionQuery()
-                    .active()
-                    .processDefinitionKey(securityTest.getProcessDefinitionKey())
-                    .latestVersion()
-                    .count();
-
-            if (processCount == 0) {
+            try {
+                this.processService.checkProcessExistence(securityTest.getProcessDefinitionKey());
+            } catch (ProcessService.NonExistentProcessException e) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            } else if (processCount > 1) {
+            } catch (ProcessService.DuplicateProcessDefinitionForKeyException e) {
                 return ResponseEntity.status(HttpStatus.MULTIPLE_CHOICES).build();
             }
         }
@@ -120,17 +109,7 @@ public class SecurityTestResource {
         List<UUID> processInstances = new LinkedList<>();
 
         for (SecurityTest securityTest : securityTests) {
-            Map<String, Object> values = new HashMap<>();
-
-            List<Target> targets = new LinkedList<>();
-            targets.add(securityTest.getTarget());
-
-            values.put(DefaultFields.PROCESS_AUTOMATED.name(), true);
-            values.put(DefaultFields.PROCESS_CONTEXT.name(), securityTest.getContext());
-            values.put(DefaultFields.PROCESS_TARGETS.name(), ProcessVariableHelper.generateObjectValue(targets));
-
-            ProcessInstance instance = engine.getRuntimeService().startProcessInstanceByKey(securityTest.getProcessDefinitionKey(), values);
-            processInstances.add(UUID.fromString(instance.getProcessInstanceId()));
+            processInstances.add(processService.startProcess(securityTest));
         }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(processInstances);
@@ -155,17 +134,7 @@ public class SecurityTestResource {
     })
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<String>> getSecurityTestDefinitions(){
-        List<ProcessDefinition> allProcesses = engine.getRepositoryService()
-                .createProcessDefinitionQuery()
-                .active()
-                .latestVersion()
-                .list();
-
-        List<String> securityTests = allProcesses
-                .stream()
-                .map(ProcessDefinition::getKey)
-                .map(def -> def.replace(SecurityTest.PROCESS_NAME_SUFFIX, ""))
-                .collect(Collectors.toList());
+        List<String> securityTests = processService.getAvailableProcessKeys();
 
         return ResponseEntity.ok(securityTests);
     }
