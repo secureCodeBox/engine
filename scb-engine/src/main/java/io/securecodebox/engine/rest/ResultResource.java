@@ -20,7 +20,6 @@ package io.securecodebox.engine.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
-import io.securecodebox.model.Report;
 import io.securecodebox.model.rest.Result;
 import io.swagger.annotations.*;
 import org.camunda.bpm.engine.ProcessEngine;
@@ -38,7 +37,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Api(value = "results",
-        description = "Gets the results from security-tests.",
+        description = "Gets the results of security-tests.",
         produces = "application/json",
         consumes = "application/json")
 @RestController
@@ -54,7 +53,7 @@ public class ResultResource {
     ObjectMapper objectMapper;
 
     @ApiOperation(value = "Get the results from security-tests.",
-            notes = "Gets one result from a single security-scan.",
+            notes = "Gets one result of a single security-test.",
             authorizations = {
                     @Authorization(value="basicAuth")
             }
@@ -62,7 +61,7 @@ public class ResultResource {
     @ApiResponses(value = {
         @ApiResponse(
             code = 200,
-            message = "Successful fetched a result for a scan-test.",
+            message = "Successful fetched a result for a security-test.",
             response = UUID.class
         ),
         @ApiResponse(
@@ -72,7 +71,7 @@ public class ResultResource {
         ),
         @ApiResponse(
             code = 404,
-            message = "No result found for the scanId.",
+            message = "No result found for the security-test id.",
             response = void.class
         ),
         @ApiResponse(
