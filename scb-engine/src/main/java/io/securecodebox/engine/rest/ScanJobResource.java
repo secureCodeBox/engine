@@ -55,7 +55,7 @@ import java.util.UUID;
  * @author Rüdiger Heins - iteratec GmbH
  * @since 16.04.18
  */
-@Api(description = "Communication endpoints for scanner-wrappers", consumes = "application/json", produces = "application/json")
+@Api(description = "For scanner-wrappers to engine communication", consumes = "application/json", produces = "application/json")
 @RestController
 @RequestMapping(value = "/box/jobs")
 public class ScanJobResource {
