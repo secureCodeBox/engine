@@ -78,7 +78,7 @@ public class ProcessService {
         return allProcesses
                 .stream()
                 .map(ProcessDefinition::getKey)
-                .map(def -> def.replace(SecurityTest.PROCESS_NAME_SUFFIX, ""))
+                .map(SecurityTest::getNameByProcessDefinitionKey)
                 .collect(Collectors.toList());
     }
 }

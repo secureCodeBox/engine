@@ -75,4 +75,8 @@ public class SecurityTest {
     public String getProcessDefinitionKey(){
         return this.getName() + PROCESS_NAME_SUFFIX;
     }
+
+    public static String getNameByProcessDefinitionKey(String processDefinitionKey){
+        return processDefinitionKey.replace(SecurityTest.PROCESS_NAME_SUFFIX, "");
+    }
 }
