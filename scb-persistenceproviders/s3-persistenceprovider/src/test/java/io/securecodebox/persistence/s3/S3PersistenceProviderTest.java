@@ -128,11 +128,6 @@ public class S3PersistenceProviderTest {
         }
 
         @Override
-        public String getTenantId() {
-            return "Keks!";
-        }
-
-        @Override
         public String getScannerType() {
             return "TEST";
         }
@@ -159,7 +154,7 @@ public class S3PersistenceProviderTest {
         File file = s3PersistenceProvider.writeReportToFile(report);
         String content = FileUtils.readFileToString(file, "UTF-8");
         assertEquals(
-                "{\"execution\":{\"id\":\"23701e7b-c9ec-46c9-aae8-57f5520f6c6c\",\"context\":\"KEKSE!!\",\"automated\":false,\"scanner_type\":\"TEST\",\"tenant_id\":\"Keks!\",\"findings\":[{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"BAD_TEST_FINDIG_DESC\",\"severity\":\"HIGH\",\"false_positive\":false}]},\"findings\":[{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"BAD_TEST_FINDIG_DESC\",\"severity\":\"HIGH\",\"false_positive\":false},{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"BAD_TEST_FINDIG_DESC\",\"severity\":\"HIGH\",\"false_positive\":false}],\"severity_highest\":\"HIGH\",\"severity_overview\":{\"HIGH\":4},\"report_id\":\"281ccc0f-a933-4106-a3d3-209954e6305e\"}",
+                "{\"execution\":{\"id\":\"23701e7b-c9ec-46c9-aae8-57f5520f6c6c\",\"context\":\"KEKSE!!\",\"automated\":false,\"scanner_type\":\"TEST\",\"findings\":[{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"BAD_TEST_FINDIG_DESC\",\"severity\":\"HIGH\",\"false_positive\":false}]},\"findings\":[{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"BAD_TEST_FINDIG_DESC\",\"severity\":\"HIGH\",\"false_positive\":false},{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"BAD_TEST_FINDIG_DESC\",\"severity\":\"HIGH\",\"false_positive\":false}],\"severity_highest\":\"HIGH\",\"severity_overview\":{\"HIGH\":4},\"report_id\":\"281ccc0f-a933-4106-a3d3-209954e6305e\"}",
                 content);
     }
 
