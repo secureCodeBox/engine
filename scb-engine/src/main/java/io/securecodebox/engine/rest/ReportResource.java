@@ -18,22 +18,26 @@
  */
 package io.securecodebox.engine.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.securecodebox.constants.DefaultFields;
+import io.securecodebox.engine.service.ReportService;
 import io.securecodebox.model.rest.Report;
-import io.swagger.annotations.*;
-import org.camunda.bpm.engine.ProcessEngine;
-import org.camunda.bpm.engine.history.HistoricVariableInstance;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 
 @Api(value = "reports",
@@ -47,69 +51,53 @@ public class ReportResource {
     private static final Logger LOG = LoggerFactory.getLogger(ReportResource.class);
 
     @Autowired
-    ProcessEngine engine;
-
-    @Autowired
-    ObjectMapper objectMapper;
+    private ReportService reportService;
 
     @ApiOperation(value = "Get the report of security-tests.",
             notes = "Gets one report of a single security-test.",
             authorizations = {
-                    @Authorization(value="basicAuth")
+                    @Authorization(value = "basicAuth")
             }
     )
     @ApiResponses(value = {
-        @ApiResponse(
-            code = 200,
-            message = "Successful fetched a report for a security-test.",
-            response = Report.class
-        ),
-        @ApiResponse(
-            code = 400,
-            message = "Incomplete or inconsistent Request",
-            response = void.class
-        ),
-        @ApiResponse(
-            code = 401,
-            message = "Unauthenticated",
-            response = void.class
-        ),
-        @ApiResponse(
-            code = 404,
-            message = "No report found for the security-test id.",
-            response = void.class
-        ),
-        @ApiResponse(
-            code = 500,
-            message = "Unknown technical error occurred.",
-            response = void.class
-        )
+            @ApiResponse(
+                    code = 200,
+                    message = "Successful fetched a report for a security-test.",
+                    response = Report.class
+            ),
+            @ApiResponse(
+                    code = 400,
+                    message = "Incomplete or inconsistent Request",
+                    response = void.class
+            ),
+            @ApiResponse(
+                    code = 401,
+                    message = "Unauthenticated",
+                    response = void.class
+            ),
+            @ApiResponse(
+                    code = 404,
+                    message = "No report found for the security-test id.",
+                    response = void.class
+            ),
+            @ApiResponse(
+                    code = 500,
+                    message = "Unknown technical error occurred.",
+                    response = void.class
+            )
     })
     @RequestMapping(method = RequestMethod.GET, value = "/{securityTestId}")
     public ResponseEntity<Report> getReport(
             @Valid @PathVariable @ApiParam(value = "UUID of the security-test for which the report should be fetched.", required = true) UUID securityTestId
     ) {
-
-        List<HistoricVariableInstance> variables = engine.getHistoryService()
-                .createHistoricVariableInstanceQuery()
-                .variableName(DefaultFields.PROCESS_REPORT.name())
-                .processInstanceId(securityTestId.toString())
-                .list();
-
-        if(variables.size() != 1){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        String reportDoubilySerialized = (String) variables.get(0).getValue();
-
         try {
-            String reportString = objectMapper.readValue(reportDoubilySerialized, String.class);
-            Report report = objectMapper.readValue(reportString, Report.class);
+            Report report = reportService.getReport(securityTestId);
             return ResponseEntity.ok(report);
+        } catch (ReportService.ReportNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (IOException e) {
-            LOG.error("Could not deserialize security-test report. {}", e);
+            LOG.error("Could not deserialize report. {}", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 }
