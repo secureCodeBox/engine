@@ -32,7 +32,7 @@ import java.util.UUID;
  * @author Rüdiger Heins - iteratec GmbH
  * @since 08.03.18
  */
-@JsonPropertyOrder({ "id", "context", "automated", "scanners" })
+@JsonPropertyOrder({ "id", "context", "automated", "scanners", "scanner_type", "tenant_id" })
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public interface ScanProcessExecution {
 

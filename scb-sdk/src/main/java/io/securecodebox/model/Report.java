@@ -114,4 +114,7 @@ public class Report {
     public String toString() {
         return "Report{" + "execution=" + execution + '}';
     }
+
+    public Report() {
+    }
 }
