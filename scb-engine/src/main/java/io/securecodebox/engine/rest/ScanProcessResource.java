@@ -55,6 +55,8 @@ import java.util.UUID;
  *
  * @author Rüdiger Heins - iteratec GmbH
  * @since 23.04.18
+ *
+ * @deprecated This resource was deprecated in favor of the the {@link io.securecodebox.engine.rest.SecurityTestResource}, as this resource is conceptually to closely linked to the concept of a camunda processes.
  */
 
 @Api(description = "Scan Process Resource", produces = "application/json", consumes = "application/json")
