@@ -117,6 +117,7 @@ public class ScanJobResource {
     @ApiResponses(
             value = { @ApiResponse(code = 200, message = "Successful delivery of the result.", response = void.class),
                     @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
+                    @ApiResponse(code = 401, message = "Unauthenticated", response = void.class),
                     @ApiResponse(code = 404, message = "Unable to find jobId"),
                     @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
@@ -156,6 +157,7 @@ public class ScanJobResource {
     @ApiResponses(
             value = { @ApiResponse(code = 200, message = "Successful delivery of the failure.", response = void.class),
                     @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
+                    @ApiResponse(code = 401, message = "Unauthenticated", response = void.class),
                     @ApiResponse(code = 404, message = "Unable to find jobId"),
                     @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
