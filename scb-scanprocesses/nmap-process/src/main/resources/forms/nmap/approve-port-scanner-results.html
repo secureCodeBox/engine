@@ -90,7 +90,7 @@
                         <th>State:</th>
                     </tr>
                     <tr class="danger" ng-repeat="port in host">
-                        <td>{{ address }}</td>
+                        <td>{{ address }} ({{ port.attributes.ip_address }})</td></td>
                         <td>{{ port.category === 'Open Port' ? port.attributes.port : '' }}</td>
                         <td>{{ port.category === 'Open Port' ? port.attributes.service : port.name}}</td>
                         <td>{{ port.category === 'Open Port' ? port.attributes.protocol : '' }}</td>
