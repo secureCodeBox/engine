@@ -3,6 +3,16 @@
 # mvn spring-boot:run -Pdev
 spring.profiles.active: ${activatedProfiles}
 
+# Server configuration
+# These properties can be overwritten by environment variables to enable https
+server.port: 8080
+server.ssl:
+    enabled: false
+    key-store-password:
+    key-store: keystore.p12
+    key-store-type: PKCS12
+    key-alias: scb-engine
+
 camunda.bpm:
   webapp.index-redirect-enabled: true
   authorization.enabled: true
