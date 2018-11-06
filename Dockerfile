@@ -29,6 +29,7 @@ WORKDIR /scb-engine
 COPY dockerfiles/init.sh .
 RUN chmod +x ./init.sh
 
+EXPOSE 8080
 EXPOSE 8443
 
 LABEL org.opencontainers.image.title="secureCodeBox Engine" \
