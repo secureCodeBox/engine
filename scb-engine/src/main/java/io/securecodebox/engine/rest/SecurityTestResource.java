@@ -20,6 +20,7 @@ package io.securecodebox.engine.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.engine.service.SecurityTestService;
+import io.securecodebox.model.securitytest.SecurityTest;
 import io.securecodebox.model.securitytest.SecurityTestConfiguration;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -113,5 +114,48 @@ public class SecurityTestResource {
         }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(processInstances);
+    }
+
+    @ApiOperation(value = "Returns the state of a securityTests.",
+            notes = "Currently only supports finished securityTests.",
+            authorizations = {
+                    @Authorization(value="basicAuth")
+            }
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    code = 200,
+                    message = "Successful fetched the complete securityTest.",
+                    response = SecurityTest.class
+            ),
+            @ApiResponse(
+                    code = 204,
+                    message = "SecurityTest hasn't finished yet.",
+                    response = void.class
+            ),
+            @ApiResponse(
+                    code = 400,
+                    message = "Incomplete or inconsistent Request."
+            ),
+            @ApiResponse(
+                    code = 401,
+                    message = "Unauthenticated",
+                    response = void.class
+            ),
+            @ApiResponse(
+                    code = 404,
+                    message = "Could not find definition for specified securityTest.",
+                    response = void.class
+            ),
+            @ApiResponse(
+                    code = 500,
+                    message = "Unknown technical error occurred."
+            )
+    })
+    @RequestMapping(method = RequestMethod.GET, value = "/{id}")
+    public ResponseEntity<SecurityTest> getSecurityTest(
+            @Valid @PathVariable @ApiParam(value = "UUID of the security-test for which the report should be fetched.", required = true) UUID id
+    ) {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(null);
     }
 }
