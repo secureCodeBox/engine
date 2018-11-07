@@ -19,7 +19,7 @@
 package io.securecodebox.engine.rest;
 
 import io.securecodebox.engine.service.ProcessService;
-import io.securecodebox.model.rest.SecurityTest;
+import io.securecodebox.model.securitytest.SecurityTestConfiguration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -29,7 +29,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,31 +47,11 @@ public class SecurityTestResourceTest {
     @Mock
     ProcessService processServiceDummy;
 
-    // security-test list endpoint
-
-    @Test
-    public void shouldReturnAllAvailableProcessKeys() throws Exception {
-        given(processServiceDummy.getAvailableProcessKeys()).willReturn(Arrays.asList("foo", "bar"));
-        ResponseEntity<List<String>> response = classUnderTest.getSecurityTestDefinitions();
-
-        assertEquals(Arrays.asList("foo", "bar"), response.getBody());
-    }
-
-    @Test
-    public void shouldReturnAnEmptyListIfNoProcessesAreAvailable() throws Exception {
-        given(processServiceDummy.getAvailableProcessKeys()).willReturn(new LinkedList<>());
-        ResponseEntity<List<String>> response = classUnderTest.getSecurityTestDefinitions();
-
-        assertEquals(new LinkedList<>(), response.getBody());
-    }
-
-    // start security-test endpoint
-
     @Test
     public void shouldReturnAnErrorWhenNoSuchProcessIsAvailible() throws Exception {
         willThrow(new ProcessService.NonExistentProcessException()).given(processServiceDummy).checkProcessExistence(any());
 
-        SecurityTest secTest = new SecurityTest();
+        SecurityTestConfiguration secTest = new SecurityTestConfiguration();
         secTest.setName("this-process-will-never-exist");
 
         ResponseEntity<List<UUID>> response = classUnderTest.startSecurityTests(Arrays.asList(secTest));
@@ -84,7 +63,7 @@ public class SecurityTestResourceTest {
     public void shouldReturnAMultipleChoicesErrorIfThereAreMultipleProcessesForTheSecurityTestName() throws Exception {
         willThrow(new ProcessService.DuplicateProcessDefinitionForKeyException()).given(processServiceDummy).checkProcessExistence(any());
 
-        SecurityTest secTest = new SecurityTest();
+        SecurityTestConfiguration secTest = new SecurityTestConfiguration();
         secTest.setName("this-process-key-has-multiple-implementations");
 
         ResponseEntity<List<UUID>> response = classUnderTest.startSecurityTests(Arrays.asList(secTest));
@@ -96,7 +75,7 @@ public class SecurityTestResourceTest {
     public void shouldStartAProcessAndReturnItsUUID() throws Exception {
         given(processServiceDummy.startProcess(any())).willReturn(UUID.fromString("47bd8786-84f2-49ed-9ca9-20ed22be532b"));
 
-        SecurityTest secTest = new SecurityTest();
+        SecurityTestConfiguration secTest = new SecurityTestConfiguration();
         secTest.setName("this-process-is-ok");
 
         ResponseEntity<List<UUID>> response = classUnderTest.startSecurityTests(Arrays.asList(secTest));

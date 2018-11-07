@@ -20,7 +20,7 @@ package io.securecodebox.engine.service;
 
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.execution.Target;
-import io.securecodebox.model.rest.SecurityTest;
+import io.securecodebox.model.securitytest.SecurityTestConfiguration;
 import io.securecodebox.scanprocess.ProcessVariableHelper;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
@@ -54,7 +54,7 @@ public class ProcessService {
         }
     }
 
-    public UUID startProcess(SecurityTest securityTest){
+    public UUID startProcess(SecurityTestConfiguration securityTest){
         Map<String, Object> values = new HashMap<>();
 
         List<Target> targets = new LinkedList<>();
@@ -78,7 +78,7 @@ public class ProcessService {
         return allProcesses
                 .stream()
                 .map(ProcessDefinition::getKey)
-                .map(SecurityTest::getNameByProcessDefinitionKey)
+                .map(SecurityTestConfiguration::getNameByProcessDefinitionKey)
                 .collect(Collectors.toList());
     }
 }

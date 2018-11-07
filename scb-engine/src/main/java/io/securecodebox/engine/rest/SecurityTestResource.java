@@ -20,7 +20,7 @@ package io.securecodebox.engine.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.engine.service.ProcessService;
-import io.securecodebox.model.rest.SecurityTest;
+import io.securecodebox.model.securitytest.SecurityTestConfiguration;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,12 +32,12 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.*;
 
-@Api(value = "security-tests",
-        description = "Manage security-tests.",
+@Api(value = "securityTests",
+        description = "Manage securityTests.",
         produces = "application/json",
         consumes = "application/json")
 @RestController
-@RequestMapping(value = "/box/security-tests")
+@RequestMapping(value = "/box/securityTests")
 public class SecurityTestResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityTestResource.class);
@@ -48,8 +48,8 @@ public class SecurityTestResource {
     @Autowired
     ObjectMapper objectMapper;
 
-    @ApiOperation(value = "Starts new security tests.",
-                    notes = "Starts new security tests, based on a given list of security test configurations.",
+    @ApiOperation(value = "Starts new securityTests.",
+                    notes = "Starts new securityTests, based on a given list of securityTest configurations.",
                     authorizations = {
                             @Authorization(value="basicAuth")
                     }
@@ -57,13 +57,13 @@ public class SecurityTestResource {
     @ApiResponses(value = {
             @ApiResponse(
                     code = 201,
-                    message = "Successful created a new process returns the process id.",
+                    message = "Successful created a new securityTest returns the process id.",
                     response = UUID.class,
                     responseContainer = "List"
             ),
             @ApiResponse(
                     code = 300,
-                    message = "For some reason multiple processes could be addressed by the given processKey.",
+                    message = "For some reason multiple securityTest definitions could be addressed by the given securityTest name.",
                     response = void.class
             ),
             @ApiResponse(
@@ -77,7 +77,7 @@ public class SecurityTestResource {
             ),
             @ApiResponse(
                     code = 404,
-                    message = "Could not find definition for specified security test.",
+                    message = "Could not find definition for specified securityTest.",
                     response = void.class
             ),
             @ApiResponse(
@@ -90,13 +90,13 @@ public class SecurityTestResource {
             @Valid
             @RequestBody
             @ApiParam(
-                value = "A list with all security-test which should be performed.",
+                value = "A list with all securityTest which should be performed.",
                 required = true
             )
-            List<SecurityTest> securityTests
+            List<SecurityTestConfiguration> securityTests
     ) {
 
-        for (SecurityTest securityTest : securityTests) {
+        for (SecurityTestConfiguration securityTest : securityTests) {
             try {
                 this.processService.checkProcessExistence(securityTest.getProcessDefinitionKey());
             } catch (ProcessService.NonExistentProcessException e) {
@@ -108,34 +108,10 @@ public class SecurityTestResource {
 
         List<UUID> processInstances = new LinkedList<>();
 
-        for (SecurityTest securityTest : securityTests) {
+        for (SecurityTestConfiguration securityTest : securityTests) {
             processInstances.add(processService.startProcess(securityTest));
         }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(processInstances);
-    }
-
-    @ApiOperation(value = "Lists all available security-test definitions.",
-            authorizations = {
-                    @Authorization(value="basicAuth")
-            }
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    code = 200,
-                    message = "Successfully listed all available security-test definitions.",
-                    response = UUID.class,
-                    responseContainer = "List"
-            ),
-            @ApiResponse(
-                    code = 500,
-                    message = "Unknown technical error occurred."
-            )
-    })
-    @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<String>> getSecurityTestDefinitions(){
-        List<String> securityTests = processService.getAvailableProcessKeys();
-
-        return ResponseEntity.ok(securityTests);
     }
 }
