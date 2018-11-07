@@ -32,29 +32,29 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
-public class ProcessService {
-    public static class NonExistentProcessException extends Exception{}
-    public static class DuplicateProcessDefinitionForKeyException extends Exception{}
+public class SecurityTestService {
+    public static class NonExistentSecurityTestDefinitionException extends Exception{}
+    public static class DuplicateSecurityTestDefinitionForKeyException extends Exception{}
 
     @Autowired
     ProcessEngine engine;
 
-    public void checkProcessExistence(String processKey) throws NonExistentProcessException, DuplicateProcessDefinitionForKeyException{
+    public void checkSecurityTestDefinitionExistence(String key) throws NonExistentSecurityTestDefinitionException, DuplicateSecurityTestDefinitionForKeyException {
         long processCount = engine.getRepositoryService()
                 .createProcessDefinitionQuery()
                 .active()
-                .processDefinitionKey(processKey)
+                .processDefinitionKey(key)
                 .latestVersion()
                 .count();
 
         if (processCount == 0) {
-            throw new NonExistentProcessException();
+            throw new NonExistentSecurityTestDefinitionException();
         } else if (processCount > 1) {
-            throw new DuplicateProcessDefinitionForKeyException();
+            throw new DuplicateSecurityTestDefinitionForKeyException();
         }
     }
 
-    public UUID startProcess(SecurityTestConfiguration securityTest){
+    public UUID startSecurityTest(SecurityTestConfiguration securityTest){
         Map<String, Object> values = new HashMap<>();
 
         List<Target> targets = new LinkedList<>();
@@ -68,7 +68,7 @@ public class ProcessService {
         return UUID.fromString(instance.getProcessInstanceId());
     }
 
-    public List<String> getAvailableProcessKeys(){
+    public List<String> getAvailableSecurityTestDefinitionNames(){
         List<ProcessDefinition> allProcesses = engine.getRepositoryService()
                 .createProcessDefinitionQuery()
                 .active()

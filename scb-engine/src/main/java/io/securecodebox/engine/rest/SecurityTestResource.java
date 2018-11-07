@@ -19,7 +19,7 @@
 package io.securecodebox.engine.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.securecodebox.engine.service.ProcessService;
+import io.securecodebox.engine.service.SecurityTestService;
 import io.securecodebox.model.securitytest.SecurityTestConfiguration;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class SecurityTestResource {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityTestResource.class);
 
     @Autowired
-    ProcessService processService;
+    SecurityTestService securityTestService;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -98,10 +98,10 @@ public class SecurityTestResource {
 
         for (SecurityTestConfiguration securityTest : securityTests) {
             try {
-                this.processService.checkProcessExistence(securityTest.getProcessDefinitionKey());
-            } catch (ProcessService.NonExistentProcessException e) {
+                this.securityTestService.checkSecurityTestDefinitionExistence(securityTest.getProcessDefinitionKey());
+            } catch (SecurityTestService.NonExistentSecurityTestDefinitionException e) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            } catch (ProcessService.DuplicateProcessDefinitionForKeyException e) {
+            } catch (SecurityTestService.DuplicateSecurityTestDefinitionForKeyException e) {
                 return ResponseEntity.status(HttpStatus.MULTIPLE_CHOICES).build();
             }
         }
@@ -109,7 +109,7 @@ public class SecurityTestResource {
         List<UUID> processInstances = new LinkedList<>();
 
         for (SecurityTestConfiguration securityTest : securityTests) {
-            processInstances.add(processService.startProcess(securityTest));
+            processInstances.add(securityTestService.startSecurityTest(securityTest));
         }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(processInstances);

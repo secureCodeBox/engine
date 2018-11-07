@@ -18,7 +18,7 @@
  */
 package io.securecodebox.engine.rest;
 
-import io.securecodebox.engine.service.ProcessService;
+import io.securecodebox.engine.service.SecurityTestService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -39,11 +39,11 @@ public class SecurityTestDefinitionsResourceTest {
     SecurityTestDefinitionResource classUnderTest;
 
     @Mock
-    ProcessService processServiceDummy;
+    SecurityTestService securityTestServiceDummy;
 
     @Test
     public void shouldReturnAllAvailableProcessKeys() throws Exception {
-        given(processServiceDummy.getAvailableProcessKeys()).willReturn(Arrays.asList("foo", "bar"));
+        given(securityTestServiceDummy.getAvailableSecurityTestDefinitionNames()).willReturn(Arrays.asList("foo", "bar"));
         ResponseEntity<List<String>> response = classUnderTest.getSecurityTestDefinitions();
 
         assertEquals(Arrays.asList("foo", "bar"), response.getBody());
@@ -51,7 +51,7 @@ public class SecurityTestDefinitionsResourceTest {
 
     @Test
     public void shouldReturnAnEmptyListIfNoProcessesAreAvailable() throws Exception {
-        given(processServiceDummy.getAvailableProcessKeys()).willReturn(new LinkedList<>());
+        given(securityTestServiceDummy.getAvailableSecurityTestDefinitionNames()).willReturn(new LinkedList<>());
         ResponseEntity<List<String>> response = classUnderTest.getSecurityTestDefinitions();
 
         assertEquals(new LinkedList<>(), response.getBody());

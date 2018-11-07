@@ -18,7 +18,7 @@
  */
 package io.securecodebox.engine.rest;
 
-import io.securecodebox.engine.service.ProcessService;
+import io.securecodebox.engine.service.SecurityTestService;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +38,7 @@ import java.util.UUID;
 public class SecurityTestDefinitionResource {
 
     @Autowired
-    ProcessService processService;
+    SecurityTestService securityTestService;
 
     @ApiOperation(value = "Lists all available securityTest definitions.",
             authorizations = {
@@ -59,7 +59,7 @@ public class SecurityTestDefinitionResource {
     })
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<String>> getSecurityTestDefinitions(){
-        List<String> securityTests = processService.getAvailableProcessKeys();
+        List<String> securityTests = securityTestService.getAvailableSecurityTestDefinitionNames();
 
         return ResponseEntity.ok(securityTests);
     }

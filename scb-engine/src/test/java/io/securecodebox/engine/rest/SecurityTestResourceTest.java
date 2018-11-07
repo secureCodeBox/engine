@@ -18,7 +18,7 @@
  */
 package io.securecodebox.engine.rest;
 
-import io.securecodebox.engine.service.ProcessService;
+import io.securecodebox.engine.service.SecurityTestService;
 import io.securecodebox.model.securitytest.SecurityTestConfiguration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,11 +45,11 @@ public class SecurityTestResourceTest {
     SecurityTestResource classUnderTest;
 
     @Mock
-    ProcessService processServiceDummy;
+    SecurityTestService securityTestServiceDummy;
 
     @Test
     public void shouldReturnAnErrorWhenNoSuchProcessIsAvailible() throws Exception {
-        willThrow(new ProcessService.NonExistentProcessException()).given(processServiceDummy).checkProcessExistence(any());
+        willThrow(new SecurityTestService.NonExistentSecurityTestDefinitionException()).given(securityTestServiceDummy).checkSecurityTestDefinitionExistence(any());
 
         SecurityTestConfiguration secTest = new SecurityTestConfiguration();
         secTest.setName("this-process-will-never-exist");
@@ -61,7 +61,7 @@ public class SecurityTestResourceTest {
 
     @Test
     public void shouldReturnAMultipleChoicesErrorIfThereAreMultipleProcessesForTheSecurityTestName() throws Exception {
-        willThrow(new ProcessService.DuplicateProcessDefinitionForKeyException()).given(processServiceDummy).checkProcessExistence(any());
+        willThrow(new SecurityTestService.DuplicateSecurityTestDefinitionForKeyException()).given(securityTestServiceDummy).checkSecurityTestDefinitionExistence(any());
 
         SecurityTestConfiguration secTest = new SecurityTestConfiguration();
         secTest.setName("this-process-key-has-multiple-implementations");
@@ -73,7 +73,7 @@ public class SecurityTestResourceTest {
 
     @Test
     public void shouldStartAProcessAndReturnItsUUID() throws Exception {
-        given(processServiceDummy.startProcess(any())).willReturn(UUID.fromString("47bd8786-84f2-49ed-9ca9-20ed22be532b"));
+        given(securityTestServiceDummy.startSecurityTest(any())).willReturn(UUID.fromString("47bd8786-84f2-49ed-9ca9-20ed22be532b"));
 
         SecurityTestConfiguration secTest = new SecurityTestConfiguration();
         secTest.setName("this-process-is-ok");
@@ -83,6 +83,6 @@ public class SecurityTestResourceTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(Arrays.asList(UUID.fromString("47bd8786-84f2-49ed-9ca9-20ed22be532b")), response.getBody());
 
-        verify(processServiceDummy, times(1)).startProcess(secTest);
+        verify(securityTestServiceDummy, times(1)).startSecurityTest(secTest);
     }
 }
