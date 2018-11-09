@@ -162,6 +162,24 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
         return (String) execution.getVariable(DefaultFields.PROCESS_SCANNER_TYPE.name());
     }
 
+
+    /**
+     * Same as the Name of the securityTest. e.g. nmap
+     */
+    @Override
+    public String getName(){
+        return (String) execution.getVariable(DefaultFields.PROCESS_NAME.name());
+    }
+
+
+    /**
+     * Same as the Name of the securityTest. e.g. nmap
+     */
+    @Override
+    public void setName(String name) {
+        execution.setVariable(DefaultFields.PROCESS_NAME.name(), name);
+    }
+
     @Override
     public void saveReportToVariable(Report report) throws JsonProcessingException{
         ObjectMapper objectMapper = new ObjectMapper();

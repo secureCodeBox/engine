@@ -22,8 +22,8 @@ package io.securecodebox.persistence.elasticsearch;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.securecodebox.model.rest.Report;
 import io.securecodebox.model.findings.Finding;
+import io.securecodebox.model.securitytest.SecurityTest;
 import io.securecodebox.persistence.PersistenceException;
 import io.securecodebox.persistence.PersistenceProvider;
 import org.apache.http.HttpHost;
@@ -58,7 +58,7 @@ import java.time.Instant;
 import java.util.*;
 
 /**
- * This component is responsible for persisting the scan-process results (reports) in elasticsearch (ES).
+ * This component is responsible for persisting the scan-process results in elasticsearch (ES).
  */
 @Component
 @ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "elasticsearch")
@@ -70,8 +70,8 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     private String indexPrefix;
     @Value("${securecodebox.persistence.elasticsearch.index.pattern:yyyy-MM-dd}")
     private String indexDatePattern;
-    @Value("${securecodebox.persistence.elasticsearch.index.type.report:report}")
-    private String indexTypeNameForReports;
+    @Value("${securecodebox.persistence.elasticsearch.index.type.security_test:security_test}")
+    private String indexTypeNameForSecurityTests;
     @Value("${securecodebox.persistence.elasticsearch.index.type.finding:finding_entry}")
     private String indexTypeNameForFindings;
 
@@ -141,14 +141,14 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     }
 
     @Override
-    public void persist(Report report) throws PersistenceException{
+    public void persist(SecurityTest securityTest) throws PersistenceException{
 
-        if (report == null) {
-            LOG.warn("The given Report is null, nothing to persist.");
+        if (securityTest == null) {
+            LOG.warn("The given SecurityTest is null, nothing to persist.");
             return;
         }
 
-        this.context = report.getContext();
+        this.context = securityTest.getContext();
 
         if (!initialized || !indexExists(getElasticIndexName())) {
             init();
@@ -171,12 +171,13 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                 /*
                 This is typically executed only once because we create random UUIDs which are very unlikely to ever be
                 the same (if not impossible)
-                Anyway, we want to make sure that we don't save the same Report Id twice
+                Anyway, we want to make sure that we don't save the same SecurityTest Id twice
                  */
                 while (uuidAlreadyExists) {
                     SearchRequest searchRequest = new SearchRequest();
                     SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-                    searchSourceBuilder.query(QueryBuilders.matchQuery("report_id", report.getId()));
+                    searchSourceBuilder.query(QueryBuilders.matchQuery("id", securityTest.getId()));
+                    searchSourceBuilder.query(QueryBuilders.matchQuery("type", indexTypeNameForSecurityTests));
                     searchRequest.source(searchSourceBuilder);
                     SearchResponse searchResponse = highLevelClient.search(searchRequest);
                     LOG.debug("Search Response Status: " + searchResponse.status());
@@ -188,7 +189,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
                     LOG.debug("SearchResponse from UUID Search: " + searchResponse);
                     if (searchResponse.getHits().totalHits > 0) {
-                        report.setId(UUID.randomUUID());
+                        securityTest.setId(UUID.randomUUID());
                         uuidAlreadyExists = true;
                     } else {
                         uuidAlreadyExists = false;
@@ -198,26 +199,25 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                 String dateTimeFormatToPersist = "yyyy-MM-dd'T'HH:mm:ss";
                 BulkRequest bulkRequest = new BulkRequest();
 
-                Map<String, Object> reportAsMap = serializeAndRemove(report, "findings", "raw_findings");
-                reportAsMap.put("type", indexTypeNameForReports);
-                reportAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
+                Map<String, Object> securityTestAsMap = serializeAndRemove(securityTest, "report");
+                securityTestAsMap.put("type", indexTypeNameForSecurityTests);
+                securityTestAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
 
                 LOG.debug("Timestamp: " + new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
 
-                IndexRequest reportIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
-                reportIndexRequest.source(objectMapper.writeValueAsString(reportAsMap), XContentType.JSON);
+                IndexRequest securityTestIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
+                securityTestIndexRequest.source(objectMapper.writeValueAsString(securityTestAsMap), XContentType.JSON);
 
-                // Persist the execution as report document in elasticsearch
-                bulkRequest.add(reportIndexRequest);
+                // Persist the execution as securityTest document in elasticsearch
+                bulkRequest.add(securityTestIndexRequest);
 
                 // Persist each finding as a separate document in elasticsearch (with a lightweight object)
-                for (Finding f : report.getFindings()) {
+                for (Finding f : securityTest.getReport().getFindings()) {
 
                     Map<String, Object> findingAsMap = serializeAndRemove(f);
                     findingAsMap.put("type", indexTypeNameForFindings);
-                    findingAsMap.put("report_id", report.getId());
-                    findingAsMap.put("security_test_id", report.getSecurityTestId());
-                    findingAsMap.put("scanner_type", report.getScannerType());
+                    findingAsMap.put("security_test_id", securityTest.getId());
+                    findingAsMap.put("security_test_name", securityTest.getName());
                     findingAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
 
                     IndexRequest findingIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
@@ -225,7 +225,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     bulkRequest.add(findingIndexRequest);
                 }
 
-                LOG.info("Persisting Report and Findings...");
+                LOG.info("Persisting SecurityTest and Findings...");
                 highLevelClient.bulkAsync(bulkRequest, new ActionListener<BulkResponse>() {
                     @Override
                     public void onResponse(BulkResponse bulkItemResponses) {

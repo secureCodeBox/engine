@@ -19,6 +19,7 @@
 package io.securecodebox.persistence;
 
 import io.securecodebox.model.rest.Report;
+import io.securecodebox.model.securitytest.SecurityTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -31,13 +32,13 @@ public class EmptyPersistenceProvider implements PersistenceProvider {
     private static final Logger LOG = LoggerFactory.getLogger(EmptyPersistenceProvider.class);
 
     @Override
-    public void persist(Report report) {
+    public void persist(SecurityTest securityTest) {
 
-        if (report == null) {
-            LOG.warn("Report is null, nothing to persist.");
+        if (securityTest == null) {
+            LOG.warn("SecurityTest is null, nothing to persist.");
         } else {
             LOG.warn(
-                    "This Report will not be persisted, because you have no persistence provider configured in your application.yml");
+                    "This SecurityTest will not be persisted, because you have no persistence provider configured in your application.yml");
         }
 
         return;

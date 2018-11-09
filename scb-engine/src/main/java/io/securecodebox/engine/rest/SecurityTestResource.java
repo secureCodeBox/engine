@@ -129,9 +129,9 @@ public class SecurityTestResource {
                     response = SecurityTest.class
             ),
             @ApiResponse(
-                    code = 204,
-                    message = "SecurityTest hasn't finished yet.",
-                    response = void.class
+                    code = 206,
+                    message = "Partial result as the SecurityTest hasn't finished yet.",
+                    response = SecurityTest.class
             ),
             @ApiResponse(
                     code = 400,
@@ -156,6 +156,18 @@ public class SecurityTestResource {
     public ResponseEntity<SecurityTest> getSecurityTest(
             @Valid @PathVariable @ApiParam(value = "UUID of the security-test for which the report should be fetched.", required = true) UUID id
     ) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(null);
+        try {
+            SecurityTest securityTest = securityTestService.getCompletedSecurityTest(id);
+
+            if(securityTest.isFinished()){
+                return ResponseEntity.status(HttpStatus.OK).body(securityTest);
+            }
+            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT).body(securityTest);
+
+        } catch (SecurityTestService.SecurityTestNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (SecurityTestService.SecurityTestErroredException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

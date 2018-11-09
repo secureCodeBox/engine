@@ -19,12 +19,12 @@
 
 package io.securecodebox.persistence;
 
-import io.securecodebox.model.rest.Report;
+import io.securecodebox.model.securitytest.SecurityTest;
 
 /**
  * A general interface representing a persistence service to store and retrieve content objects.
  */
 public interface PersistenceProvider {
 
-    void persist(Report report) throws PersistenceException;
+    void persist(SecurityTest securityTest) throws PersistenceException;
 }

@@ -26,20 +26,6 @@ public class ReportResourceTest {
     ReportService reportServiceServiceDummy;
 
     @Test
-    public void shouldReturnAReportIfFound() throws Exception {
-        Report report = new Report();
-        report.setContext("Foobar");
-        UUID id = UUID.fromString("82896999-1bf8-4824-aeb2-f87b991cd773");
-        report.setSecurityTestId(id);
-
-        given(reportServiceServiceDummy.getReport(any())).willReturn(report);
-        ResponseEntity<Report> response = classUnderTest.getReport(id);
-
-        assertEquals("Foobar", response.getBody().getContext());
-        assertEquals(id, response.getBody().getSecurityTestId());
-    }
-
-    @Test
     public void shouldReturnA404IfReportWasntFound() throws Exception {
         given(reportServiceServiceDummy.getReport(any())).willThrow(new ReportService.ReportNotFoundException());
         ResponseEntity<Report> response = classUnderTest.getReport(UUID.randomUUID());

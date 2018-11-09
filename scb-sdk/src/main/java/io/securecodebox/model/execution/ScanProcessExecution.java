@@ -99,6 +99,12 @@ public interface ScanProcessExecution {
     @JsonProperty("scanner_type")
     public abstract String getScannerType();
 
+    @JsonProperty("name")
+    public String getName();
+
+    @JsonProperty("name")
+    public void setName(String name);
+
     @JsonIgnore
     void saveReportToVariable(Report report) throws JsonProcessingException;
 }

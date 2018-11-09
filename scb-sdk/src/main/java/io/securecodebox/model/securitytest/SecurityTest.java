@@ -19,11 +19,37 @@
 package io.securecodebox.model.securitytest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.securecodebox.model.execution.ScanProcessExecution;
+import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.rest.Report;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.util.UUID;
 
 public class SecurityTest extends AbstractSecurityTest {
     @JsonProperty
+    UUID id;
+
+    @JsonProperty
     Report report;
+
+    public SecurityTest() {}
+
+    public SecurityTest(UUID id, String context, String name, Target target, Report report) {
+        this.id = id;
+        this.context = context;
+        this.name = name;
+        this.target = target;
+        this.report = report;
+    }
+
+    public SecurityTest(ScanProcessExecution execution){
+        this.id = execution.getId();
+        this.context = execution.getContext();
+        this.name = execution.getName();
+        this.target = execution.getTargets().get(0);
+        this.report = new Report(execution);
+    }
 
     public Report getReport() {
         return report;
@@ -31,5 +57,22 @@ public class SecurityTest extends AbstractSecurityTest {
 
     public void setReport(Report report) {
         this.report = report;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    @JsonProperty("finished")
+    @ApiModelProperty(
+            value = "Indicates weather the process was completed.",
+            example = "true"
+    )
+    public boolean isFinished(){
+        return this.report != null;
     }
 }

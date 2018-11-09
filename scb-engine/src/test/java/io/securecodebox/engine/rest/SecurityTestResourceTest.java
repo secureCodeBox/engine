@@ -19,6 +19,9 @@
 package io.securecodebox.engine.rest;
 
 import io.securecodebox.engine.service.SecurityTestService;
+import io.securecodebox.model.execution.Target;
+import io.securecodebox.model.rest.Report;
+import io.securecodebox.model.securitytest.SecurityTest;
 import io.securecodebox.model.securitytest.SecurityTestConfiguration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,8 +50,10 @@ public class SecurityTestResourceTest {
     @Mock
     SecurityTestService securityTestServiceDummy;
 
+    // Tests for: Start securityTest
+
     @Test
-    public void shouldReturnAnErrorWhenNoSuchProcessIsAvailible() throws Exception {
+    public void shouldReturnAnErrorWhenNoSuchSecurityTestIsAvailable() throws Exception {
         willThrow(new SecurityTestService.NonExistentSecurityTestDefinitionException()).given(securityTestServiceDummy).checkSecurityTestDefinitionExistence(any());
 
         SecurityTestConfiguration secTest = new SecurityTestConfiguration();
@@ -60,7 +65,7 @@ public class SecurityTestResourceTest {
     }
 
     @Test
-    public void shouldReturnAMultipleChoicesErrorIfThereAreMultipleProcessesForTheSecurityTestName() throws Exception {
+    public void shouldReturnAMultipleChoicesErrorIfThereAreMultipleSecurityTestDefinitionsForTheSecurityTestName() throws Exception {
         willThrow(new SecurityTestService.DuplicateSecurityTestDefinitionForKeyException()).given(securityTestServiceDummy).checkSecurityTestDefinitionExistence(any());
 
         SecurityTestConfiguration secTest = new SecurityTestConfiguration();
@@ -72,7 +77,7 @@ public class SecurityTestResourceTest {
     }
 
     @Test
-    public void shouldStartAProcessAndReturnItsUUID() throws Exception {
+    public void shouldStartASecurityTestAndReturnItsUUID() throws Exception {
         given(securityTestServiceDummy.startSecurityTest(any())).willReturn(UUID.fromString("47bd8786-84f2-49ed-9ca9-20ed22be532b"));
 
         SecurityTestConfiguration secTest = new SecurityTestConfiguration();
@@ -84,5 +89,69 @@ public class SecurityTestResourceTest {
         assertEquals(Arrays.asList(UUID.fromString("47bd8786-84f2-49ed-9ca9-20ed22be532b")), response.getBody());
 
         verify(securityTestServiceDummy, times(1)).startSecurityTest(secTest);
+    }
+
+    // Tests for: Get securityTest result
+
+    @Test
+    public void shouldReturnAFullSecurityTest() throws Exception {
+        UUID id = UUID.randomUUID();
+        given(securityTestServiceDummy.getCompletedSecurityTest(any())).willReturn(
+                new SecurityTest(
+                        id,
+                    "Feature Team 1",
+                    "nmap",
+                    new Target(),
+                    new Report()
+                )
+        );
+
+        ResponseEntity<SecurityTest> response = classUnderTest.getSecurityTest(UUID.randomUUID());
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(id, response.getBody().getId());
+        assertEquals("Feature Team 1", response.getBody().getContext());
+        assertEquals("nmap", response.getBody().getName());
+    }
+
+    @Test
+    public void shouldReturnA404WhenNoSecurityTestWasFound() throws Exception {
+        given(securityTestServiceDummy.getCompletedSecurityTest(any())).willThrow(new SecurityTestService.SecurityTestNotFoundException());
+
+        ResponseEntity<SecurityTest> response = classUnderTest.getSecurityTest(UUID.randomUUID());
+
+        assertEquals(404, response.getStatusCodeValue());
+    }
+
+    @Test
+    public void shouldReturnA206IfTheSecurityTestIsntFinished() throws Exception {
+        UUID id = UUID.randomUUID();
+        given(securityTestServiceDummy.getCompletedSecurityTest(any())).willReturn(
+                new SecurityTest(
+                        id,
+                        "Feature Team 1",
+                        "nmap",
+                        new Target(),
+                        null
+                )
+        );
+
+        ResponseEntity<SecurityTest> response = classUnderTest.getSecurityTest(UUID.randomUUID());
+
+        assertEquals(206, response.getStatusCodeValue());
+        assertEquals(id, response.getBody().getId());
+        assertEquals("Feature Team 1", response.getBody().getContext());
+        assertEquals("nmap", response.getBody().getName());
+        assertNull(response.getBody().getReport());
+        assertFalse(response.getBody().isFinished());
+    }
+
+    @Test
+    public void shouldReturnA500IfTheSecurityTestErrored() throws Exception {
+        given(securityTestServiceDummy.getCompletedSecurityTest(any())).willThrow(new SecurityTestService.SecurityTestErroredException());
+
+        ResponseEntity<SecurityTest> response = classUnderTest.getSecurityTest(UUID.randomUUID());
+
+        assertEquals(500, response.getStatusCodeValue());
     }
 }
