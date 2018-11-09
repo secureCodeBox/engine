@@ -177,7 +177,6 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     SearchRequest searchRequest = new SearchRequest();
                     SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
                     searchSourceBuilder.query(QueryBuilders.matchQuery("id", securityTest.getId()));
-                    searchSourceBuilder.query(QueryBuilders.matchQuery("type", indexTypeNameForSecurityTests));
                     searchRequest.source(searchSourceBuilder);
                     SearchResponse searchResponse = highLevelClient.search(searchRequest);
                     LOG.debug("Search Response Status: " + searchResponse.status());
