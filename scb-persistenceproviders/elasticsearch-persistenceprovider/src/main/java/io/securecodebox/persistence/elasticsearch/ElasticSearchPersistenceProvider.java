@@ -189,6 +189,8 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     LOG.debug("SearchResponse from UUID Search: " + searchResponse);
                     if (searchResponse.getHits().totalHits > 0) {
                         securityTest.setId(UUID.randomUUID());
+                        LOG.warn("Tried persisting securityTest '{}' but there is already a securityTest saved for that id.", securityTest.getId());
+                        LOG.warn("Will generate a new UUID and retry.");
                         uuidAlreadyExists = true;
                     } else {
                         uuidAlreadyExists = false;
