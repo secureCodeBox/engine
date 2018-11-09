@@ -179,13 +179,4 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
     public void setName(String name) {
         execution.setVariable(DefaultFields.PROCESS_NAME.name(), name);
     }
-
-    @Override
-    public void saveReportToVariable(Report report) throws JsonProcessingException{
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        String reportJson = objectMapper.writeValueAsString(report);
-
-        this.execution.setVariable(DefaultFields.PROCESS_REPORT.toString(), ProcessVariableHelper.generateObjectValue(reportJson));
-    }
 }

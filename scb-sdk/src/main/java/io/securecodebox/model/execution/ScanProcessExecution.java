@@ -23,8 +23,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import io.securecodebox.model.rest.Report;
 import io.securecodebox.model.findings.Finding;
 
 import java.util.List;
@@ -104,7 +102,4 @@ public interface ScanProcessExecution {
 
     @JsonProperty("name")
     public void setName(String name);
-
-    @JsonIgnore
-    void saveReportToVariable(Report report) throws JsonProcessingException;
 }
