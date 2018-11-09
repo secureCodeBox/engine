@@ -19,7 +19,6 @@
 
 package io.securecodebox.engine.helper;
 
-import org.camunda.bpm.engine.AuthorizationService;
 import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.identity.User;

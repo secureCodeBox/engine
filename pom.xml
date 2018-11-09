@@ -160,7 +160,6 @@
                 <version>${swagger-version}</version>
             </dependency>
 
-
             <dependency>
                 <groupId>io.securecodebox.core</groupId>
                 <artifactId>sdk</artifactId>

@@ -134,4 +134,7 @@ public class Report {
     public void setSeverityOverview(Map<Severity, Long> severityOverview) {
         this.severityOverview = severityOverview;
     }
+
+    public Report() {
+    }
 }

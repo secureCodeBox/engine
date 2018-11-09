@@ -3,6 +3,16 @@
 # mvn spring-boot:run -Pdev
 spring.profiles.active: ${activatedProfiles}
 
+# Server configuration
+# These properties can be overwritten by environment variables to enable https
+server.port: 8080
+server.ssl:
+    enabled: false
+    key-store-password:
+    key-store: keystore.p12
+    key-store-type: PKCS12
+    key-alias: scb-engine
+
 camunda.bpm:
   webapp.index-redirect-enabled: true
   authorization.enabled: true
@@ -14,6 +24,10 @@ logging.level.io.securecodebox: INFO
 # - none
 # - elasticsearch
 securecodebox.persistence.provider: none
+
+# Configuration for the s3 persistence provider:
+securecodebox.persistence.s3.bucket: abc-def
+securecodebox.persistence.s3.region: eu-central-1
 
 # Configuration for the elasticsearch persistence provider:
 securecodebox.persistence.elasticsearch.host: persistence-elasticsearch
