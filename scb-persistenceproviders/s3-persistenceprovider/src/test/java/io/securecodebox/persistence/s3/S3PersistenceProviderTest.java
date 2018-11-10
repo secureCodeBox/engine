@@ -19,6 +19,7 @@
 
 package io.securecodebox.persistence.s3;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.findings.Severity;
 import io.securecodebox.model.rest.Report;
@@ -43,6 +44,10 @@ import static junit.framework.TestCase.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 public class S3PersistenceProviderTest {
+
+    @Spy
+    ObjectMapper mapper = new ObjectMapper();
+
     @InjectMocks
     S3PersistenceProvider s3PersistenceProvider;
 
