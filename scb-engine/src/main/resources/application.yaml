@@ -14,7 +14,7 @@ server.ssl:
     key-alias: scb-engine
 
 # Spring Boot Actuator configuration
-# Used to enables an endpoint for health checks under '/health'
+# Used to enable an endpoint for health checks at '/health'
 management.port: 8080
 management.security.enabled: true
 endpoints:
