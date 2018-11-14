@@ -62,7 +62,6 @@ public class S3PersistenceProvider implements PersistenceProvider {
 
             AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                     .withRegion(awsRegion)
-                    .withCredentials(new ProfileCredentialsProvider())
                     .build();
             File file = writeReportToFile(report);
 
