@@ -18,6 +18,7 @@
  */
 package io.securecodebox.persistence.s3;
 
+import com.amazonaws.auth.EC2ContainerCredentialsProviderWrapper;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -60,7 +61,10 @@ public class S3PersistenceProvider implements PersistenceProvider {
         } else {
             // Upload a file as a new object with ContentType and title specified.
 
-            AmazonS3 s3Client = new AmazonS3ClientBuilder.defaultClient();
+            AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+                    .withRegion(awsRegion)
+                    .withCredentials(new EC2ContainerCredentialsProviderWrapper())
+                    .build();
             File file = writeReportToFile(report);
 
             String fileName = report.getExecution().getContext().replace('/', '-') + '/';
