@@ -418,6 +418,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                             highLevelClient.indices().delete(deleteIndexRequest);
                         } catch (IOException e) {
                             LOG.error("Kibana index could not be successfully deleted and might be corrupted. Delete it manually!");
+                            throw new ElasticsearchPersistenceException("Kibana index could not be successfully deleted and might be corrupted. Delete it manually!");
                         }
                     } else {
                         LOG.info("Successfully created kibana data");
