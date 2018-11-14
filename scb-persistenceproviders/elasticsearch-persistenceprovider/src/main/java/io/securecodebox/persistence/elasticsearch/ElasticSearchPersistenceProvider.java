@@ -162,99 +162,98 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         }
 
         //Second check because, if the initialization wasn't successful, it's still false
-        if (initialized && connected) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            try {
-
-                boolean uuidAlreadyExists = true;
-
-                /*
-                This is typically executed only once because we create random UUIDs which are very unlikely to ever be
-                the same (if not impossible)
-                Anyway, we want to make sure that we don't save the same SecurityTest Id twice
-                 */
-                while (uuidAlreadyExists) {
-                    SearchRequest searchRequest = new SearchRequest();
-                    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-                    searchSourceBuilder.query(QueryBuilders.matchQuery("id.keyword", securityTest.getId()));
-                    searchRequest.source(searchSourceBuilder);
-                    SearchResponse searchResponse = highLevelClient.search(searchRequest);
-                    LOG.debug("Search Response Status: " + searchResponse.status());
-                    boolean searchFailure = searchResponse.isTimedOut() || (searchResponse.status() != RestStatus.OK);
-                    if (searchFailure) {
-                        LOG.error("Searching the index failed. Skipping persisting...");
-                        return;
-                    }
-
-                    LOG.debug("SearchResponse from UUID Search: " + searchResponse);
-                    if (searchResponse.getHits().totalHits > 0) {
-                        securityTest.setId(UUID.randomUUID());
-                        LOG.warn("Tried persisting securityTest '{}' but there is already a securityTest saved for that id.", securityTest.getId());
-                        LOG.warn("Will generate a new UUID and retry.");
-                        uuidAlreadyExists = true;
-                    } else {
-                        uuidAlreadyExists = false;
-                    }
-                }
-
-                String dateTimeFormatToPersist = "yyyy-MM-dd'T'HH:mm:ss";
-                BulkRequest bulkRequest = new BulkRequest();
-
-                Map<String, Object> securityTestAsMap = serializeAndRemove(securityTest, "report");
-                securityTestAsMap.put("type", indexTypeNameForSecurityTests);
-                securityTestAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
-
-                LOG.debug("Timestamp: " + new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
-
-                IndexRequest securityTestIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
-                securityTestIndexRequest.source(objectMapper.writeValueAsString(securityTestAsMap), XContentType.JSON);
-
-                // Persist the execution as securityTest document in elasticsearch
-                bulkRequest.add(securityTestIndexRequest);
-
-                // Persist each finding as a separate document in elasticsearch (with a lightweight object)
-                for (Finding f : securityTest.getReport().getFindings()) {
-
-                    Map<String, Object> findingAsMap = serializeAndRemove(f);
-                    findingAsMap.put("type", indexTypeNameForFindings);
-                    findingAsMap.put("security_test_id", securityTest.getId());
-                    findingAsMap.put("security_test_name", securityTest.getName());
-                    findingAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
-
-                    IndexRequest findingIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
-                    findingIndexRequest.source(objectMapper.writeValueAsString(findingAsMap), XContentType.JSON);
-                    bulkRequest.add(findingIndexRequest);
-                }
-
-                LOG.info("Persisting SecurityTest and Findings...");
-                highLevelClient.bulkAsync(bulkRequest, new ActionListener<BulkResponse>() {
-                    @Override
-                    public void onResponse(BulkResponse bulkItemResponses) {
-                        if (bulkItemResponses.hasFailures()) {
-                            LOG.warn("Some findings may not have been persisted correctly, because the bulkResponse has some errors!");
-                            LOG.warn(bulkItemResponses.buildFailureMessage());
-                        } else {
-                            LOG.debug("Successfully saved findings to " + getElasticIndexName());
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Exception e) {
-                        LOG.error("Error persisting findings. Reason: " + e);
-                        LOG.error(e.getMessage());
-                    }
-                });
-            } catch (JsonProcessingException e) {
-                LOG.error(e.getMessage());
-            } catch (IOException e) {
-                LOG.error(e.getMessage());
-            }
-        } else {
+        if(!initialized || !connected){
             LOG.error("Could not persist data. It seems like ElasticSearch is not reachable.");
+            throw new ElasticsearchPersistenceException("Could not persist data. It seems like ElasticSearch is not reachable.");
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            checkForSecurityTestIdExistence(securityTest);
+
+            String dateTimeFormatToPersist = "yyyy-MM-dd'T'HH:mm:ss";
+            BulkRequest bulkRequest = new BulkRequest();
+
+            Map<String, Object> securityTestAsMap = serializeAndRemove(securityTest, "report");
+            securityTestAsMap.put("type", indexTypeNameForSecurityTests);
+
+            String timestamp = new SimpleDateFormat(dateTimeFormatToPersist).format(new Date());
+            securityTestAsMap.put("@timestamp", timestamp);
+            LOG.debug("Timestamp: {}", timestamp);
+
+            IndexRequest securityTestIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
+            securityTestIndexRequest.source(objectMapper.writeValueAsString(securityTestAsMap), XContentType.JSON);
+
+            // Persist the execution as securityTest document in elasticsearch
+            bulkRequest.add(securityTestIndexRequest);
+
+            // Persist each finding as a separate document in elasticsearch (with a lightweight object)
+            for (Finding f : securityTest.getReport().getFindings()) {
+
+                Map<String, Object> findingAsMap = serializeAndRemove(f);
+                findingAsMap.put("type", indexTypeNameForFindings);
+                findingAsMap.put("security_test_id", securityTest.getId());
+                findingAsMap.put("security_test_name", securityTest.getName());
+                findingAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
+
+                IndexRequest findingIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
+                findingIndexRequest.source(objectMapper.writeValueAsString(findingAsMap), XContentType.JSON);
+                bulkRequest.add(findingIndexRequest);
+            }
+
+            LOG.info("Persisting SecurityTest and Findings...");
+            highLevelClient.bulkAsync(bulkRequest, new ActionListener<BulkResponse>() {
+                @Override
+                public void onResponse(BulkResponse bulkItemResponses) {
+                    if (bulkItemResponses.hasFailures()) {
+                        LOG.warn("Some findings may not have been persisted correctly, because the bulkResponse has some errors!");
+                        LOG.warn(bulkItemResponses.buildFailureMessage());
+                    } else {
+                        LOG.debug("Successfully saved findings to {}", getElasticIndexName());
+                    }
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    LOG.error("Error persisting findings. Reason: {}", e);
+                    throw new ElasticsearchPersistenceException("Request to persist findings to elasticsearch failed.");
+                }
+            });
+        } catch (JsonProcessingException e) {
+            LOG.error(e.getMessage());
+        } catch (IOException e) {
+            throw new ElasticsearchPersistenceException("Error while persisting securityTest into elasticsearch. Is elasticsearch available?.");
         }
     }
 
-    private String transformContextForElasticsearchIndexCompatability() {
+    /**
+     * Check if there already is a securityTest persisted under the same uuid.
+     * This is extremely unlikely but theoretically possible.
+     *
+     * @param securityTest
+     */
+    private void checkForSecurityTestIdExistence(SecurityTest securityTest) throws ElasticsearchPersistenceException, DuplicateUuidException, IOException {
+        SearchRequest searchRequest = new SearchRequest();
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(QueryBuilders.matchQuery("id.keyword", securityTest.getId()));
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse = highLevelClient.search(searchRequest);
+        LOG.debug("Search Response Status: {}", searchResponse.status());
+        boolean searchFailure = searchResponse.isTimedOut() || (searchResponse.status() != RestStatus.OK);
+
+        if (searchFailure) {
+            LOG.error("Searching the index failed. Creating Incident...");
+            throw new ElasticsearchPersistenceException("Could not query elasticsearch, to check for preexisting securityTest ids.");
+        }
+
+        LOG.debug("SearchResponse from UUID Search: {}", searchResponse);
+        if (searchResponse.getHits().totalHits > 0) {
+            LOG.error("Tried persisting securityTest '{}' but there is already a securityTest saved for that id.", securityTest.getId());
+            throw new DuplicateUuidException("There already exists a persisted securityTest for id: '"  + securityTest.getId() + "'. Cannot persist a new one under the same id.");
+        }
+    }
+
+    private String transformContextForElasticsearchIndexCompatibility() {
         if (context != null) {
             String contextIndex = context.toLowerCase().replace(" ", "_") + "_";
 
@@ -279,7 +278,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         Date date = Date.from(Instant.now());
         SimpleDateFormat sdf = new SimpleDateFormat(indexDatePattern);
         String dateAsString = sdf.format(date);
-        String indexName = indexPrefix + "_" + transformContextForElasticsearchIndexCompatability() + dateAsString;
+        String indexName = indexPrefix + "_" + transformContextForElasticsearchIndexCompatibility() + dateAsString;
         return indexName.toLowerCase();
     }
 
