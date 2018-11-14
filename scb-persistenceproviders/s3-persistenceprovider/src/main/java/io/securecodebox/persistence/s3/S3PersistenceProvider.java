@@ -60,9 +60,7 @@ public class S3PersistenceProvider implements PersistenceProvider {
         } else {
             // Upload a file as a new object with ContentType and title specified.
 
-            AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-                    .withRegion(awsRegion)
-                    .build();
+            AmazonS3 s3Client = new AmazonS3ClientBuilder.defaultClient();
             File file = writeReportToFile(report);
 
             String fileName = report.getExecution().getContext().replace('/', '-') + '/';
