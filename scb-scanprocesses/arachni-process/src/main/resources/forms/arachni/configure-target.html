@@ -44,7 +44,10 @@
                 ARACHNI_LOGIN_URL: '',
                 ARACHNI_LOGIN_CREDENTIALS: '',
                 ARACHNI_LOGIN_CHECK: '',
-                ARACHNI_LOGIN_SCRIPT_FILENAME: ''
+                ARACHNI_LOGIN_SCRIPT_FILENAME: '',
+                ARACHNI_REQUESTS_PER_SECOND:'20',
+                ARACHNI_POOL_SIZE:'6',
+                ARACHNI_REQUEST_CONCURRENCY:'20'
             }
         };
         $scope.context = '';
@@ -177,6 +180,28 @@
                 <label for="page_limit">Limit of scanned pages</label>
                 <br>
                 <input id="page_limit" ng-model="target.attributes.ARACHNI_PAGE_LIMIT" type="number" class="form-control" />
+            </div>
+            <div class="clearfix"></div>
+
+            <button class="btn btn-info pull-right scanner-btn" onclick="togglediv('arachniRateLimits');" type="button">
+                <span class="glyphicon glyphicon-search "></span> Define the rate limits
+            </button>
+            <div id="arachniRateLimits" name="rateLmiitsDefinition" style="display: none">
+
+                <label for="requests_per_second">Requests per Second</label>
+                <br>
+                <input id="requests_per_second" ng-model="target.attributes.ARACHNI_REQUESTS_PER_SECOND" type="number" class="form-control">
+                <br>
+
+                <label for="pool_size">Browser Cluster Pool Size</label>
+                <br>
+                <input id="pool_size" ng-model="target.attributes.ARACHNI_POOL_SIZE" type="number" class="form-control"
+                />
+                <br>
+
+                <label for="request_concurrency">Request Concurrency</label>
+                <br>
+                <input id="request_concurrency" ng-model="target.attributes.ARACHNI_REQUEST_CONCURRENCY" type="number" class="form-control" />
             </div>
             <div class="clearfix"></div>
 
