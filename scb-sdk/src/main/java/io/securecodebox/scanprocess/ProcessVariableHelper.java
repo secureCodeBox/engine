@@ -44,11 +44,11 @@ public class ProcessVariableHelper {
     protected static ObjectMapper objectMapper;
 
     protected ProcessVariableHelper() {
-        // Not instanceable
-        // ObjectMapper normaly gets initialised by SecureCodeBox engine!
+        // Not instantiable
+        // ObjectMapper normally gets initialised by SecureCodeBox engine!
     }
 
-    private static void initIfNotHappend() {
+    private static void initIfNotHappened() {
         if (objectMapper == null) {
             LOG.error(
                     "The object mapper was not init! Falling back to default object mapper by calling new ObjectMapper()!!!!");
@@ -64,11 +64,11 @@ public class ProcessVariableHelper {
      * @param innerClass the class which should be constructed
      * @param <T>        the return type
      *
-     * @return List of innerClass objects, if not successfull it returns an empty {@link LinkedList}.
+     * @return List of innerClass objects, if not successful it returns an empty {@link LinkedList}.
      */
     public static <T> List<T> readListFromValue(String data, Class<T> innerClass) {
         try {
-            initIfNotHappend();
+            initIfNotHappened();
             return objectMapper.readValue(data,
                     objectMapper.getTypeFactory().constructCollectionType(List.class, innerClass));
         } catch (IOException e) {
@@ -85,12 +85,12 @@ public class ProcessVariableHelper {
      */
     public static ObjectValue generateObjectValue(Object value) {
         try {
-            initIfNotHappend();
+            initIfNotHappened();
             return Variables.objectValue(objectMapper.writeValueAsString(value))
                     .serializationDataFormat(Variables.SerializationDataFormats.JSON)
                     .create();
         } catch (JsonProcessingException e) {
-            LOG.error("Can't write generate object value for dield!", DefaultFields.PROCESS_FINDINGS, e);
+            LOG.error("Can't write generate object value for field!", DefaultFields.PROCESS_FINDINGS, e);
             throw new IllegalStateException("Can't write field to process!", e);
         }
     }

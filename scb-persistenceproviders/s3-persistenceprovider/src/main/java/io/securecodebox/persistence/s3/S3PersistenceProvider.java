@@ -24,7 +24,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.securecodebox.model.Report;
+import io.securecodebox.model.securitytest.SecurityTest;
 import io.securecodebox.persistence.PersistenceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,9 +53,9 @@ public class S3PersistenceProvider implements PersistenceProvider {
     private String awsRegion;
 
     @Override
-    public void persist(Report report) {
+    public void persist(SecurityTest securityTest) {
 
-        if (report == null) {
+        if (securityTest == null) {
             LOG.warn("Report is null, nothing to persist.");
         } else {
             // Upload a file as a new object with ContentType and title specified.
@@ -64,9 +64,9 @@ public class S3PersistenceProvider implements PersistenceProvider {
                     .withRegion(awsRegion)
                     .withCredentials(new ProfileCredentialsProvider())
                     .build();
-            File file = writeReportToFile(report);
+            File file = writeReportToFile(securityTest);
 
-            String fileName = report.getExecution().getContext().replace('/', '-') + '/';
+            String fileName = securityTest.getContext().replace('/', '-') + '/';
             fileName += UUID.randomUUID();
             PutObjectRequest request = new PutObjectRequest(bucketName, fileName, file);
             ObjectMetadata metadata = new ObjectMetadata();
@@ -76,11 +76,11 @@ public class S3PersistenceProvider implements PersistenceProvider {
         }
     }
 
-    File writeReportToFile(Report report) {
+    File writeReportToFile(SecurityTest securityTest) {
         File tempFile = null;
         try {
             tempFile = File.createTempFile(UUID.randomUUID().toString(), ".json");
-            mapper.writeValue(tempFile, report);
+            mapper.writeValue(tempFile, securityTest);
         } catch (IOException exception) {
             LOG.error("Could not write tempfile: ", exception);
         }

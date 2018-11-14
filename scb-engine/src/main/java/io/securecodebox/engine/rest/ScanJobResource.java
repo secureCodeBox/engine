@@ -32,6 +32,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.exception.NotFoundException;
 import org.camunda.bpm.engine.externaltask.ExternalTask;
@@ -59,7 +60,7 @@ import java.util.UUID;
  * @author Rüdiger Heins - iteratec GmbH
  * @since 16.04.18
  */
-@Api(description = "Scan Jobs Resource", consumes = "application/json", produces = "application/json")
+@Api(description = "For scanner-wrappers to engine communication", consumes = "application/json", produces = "application/json")
 @RestController
 @RequestMapping(value = "/box/jobs")
 public class ScanJobResource {
@@ -73,13 +74,16 @@ public class ScanJobResource {
     ObjectMapper objectMapper;
 
     @ApiOperation(value = "Lock a scan job for the given topic",
-            notes = "Returns a scan job for the given topic / capability, if there is one.")
+            notes = "Returns a scan job for the given topic / capability, if there is one.",
+            authorizations = {
+                @Authorization(value="basicAuth")
+            })
 
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful retrieval of the scan Job",
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful retrieval of the scan job",
             response = ScanConfiguration.class),
-            @ApiResponse(code = 204, message = "No scanjob available", response = void.class),
+            @ApiResponse(code = 204, message = "No scan job available", response = void.class),
             @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
-
+            @ApiResponse(code = 401, message = "Unauthenticated", response = void.class),
             @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
     @RequestMapping(method = RequestMethod.POST, value = "/lock/{topic:[a-zA-Z0-9_\\-]*}/{scannerId}")
@@ -106,10 +110,14 @@ public class ScanJobResource {
         }
     }
 
-    @ApiOperation(value = "Send a scan result for the previously locked job.")
+    @ApiOperation(value = "Send a scan result for the previously locked job.",
+            authorizations = {
+                    @Authorization(value="basicAuth")
+            })
     @ApiResponses(
             value = { @ApiResponse(code = 200, message = "Successful delivery of the result.", response = void.class),
                     @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
+                    @ApiResponse(code = 401, message = "Unauthenticated", response = void.class),
                     @ApiResponse(code = 404, message = "Unable to find jobId"),
                     @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
@@ -142,10 +150,14 @@ public class ScanJobResource {
         return ResponseEntity.ok().build();
     }
 
-    @ApiOperation(value = "Send a scan failure for the previously locked job.")
+    @ApiOperation(value = "Send a scan failure for the previously locked job.",
+            authorizations = {
+                    @Authorization(value="basicAuth")
+            })
     @ApiResponses(
             value = { @ApiResponse(code = 200, message = "Successful delivery of the failure.", response = void.class),
                     @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
+                    @ApiResponse(code = 401, message = "Unauthenticated", response = void.class),
                     @ApiResponse(code = 404, message = "Unable to find jobId"),
                     @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 

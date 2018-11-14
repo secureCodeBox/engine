@@ -21,7 +21,7 @@
 
 package $package;
 
-import io.securecodebox.model.Report;
+import io.securecodebox.model.rest.Report;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.persistence.PersistenceProvider;

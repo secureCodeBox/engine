@@ -16,16 +16,20 @@
  *  limitations under the License.
  * /
  */
+package io.securecodebox.model.securitytest;
 
-package io.securecodebox.constants;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-/**
- * @author Rüdiger Heins - iteratec GmbH
- * @since 09.03.18
- */
+public class SecurityTestConfiguration extends AbstractSecurityTest{
+    static final String PROCESS_NAME_SUFFIX = "-process";
 
-public enum DefaultFields {
-    PROCESS_CONTEXT, PROCESS_SCANNER_ID, PROCESS_SCANNER_TYPE, PROCESS_AUTOMATED, PROCESS_FINDINGS,
-    PROCESS_RAW_FINDINGS, PROCESS_SCANNERS, PROCESS_TARGETS, PROCESS_REPORT,
-    PROCESS_RESULT_APPROVED, PROCESS_ATTRIBUTE_MAPPING, PROCESS_NAME;
+    @JsonIgnore
+    public String getProcessDefinitionKey(){
+        return this.getName() + PROCESS_NAME_SUFFIX;
+    }
+
+    @JsonIgnore
+    public static String getNameByProcessDefinitionKey(String processDefinitionKey){
+        return processDefinitionKey.replace(PROCESS_NAME_SUFFIX, "");
+    }
 }

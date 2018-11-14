@@ -20,10 +20,10 @@
 package io.securecodebox.scanprocess.delegate;
 
 import io.securecodebox.constants.DefaultFields;
-import io.securecodebox.model.Report;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.model.findings.Finding;
+import io.securecodebox.model.securitytest.SecurityTest;
 import io.securecodebox.persistence.PersistenceException;
 import io.securecodebox.persistence.PersistenceProvider;
 import io.securecodebox.scanprocess.ProcessVariableHelper;
@@ -62,21 +62,22 @@ public class SummaryGeneratorDelegate implements JavaDelegate {
         delegateExecution.setVariable(DefaultFields.PROCESS_FINDINGS.name(), ProcessVariableHelper.generateObjectValue(findings));
 
         ScanProcessExecution scanProcessExecution = executionFactory.get(delegateExecution);
-        Report report = new Report(scanProcessExecution);
-        persist(report);
+        SecurityTest securityTest = new SecurityTest(scanProcessExecution);
+
+        persist(securityTest);
     }
 
     /**
      * Eventually consistent: try to persist if the persistence provider is currently available.
      *
-     * @param report The generic report of findings to persist.
+     * @param securityTest The securityTest to persist.
      */
-    private void persist(Report report) {
-        LOG.trace("starting scan report persistence. {}", report);
+    private void persist(SecurityTest securityTest) {
+        LOG.trace("starting securityTest persistence. {}", securityTest);
 
         try {
             if (persistenceProvider != null) {
-                persistenceProvider.persist(report);
+                persistenceProvider.persist(securityTest);
             }
         } catch (PersistenceException e) {
             LOG.error("Persistence provider errored while trying to save report. Going to create incident.", e);

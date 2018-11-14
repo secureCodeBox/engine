@@ -28,9 +28,12 @@ import io.swagger.annotations.ApiModel;
  *
  * @author Rüdiger Heins - iteratec GmbH
  * @since 29.04.18
+ *
+ * @deprecated This model was deprecated in favor of the {@link io.securecodebox.model.securitytest.SecurityTest} model, as this model is conceptually to closely linked to the concept of a camunda processes.
  */
 @ApiModel(description = "The representation of a camunda process.")
 @JsonPropertyOrder(alphabetic = true)
+@Deprecated
 public class Process {
 
     @JsonProperty
