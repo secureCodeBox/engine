@@ -254,7 +254,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     }
 
     private String transformContextForElasticsearchIndexCompatibility() {
-        if (context != null) {
+        if (context != null && !context.equals("")) {
             String contextIndex = context.toLowerCase().replace(" ", "_") + "_";
 
             try {
