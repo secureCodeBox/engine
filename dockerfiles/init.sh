@@ -22,12 +22,6 @@ create_certificate_if_not_available()
     fi
 }
 
-echo "Execute init script:"
-
-echo "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI..."
-echo $1
-export AWS_CONTAINER_CREDENTIALS_RELATIVE_URI=$1
-
 echo "Check if HTTPS is enabled..."
 if [ "${SERVER_SSL_ENABLED}" == "true" ]
 then
@@ -37,6 +31,8 @@ else
     echo "No HTTPS enabled. You can use environment variables to enable HTTPS."
 fi
 
+# required for using taskrole in aws fargate service, because default its only available for pid 1
+export AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
 
 echo "Starting secureCodeBox engine..."
 java -Dloader.path="./lib/,./plugins/" -jar ./app.jar
