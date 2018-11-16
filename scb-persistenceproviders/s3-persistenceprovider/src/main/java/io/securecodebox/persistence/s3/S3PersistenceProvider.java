@@ -60,6 +60,7 @@ public class S3PersistenceProvider implements PersistenceProvider {
             LOG.warn("Report is null, nothing to persist.");
         } else {
             // Upload a file as a new object with ContentType and title specified.
+            LOG.error("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI: " + System.getenv("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI"));
             AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
             File file = writeReportToFile(report);
 
