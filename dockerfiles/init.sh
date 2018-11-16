@@ -32,8 +32,9 @@ else
     echo "No HTTPS enabled. You can use environment variables to enable HTTPS."
 fi
 
-echo $AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
-export AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
+echo "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI..."
+echo $1
+export AWS_CONTAINER_CREDENTIALS_RELATIVE_URI=$1
 
 echo "Starting secureCodeBox engine..."
 java -Dloader.path="./lib/,./plugins/" -jar ./app.jar
