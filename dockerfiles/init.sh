@@ -23,18 +23,20 @@ create_certificate_if_not_available()
 }
 
 echo "Execute init script:"
+
+echo "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI..."
+echo $1
+export AWS_CONTAINER_CREDENTIALS_RELATIVE_URI=$1
+
 echo "Check if HTTPS is enabled..."
 if [ "${SERVER_SSL_ENABLED}" == "true" ]
-then 
+then
     echo "Https enabled"
     create_certificate_if_not_available
 else
     echo "No HTTPS enabled. You can use environment variables to enable HTTPS."
 fi
 
-echo "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI..."
-echo $1
-export AWS_CONTAINER_CREDENTIALS_RELATIVE_URI=$1
 
 echo "Starting secureCodeBox engine..."
 java -Dloader.path="./lib/,./plugins/" -jar ./app.jar
