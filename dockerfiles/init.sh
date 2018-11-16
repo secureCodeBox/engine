@@ -32,6 +32,7 @@ else
     echo "No HTTPS enabled. You can use environment variables to enable HTTPS."
 fi
 
+echo $AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
 export AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
 
 echo "Starting secureCodeBox engine..."
