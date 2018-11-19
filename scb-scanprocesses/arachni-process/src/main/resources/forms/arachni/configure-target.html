@@ -45,9 +45,9 @@
                 ARACHNI_LOGIN_CREDENTIALS: '',
                 ARACHNI_LOGIN_CHECK: '',
                 ARACHNI_LOGIN_SCRIPT_FILENAME: '',
-                ARACHNI_REQUESTS_PER_SECOND:'20',
-                ARACHNI_POOL_SIZE:'6',
-                ARACHNI_REQUEST_CONCURRENCY:'20'
+                ARACHNI_REQUESTS_PER_SECOND: 20,
+                ARACHNI_POOL_SIZE:6,
+                ARACHNI_REQUEST_CONCURRENCY:20
             }
         };
         $scope.context = '';
@@ -184,9 +184,9 @@
             <div class="clearfix"></div>
 
             <button class="btn btn-info pull-right scanner-btn" onclick="togglediv('arachniRateLimits');" type="button">
-                <span class="glyphicon glyphicon-search "></span> Define the rate limits
+                <span class="glyphicon glyphicon-scale "></span> Define the rate limits
             </button>
-            <div id="arachniRateLimits" name="rateLmiitsDefinition" style="display: none">
+            <div id="arachniRateLimits" name="rateLimitsDefinition" style="display: none">
 
                 <label for="requests_per_second">Requests per Second</label>
                 <br>
