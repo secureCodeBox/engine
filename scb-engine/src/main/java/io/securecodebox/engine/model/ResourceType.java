@@ -32,6 +32,6 @@ public enum ResourceType {
     }
 
     public Resource getCamundaResource(){
-        return getCamundaResource();
+        return resource;
     }
 }
