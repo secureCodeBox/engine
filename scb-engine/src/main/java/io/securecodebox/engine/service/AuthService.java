@@ -24,20 +24,34 @@ import org.camunda.bpm.engine.impl.identity.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.camunda.bpm.engine.ProcessEngine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class AuthService {
     @Autowired
     ProcessEngine engine;
 
+    private static final Logger LOG = LoggerFactory.getLogger(AuthService.class);
+
     public boolean isAuthorizedFor(String resourceId, ResourceType resource, PermissionType permission){
         Authentication auth = engine.getIdentityService().getCurrentAuthentication();
-        return engine.getAuthorizationService().isUserAuthorized(
+
+        if(auth == null) {
+            return false;
+        }
+
+        boolean isAuthorized = engine.getAuthorizationService().isUserAuthorized(
                 auth.getUserId(),
                 auth.getGroupIds(),
                 permission.getCamundaPermission(),
                 resource.getCamundaResource(),
                 resourceId
         );
+
+        LOG.debug("Current User '{}' with groups: '{}'", auth.getUserId(), auth.getGroupIds());
+        LOG.debug("Access check for [{}, {}, {}]: {}", resourceId, resource, permission, isAuthorized);
+
+        return isAuthorized;
     }
 }
