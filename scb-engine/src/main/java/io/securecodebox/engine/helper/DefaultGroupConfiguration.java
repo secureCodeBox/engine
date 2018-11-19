@@ -19,18 +19,18 @@
 
 package io.securecodebox.engine.helper;
 
+import org.camunda.bpm.engine.AuthorizationService;
 import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.ProcessEngine;
-import org.camunda.bpm.engine.authorization.Groups;
+import org.camunda.bpm.engine.authorization.*;
 import org.camunda.bpm.engine.identity.Group;
 import org.camunda.bpm.spring.boot.starter.configuration.impl.AbstractCamundaConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 
-
 /**
- * This configuration file generates the default group approver and
+ * This configuration file generates the default engine groups
  *
  * @author Rüdiger Heins - iteratec GmbH
  * @since 07.02.18
@@ -40,6 +40,7 @@ public class DefaultGroupConfiguration extends AbstractCamundaConfiguration {
 
     public static final String GROUP_SCANNER = "scanner";
     public static final String GROUP_APPROVER = "approver";
+    public static final String GROUP_CI = "continuous-integration";
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultGroupConfiguration.class);
 
@@ -48,7 +49,14 @@ public class DefaultGroupConfiguration extends AbstractCamundaConfiguration {
 
         final IdentityService identityService = processEngine.getIdentityService();
         createGroup(identityService, GROUP_APPROVER);
+
         createGroup(identityService, GROUP_SCANNER);
+        createAuthorizationForGroup(
+                processEngine.getAuthorizationService(),
+                GROUP_SCANNER,
+                Resources.PROCESS_INSTANCE,
+                Permissions.READ, Permissions.UPDATE
+        );
     }
 
     private void createGroup(IdentityService identityService, String group) {
@@ -62,4 +70,32 @@ public class DefaultGroupConfiguration extends AbstractCamundaConfiguration {
         }
     }
 
+    private void createAuthorizationForGroup(AuthorizationService authorizationService, String groupId, Resource resource, Permission... permissions){
+        if(permissions.length == 0){
+            throw new IllegalArgumentException("createAuthorizationForGroup needs at least one permission");
+        }
+
+        AuthorizationQuery authorizationQuery = authorizationService
+                .createAuthorizationQuery()
+                .groupIdIn(groupId)
+                .resourceType(resource)
+                .resourceId("*");
+        for (Permission permission: permissions) {
+            authorizationQuery.hasPermission(permission);
+        }
+        long authCounts = authorizationQuery.count();
+
+        if(authCounts == 0){
+            Authorization auth = authorizationService.createNewAuthorization(Authorization.AUTH_TYPE_GRANT);
+            auth.setGroupId(groupId);
+            auth.setResource(resource);
+            auth.setResourceId("*");
+            for (Permission permission: permissions) {
+                auth.addPermission(permission);
+            }
+            authorizationService.saveAuthorization(auth);
+
+            LOG.info("Created Authorization for Group {}", groupId);
+        }
+    }
 }
