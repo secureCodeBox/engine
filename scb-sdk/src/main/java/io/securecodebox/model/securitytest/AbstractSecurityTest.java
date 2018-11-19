@@ -21,6 +21,7 @@ package io.securecodebox.model.securitytest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.securecodebox.model.execution.Target;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
 
 public abstract class AbstractSecurityTest {
     @JsonProperty
@@ -40,6 +41,9 @@ public abstract class AbstractSecurityTest {
     @JsonProperty
     @ApiModelProperty("The target configuration of the security test.")
     Target target;
+
+    @JsonProperty
+    private Map<String,String> metaData;
 
     public String getContext() {
         return context;
@@ -63,5 +67,13 @@ public abstract class AbstractSecurityTest {
 
     public void setTarget(Target target) {
         this.target = target;
+    }
+
+    public Map<String, String> getMetaData() {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData) {
+        this.metaData = metaData;
     }
 }
