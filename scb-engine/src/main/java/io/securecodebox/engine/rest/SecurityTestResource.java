@@ -19,6 +19,9 @@
 package io.securecodebox.engine.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.securecodebox.engine.model.PermissionType;
+import io.securecodebox.engine.model.ResourceType;
+import io.securecodebox.engine.service.AuthorizationService;
 import io.securecodebox.engine.service.SecurityTestService;
 import io.securecodebox.model.securitytest.SecurityTest;
 import io.securecodebox.model.securitytest.SecurityTestConfiguration;
@@ -47,13 +50,16 @@ public class SecurityTestResource {
     SecurityTestService securityTestService;
 
     @Autowired
+    AuthorizationService authorizationService;
+
+    @Autowired
     ObjectMapper objectMapper;
 
     @ApiOperation(value = "Starts new securityTests.",
-                    notes = "Starts new securityTests, based on a given list of securityTest configurations.",
-                    authorizations = {
-                            @Authorization(value="basicAuth")
-                    }
+            notes = "Starts new securityTests, based on a given list of securityTest configurations.",
+            authorizations = {
+                    @Authorization(value = "basicAuth")
+            }
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -91,11 +97,21 @@ public class SecurityTestResource {
             @Valid
             @RequestBody
             @ApiParam(
-                value = "A list with all securityTest which should be performed.",
-                required = true
+                    value = "A list with all securityTest which should be performed.",
+                    required = true
             )
             List<SecurityTestConfiguration> securityTests
     ) {
+        for (SecurityTestConfiguration securityTest : securityTests) {
+            if(!authorizationService.isAuthorizedFor(
+                    securityTest.getProcessDefinitionKey(),
+                    ResourceType.SECURITY_TEST_DEFINITION,
+                    PermissionType.CREATE_INSTANCE
+                )
+            ){
+               return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+        }
 
         for (SecurityTestConfiguration securityTest : securityTests) {
             try {
@@ -119,7 +135,7 @@ public class SecurityTestResource {
     @ApiOperation(value = "Returns the state of a securityTests.",
             notes = "Currently only supports finished securityTests.",
             authorizations = {
-                    @Authorization(value="basicAuth")
+                    @Authorization(value = "basicAuth")
             }
     )
     @ApiResponses(value = {
@@ -159,7 +175,7 @@ public class SecurityTestResource {
         try {
             SecurityTest securityTest = securityTestService.getCompletedSecurityTest(id);
 
-            if(securityTest.isFinished()){
+            if (securityTest.isFinished()) {
                 return ResponseEntity.status(HttpStatus.OK).body(securityTest);
             }
             return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT).body(securityTest);
