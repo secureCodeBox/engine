@@ -21,7 +21,7 @@ package io.securecodebox.engine.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.engine.model.PermissionType;
 import io.securecodebox.engine.model.ResourceType;
-import io.securecodebox.engine.service.AuthorizationService;
+import io.securecodebox.engine.service.AuthService;
 import io.securecodebox.engine.service.SecurityTestService;
 import io.securecodebox.model.securitytest.SecurityTest;
 import io.securecodebox.model.securitytest.SecurityTestConfiguration;
@@ -47,10 +47,10 @@ public class SecurityTestResource {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityTestResource.class);
 
     @Autowired
-    SecurityTestService securityTestService;
+    AuthService authService;
 
     @Autowired
-    AuthorizationService authorizationService;
+    SecurityTestService securityTestService;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -103,7 +103,7 @@ public class SecurityTestResource {
             List<SecurityTestConfiguration> securityTests
     ) {
         for (SecurityTestConfiguration securityTest : securityTests) {
-            if(!authorizationService.isAuthorizedFor(
+            if(!authService.isAuthorizedFor(
                     securityTest.getProcessDefinitionKey(),
                     ResourceType.SECURITY_TEST_DEFINITION,
                     PermissionType.CREATE_INSTANCE

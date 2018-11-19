@@ -20,14 +20,13 @@ package io.securecodebox.engine.service;
 
 import io.securecodebox.engine.model.PermissionType;
 import io.securecodebox.engine.model.ResourceType;
-import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.impl.identity.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.camunda.bpm.engine.ProcessEngine;
 
 @Component
-public class AuthorizationService {
-
+public class AuthService {
     @Autowired
     ProcessEngine engine;
 
