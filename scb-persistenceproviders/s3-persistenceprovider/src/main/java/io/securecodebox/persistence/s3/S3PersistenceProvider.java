@@ -18,7 +18,6 @@
  */
 package io.securecodebox.persistence.s3;
 
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -59,11 +58,7 @@ public class S3PersistenceProvider implements PersistenceProvider {
             LOG.warn("Report is null, nothing to persist.");
         } else {
             // Upload a file as a new object with ContentType and title specified.
-
-            AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-                    .withRegion(awsRegion)
-                    .withCredentials(new ProfileCredentialsProvider())
-                    .build();
+            AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
             File file = writeReportToFile(securityTest);
 
             String fileName = securityTest.getContext().replace('/', '-') + '/';
