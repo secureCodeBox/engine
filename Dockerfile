@@ -33,6 +33,9 @@ RUN chmod +x ./init.sh
 EXPOSE 8080
 EXPOSE 8443
 
+RUN apk add --update curl
+HEALTHCHECK --interval=30s --timeout=5s --start-period=120s --retries=3 CMD curl --fail http://localhost:8080/status || exit 1
+
 LABEL org.opencontainers.image.title="secureCodeBox Engine" \
     org.opencontainers.image.description="Orchestrating various security scans." \
     org.opencontainers.image.authors="iteratec GmbH" \

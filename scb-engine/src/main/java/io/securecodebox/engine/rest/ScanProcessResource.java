@@ -55,11 +55,14 @@ import java.util.UUID;
  *
  * @author Rüdiger Heins - iteratec GmbH
  * @since 23.04.18
+ *
+ * @deprecated This resource was deprecated in favor of the the {@link io.securecodebox.engine.rest.SecurityTestResource}, as this resource is conceptually to closely linked to the concept of a camunda processes.
  */
 
 @Api(description = "Scan Process Resource", produces = "application/json", consumes = "application/json")
 @RestController
 @RequestMapping(value = "/box/processes")
+@Deprecated
 public class ScanProcessResource {
     private static final Logger LOG = LoggerFactory.getLogger(ScanProcessResource.class);
 
@@ -78,6 +81,7 @@ public class ScanProcessResource {
             @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{processKey}")
+    @Deprecated
     public ResponseEntity<UUID> getProcesses(
             @ApiParam(value = "The key of the process to be started. See GET /box/processes.", example = "nmap-process",
                     required = true) @PathVariable String processKey, @Valid @RequestBody List<Target> targets) {
@@ -112,6 +116,7 @@ public class ScanProcessResource {
             @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
 
     @RequestMapping(method = RequestMethod.GET, value = "/")
+    @Deprecated
     public ResponseEntity<List<Process>> getProcesses() {
 
         List<ProcessDefinition> allProcesses = engine.getRepositoryService()

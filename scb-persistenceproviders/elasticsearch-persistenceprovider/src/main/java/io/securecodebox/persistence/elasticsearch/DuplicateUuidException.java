@@ -16,16 +16,12 @@
  *  limitations under the License.
  * /
  */
+package io.securecodebox.persistence.elasticsearch;
 
-package io.securecodebox.constants;
+import io.securecodebox.persistence.PersistenceException;
 
-/**
- * @author Rüdiger Heins - iteratec GmbH
- * @since 09.03.18
- */
-
-public enum DefaultFields {
-    PROCESS_CONTEXT, PROCESS_SCANNER_ID, PROCESS_SCANNER_TYPE, PROCESS_AUTOMATED, PROCESS_FINDINGS,
-    PROCESS_RAW_FINDINGS, PROCESS_SCANNERS, PROCESS_TARGETS, PROCESS_REPORT,
-    PROCESS_RESULT_APPROVED, PROCESS_ATTRIBUTE_MAPPING, PROCESS_NAME;
+public class DuplicateUuidException extends PersistenceException {
+    public DuplicateUuidException(String message) {
+        super(message);
+    }
 }

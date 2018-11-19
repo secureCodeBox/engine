@@ -13,6 +13,15 @@ server.ssl:
     key-store-type: PKCS12
     key-alias: scb-engine
 
+# Spring Boot Actuator configuration
+# Used to enable an endpoint for health checks at '/health'
+management.port: 8080
+management.security.enabled: true
+endpoints:
+  enabled: false
+  health.enabled: true
+  health.path: /status
+
 camunda.bpm:
   webapp.index-redirect-enabled: true
   authorization.enabled: true
