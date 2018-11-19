@@ -74,14 +74,14 @@ public class DefaultGroupConfiguration extends AbstractCamundaConfiguration {
         );
     }
 
-    private void createGroup(IdentityService identityService, String group) {
+    private void createGroup(IdentityService identityService, String groupId) {
         // create group
-        if (identityService.createGroupQuery().groupId(group).count() == 0) {
-            Group approverGroup = identityService.newGroup(group);
-            approverGroup.setName("SecureCodeBox " + group);
-            approverGroup.setType(Groups.GROUP_TYPE_SYSTEM);
-            identityService.saveGroup(approverGroup);
-            LOG.info("Created default secureCodeBox group: {}", approverGroup.getName());
+        if (identityService.createGroupQuery().groupId(groupId).count() == 0) {
+            Group group = identityService.newGroup(groupId);
+            group.setName("SecureCodeBox " + groupId);
+            group.setType(Groups.GROUP_TYPE_SYSTEM);
+            identityService.saveGroup(group);
+            LOG.info("Created default secureCodeBox group: {}", group.getName());
         }
     }
 
