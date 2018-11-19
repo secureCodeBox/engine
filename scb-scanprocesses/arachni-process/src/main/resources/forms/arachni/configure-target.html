@@ -32,23 +32,7 @@
         $scope.target = {
             location: '',
             name: '',
-            attributes: {
-                ARACHNI_DOM_DEPTH_LIMIT: 1000,
-                ARACHNI_DIR_DEPTH_LIMIT: 1000,
-                ARACHNI_PAGE_LIMIT: 1000,
-                ARACHNI_EXCLUDE_PATTERNS: '',
-                ARACHNI_INCLUDE_PATTERNS: '',
-                ARACHNI_SCAN_METHODS: '',
-                ARACHNI_COOKIE_STRING: '',
-                ARACHNI_EXTEND_PATH: '',
-                ARACHNI_LOGIN_URL: '',
-                ARACHNI_LOGIN_CREDENTIALS: '',
-                ARACHNI_LOGIN_CHECK: '',
-                ARACHNI_LOGIN_SCRIPT_FILENAME: '',
-                ARACHNI_REQUESTS_PER_SECOND: '',
-                ARACHNI_POOL_SIZE:'',
-                ARACHNI_REQUEST_CONCURRENCY: ''
-            }
+            attributes: {}
         };
         $scope.context = '';
         $scope.acceptLicense = false;
@@ -168,18 +152,18 @@
 
                 <label for="dom_depth_limit">Limit of DOM depth</label>
                 <br>
-                <input id="dom_depth_limit" ng-model="target.attributes.ARACHNI_DOM_DEPTH_LIMIT" type="number" class="form-control">
+                <input id="dom_depth_limit" ng-model="target.attributes.ARACHNI_DOM_DEPTH_LIMIT" type="number" class="form-control" placeholder="1000">
                 <br>
 
                 <label for="directory_depth_limit">Limit of directory depths</label>
                 <br>
-                <input id="directory_depth_limit" ng-model="target.attributes.ARACHNI_DIR_DEPTH_LIMIT" type="number" class="form-control"
+                <input id="directory_depth_limit" ng-model="target.attributes.ARACHNI_DIR_DEPTH_LIMIT" type="number" class="form-control" placeholder="1000"
                 />
                 <br>
 
                 <label for="page_limit">Limit of scanned pages</label>
                 <br>
-                <input id="page_limit" ng-model="target.attributes.ARACHNI_PAGE_LIMIT" type="number" class="form-control" />
+                <input id="page_limit" ng-model="target.attributes.ARACHNI_PAGE_LIMIT" type="number" class="form-control" placeholder="1000"/>
             </div>
             <div class="clearfix"></div>
 
