@@ -45,9 +45,9 @@
                 ARACHNI_LOGIN_CREDENTIALS: '',
                 ARACHNI_LOGIN_CHECK: '',
                 ARACHNI_LOGIN_SCRIPT_FILENAME: '',
-                ARACHNI_REQUESTS_PER_SECOND: 20,
-                ARACHNI_POOL_SIZE:6,
-                ARACHNI_REQUEST_CONCURRENCY:20
+                ARACHNI_REQUESTS_PER_SECOND: '',
+                ARACHNI_POOL_SIZE:'',
+                ARACHNI_REQUEST_CONCURRENCY: ''
             }
         };
         $scope.context = '';
@@ -190,18 +190,18 @@
 
                 <label for="requests_per_second">Requests per Second</label>
                 <br>
-                <input id="requests_per_second" ng-model="target.attributes.ARACHNI_REQUESTS_PER_SECOND" type="number" class="form-control">
+                <input id="requests_per_second" ng-model="target.attributes.ARACHNI_REQUESTS_PER_SECOND" type="number" class="form-control" placeholder="20">
                 <br>
 
                 <label for="pool_size">Browser Cluster Pool Size</label>
                 <br>
-                <input id="pool_size" ng-model="target.attributes.ARACHNI_POOL_SIZE" type="number" class="form-control"
+                <input id="pool_size" ng-model="target.attributes.ARACHNI_POOL_SIZE" type="number" class="form-control" placeholder="6"
                 />
                 <br>
 
                 <label for="request_concurrency">Request Concurrency</label>
                 <br>
-                <input id="request_concurrency" ng-model="target.attributes.ARACHNI_REQUEST_CONCURRENCY" type="number" class="form-control" />
+                <input id="request_concurrency" ng-model="target.attributes.ARACHNI_REQUEST_CONCURRENCY" type="number" class="form-control" placeholder="20"/>
             </div>
             <div class="clearfix"></div>
 
