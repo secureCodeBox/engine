@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 
 @Component
 public class AuthService {
@@ -34,11 +35,11 @@ public class AuthService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthService.class);
 
-    public boolean isAuthorizedFor(String resourceId, ResourceType resource, PermissionType permission){
+    public void isAuthorizedFor(String resourceId, ResourceType resource, PermissionType permission) throws InsufficientAuthenticationException{
         Authentication auth = engine.getIdentityService().getCurrentAuthentication();
 
         if(auth == null) {
-            return false;
+            throw new InsufficientAuthenticationException("No authentication provided.");
         }
 
         boolean isAuthorized = engine.getAuthorizationService().isUserAuthorized(
@@ -52,6 +53,8 @@ public class AuthService {
         LOG.debug("Current User '{}' with groups: '{}'", auth.getUserId(), auth.getGroupIds());
         LOG.debug("Access check for [{}, {}, {}]: {}", resourceId, resource, permission, isAuthorized);
 
-        return isAuthorized;
+        if(!isAuthorized){
+            throw new InsufficientAuthenticationException("User is not authorised to perform this action.");
+        }
     }
 }

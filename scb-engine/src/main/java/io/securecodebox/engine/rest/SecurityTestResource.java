@@ -103,14 +103,11 @@ public class SecurityTestResource {
             List<SecurityTestConfiguration> securityTests
     ) {
         for (SecurityTestConfiguration securityTest : securityTests) {
-            if(!authService.isAuthorizedFor(
+            authService.isAuthorizedFor(
                     securityTest.getProcessDefinitionKey(),
                     ResourceType.SECURITY_TEST_DEFINITION,
                     PermissionType.CREATE_INSTANCE
-                )
-            ){
-               return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
+            );
         }
 
         for (SecurityTestConfiguration securityTest : securityTests) {
