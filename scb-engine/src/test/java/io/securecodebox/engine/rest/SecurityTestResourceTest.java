@@ -18,6 +18,7 @@
  */
 package io.securecodebox.engine.rest;
 
+import io.securecodebox.engine.service.AuthService;
 import io.securecodebox.engine.service.SecurityTestService;
 import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.rest.Report;
@@ -49,6 +50,9 @@ public class SecurityTestResourceTest {
 
     @Mock
     SecurityTestService securityTestServiceDummy;
+
+    @Mock
+    AuthService authService;
 
     // Tests for: Start securityTest
 
