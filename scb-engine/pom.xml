@@ -191,6 +191,16 @@
                     <scope>runtime</scope>
                 </dependency>
             </dependencies>
+            <dependencyManagement>
+                <!-- This will overwrite spring boot dependency management version for elastic search-->
+                <dependencies>
+                    <dependency>
+                        <groupId>org.elasticsearch</groupId>
+                        <artifactId>elasticsearch</artifactId>
+                        <version>6.2.4</version>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
         </profile>
         <profile>
             <id>test</id>
