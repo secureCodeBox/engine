@@ -26,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.securecodebox.model.findings.Finding;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -75,6 +76,9 @@ public interface ScanProcessExecution {
      */
     @JsonIgnore
     public abstract void clearFindings();
+
+    @JsonProperty("metaData")
+    Map<String,String> getMetaData();
 
     /**
      * Attaches Findings directly to the process instance.

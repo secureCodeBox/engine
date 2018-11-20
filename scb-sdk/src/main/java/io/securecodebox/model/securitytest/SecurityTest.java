@@ -49,6 +49,7 @@ public class SecurityTest extends AbstractSecurityTest {
         this.id = execution.getId();
         this.context = execution.getContext();
         this.name = execution.getName();
+        this.setMetaData(execution.getMetaData());
         if(execution.getTargets().isEmpty()){
             this.target = null;
         } else {

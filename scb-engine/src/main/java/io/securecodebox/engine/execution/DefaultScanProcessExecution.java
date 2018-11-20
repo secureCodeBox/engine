@@ -29,6 +29,7 @@ import io.securecodebox.model.execution.Scanner;
 import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.scanprocess.ProcessVariableHelper;
+import java.util.Map;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.variable.value.BooleanValue;
 import org.camunda.bpm.engine.variable.value.StringValue;
@@ -178,5 +179,10 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
     @Override
     public void setName(String name) {
         execution.setVariable(DefaultFields.PROCESS_NAME.name(), name);
+    }
+
+    @Override
+    public Map<String, String> getMetaData(){
+        return (Map<String, String>) execution.getVariable(DefaultFields.PROCESS_META_DATA.name());
     }
 }
