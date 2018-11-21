@@ -73,34 +73,47 @@ public class ScanJobResource {
     @Autowired
     ObjectMapper objectMapper;
 
-    @ApiOperation(value = "Lock a scan job for the given topic",
+    @ApiOperation(
+            value = "Lock a scan job for the given topic",
             notes = "Returns a scan job for the given topic / capability, if there is one.",
             authorizations = {
-                @Authorization(value="basicAuth")
-            })
-
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful retrieval of the scan job",
-            response = ScanConfiguration.class),
+                    @Authorization(value = "basicAuth")
+            }
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful retrieval of the scan job", response = ScanConfiguration.class),
             @ApiResponse(code = 204, message = "No scan job available", response = void.class),
             @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
             @ApiResponse(code = 401, message = "Unauthenticated", response = void.class),
-            @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
-
-    @RequestMapping(method = RequestMethod.POST, value = "/lock/{topic:[a-zA-Z0-9_\\-]*}/{scannerId}")
+            @ApiResponse(code = 500, message = "Unknown technical error occurred.")
+    })
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = "/lock/{topic:[a-zA-Z0-9_\\-]*}/{scannerId}"
+    )
     public ResponseEntity<ScanConfiguration> lockJob(
-            @ApiParam(defaultValue = "nmap_portscan", example = "nmap_portscan",
-                    value = "Topic name for the Process, be shure only to use: [A-Za-z0-9-_]",
-                    required = true) @PathVariable String topic,
-            @ApiParam(value = "UUID of the job.", required = true, type = "UUID",
+            @ApiParam(
+                    defaultValue = "nmap_portscan",
+                    example = "nmap_portscan",
+                    value = "Topic name for the Process, be sure only to use: [A-Za-z0-9-_]",
+                    required = true
+            )
+            @PathVariable String topic,
+            @ApiParam(
+                    value = "UUID of the job.",
+                    required = true,
+                    type = "UUID",
                     defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726",
-                    example = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID scannerId) {
+                    example = "29bf7fd3-8512-4d73-a28f-608e493cd726"
+            )
+            @PathVariable UUID scannerId
+    ) {
         ExternalTaskQueryBuilder externalTaskQueryBuilder = engine.getExternalTaskService()
                 .fetchAndLock(1, scannerId.toString());
         externalTaskQueryBuilder.topic(topic, LOCK_DURATION_MS);
 
         LockedExternalTask result = Iterables.getFirst(externalTaskQueryBuilder.execute(), null);
         if (result != null) {
-
             ScanConfiguration config = new ScanConfiguration();
             config.setJobId(UUID.fromString(result.getId()));
             config.setTargets(getVariableListFromJsonField(result, DefaultFields.PROCESS_TARGETS, Target.class));
@@ -110,23 +123,34 @@ public class ScanJobResource {
         }
     }
 
-    @ApiOperation(value = "Send a scan result for the previously locked job.",
+    @ApiOperation(
+            value = "Send a scan result for the previously locked job.",
             authorizations = {
-                    @Authorization(value="basicAuth")
-            })
-    @ApiResponses(
-            value = { @ApiResponse(code = 200, message = "Successful delivery of the result.", response = void.class),
-                    @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
-                    @ApiResponse(code = 401, message = "Unauthenticated", response = void.class),
-                    @ApiResponse(code = 404, message = "Unable to find jobId"),
-                    @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
-
-    @RequestMapping(method = RequestMethod.POST, value = "{id}/result")
-    public ResponseEntity completeJob(@ApiParam(value = "UUID of the job.", required = true, type = "UUID",
-            defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726",
-            example = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID id,
-            @Valid @RequestBody ScanResult result) {
-
+                    @Authorization(value = "basicAuth")
+            }
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful delivery of the result.", response = void.class),
+            @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
+            @ApiResponse(code = 401, message = "Unauthenticated", response = void.class),
+            @ApiResponse(code = 404, message = "Unable to find jobId"),
+            @ApiResponse(code = 500, message = "Unknown technical error occurred.")
+    })
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = "{id}/result"
+    )
+    public ResponseEntity completeJob(
+            @ApiParam(
+                    value = "UUID of the job.",
+                    required = true,
+                    type = "UUID",
+                    defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726",
+                    example = "29bf7fd3-8512-4d73-a28f-608e493cd726"
+            )
+            @PathVariable UUID id,
+            @Valid @RequestBody ScanResult result
+    ) {
         LOG.debug("Received scan result {}", result);
 
         Map<String, Object> variables = new HashMap<>();
@@ -150,26 +174,40 @@ public class ScanJobResource {
         return ResponseEntity.ok().build();
     }
 
-    @ApiOperation(value = "Send a scan failure for the previously locked job.",
+    @ApiOperation(
+            value = "Send a scan failure for the previously locked job.",
             authorizations = {
-                    @Authorization(value="basicAuth")
-            })
+                    @Authorization(value = "basicAuth")
+            }
+    )
     @ApiResponses(
-            value = { @ApiResponse(code = 200, message = "Successful delivery of the failure.", response = void.class),
+            value = {
+                    @ApiResponse(code = 200, message = "Successful delivery of the failure.", response = void.class),
                     @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
                     @ApiResponse(code = 401, message = "Unauthenticated", response = void.class),
                     @ApiResponse(code = 404, message = "Unable to find jobId"),
-                    @ApiResponse(code = 500, message = "Unknown technical error occurred.") })
-
-    @RequestMapping(method = RequestMethod.POST, value = "{id}/failure")
-    public ResponseEntity failJob(@ApiParam(value = "UUID of the job.", required = true, type = "UUID",
-            defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726",
-            example = "29bf7fd3-8512-4d73-a28f-608e493cd726") @PathVariable UUID id,
-            @Valid @RequestBody ScanFailure result) {
+                    @ApiResponse(code = 500, message = "Unknown technical error occurred.")
+            }
+    )
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = "{id}/failure"
+    )
+    public ResponseEntity failJob(
+            @ApiParam(
+                    value = "UUID of the job.",
+                    required = true,
+                    type = "UUID",
+                    defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726",
+                    example = "29bf7fd3-8512-4d73-a28f-608e493cd726"
+            )
+            @PathVariable UUID id,
+            @Valid @RequestBody ScanFailure result
+    ) {
 
         int retriesLeft = 0;
 
-        LOG.debug("Recived scan failure {}", result);
+        LOG.debug("Received scan failure {}", result);
 
         ExternalTask externalTask = engine.getExternalTaskService()
                 .createExternalTaskQuery()
