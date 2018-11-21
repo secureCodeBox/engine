@@ -56,13 +56,23 @@ public class AuthService {
                 .map(Group::getId)
                 .collect(Collectors.toList());
 
-        boolean isAuthorized = engine.getAuthorizationService().isUserAuthorized(
-                authentication.getName(),
-                groups,
-                permission.getCamundaPermission(),
-                resource.getCamundaResource(),
-                resourceId
-        );
+        boolean isAuthorized = false;
+        if(resourceId == null){
+            isAuthorized = engine.getAuthorizationService().isUserAuthorized(
+                    authentication.getName(),
+                    groups,
+                    permission.getCamundaPermission(),
+                    resource.getCamundaResource()
+            );
+        } else {
+            isAuthorized = engine.getAuthorizationService().isUserAuthorized(
+                    authentication.getName(),
+                    groups,
+                    permission.getCamundaPermission(),
+                    resource.getCamundaResource(),
+                    resourceId
+            );
+        }
 
         LOG.debug("Current User '{}' with groups: '{}'", authentication.getName(), groups);
         LOG.debug("Access check for [{}, {}, {}]: {}", resourceId, resource, permission, isAuthorized);
@@ -70,5 +80,9 @@ public class AuthService {
         if(!isAuthorized){
             throw new InsufficientAuthenticationException("User is not authorised to perform this action.");
         }
+    }
+
+    public void isAuthorizedFor(ResourceType resource, PermissionType permission) throws InsufficientAuthenticationException{
+        this.isAuthorizedFor(null, resource, permission);
     }
 }

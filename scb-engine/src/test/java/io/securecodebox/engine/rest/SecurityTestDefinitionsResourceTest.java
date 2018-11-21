@@ -18,6 +18,7 @@
  */
 package io.securecodebox.engine.rest;
 
+import io.securecodebox.engine.service.AuthService;
 import io.securecodebox.engine.service.SecurityTestService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +26,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -32,6 +34,8 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Matchers.any;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityTestDefinitionsResourceTest {
@@ -40,6 +44,9 @@ public class SecurityTestDefinitionsResourceTest {
 
     @Mock
     SecurityTestService securityTestServiceDummy;
+
+    @Mock
+    AuthService authService;
 
     @Test
     public void shouldReturnAllAvailableProcessKeys() throws Exception {
@@ -55,5 +62,15 @@ public class SecurityTestDefinitionsResourceTest {
         ResponseEntity<List<String>> response = classUnderTest.getSecurityTestDefinitions();
 
         assertEquals(new LinkedList<>(), response.getBody());
+    }
+
+    @Test
+    public void shouldReturnA401WhenTheUserIsntPermittedToAccessProcessDefinitions() throws Exception {
+        given(securityTestServiceDummy.getAvailableSecurityTestDefinitionNames()).willReturn(new LinkedList<>());
+        willThrow(new InsufficientAuthenticationException("")).given(authService).isAuthorizedFor(any(), any());
+
+        ResponseEntity<List<String>> response = classUnderTest.getSecurityTestDefinitions();
+
+        assertEquals(401, response.getStatusCodeValue());
     }
 }
