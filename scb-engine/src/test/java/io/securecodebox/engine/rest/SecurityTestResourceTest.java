@@ -98,17 +98,20 @@ public class SecurityTestResourceTest {
         verify(securityTestServiceDummy, times(1)).startSecurityTest(secTest);
     }
 
-    @Test(expected = InsufficientAuthenticationException.class)
+    @Test
     public void shouldReturnA401IfTheUserIsntAuthorizedToStartASecurityTest() throws Exception {
         given(securityTestServiceDummy.startSecurityTest(any())).willReturn(UUID.fromString("47bd8786-84f2-49ed-9ca9-20ed22be532b"));
         willThrow(new InsufficientAuthenticationException("Foobar")).given(authService).isAuthorizedFor(any(), any(), any());
         SecurityTestConfiguration secTest = new SecurityTestConfiguration();
         secTest.setName("this-process-is-ok");
 
-        classUnderTest.startSecurityTests(Arrays.asList(secTest));
+        ResponseEntity<List<UUID>> response = classUnderTest.startSecurityTests(Arrays.asList(secTest));
+
+        assertEquals(401, response.getStatusCodeValue());
+        verify(securityTestServiceDummy, times(0)).startSecurityTest(any());
     }
 
-    @Test(expected = InsufficientAuthenticationException.class)
+    @Test
     public void shouldReturnA401IfTheUserIsntAuthorizedToOneOfTheSecurityTestsOfThePayload() throws Exception {
         given(securityTestServiceDummy.startSecurityTest(any())).willReturn(UUID.fromString("47bd8786-84f2-49ed-9ca9-20ed22be532b"));
         willThrow(new InsufficientAuthenticationException("Foobar")).given(authService).isAuthorizedFor(eq("this-isnt-process"), any(), any());
@@ -119,7 +122,10 @@ public class SecurityTestResourceTest {
         SecurityTestConfiguration secTest2 = new SecurityTestConfiguration();
         secTest2.setName("this-isnt");
 
-        classUnderTest.startSecurityTests(Arrays.asList(secTest, secTest2));
+        ResponseEntity<List<UUID>> response = classUnderTest.startSecurityTests(Arrays.asList(secTest, secTest2));
+
+        assertEquals(401, response.getStatusCodeValue());
+        verify(securityTestServiceDummy, times(0)).startSecurityTest(any());
     }
 
     // Tests for: Get securityTest result
@@ -184,5 +190,15 @@ public class SecurityTestResourceTest {
         ResponseEntity<SecurityTest> response = classUnderTest.getSecurityTest(UUID.randomUUID());
 
         assertEquals(500, response.getStatusCodeValue());
+    }
+
+    @Test
+    public void shouldReturnA401WhenTheUserIsntPermittedToAccessTheSecurityTest() throws Exception {
+        UUID id = UUID.randomUUID();
+        willThrow(new InsufficientAuthenticationException("Foobar")).given(authService).isAuthorizedFor(eq(id.toString()), any(), any());
+
+        ResponseEntity<SecurityTest> response = classUnderTest.getSecurityTest(id);
+
+        assertEquals(401, response.getStatusCodeValue());
     }
 }

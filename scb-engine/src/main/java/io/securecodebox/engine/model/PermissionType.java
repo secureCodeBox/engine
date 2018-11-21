@@ -24,6 +24,7 @@ import org.camunda.bpm.engine.authorization.Permissions;
 public enum PermissionType {
     NONE(Permissions.NONE),
     ALL(Permissions.ALL),
+    READ(Permissions.READ),
     CREATE(Permissions.CREATE),
     CREATE_INSTANCE(Permissions.CREATE_INSTANCE),
     UPDATE(Permissions.UPDATE),

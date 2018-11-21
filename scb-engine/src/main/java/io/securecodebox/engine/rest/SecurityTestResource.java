@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -111,12 +112,16 @@ public class SecurityTestResource {
             )
             List<SecurityTestConfiguration> securityTests
     ) {
-        for (SecurityTestConfiguration securityTest : securityTests) {
-            authService.isAuthorizedFor(
-                    securityTest.getProcessDefinitionKey(),
-                    ResourceType.SECURITY_TEST_DEFINITION,
-                    PermissionType.CREATE_INSTANCE
-            );
+        try {
+            for (SecurityTestConfiguration securityTest : securityTests) {
+                authService.isAuthorizedFor(
+                        securityTest.getProcessDefinitionKey(),
+                        ResourceType.SECURITY_TEST_DEFINITION,
+                        PermissionType.CREATE_INSTANCE
+                );
+            }
+        } catch (InsufficientAuthenticationException e){
+            return ResponseEntity.status(401).build();
         }
 
         for (SecurityTestConfiguration securityTest : securityTests) {
@@ -178,6 +183,16 @@ public class SecurityTestResource {
     public ResponseEntity<SecurityTest> getSecurityTest(
             @Valid @PathVariable @ApiParam(value = "UUID of the security-test for which the report should be fetched.", required = true) UUID id
     ) {
+        try {
+            authService.isAuthorizedFor(
+                    id.toString(),
+                    ResourceType.SECURITY_TEST,
+                    PermissionType.READ
+            );
+        } catch (InsufficientAuthenticationException e){
+            return ResponseEntity.status(401).build();
+        }
+
         try {
             SecurityTest securityTest = securityTestService.getCompletedSecurityTest(id);
 
