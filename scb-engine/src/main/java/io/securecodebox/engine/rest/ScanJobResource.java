@@ -22,6 +22,9 @@ package io.securecodebox.engine.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterables;
 import io.securecodebox.constants.DefaultFields;
+import io.securecodebox.engine.model.PermissionType;
+import io.securecodebox.engine.model.ResourceType;
+import io.securecodebox.engine.service.AuthService;
 import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.rest.ScanConfiguration;
 import io.securecodebox.model.rest.ScanFailure;
@@ -42,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -69,6 +73,9 @@ public class ScanJobResource {
 
     @Autowired
     ProcessEngine engine;
+
+    @Autowired
+    AuthService authService;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -108,6 +115,12 @@ public class ScanJobResource {
             )
             @PathVariable UUID scannerId
     ) {
+        try{
+            authService.isAuthorizedFor(ResourceType.SECURITY_TEST, PermissionType.READ);
+        }catch (InsufficientAuthenticationException e){
+            return ResponseEntity.status(401).build();
+        }
+
         ExternalTaskQueryBuilder externalTaskQueryBuilder = engine.getExternalTaskService()
                 .fetchAndLock(1, scannerId.toString());
         externalTaskQueryBuilder.topic(topic, LOCK_DURATION_MS);
@@ -151,6 +164,12 @@ public class ScanJobResource {
             @PathVariable UUID id,
             @Valid @RequestBody ScanResult result
     ) {
+        try{
+            authService.isAuthorizedFor(id.toString(), ResourceType.SECURITY_TEST, PermissionType.UPDATE);
+        }catch (InsufficientAuthenticationException e){
+            return ResponseEntity.status(401).build();
+        }
+
         LOG.debug("Received scan result {}", result);
 
         Map<String, Object> variables = new HashMap<>();
@@ -204,6 +223,11 @@ public class ScanJobResource {
             @PathVariable UUID id,
             @Valid @RequestBody ScanFailure result
     ) {
+        try{
+            authService.isAuthorizedFor(id.toString(), ResourceType.SECURITY_TEST, PermissionType.UPDATE);
+        }catch (InsufficientAuthenticationException e){
+            return ResponseEntity.status(401).build();
+        }
 
         int retriesLeft = 0;
 
