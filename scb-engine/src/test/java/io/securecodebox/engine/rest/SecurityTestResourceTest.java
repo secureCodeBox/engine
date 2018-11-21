@@ -31,6 +31,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +42,7 @@ import static org.junit.Assert.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -93,6 +96,30 @@ public class SecurityTestResourceTest {
         assertEquals(Arrays.asList(UUID.fromString("47bd8786-84f2-49ed-9ca9-20ed22be532b")), response.getBody());
 
         verify(securityTestServiceDummy, times(1)).startSecurityTest(secTest);
+    }
+
+    @Test(expected = InsufficientAuthenticationException.class)
+    public void shouldReturnA401IfTheUserIsntAuthorizedToStartASecurityTest() throws Exception {
+        given(securityTestServiceDummy.startSecurityTest(any())).willReturn(UUID.fromString("47bd8786-84f2-49ed-9ca9-20ed22be532b"));
+        willThrow(new InsufficientAuthenticationException("Foobar")).given(authService).isAuthorizedFor(any(), any(), any());
+        SecurityTestConfiguration secTest = new SecurityTestConfiguration();
+        secTest.setName("this-process-is-ok");
+
+        classUnderTest.startSecurityTests(Arrays.asList(secTest));
+    }
+
+    @Test(expected = InsufficientAuthenticationException.class)
+    public void shouldReturnA401IfTheUserIsntAuthorizedToOneOfTheSecurityTestsOfThePayload() throws Exception {
+        given(securityTestServiceDummy.startSecurityTest(any())).willReturn(UUID.fromString("47bd8786-84f2-49ed-9ca9-20ed22be532b"));
+        willThrow(new InsufficientAuthenticationException("Foobar")).given(authService).isAuthorizedFor(eq("this-isnt-process"), any(), any());
+
+        SecurityTestConfiguration secTest = new SecurityTestConfiguration();
+        secTest.setName("this-process-is-ok");
+
+        SecurityTestConfiguration secTest2 = new SecurityTestConfiguration();
+        secTest2.setName("this-isnt");
+
+        classUnderTest.startSecurityTests(Arrays.asList(secTest, secTest2));
     }
 
     // Tests for: Get securityTest result
