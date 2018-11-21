@@ -100,7 +100,7 @@ public class ScanJobResource {
             )
             @PathVariable String topic,
             @ApiParam(
-                    value = "UUID of the job.",
+                    value = "UUID identifying the scanner instance.",
                     required = true,
                     type = "UUID",
                     defaultValue = "29bf7fd3-8512-4d73-a28f-608e493cd726",
