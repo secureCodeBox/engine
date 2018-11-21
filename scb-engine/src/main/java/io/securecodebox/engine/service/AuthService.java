@@ -20,13 +20,18 @@ package io.securecodebox.engine.service;
 
 import io.securecodebox.engine.model.PermissionType;
 import io.securecodebox.engine.model.ResourceType;
-import org.camunda.bpm.engine.impl.identity.Authentication;
+import org.camunda.bpm.engine.identity.Group;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class AuthService {
@@ -36,21 +41,30 @@ public class AuthService {
     private static final Logger LOG = LoggerFactory.getLogger(AuthService.class);
 
     public void isAuthorizedFor(String resourceId, ResourceType resource, PermissionType permission) throws InsufficientAuthenticationException{
-        Authentication auth = engine.getIdentityService().getCurrentAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if(auth == null) {
+        if(authentication == null) {
             throw new InsufficientAuthenticationException("No authentication provided.");
         }
 
+        List<String> groups = engine
+                .getIdentityService()
+                .createGroupQuery()
+                .groupMember(authentication.getName())
+                .list()
+                .stream()
+                .map(Group::getId)
+                .collect(Collectors.toList());
+
         boolean isAuthorized = engine.getAuthorizationService().isUserAuthorized(
-                auth.getUserId(),
-                auth.getGroupIds(),
+                authentication.getName(),
+                groups,
                 permission.getCamundaPermission(),
                 resource.getCamundaResource(),
                 resourceId
         );
 
-        LOG.debug("Current User '{}' with groups: '{}'", auth.getUserId(), auth.getGroupIds());
+        LOG.debug("Current User '{}' with groups: '{}'", authentication.getName(), groups);
         LOG.debug("Access check for [{}, {}, {}]: {}", resourceId, resource, permission, isAuthorized);
 
         if(!isAuthorized){

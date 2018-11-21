@@ -1,12 +1,8 @@
 package io.securecodebox.engine.auth;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.camunda.bpm.engine.ProcessEngine;
-import org.camunda.bpm.engine.identity.Group;
-import org.camunda.bpm.engine.identity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -30,17 +26,6 @@ public class CamundaAuthenticationProvider implements AuthenticationProvider {
         boolean authenticated = engine.getIdentityService().checkPassword(username,password);
 
         if (authenticated) {
-            // Set current camunda authentication
-            User user = engine.getIdentityService().createUserQuery().userId(username).singleResult();
-            List<String> groupIds = engine.getIdentityService()
-                    .createGroupQuery()
-                    .groupMember(username)
-                    .list()
-                    .stream()
-                    .map(Group::getId)
-                    .collect(Collectors.toList());
-            engine.getIdentityService().setAuthentication(user.getId(), groupIds);
-
             return new UsernamePasswordAuthenticationToken(username, password, Collections.emptyList());
         } else {
             throw new BadCredentialsException("Authentication failed");
