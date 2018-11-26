@@ -222,6 +222,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         } catch (JsonProcessingException e) {
             LOG.error(e.getMessage());
         } catch (IOException e) {
+            LOG.error("Failed to persist to elasticsearch.", e.getMessage());
             throw new ElasticsearchPersistenceException("Error while persisting securityTest into elasticsearch. Is elasticsearch available?.");
         }
     }
