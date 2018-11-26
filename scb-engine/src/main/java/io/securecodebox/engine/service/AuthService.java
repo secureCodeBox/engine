@@ -22,6 +22,7 @@ import io.securecodebox.engine.model.PermissionType;
 import io.securecodebox.engine.model.ResourceType;
 import org.camunda.bpm.engine.identity.Group;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -35,12 +36,20 @@ import java.util.stream.Collectors;
 
 @Component
 public class AuthService {
+    private static String AUTH_DISABLED_TYPE = "none";
+    private static final Logger LOG = LoggerFactory.getLogger(AuthService.class);
+
     @Autowired
     ProcessEngine engine;
 
-    private static final Logger LOG = LoggerFactory.getLogger(AuthService.class);
+    @Value("${securecodebox.rest.auth}")
+    private String authType;
 
     public void isAuthorizedFor(String resourceId, ResourceType resource, PermissionType permission) throws InsufficientAuthenticationException{
+        if(AUTH_DISABLED_TYPE.equals(authType)){
+            return;
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if(authentication == null) {
