@@ -2,4 +2,3 @@ spring.profiles.active: test
 
 securecodebox:
   persistence.provider: none
-  rest.auth: none
