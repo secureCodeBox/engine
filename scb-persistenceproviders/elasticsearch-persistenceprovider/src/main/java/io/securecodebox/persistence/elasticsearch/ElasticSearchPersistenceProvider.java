@@ -216,14 +216,13 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                 @Override
                 public void onFailure(Exception e) {
                     LOG.error("Error persisting findings. Reason: {}", e);
-                    throw new ElasticsearchPersistenceException("Request to persist findings to elasticsearch failed.");
+                    throw new ElasticsearchPersistenceException("Request to persist findings to elasticsearch failed.", e);
                 }
             });
         } catch (JsonProcessingException e) {
             LOG.error(e.getMessage());
         } catch (IOException e) {
-            LOG.error("Failed to persist to elasticsearch.", e.getMessage());
-            throw new ElasticsearchPersistenceException("Error while persisting securityTest into elasticsearch. Is elasticsearch available?.");
+            throw new ElasticsearchPersistenceException("Error while persisting securityTest into elasticsearch. Is elasticsearch available?.", e);
         }
     }
 
@@ -419,7 +418,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                             highLevelClient.indices().delete(deleteIndexRequest);
                         } catch (IOException e) {
                             LOG.error("Kibana index could not be successfully deleted and might be corrupted. Delete it manually!");
-                            throw new ElasticsearchPersistenceException("Kibana index could not be successfully deleted and might be corrupted. Delete it manually!");
+                            throw new ElasticsearchPersistenceException("Kibana index could not be successfully deleted and might be corrupted. Delete it manually!", e);
                         }
                     } else {
                         LOG.info("Successfully created kibana data");

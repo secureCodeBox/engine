@@ -24,4 +24,8 @@ public class ElasticsearchPersistenceException extends PersistenceException {
     public ElasticsearchPersistenceException(String message) {
         super(message);
     }
+
+    public ElasticsearchPersistenceException(String message, Throwable cause){
+        super(message, cause);
+    }
 }
