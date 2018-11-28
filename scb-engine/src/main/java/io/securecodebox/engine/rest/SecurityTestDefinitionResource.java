@@ -18,6 +18,7 @@
  */
 package io.securecodebox.engine.rest;
 
+import io.securecodebox.engine.auth.InsufficientAuthorizationException;
 import io.securecodebox.engine.model.PermissionType;
 import io.securecodebox.engine.model.ResourceType;
 import io.securecodebox.engine.service.AuthService;
@@ -30,7 +31,6 @@ import io.swagger.annotations.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -83,7 +83,7 @@ public class SecurityTestDefinitionResource {
     public ResponseEntity<List<String>> getSecurityTestDefinitions(){
         try {
             authService.checkAuthorizedFor(ResourceType.SECURITY_TEST_DEFINITION, PermissionType.READ);
-        }catch (InsufficientAuthenticationException e){
+        }catch (InsufficientAuthorizationException e){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 

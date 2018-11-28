@@ -18,6 +18,7 @@
  */
 package io.securecodebox.engine.rest;
 
+import io.securecodebox.engine.auth.InsufficientAuthorizationException;
 import io.securecodebox.engine.service.AuthService;
 import io.securecodebox.engine.service.SecurityTestService;
 import org.junit.Test;
@@ -26,7 +27,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -67,7 +67,7 @@ public class SecurityTestDefinitionsResourceTest {
     @Test
     public void shouldReturnA403WhenTheUserIsntPermittedToAccessProcessDefinitions() throws Exception {
         given(securityTestServiceDummy.getAvailableSecurityTestDefinitionNames()).willReturn(new LinkedList<>());
-        willThrow(new InsufficientAuthenticationException("")).given(authService).checkAuthorizedFor(any(), any());
+        willThrow(new InsufficientAuthorizationException("")).given(authService).checkAuthorizedFor(any(), any());
 
         ResponseEntity<List<String>> response = classUnderTest.getSecurityTestDefinitions();
 

@@ -18,6 +18,7 @@
  */
 package io.securecodebox.engine.rest;
 
+import io.securecodebox.engine.auth.InsufficientAuthorizationException;
 import io.securecodebox.engine.service.AuthService;
 import io.securecodebox.engine.service.SecurityTestService;
 import io.securecodebox.model.execution.Target;
@@ -31,7 +32,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -100,7 +100,7 @@ public class SecurityTestResourceTest {
     @Test
     public void shouldReturnA403IfTheUserIsntAuthorizedToStartASecurityTest() throws Exception {
         given(securityTestServiceDummy.startSecurityTest(any())).willReturn(UUID.fromString("47bd8786-84f2-49ed-9ca9-20ed22be532b"));
-        willThrow(new InsufficientAuthenticationException("Foobar")).given(authService).checkAuthorizedFor(any(), any(), any());
+        willThrow(new InsufficientAuthorizationException("Foobar")).given(authService).checkAuthorizedFor(any(), any(), any());
         SecurityTestConfiguration secTest = new SecurityTestConfiguration();
         secTest.setName("this-process-is-ok");
 
@@ -113,7 +113,7 @@ public class SecurityTestResourceTest {
     @Test
     public void shouldReturnA403IfTheUserIsntAuthorizedToOneOfTheSecurityTestsOfThePayload() throws Exception {
         given(securityTestServiceDummy.startSecurityTest(any())).willReturn(UUID.fromString("47bd8786-84f2-49ed-9ca9-20ed22be532b"));
-        willThrow(new InsufficientAuthenticationException("Foobar")).given(authService).checkAuthorizedFor(eq("this-isnt-process"), any(), any());
+        willThrow(new InsufficientAuthorizationException("Foobar")).given(authService).checkAuthorizedFor(eq("this-isnt-process"), any(), any());
 
         SecurityTestConfiguration secTest = new SecurityTestConfiguration();
         secTest.setName("this-process-is-ok");
@@ -194,7 +194,7 @@ public class SecurityTestResourceTest {
     @Test
     public void shouldReturnA403WhenTheUserIsntPermittedToAccessTheSecurityTest() throws Exception {
         UUID id = UUID.randomUUID();
-        willThrow(new InsufficientAuthenticationException("Foobar")).given(authService).checkAuthorizedFor(eq(id.toString()), any(), any());
+        willThrow(new InsufficientAuthorizationException("Foobar")).given(authService).checkAuthorizedFor(eq(id.toString()), any(), any());
 
         ResponseEntity<SecurityTest> response = classUnderTest.getSecurityTest(id);
 

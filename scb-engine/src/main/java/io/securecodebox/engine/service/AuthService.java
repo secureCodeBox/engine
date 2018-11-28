@@ -18,6 +18,7 @@
  */
 package io.securecodebox.engine.service;
 
+import io.securecodebox.engine.auth.InsufficientAuthorizationException;
 import io.securecodebox.engine.model.PermissionType;
 import io.securecodebox.engine.model.ResourceType;
 import org.camunda.bpm.engine.identity.Group;
@@ -29,7 +30,6 @@ import org.springframework.stereotype.Component;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,7 +45,7 @@ public class AuthService {
     @Value("${securecodebox.rest.auth}")
     private String authType;
 
-    public void checkAuthorizedFor(String resourceId, ResourceType resource, PermissionType permission) throws InsufficientAuthenticationException{
+    public void checkAuthorizedFor(String resourceId, ResourceType resource, PermissionType permission) throws InsufficientAuthorizationException {
         if(AUTH_DISABLED_TYPE.equals(authType)){
             return;
         }
@@ -53,7 +53,7 @@ public class AuthService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if(authentication == null) {
-            throw new InsufficientAuthenticationException("No authentication provided.");
+            throw new InsufficientAuthorizationException("No authentication provided.");
         }
 
         List<String> groups = engine
@@ -87,11 +87,11 @@ public class AuthService {
         LOG.debug("Access check for [{}, {}, {}]: {}", resourceId, resource, permission, isAuthorized);
 
         if(!isAuthorized){
-            throw new InsufficientAuthenticationException("User is not authorised to perform this action.");
+            throw new InsufficientAuthorizationException("User is not authorised to perform this action.");
         }
     }
 
-    public void checkAuthorizedFor(ResourceType resource, PermissionType permission) throws InsufficientAuthenticationException{
+    public void checkAuthorizedFor(ResourceType resource, PermissionType permission) throws InsufficientAuthorizationException {
         this.checkAuthorizedFor(null, resource, permission);
     }
 }
