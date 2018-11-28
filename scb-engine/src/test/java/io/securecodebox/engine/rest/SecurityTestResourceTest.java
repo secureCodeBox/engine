@@ -18,6 +18,8 @@
  */
 package io.securecodebox.engine.rest;
 
+import io.securecodebox.engine.auth.InsufficientAuthorizationException;
+import io.securecodebox.engine.service.AuthService;
 import io.securecodebox.engine.service.SecurityTestService;
 import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.rest.Report;
@@ -41,6 +43,7 @@ import static org.junit.Assert.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -51,6 +54,9 @@ public class SecurityTestResourceTest {
 
     @Mock
     SecurityTestService securityTestServiceDummy;
+
+    @Mock
+    AuthService authService;
 
     // Tests for: Start securityTest
 
@@ -93,6 +99,36 @@ public class SecurityTestResourceTest {
         verify(securityTestServiceDummy, times(1)).startSecurityTest(secTest);
     }
 
+    @Test
+    public void shouldReturnA403IfTheUserIsntAuthorizedToStartASecurityTest() throws Exception {
+        given(securityTestServiceDummy.startSecurityTest(any())).willReturn(UUID.fromString("47bd8786-84f2-49ed-9ca9-20ed22be532b"));
+        willThrow(new InsufficientAuthorizationException("Foobar")).given(authService).checkAuthorizedFor(any(), any(), any());
+        SecurityTestConfiguration secTest = new SecurityTestConfiguration();
+        secTest.setName("this-process-is-ok");
+
+        ResponseEntity<List<UUID>> response = classUnderTest.startSecurityTests(Arrays.asList(secTest));
+
+        assertEquals(403, response.getStatusCodeValue());
+        verify(securityTestServiceDummy, times(0)).startSecurityTest(any());
+    }
+
+    @Test
+    public void shouldReturnA403IfTheUserIsntAuthorizedToOneOfTheSecurityTestsOfThePayload() throws Exception {
+        given(securityTestServiceDummy.startSecurityTest(any())).willReturn(UUID.fromString("47bd8786-84f2-49ed-9ca9-20ed22be532b"));
+        willThrow(new InsufficientAuthorizationException("Foobar")).given(authService).checkAuthorizedFor(eq("this-isnt-process"), any(), any());
+
+        SecurityTestConfiguration secTest = new SecurityTestConfiguration();
+        secTest.setName("this-process-is-ok");
+
+        SecurityTestConfiguration secTest2 = new SecurityTestConfiguration();
+        secTest2.setName("this-isnt");
+
+        ResponseEntity<List<UUID>> response = classUnderTest.startSecurityTests(Arrays.asList(secTest, secTest2));
+
+        assertEquals(403, response.getStatusCodeValue());
+        verify(securityTestServiceDummy, times(0)).startSecurityTest(any());
+    }
+
     // Tests for: Get securityTest result
 
     @Test
@@ -101,12 +137,12 @@ public class SecurityTestResourceTest {
         Map<String,String> metaData = new HashMap<>();
         given(securityTestServiceDummy.getCompletedSecurityTest(any())).willReturn(
                 new SecurityTest(
-                        id,
+                    id,
                     "Feature Team 1",
                     "nmap",
                     new Target(),
                     new Report(),
-                        metaData
+                    metaData
                 )
         );
 
@@ -132,7 +168,6 @@ public class SecurityTestResourceTest {
     public void shouldReturnA206IfTheSecurityTestIsntFinished() throws Exception {
         UUID id = UUID.randomUUID();
         given(securityTestServiceDummy.getCompletedSecurityTest(any())).willReturn(
-
                 new SecurityTest(
                         id,
                         "Feature Team 1",
@@ -160,5 +195,15 @@ public class SecurityTestResourceTest {
         ResponseEntity<SecurityTest> response = classUnderTest.getSecurityTest(UUID.randomUUID());
 
         assertEquals(500, response.getStatusCodeValue());
+    }
+
+    @Test
+    public void shouldReturnA403WhenTheUserIsntPermittedToAccessTheSecurityTest() throws Exception {
+        UUID id = UUID.randomUUID();
+        willThrow(new InsufficientAuthorizationException("Foobar")).given(authService).checkAuthorizedFor(eq(id.toString()), any(), any());
+
+        ResponseEntity<SecurityTest> response = classUnderTest.getSecurityTest(id);
+
+        assertEquals(403, response.getStatusCodeValue());
     }
 }

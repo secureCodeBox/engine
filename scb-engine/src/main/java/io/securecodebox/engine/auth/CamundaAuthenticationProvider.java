@@ -1,6 +1,7 @@
 package io.securecodebox.engine.auth;
 
 import java.util.Collections;
+
 import org.camunda.bpm.engine.ProcessEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;

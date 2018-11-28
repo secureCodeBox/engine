@@ -19,16 +19,29 @@
 package io.securecodebox.engine.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.securecodebox.engine.auth.InsufficientAuthorizationException;
+import io.securecodebox.engine.model.PermissionType;
+import io.securecodebox.engine.model.ResourceType;
+import io.securecodebox.engine.service.AuthService;
 import io.securecodebox.engine.service.SecurityTestService;
 import io.securecodebox.model.securitytest.SecurityTest;
 import io.securecodebox.model.securitytest.SecurityTestConfiguration;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.*;
@@ -44,16 +57,19 @@ public class SecurityTestResource {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityTestResource.class);
 
     @Autowired
+    AuthService authService;
+
+    @Autowired
     SecurityTestService securityTestService;
 
     @Autowired
     ObjectMapper objectMapper;
 
     @ApiOperation(value = "Starts new securityTests.",
-                    notes = "Starts new securityTests, based on a given list of securityTest configurations.",
-                    authorizations = {
-                            @Authorization(value="basicAuth")
-                    }
+            notes = "Starts new securityTests, based on a given list of securityTest configurations.",
+            authorizations = {
+                    @Authorization(value = "basicAuth")
+            }
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -77,6 +93,11 @@ public class SecurityTestResource {
                     response = void.class
             ),
             @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized, the user is missing the required rights to perform this action.",
+                    response = void.class
+            ),
+            @ApiResponse(
                     code = 404,
                     message = "Could not find definition for specified securityTest.",
                     response = void.class
@@ -91,11 +112,22 @@ public class SecurityTestResource {
             @Valid
             @RequestBody
             @ApiParam(
-                value = "A list with all securityTest which should be performed.",
-                required = true
+                    value = "A list with all securityTest which should be performed.",
+                    required = true
             )
             List<SecurityTestConfiguration> securityTests
     ) {
+        try {
+            for (SecurityTestConfiguration securityTest : securityTests) {
+                authService.checkAuthorizedFor(
+                        securityTest.getProcessDefinitionKey(),
+                        ResourceType.SECURITY_TEST_DEFINITION,
+                        PermissionType.CREATE_INSTANCE
+                );
+            }
+        } catch (InsufficientAuthorizationException e){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         for (SecurityTestConfiguration securityTest : securityTests) {
             try {
@@ -119,7 +151,7 @@ public class SecurityTestResource {
     @ApiOperation(value = "Returns the state of a securityTests.",
             notes = "Currently only supports finished securityTests.",
             authorizations = {
-                    @Authorization(value="basicAuth")
+                    @Authorization(value = "basicAuth")
             }
     )
     @ApiResponses(value = {
@@ -143,6 +175,11 @@ public class SecurityTestResource {
                     response = void.class
             ),
             @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized, the user is missing the required rights to perform this action.",
+                    response = void.class
+            ),
+            @ApiResponse(
                     code = 404,
                     message = "Could not find definition for specified securityTest.",
                     response = void.class
@@ -157,9 +194,19 @@ public class SecurityTestResource {
             @Valid @PathVariable @ApiParam(value = "UUID of the security-test for which the report should be fetched.", required = true) UUID id
     ) {
         try {
+            authService.checkAuthorizedFor(
+                    id.toString(),
+                    ResourceType.SECURITY_TEST,
+                    PermissionType.READ
+            );
+        } catch (InsufficientAuthorizationException e){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        try {
             SecurityTest securityTest = securityTestService.getCompletedSecurityTest(id);
 
-            if(securityTest.isFinished()){
+            if (securityTest.isFinished()) {
                 return ResponseEntity.status(HttpStatus.OK).body(securityTest);
             }
             return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT).body(securityTest);
