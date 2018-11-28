@@ -75,6 +75,7 @@ public class SecurityTestService {
         values.put(DefaultFields.PROCESS_CONTEXT.name(), securityTest.getContext());
         values.put(DefaultFields.PROCESS_NAME.name(), securityTest.getName());
         values.put(DefaultFields.PROCESS_TARGETS.name(), ProcessVariableHelper.generateObjectValue(targets));
+        values.put(DefaultFields.PROCESS_META_DATA.name(), securityTest.getMetaData());
 
         ProcessInstance instance = engine.getRuntimeService().startProcessInstanceByKey(securityTest.getProcessDefinitionKey(), values);
         return UUID.fromString(instance.getProcessInstanceId());
@@ -130,8 +131,9 @@ public class SecurityTestService {
         String context = (String) variables.get(DefaultFields.PROCESS_CONTEXT.name()).getValue();
         String name = (String) variables.get(DefaultFields.PROCESS_NAME.name()).getValue();
         List<Target> targets = getListValue(variables, DefaultFields.PROCESS_TARGETS, Target.class);
+        Map<String, String> metaData = (Map<String, String>) variables.get(DefaultFields.PROCESS_META_DATA.name()).getValue();
 
-        return new SecurityTest(id, context, name, targets.get(0), report);
+        return new SecurityTest(id, context, name, targets.get(0), report, metaData);
     }
 
     private <T> List<T> getListValue(Map<String, HistoricVariableInstance> variables, DefaultFields name, Class<T> type) {

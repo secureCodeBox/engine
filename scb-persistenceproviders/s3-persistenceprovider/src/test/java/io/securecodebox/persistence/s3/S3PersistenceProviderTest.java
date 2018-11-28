@@ -70,12 +70,15 @@ public class S3PersistenceProviderTest {
         Report report = new Report(findings, "<rawFindings/>");
         report.setId(UUID.fromString("49bf7fd3-8512-4d73-a28f-608e493cd781"));
 
-        SecurityTest securityTest = new SecurityTest(UUID.fromString("281ccc0f-a933-4106-a3d3-209954e6305e"), "testContext","nmap", null, report);
+        Map<String, String> metaData = new HashMap<>();
+        metaData.put("started-by", "PersistencProviderTest");
+
+        SecurityTest securityTest = new SecurityTest(UUID.fromString("281ccc0f-a933-4106-a3d3-209954e6305e"), "testContext","nmap", null, report, metaData);
         
         File file = s3PersistenceProvider.writeReportToFile(securityTest);
         String content = FileUtils.readFileToString(file, "UTF-8");
         assertEquals(
-            "{\"context\":\"testContext\",\"target\":null,\"id\":\"281ccc0f-a933-4106-a3d3-209954e6305e\",\"report\":{\"report_id\":\"49bf7fd3-8512-4d73-a28f-608e493cd781\",\"findings\":[{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"BAD_TEST_FINDIG_DESC\",\"severity\":\"HIGH\",\"false_positive\":false}],\"raw_findings\":\"<rawFindings/>\",\"severity_highest\":\"HIGH\",\"severity_overview\":{\"HIGH\":1}},\"name\":\"nmap\",\"finished\":true}",
+            "{\"context\":\"testContext\",\"target\":null,\"metaData\":{\"started-by\":\"PersistencProviderTest\"},\"id\":\"281ccc0f-a933-4106-a3d3-209954e6305e\",\"report\":{\"report_id\":\"49bf7fd3-8512-4d73-a28f-608e493cd781\",\"findings\":[{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"BAD_TEST_FINDIG_DESC\",\"severity\":\"HIGH\",\"false_positive\":false}],\"raw_findings\":\"<rawFindings/>\",\"severity_highest\":\"HIGH\",\"severity_overview\":{\"HIGH\":1}},\"name\":\"nmap\",\"finished\":true}",
             content
         );
     }
