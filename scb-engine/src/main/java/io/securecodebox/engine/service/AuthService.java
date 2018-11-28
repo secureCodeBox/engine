@@ -45,7 +45,7 @@ public class AuthService {
     @Value("${securecodebox.rest.auth}")
     private String authType;
 
-    public void isAuthorizedFor(String resourceId, ResourceType resource, PermissionType permission) throws InsufficientAuthenticationException{
+    public void checkAuthorizedFor(String resourceId, ResourceType resource, PermissionType permission) throws InsufficientAuthenticationException{
         if(AUTH_DISABLED_TYPE.equals(authType)){
             return;
         }
@@ -91,7 +91,7 @@ public class AuthService {
         }
     }
 
-    public void isAuthorizedFor(ResourceType resource, PermissionType permission) throws InsufficientAuthenticationException{
-        this.isAuthorizedFor(null, resource, permission);
+    public void checkAuthorizedFor(ResourceType resource, PermissionType permission) throws InsufficientAuthenticationException{
+        this.checkAuthorizedFor(null, resource, permission);
     }
 }

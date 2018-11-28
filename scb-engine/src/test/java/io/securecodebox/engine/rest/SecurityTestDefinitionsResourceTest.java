@@ -67,7 +67,7 @@ public class SecurityTestDefinitionsResourceTest {
     @Test
     public void shouldReturnA401WhenTheUserIsntPermittedToAccessProcessDefinitions() throws Exception {
         given(securityTestServiceDummy.getAvailableSecurityTestDefinitionNames()).willReturn(new LinkedList<>());
-        willThrow(new InsufficientAuthenticationException("")).given(authService).isAuthorizedFor(any(), any());
+        willThrow(new InsufficientAuthenticationException("")).given(authService).checkAuthorizedFor(any(), any());
 
         ResponseEntity<List<String>> response = classUnderTest.getSecurityTestDefinitions();
 

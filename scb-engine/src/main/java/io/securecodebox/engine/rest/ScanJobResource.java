@@ -116,7 +116,7 @@ public class ScanJobResource {
             @PathVariable UUID scannerId
     ) {
         try{
-            authService.isAuthorizedFor(ResourceType.SECURITY_TEST, PermissionType.READ);
+            authService.checkAuthorizedFor(ResourceType.SECURITY_TEST, PermissionType.READ);
         }catch (InsufficientAuthenticationException e){
             return ResponseEntity.status(401).build();
         }
@@ -165,7 +165,7 @@ public class ScanJobResource {
             @Valid @RequestBody ScanResult result
     ) {
         try{
-            authService.isAuthorizedFor(id.toString(), ResourceType.SECURITY_TEST, PermissionType.UPDATE);
+            authService.checkAuthorizedFor(id.toString(), ResourceType.SECURITY_TEST, PermissionType.UPDATE);
         }catch (InsufficientAuthenticationException e){
             return ResponseEntity.status(401).build();
         }
@@ -224,7 +224,7 @@ public class ScanJobResource {
             @Valid @RequestBody ScanFailure result
     ) {
         try{
-            authService.isAuthorizedFor(id.toString(), ResourceType.SECURITY_TEST, PermissionType.UPDATE);
+            authService.checkAuthorizedFor(id.toString(), ResourceType.SECURITY_TEST, PermissionType.UPDATE);
         }catch (InsufficientAuthenticationException e){
             return ResponseEntity.status(401).build();
         }

@@ -114,7 +114,7 @@ public class SecurityTestResource {
     ) {
         try {
             for (SecurityTestConfiguration securityTest : securityTests) {
-                authService.isAuthorizedFor(
+                authService.checkAuthorizedFor(
                         securityTest.getProcessDefinitionKey(),
                         ResourceType.SECURITY_TEST_DEFINITION,
                         PermissionType.CREATE_INSTANCE
@@ -184,7 +184,7 @@ public class SecurityTestResource {
             @Valid @PathVariable @ApiParam(value = "UUID of the security-test for which the report should be fetched.", required = true) UUID id
     ) {
         try {
-            authService.isAuthorizedFor(
+            authService.checkAuthorizedFor(
                     id.toString(),
                     ResourceType.SECURITY_TEST,
                     PermissionType.READ

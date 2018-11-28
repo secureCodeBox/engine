@@ -71,7 +71,7 @@ public class SecurityTestDefinitionResource {
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<String>> getSecurityTestDefinitions(){
         try {
-            authService.isAuthorizedFor(ResourceType.SECURITY_TEST_DEFINITION, PermissionType.READ);
+            authService.checkAuthorizedFor(ResourceType.SECURITY_TEST_DEFINITION, PermissionType.READ);
         }catch (InsufficientAuthenticationException e){
             return ResponseEntity.status(401).build();
         }
