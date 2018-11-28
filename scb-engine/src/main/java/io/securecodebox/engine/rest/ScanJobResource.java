@@ -44,6 +44,7 @@ import org.camunda.bpm.engine.externaltask.LockedExternalTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -92,6 +93,7 @@ public class ScanJobResource {
             @ApiResponse(code = 204, message = "No scan job available", response = void.class),
             @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
             @ApiResponse(code = 401, message = "Unauthenticated", response = void.class),
+            @ApiResponse(code = 403, message = "Unauthorized, the user is missing the required rights to perform this action.", response = void.class),
             @ApiResponse(code = 500, message = "Unknown technical error occurred.")
     })
     @RequestMapping(
@@ -118,7 +120,7 @@ public class ScanJobResource {
         try{
             authService.checkAuthorizedFor(ResourceType.SECURITY_TEST, PermissionType.READ);
         }catch (InsufficientAuthenticationException e){
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         ExternalTaskQueryBuilder externalTaskQueryBuilder = engine.getExternalTaskService()
@@ -146,6 +148,7 @@ public class ScanJobResource {
             @ApiResponse(code = 200, message = "Successful delivery of the result.", response = void.class),
             @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
             @ApiResponse(code = 401, message = "Unauthenticated", response = void.class),
+            @ApiResponse(code = 403, message = "Unauthorized, the user is missing the required rights to perform this action.", response = void.class),
             @ApiResponse(code = 404, message = "Unable to find jobId"),
             @ApiResponse(code = 500, message = "Unknown technical error occurred.")
     })
@@ -167,7 +170,7 @@ public class ScanJobResource {
         try{
             authService.checkAuthorizedFor(id.toString(), ResourceType.SECURITY_TEST, PermissionType.UPDATE);
         }catch (InsufficientAuthenticationException e){
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         LOG.debug("Received scan result {}", result);
@@ -204,6 +207,7 @@ public class ScanJobResource {
                     @ApiResponse(code = 200, message = "Successful delivery of the failure.", response = void.class),
                     @ApiResponse(code = 400, message = "Incomplete or inconsistent Request"),
                     @ApiResponse(code = 401, message = "Unauthenticated", response = void.class),
+                    @ApiResponse(code = 403, message = "Unauthorized, the user is missing the required rights to perform this action.", response = void.class),
                     @ApiResponse(code = 404, message = "Unable to find jobId"),
                     @ApiResponse(code = 500, message = "Unknown technical error occurred.")
             }
@@ -226,7 +230,7 @@ public class ScanJobResource {
         try{
             authService.checkAuthorizedFor(id.toString(), ResourceType.SECURITY_TEST, PermissionType.UPDATE);
         }catch (InsufficientAuthenticationException e){
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         int retriesLeft = 0;

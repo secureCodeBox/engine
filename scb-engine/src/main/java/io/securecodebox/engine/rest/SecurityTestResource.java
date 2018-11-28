@@ -93,6 +93,11 @@ public class SecurityTestResource {
                     response = void.class
             ),
             @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized, the user is missing the required rights to perform this action.",
+                    response = void.class
+            ),
+            @ApiResponse(
                     code = 404,
                     message = "Could not find definition for specified securityTest.",
                     response = void.class
@@ -121,7 +126,7 @@ public class SecurityTestResource {
                 );
             }
         } catch (InsufficientAuthenticationException e){
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         for (SecurityTestConfiguration securityTest : securityTests) {
@@ -170,6 +175,11 @@ public class SecurityTestResource {
                     response = void.class
             ),
             @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized, the user is missing the required rights to perform this action.",
+                    response = void.class
+            ),
+            @ApiResponse(
                     code = 404,
                     message = "Could not find definition for specified securityTest.",
                     response = void.class
@@ -190,7 +200,7 @@ public class SecurityTestResource {
                     PermissionType.READ
             );
         } catch (InsufficientAuthenticationException e){
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         try {

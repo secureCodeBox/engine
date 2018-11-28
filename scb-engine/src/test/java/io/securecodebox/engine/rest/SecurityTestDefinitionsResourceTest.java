@@ -65,12 +65,12 @@ public class SecurityTestDefinitionsResourceTest {
     }
 
     @Test
-    public void shouldReturnA401WhenTheUserIsntPermittedToAccessProcessDefinitions() throws Exception {
+    public void shouldReturnA403WhenTheUserIsntPermittedToAccessProcessDefinitions() throws Exception {
         given(securityTestServiceDummy.getAvailableSecurityTestDefinitionNames()).willReturn(new LinkedList<>());
         willThrow(new InsufficientAuthenticationException("")).given(authService).checkAuthorizedFor(any(), any());
 
         ResponseEntity<List<String>> response = classUnderTest.getSecurityTestDefinitions();
 
-        assertEquals(401, response.getStatusCodeValue());
+        assertEquals(403, response.getStatusCodeValue());
     }
 }

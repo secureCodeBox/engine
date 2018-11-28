@@ -28,6 +28,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,6 +65,16 @@ public class SecurityTestDefinitionResource {
                     responseContainer = "List"
             ),
             @ApiResponse(
+                    code = 401,
+                    message = "Unauthenticated",
+                    response = void.class
+            ),
+            @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized, the user is missing the required rights to perform this action.",
+                    response = void.class
+            ),
+            @ApiResponse(
                     code = 500,
                     message = "Unknown technical error occurred."
             )
@@ -73,7 +84,7 @@ public class SecurityTestDefinitionResource {
         try {
             authService.checkAuthorizedFor(ResourceType.SECURITY_TEST_DEFINITION, PermissionType.READ);
         }catch (InsufficientAuthenticationException e){
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         List<String> securityTests = securityTestService.getAvailableSecurityTestDefinitionNames();
