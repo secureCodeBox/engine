@@ -25,6 +25,8 @@ import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.rest.Report;
 import io.securecodebox.model.securitytest.SecurityTest;
 import io.securecodebox.model.securitytest.SecurityTestConfiguration;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -132,13 +134,15 @@ public class SecurityTestResourceTest {
     @Test
     public void shouldReturnAFullSecurityTest() throws Exception {
         UUID id = UUID.randomUUID();
+        Map<String,String> metaData = new HashMap<>();
         given(securityTestServiceDummy.getCompletedSecurityTest(any())).willReturn(
                 new SecurityTest(
-                        id,
+                    id,
                     "Feature Team 1",
                     "nmap",
                     new Target(),
-                    new Report()
+                    new Report(),
+                    metaData
                 )
         );
 
@@ -148,6 +152,7 @@ public class SecurityTestResourceTest {
         assertEquals(id, response.getBody().getId());
         assertEquals("Feature Team 1", response.getBody().getContext());
         assertEquals("nmap", response.getBody().getName());
+        assertEquals(metaData, response.getBody().getMetaData());
     }
 
     @Test
@@ -168,6 +173,7 @@ public class SecurityTestResourceTest {
                         "Feature Team 1",
                         "nmap",
                         new Target(),
+                        null,
                         null
                 )
         );

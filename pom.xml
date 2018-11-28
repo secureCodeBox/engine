@@ -98,7 +98,7 @@
                 <type>pom</type>
             </dependency>
 
-            <!-- Add camunda spring boot stater classes -->
+            <!-- Add camunda spring boot starter classes -->
             <dependency>
                 <groupId>org.camunda.bpm.springboot</groupId>
                 <artifactId>camunda-bpm-spring-boot-starter</artifactId>
