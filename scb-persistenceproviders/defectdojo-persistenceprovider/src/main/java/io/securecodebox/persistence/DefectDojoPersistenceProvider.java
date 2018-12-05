@@ -88,8 +88,14 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
         // TODO: Make User configurable / always use technical user?
         engagementPayload.setLead("http://localhost:8000/api/v2/users/1/");
-        // TODO: Read Product Id from securityTest Meta Data Field
-        engagementPayload.setProduct("http://localhost:8000/api/v2/products/1/");
+
+        String productId = securityTest.getMetaData().get("DEFECT_DOJO_PRODUCT");
+
+        if(productId == null){
+            throw new RuntimeException("DefectDojo persistence provider was configured but no product id was provided in the security test meta fields.");
+        }
+
+        engagementPayload.setProduct("http://localhost:8000/api/v2/products/" + productId + "/");
 
         // TODO: Use current date for both
         engagementPayload.setTargetStart("2018-12-04");
