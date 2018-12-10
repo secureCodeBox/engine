@@ -26,26 +26,43 @@ import io.securecodebox.persistence.models.EngagementResponse;
 import io.securecodebox.persistence.models.ImportScanResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @Component
 @ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "defectdojo")
 public class DefectDojoPersistenceProvider implements PersistenceProvider {
     private static final Logger LOG = LoggerFactory.getLogger(DefectDojoPersistenceProvider.class);
+
+    @Value("${securecodebox.persistence.defectdojo.base-url}")
+    protected String defectDojoUrl;
+
+    @Value("${securecodebox.persistence.defectdojo.api-key}")
+    protected String defectDojoApiKey;
+
+
+    protected static final String DATE_FORMAT = "yyyy-MM-dd";
 
     @Override
     public void persist(SecurityTest securityTest) throws PersistenceException {
@@ -71,8 +88,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
                 createFindings(securityTest, rawResult, engagementUrl);
             }
         } catch (IOException e) {
-            LOG.error("Could not deserialize rawResults");
-            e.printStackTrace();
+            LOG.error("Could not deserialize rawResults. {}", e);
         }
     }
 
@@ -80,48 +96,50 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
-        // TODO: Read Token from properties
-        headers.set("Authorization", "Token 27aceaf759994177c319a767c55b70f15ecb6b75");
+        headers.set("Authorization", "Token " + defectDojoApiKey);
 
         EngagementPayload engagementPayload = new EngagementPayload();
         engagementPayload.setName(securityTest.getContext());
 
         // TODO: Make User configurable / always use technical user?
-        engagementPayload.setLead("http://localhost:8000/api/v2/users/1/");
+        engagementPayload.setLead(defectDojoUrl + "/api/v2/users/1/");
 
         String productId = securityTest.getMetaData().get("DEFECT_DOJO_PRODUCT");
 
-        if(productId == null){
+        if (productId == null) {
             throw new RuntimeException("DefectDojo persistence provider was configured but no product id was provided in the security test meta fields.");
         }
 
-        engagementPayload.setProduct("http://localhost:8000/api/v2/products/" + productId + "/");
+        engagementPayload.setProduct(defectDojoUrl + "/api/v2/products/" + productId + "/");
 
-        // TODO: Use current date for both
-        engagementPayload.setTargetStart("2018-12-04");
-        engagementPayload.setTargetEnd("2018-12-04");
+        engagementPayload.setTargetStart(currentTimestamp());
+        engagementPayload.setTargetEnd(currentTimestamp());
 
         engagementPayload.setStatus(EngagementPayload.Status.COMPLETED);
 
         HttpEntity<EngagementPayload> payload = new HttpEntity<>(engagementPayload, headers);
 
-        return restTemplate.exchange("http://localhost:8000/api/v2/engagements/", HttpMethod.POST, payload, EngagementResponse.class);
+        return restTemplate.exchange(defectDojoUrl + "/api/v2/engagements/", HttpMethod.POST, payload, EngagementResponse.class);
+    }
+
+    private String currentTimestamp() {
+        return new SimpleDateFormat(DATE_FORMAT).format(new Date());
     }
 
     private ResponseEntity<ImportScanResponse> createFindings(SecurityTest securityTest, String rawResult, String engagementUrl) {
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
-        // TODO: Read Token from properties
-        headers.set("Authorization", "Token 27aceaf759994177c319a767c55b70f15ecb6b75");
+
+        headers.set("Authorization", "Token " + defectDojoApiKey);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         restTemplate.setMessageConverters(Arrays.asList(new FormHttpMessageConverter(), new ResourceHttpMessageConverter(), new MappingJackson2HttpMessageConverter()));
 
         MultiValueMap<String, Object> mvn = new LinkedMultiValueMap<>();
         mvn.add("engagement", engagementUrl);
         // TODO: Fix User hardcoding
-        mvn.add("lead", "http://localhost:8000/api/v2/users/1/");
-        mvn.add("scan_date", "2018-12-04");
+        mvn.add("lead", defectDojoUrl + "/api/v2/users/1/");
+        mvn.add("scan_date", currentTimestamp());
         mvn.add("scan_type", getDefectDojoScanName(securityTest.getName()));
 
         try {
@@ -136,15 +154,18 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
             HttpEntity<MultiValueMap> payload = new HttpEntity<>(mvn, headers);
 
-            return restTemplate.exchange("http://localhost:8000/api/v2/import-scan/", HttpMethod.POST, payload, ImportScanResponse.class);
+            return restTemplate.exchange(defectDojoUrl + "/api/v2/import-scan/", HttpMethod.POST, payload, ImportScanResponse.class);
         } catch (UnsupportedEncodingException e) {
             LOG.error("UnsupportedEncodingException {}", e);
+        } catch(HttpClientErrorException e){
+            LOG.warn("Failed to import findings to DefectDojo. Request failed with status code: '{}'.", e.getStatusCode());
+            LOG.debug("Failure body: {}", e.getResponseBodyAsString());
         }
         return null;
     }
 
-    protected String getDefectDojoScanName(String securityTestName){
-        switch (securityTestName){
+    protected String getDefectDojoScanName(String securityTestName) {
+        switch (securityTestName) {
             case "nmap":
                 return "Nmap Scan";
             case "nikto":
@@ -152,7 +173,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
             case "arachni":
                 return "Arachni Scan";
             case "zap":
-                return "Zap Scan";
+                return "ZAP Scan";
             default:
                 throw new RuntimeException("No defectdojo parser for securityTest: '" + securityTestName + "'");
         }
