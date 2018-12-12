@@ -14,3 +14,4 @@ securecodebox.persistence.provider: none
 securecodebox.rest.user.scanner-default:
   user-id: default-scanner
   password: scan
+

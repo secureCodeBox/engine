@@ -40,13 +40,41 @@ public class EngagementPayload {
     protected String lead;
 
     @JsonProperty("engagement_type")
-    protected String engagementType =  "CI/CD";
+    protected String engagementType = "CI/CD";
 
     @JsonProperty
     protected Status status = Status.IN_PROGRESS;
 
     @JsonProperty
     protected List<String> tags = Arrays.asList("secureCodeBox", "automated");
+
+    @JsonProperty
+    protected String tracker;
+
+    @JsonProperty("build_id")
+    protected String buildID;
+
+    @JsonProperty("commit_hash")
+    protected String commitHash;
+
+    @JsonProperty("branch_tag")
+    protected String branch;
+
+    @JsonProperty
+    protected String repo;
+
+    @JsonProperty("build_server")
+    protected String buildServer;
+
+    @JsonProperty("source_code_management_uri")
+    protected String scmServer;
+
+    @JsonProperty("orchestration_engine")
+    protected String orchestrationEngine;
+
+    @JsonProperty
+    protected String description;
+
 
     /**
      * Currently only contains the statuses relevant to us.
@@ -56,13 +84,13 @@ public class EngagementPayload {
         @JsonProperty("Completed")
         COMPLETED,
         @JsonProperty("In Progress")
-        IN_PROGRESS
-    }
+        IN_PROGRESS;
 
+
+    }
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -122,4 +150,40 @@ public class EngagementPayload {
     public void setTags(List<String> tags) {
         this.tags = tags;
     }
+
+    public String getTracker() { return tracker; }
+
+    public void setTracker(String tracker) { this.tracker = tracker; }
+
+    public String getBuildID() { return buildID; }
+
+    public void setBuildID(String buildID) { this.buildID = buildID; }
+
+    public String getCommitHash() { return commitHash; }
+
+    public void setCommitHash(String commitHash) { this.commitHash = commitHash; }
+
+    public String getBranch() { return branch; }
+
+    public void setBranch(String branch) { this.branch = branch; }
+
+    public String getRepo() { return repo; }
+
+    public void setRepo(String repo) { this.repo = repo; }
+
+    public String getBuildServer() { return buildServer; }
+
+    public void setBuildServer(String buildServer) { this.buildServer = buildServer; }
+
+    public String getScmServer() { return scmServer; }
+
+    public void setScmServer(String scmServer) { this.scmServer = scmServer; }
+
+    public String getOrchestrationEngine() { return orchestrationEngine; }
+
+    public void setOrchestrationEngine(String orchestrationEngine) { this.orchestrationEngine = orchestrationEngine; }
+
+    public String getDescription() { return description; }
+
+    public void setDescription(String description) { this.description = description; }
 }
