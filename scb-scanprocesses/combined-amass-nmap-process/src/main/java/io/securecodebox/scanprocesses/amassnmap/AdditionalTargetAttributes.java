@@ -19,6 +19,6 @@
 
 package io.securecodebox.scanprocesses.amassnmap;
 
-public enum ProcessVariables {
+public enum AdditionalTargetAttributes {
     NMAP_CONFIGURATION_PROFILE
 }

@@ -50,13 +50,17 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
             List<Finding> findings = objectMapper.readValue(objectMapper.readValue(findingsAsString, String.class),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, Finding.class));
 
-            String nmapProfile = (String) execution.getVariable(ProcessVariables.NMAP_CONFIGURATION_PROFILE.name());
+            String targetsAsString = objectMapper.writeValueAsString(execution.getVariable(DefaultFields.PROCESS_TARGETS.name()));
+            List<Target> targets = objectMapper.readValue(objectMapper.readValue(targetsAsString, String.class),
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
+
+            String nmapProfile = (String) targets.get(0).getAttributes().get(AdditionalTargetAttributes.NMAP_CONFIGURATION_PROFILE.name());
 
             List<Target> newTargets = new ArrayList<>();
             for (Finding finding : findings) {
                 Target target = new Target();
                 target.setLocation(finding.getLocation());
-                setNmapProfile(nmapProfile, target);
+                addNmapParametersToTarget(nmapProfile, target);
                 newTargets.add(target);
             }
 
@@ -77,7 +81,7 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
         }
     }
 
-    private void setNmapProfile(String nmapProfile, Target target) {
+    private void addNmapParametersToTarget(String nmapProfile, Target target) {
         switch (NmapConfigProfile.valueOf(nmapProfile)) {
             case HTTP_PORTS:
                 target.appendOrUpdateAttribute("NMAP_PARAMETER", NmapConfigProfile.HTTP_PORTS.getParameter());
@@ -86,7 +90,8 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
                 target.appendOrUpdateAttribute("NMAP_PARAMETER", NmapConfigProfile.TOP_100_PORTS.getParameter());
                 break;
             default:
-                throw new IllegalArgumentException("Unknown nmap profile for combined scan");
+                LOG.info("No nmap profile set for combined amass-nmap test. Use http ports as default");
+                target.appendOrUpdateAttribute("NMAP_PARAMETER", NmapConfigProfile.HTTP_PORTS.getParameter());
         }
     }
 
