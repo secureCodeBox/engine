@@ -144,7 +144,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         String productId = securityTest.getMetaData().get("SCB_PRODUCT");
 
         if (productId == null) {
-            throw new RuntimeException("DefectDojo persistence provider was configured but no product id was provided in the security test meta fields.");
+            throw new DefectDojoPersistenceException("DefectDojo persistence provider was configured but no product id was provided in the security test meta fields.");
         }
 
         engagementPayload.setProduct(defectDojoUrl + "/api/v2/products/" + productId + "/");
@@ -156,7 +156,13 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
         HttpEntity<EngagementPayload> payload = new HttpEntity<>(engagementPayload, headers);
 
-        return restTemplate.exchange(defectDojoUrl + "/api/v2/engagements/", HttpMethod.POST, payload, EngagementResponse.class);
+        try{
+            return restTemplate.exchange(defectDojoUrl + "/api/v2/engagements/", HttpMethod.POST, payload, EngagementResponse.class);
+        }catch (HttpClientErrorException e){
+            LOG.warn("Failed to create Engagement for SecurityTest. {}", e);
+            LOG.warn("Failure response body. {}", e.getResponseBodyAsString());
+            throw new DefectDojoPersistenceException("Failed to create Engagement for SecurityTest", e);
+        }
     }
 
     private String currentDate() {
@@ -200,7 +206,8 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
             LOG.error("UnsupportedEncodingException {}", e);
         } catch(HttpClientErrorException e){
             LOG.warn("Failed to import findings to DefectDojo. Request failed with status code: '{}'.", e.getStatusCode());
-            LOG.debug("Failure body: {}", e.getResponseBodyAsString());
+            LOG.warn("Failure body: {}", e.getResponseBodyAsString());
+            throw new DefectDojoPersistenceException("Failed to attach findings to engagement.");
         }
         return null;
     }
