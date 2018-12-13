@@ -50,9 +50,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Component
 @ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "defectdojo")
@@ -66,15 +64,11 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
     @Value("${securecodebox.persistence.defectdojo.scheme:http}")
     private String defectdojoScheme;
 
-    private RestHighLevelClient highLevelClient;
-    private boolean connected = false;
-
     @Value("${securecodebox.persistence.defectdojo.baseurl}")
     protected String defectDojoUrl;
 
     @Value("${securecodebox.persistence.defectdojo.apikey}")
     protected String defectDojoApiKey;
-
 
     protected static final String DATE_FORMAT = "yyyy-MM-dd";
     protected static final String TIME_FORMAT = "HH-mm-ss";
@@ -82,35 +76,37 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
     @Override
     public void persist(SecurityTest securityTest) throws PersistenceException {
         LOG.debug("Starting defectdojo persistence provider");
-
         LOG.debug("RawFindings: {}", securityTest.getReport().getRawFindings());
 
-        highLevelClient = new RestHighLevelClient(RestClient.builder(new HttpHost(defectdojoHost, defectdojoPort, defectdojoScheme)));
-        try {
-            connected = highLevelClient.ping();
-        } catch (IOException e) {
-            LOG.error(e.getMessage());
-        }
-
-        ObjectMapper objectMapper = new ObjectMapper();
+        checkConnection();
 
         ResponseEntity<EngagementResponse> res = createEngagement(securityTest);
-
         String engagementUrl = res.getBody().getUrl();
-
         LOG.debug("Created engagement: '{}'", engagementUrl);
-        if (connected) {
-            try {
-                String rawRawFindings = objectMapper.readValue(securityTest.getReport().getRawFindings(), String.class);
 
-                List<String> rawResults = objectMapper.readValue(rawRawFindings,
-                        objectMapper.getTypeFactory().constructCollectionType(List.class, String.class));
-                for (String rawResult : rawResults) {
-                    createFindings(securityTest, rawResult, engagementUrl);
-                }
-            } catch (IOException e) {
-                LOG.error("Could not deserialize rawResults. {}", e);
-            }
+        for (String rawResult : getRawResults(securityTest)) {
+            createFindings(securityTest, rawResult, engagementUrl);
+        }
+    }
+
+    private void checkConnection() throws DefectDojoUnreachableException {
+        try (RestHighLevelClient highLevelClient = new RestHighLevelClient(RestClient.builder(new HttpHost(defectdojoHost, defectdojoPort, defectdojoScheme)))) {
+            highLevelClient.ping();
+        } catch (IOException e) {
+            throw new DefectDojoUnreachableException("Could not reach defectdojo at '" + defectdojoHost + "'!");
+        }
+    }
+
+    private List<String> getRawResults(SecurityTest securityTest) throws DefectDojoPersistenceException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            String rawRawFindings = objectMapper.readValue(securityTest.getReport().getRawFindings(), String.class);
+
+            return objectMapper.readValue(rawRawFindings,
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, String.class));
+        } catch (IOException e) {
+            throw new DefectDojoPersistenceException("RawResults were in an unexpected format. Might be something wrong with the scanner implementation?");
         }
     }
 
@@ -156,9 +152,9 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
         HttpEntity<EngagementPayload> payload = new HttpEntity<>(engagementPayload, headers);
 
-        try{
+        try {
             return restTemplate.exchange(defectDojoUrl + "/api/v2/engagements/", HttpMethod.POST, payload, EngagementResponse.class);
-        }catch (HttpClientErrorException e){
+        } catch (HttpClientErrorException e) {
             LOG.warn("Failed to create Engagement for SecurityTest. {}", e);
             LOG.warn("Failure response body. {}", e.getResponseBodyAsString());
             throw new DefectDojoPersistenceException("Failed to create Engagement for SecurityTest", e);
@@ -166,7 +162,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
     }
 
     private String currentDate() {
-            return new SimpleDateFormat(DATE_FORMAT).format(new Date());
+        return new SimpleDateFormat(DATE_FORMAT).format(new Date());
     }
 
     private String currentTime() {
@@ -204,7 +200,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
             return restTemplate.exchange(defectDojoUrl + "/api/v2/import-scan/", HttpMethod.POST, payload, ImportScanResponse.class);
         } catch (UnsupportedEncodingException e) {
             LOG.error("UnsupportedEncodingException {}", e);
-        } catch(HttpClientErrorException e){
+        } catch (HttpClientErrorException e) {
             LOG.warn("Failed to import findings to DefectDojo. Request failed with status code: '{}'.", e.getStatusCode());
             LOG.warn("Failure body: {}", e.getResponseBodyAsString());
             throw new DefectDojoPersistenceException("Failed to attach findings to engagement.");
@@ -213,17 +209,42 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
     }
 
     protected String getDefectDojoScanName(String securityTestName) {
-        switch (securityTestName) {
-            case "nmap":
-                return "Nmap Scan";
-            case "nikto":
-                return "Nikto Scan";
-            case "arachni":
-                return "Arachni Scan";
-            case "zap":
-                return "ZAP Scan";
-            default:
-                throw new RuntimeException("No defectdojo parser for securityTest: '" + securityTestName + "'");
+        Map<String, String> scannerDefectDojoMapping = new HashMap<>();
+
+        // Officially supported by secureCodeBox
+        scannerDefectDojoMapping.put("arachni", "Arachni Scan");
+        scannerDefectDojoMapping.put("nmap", "Nmap Scan");
+        scannerDefectDojoMapping.put("zap", "ZAP Scan");
+
+        // TODO: Why is nikto not in the list?
+
+        // Can be used by 3rd party integrations to
+        // import these scan results directly into defectdojo
+        scannerDefectDojoMapping.put("appspider", "AppSpider Scan");
+        scannerDefectDojoMapping.put("bandit", "Bandit Scan");
+        scannerDefectDojoMapping.put("burp", "Burp Scan");
+        scannerDefectDojoMapping.put("checkmarx", "Checkmarx Scan");
+        scannerDefectDojoMapping.put("dependencycheck", "Dependency Check Scan");
+        scannerDefectDojoMapping.put("gosec", "Gosec Scanner");
+        scannerDefectDojoMapping.put("nessus", "Nessus Scan");
+        scannerDefectDojoMapping.put("nexpose", "Nexpose Scan");
+        scannerDefectDojoMapping.put("nodesecurityplattform", "Node Security Platform Scan");
+        scannerDefectDojoMapping.put("openvas", "OpenVAS CSV");
+        scannerDefectDojoMapping.put("qualys", "Qualys Scan");
+        scannerDefectDojoMapping.put("qualyswebapp", "Qualys Webapp Scan");
+        scannerDefectDojoMapping.put("retirejs", "Retire.js Scan");
+        scannerDefectDojoMapping.put("skf", "SKF Scan");
+        scannerDefectDojoMapping.put("ssllabs", "SSL Labs Scan");
+        scannerDefectDojoMapping.put("snyk", "Snyk Scan");
+        scannerDefectDojoMapping.put("trustwave", "Trustwave Scan (CSV)");
+        scannerDefectDojoMapping.put("vgg", "VCG Scan");
+        scannerDefectDojoMapping.put("veracode", "Veracode Scan");
+
+        if (scannerDefectDojoMapping.containsKey(securityTestName)) {
+            return scannerDefectDojoMapping.get(securityTestName);
         }
+
+        throw new DefectDojoPersistenceException("No defectdojo parser for securityTest: '" + securityTestName + "'");
     }
+
 }
