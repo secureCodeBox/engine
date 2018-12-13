@@ -20,8 +20,8 @@
 package io.securecodebox.scanprocesses.amassnmap;
 
 public enum NmapConfigProfile {
-    HTTP_PORTS("-p 80,8080,443,8443"),
-    TOP_100_PORTS("--top-ports 100");
+    HTTP_PORTS("-Pn -p 80,8080,443,8443"),
+    TOP_100_PORTS("-Pn --top-ports 100");
 
     private final String parameter;
 
