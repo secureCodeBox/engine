@@ -48,9 +48,6 @@ public class S3PersistenceProvider implements PersistenceProvider {
     private String awsRegion;
 
     @Autowired
-    ReportWriter reportWriter;
-
-    @Autowired
     FindingWriter findingWriter;
 
     @Override
@@ -62,8 +59,6 @@ public class S3PersistenceProvider implements PersistenceProvider {
 
         AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
         String fileName = securityTest.getContext().replace('/', '-') + '/' + securityTest.getId();
-
-//        writeReportFileToS3Bucket(securityTest, s3Client, fileName);
 
         for (Finding finding: securityTest.getReport().getFindings()) {
             writeFindingFileToS3Bucket(s3Client, fileName, finding, securityTest);
@@ -78,16 +73,6 @@ public class S3PersistenceProvider implements PersistenceProvider {
             LOG.error("Could not write tempfile for finding: ", exception);
         }
         writeFileToS3Bucket(s3Client, findingFile, fileName + "-finding-" + finding.getId());
-    }
-
-    private void writeReportFileToS3Bucket(SecurityTest securityTest, AmazonS3 s3Client, String fileName) {
-        File reportFile = null;
-        try {
-            reportFile = reportWriter.writeReportToFile(securityTest);
-        } catch (IOException exception) {
-            LOG.error("Could not write tempfile for report: ", exception);
-        }
-        writeFileToS3Bucket(s3Client, reportFile, fileName);
     }
 
     private void writeFileToS3Bucket(AmazonS3 s3Client, File file, String fileName) {
