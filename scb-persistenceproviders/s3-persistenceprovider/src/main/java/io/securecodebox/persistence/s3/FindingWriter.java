@@ -3,6 +3,7 @@ package io.securecodebox.persistence.s3;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.model.findings.Finding;
+import io.securecodebox.model.securitytest.SecurityTest;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -21,14 +22,24 @@ class FindingWriter {
     @Autowired
     private ObjectMapper mapper;
 
-    File writeFindingToFile(Finding finding, String context) throws IOException {
+    File writeFindingToFile(Finding finding, SecurityTest test) throws IOException {
         LOG.debug("Write finding " + finding.getId() + " to tempFile");
         File tempFile = File.createTempFile(UUID.randomUUID().toString(), ".json");
 
         Map<String, Object> securityTestAsMap = asMap(finding);
-        securityTestAsMap.put("context", context);
+        addSecurityTestInformation(securityTestAsMap, test);
+
         mapper.writeValue(tempFile, securityTestAsMap);
         return tempFile;
+    }
+
+    private void addSecurityTestInformation(Map<String, Object> securityTestAsMap, SecurityTest securityTest) {
+        securityTestAsMap.put("context", securityTest.getContext());
+        securityTestAsMap.put("security_test_name", securityTest.getName());
+        securityTestAsMap.put("security_test_id", securityTest.getId());
+        securityTestAsMap.put("target_name", securityTest.getTarget().getName());
+        securityTestAsMap.put("target_location", securityTest.getTarget().getLocation());
+        securityTestAsMap.put("security_test_metaData", securityTest.getMetaData());
     }
 
     private Map<String, Object> asMap(Finding finding) {
