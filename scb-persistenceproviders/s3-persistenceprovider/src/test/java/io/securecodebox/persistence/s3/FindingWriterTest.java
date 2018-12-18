@@ -37,7 +37,7 @@ public class FindingWriterTest {
         finding.setSeverity(Severity.HIGH);
 
         // when
-        File file = findingWriter.writeFindingToFile(finding);
+        File file = findingWriter.writeFindingToFile(finding, "my-context");
 
         // then
         String content = FileUtils.readFileToString(file, "UTF-8");
@@ -47,7 +47,8 @@ public class FindingWriterTest {
                         "\"description\":\"BAD_TEST_FINDIG_DESC\"," +
                         "\"severity\":\"HIGH\"," +
                         "\"attributes\":{\"my-attribute\":\"abc\"}," +
-                        "\"false_positive\":false}",
+                        "\"false_positive\":false," +
+                        "\"context\":\"my-context\"}",
                 content
         );
     }

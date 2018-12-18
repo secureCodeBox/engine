@@ -66,14 +66,14 @@ public class S3PersistenceProvider implements PersistenceProvider {
         writeReportFileToS3Bucket(securityTest, s3Client, fileName);
 
         for (Finding finding: securityTest.getReport().getFindings()) {
-            writeFindingFileToS3Bucket(s3Client, fileName, finding);
+            writeFindingFileToS3Bucket(s3Client, fileName, finding, securityTest.getContext());
         }
     }
 
-    private void writeFindingFileToS3Bucket(AmazonS3 s3Client, String fileName, Finding finding) {
+    private void writeFindingFileToS3Bucket(AmazonS3 s3Client, String fileName, Finding finding, String context) {
         File findingFile = null;
         try {
-            findingFile = findingWriter.writeFindingToFile(finding);
+            findingFile = findingWriter.writeFindingToFile(finding, context);
         } catch (IOException exception) {
             LOG.error("Could not write tempfile for finding: ", exception);
         }
