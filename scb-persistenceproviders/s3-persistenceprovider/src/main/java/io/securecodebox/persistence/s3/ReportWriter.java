@@ -34,14 +34,11 @@ class ReportWriter {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             String jsonString = objectMapper.writeValueAsString(object);
-            Map<String, Object> result = objectMapper.readValue(jsonString, new TypeReference<Map<String, Object>>() {
-            });
-            for (String s : toRemove) {
-                result.remove(s);
+            Map<String, Object> result = objectMapper.readValue(jsonString, new TypeReference<Map<String, Object>>() {});
+            for (String attribute : toRemove) {
+                result.remove(attribute);
             }
             return result;
-        } catch (JsonProcessingException e) {
-            return new HashMap<>();
         } catch (IOException e) {
             return new HashMap<>();
         }

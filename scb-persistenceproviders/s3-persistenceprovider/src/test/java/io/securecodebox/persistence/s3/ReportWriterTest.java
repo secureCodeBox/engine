@@ -71,15 +71,4 @@ public class ReportWriterTest {
         );
     }
 
-    @Test
-    public void testNullReport() throws IOException {
-        File file = reportWriter.writeReportToFile(null);
-        assertEquals("null", readFile(file.getPath(), Charset.forName("UTF-8")));
-    }
-
-    private static String readFile(String path, Charset encoding) throws IOException {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return new String(encoded, encoding);
-    }
-
 }
