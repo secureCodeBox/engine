@@ -53,7 +53,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Component
-@ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "defectdojo")
+@ConditionalOnProperty(name = "securecodebox.persistence.defectdojo.enabled", havingValue = "true")
 public class DefectDojoPersistenceProvider implements PersistenceProvider {
     private static final Logger LOG = LoggerFactory.getLogger(DefectDojoPersistenceProvider.class);
 

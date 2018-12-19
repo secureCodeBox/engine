@@ -36,7 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
-@ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "s3")
+@ConditionalOnProperty(name = "securecodebox.persistence.s3.enabled", havingValue = "true")
 @Component
 public class S3PersistenceProvider implements PersistenceProvider {
 
