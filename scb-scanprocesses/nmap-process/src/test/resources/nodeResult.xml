@@ -12,7 +12,7 @@
         <status state="up" reason="localhost-response" reason_ttl="0"/>
         <address addr="127.0.0.1" addrtype="ipv4"/>
         <hostnames>
-            <hostname name="localhost" type="authorized_users"/>
+            <hostname name="localhost" type="user"/>
             <hostname name="localhost" type="PTR"/>
         </hostnames>
         <ports>

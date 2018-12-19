@@ -12,7 +12,7 @@ This is the main component of the _secureCodeBox_ it's a [Camunda][camunda] [BPM
  Further Documentation:
  * [Project Description][scb-project]
  * [Developer Guide][scb-developer-guide]
- * [User Guide][scb-authorized_users-guide]
+ * [User Guide][scb-user-guide]
 
 # Configuration Options
 To configure the SCB engine specify the following environment variables:
@@ -23,7 +23,7 @@ To configure the SCB engine specify the following environment variables:
 | SECURECODEBOX_DEFAULT_TARGET_LOCATION | Default target hostname/ip address    | bodgeit                     |
 | SECURECODEBOX_DEFAULT_TARGET_URI      | Default target URI/URL                | http://bodgeit:8080/bodgeit |
 | SECURECODEBOX_DEFAULT_CONTEXT         | Default business context              | BodgeIT                     |
-| SECURECODEBOX_USER_SCANNER            | Default authorized_users for scanner services     | default-scanner             |
+| SECURECODEBOX_USER_SCANNER            | Default user for scanner services     | default-scanner             |
 | SECURECODEBOX_USER_SCANNER_PW         | Default password for scanner services | AStrongPassword-NotThisOne! |
 
 ## Server Configuration
@@ -62,7 +62,7 @@ Well boring yes - but please read our [guidelines and naming standards][scb-deve
 [scb-project]:              https://github.com/secureCodeBox/secureCodeBox
 [scb-developer-guide]:      https://github.com/secureCodeBox/secureCodeBox/blob/develop/docs/developer-guide/README.md
 [scb-developer-guidelines]: https://github.com/secureCodeBox/secureCodeBox/blob/develop/docs/developer-guide/README.md#guidelines
-[scb-authorized_users-guide]:           https://github.com/secureCodeBox/secureCodeBox/tree/develop/docs/authorized_users-guide
+[scb-user-guide]:           https://github.com/secureCodeBox/secureCodeBox/tree/develop/docs/user-guide
 
 [camunda]:                  https://camunda.com/de/
 [bpmn]:                     https://en.wikipedia.org/wiki/Business_Process_Model_and_Notation
