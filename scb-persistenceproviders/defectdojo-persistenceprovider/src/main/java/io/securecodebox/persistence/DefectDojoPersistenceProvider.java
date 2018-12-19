@@ -45,9 +45,12 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import sun.rmi.runtime.Log;
 
+import javax.print.DocFlavor;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.sql.Array;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -65,9 +68,6 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
     @Value("${securecodebox.persistence.defectdojo.scheme:http}")
     private String defectdojoScheme;
 
-    private RestHighLevelClient highLevelClient;
-    private boolean connected = false;
-
     @Value("${securecodebox.persistence.defectdojo.baseurl}")
     protected String defectDojoUrl;
 
@@ -83,8 +83,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         LOG.debug("RawFindings: {}", securityTest.getReport().getRawFindings());
 
         checkConnection();
-
-        ObjectMapper objectMapper = new ObjectMapper();
+        checkToolTypes();
 
         ResponseEntity<EngagementResponse> res = createEngagement(securityTest);
         String engagementUrl = res.getBody().getUrl();
@@ -93,6 +92,39 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         for (String rawResult : getRawResults(securityTest)) {
             createFindings(securityTest, rawResult, engagementUrl);
         }
+    }
+
+    private void checkToolTypes() {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity toolTypeRequest = new HttpEntity(getHeaders());
+
+        String gitUri = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/tool_types/").queryParam("name", "GitServer").toUriString();
+        ResponseEntity<DefectDojoResponse<ToolType>> toolTypeGitResponse = restTemplate.exchange(gitUri, HttpMethod.GET, toolTypeRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolType>>(){});
+        String buildUri = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/tool_types/").queryParam("name", "BuildServer").toUriString();
+        ResponseEntity<DefectDojoResponse<ToolType>> toolTypeScmResponse = restTemplate.exchange(buildUri, HttpMethod.GET, toolTypeRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolType>>(){});
+        String stoeUri = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/tool_types/").queryParam("name", "SecurityTestOrchestrationEngine").toUriString();
+        ResponseEntity<DefectDojoResponse<ToolType>> toolTypeStoeResponse = restTemplate.exchange(stoeUri, HttpMethod.GET, toolTypeRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolType>>(){});
+
+        ToolType toolType = new ToolType();
+        if(toolTypeGitResponse.getBody().getCount() == 0){
+            toolType.setName("GitServer");
+            toolType.setDescription("Source Code Management Server");
+            HttpEntity<ToolType> toolPayload = new HttpEntity<>(toolType, getHeaders());
+            restTemplate.exchange(defectDojoUrl + "/api/v2/tool_types/", HttpMethod.POST, toolPayload, ToolType.class);
+        }
+        if(toolTypeScmResponse.getBody().getCount() == 0){
+            toolType.setName("BuildServer");
+            toolType.setDescription("Build Server responsible for starting Security Scan");
+            HttpEntity<ToolType> toolPayload = new HttpEntity<>(toolType, getHeaders());
+            restTemplate.exchange(defectDojoUrl + "/api/v2/tool_types/", HttpMethod.POST, toolPayload, ToolType.class);
+        }
+        if(toolTypeStoeResponse.getBody().getCount() == 0){
+            toolType.setName("SecurityTestOrchestrationEngine");
+            toolType.setDescription("Software Engine responsible for orchestrating execution of Security Test");
+            HttpEntity<ToolType> toolPayload = new HttpEntity<>(toolType, getHeaders());
+            restTemplate.exchange(defectDojoUrl + "/api/v2/tool_types/", HttpMethod.POST, toolPayload, ToolType.class);
+        }
+
     }
 
     private void checkConnection() throws DefectDojoUnreachableException {
@@ -124,22 +156,17 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
         String username = securityTest.getMetaData().get("DEFECT_DOJO_USER");
         engagementPayload.setLead(getUserUrl(username));
-
+        String description = MessageFormat.format("#{0}   \nDate: {1}   Time: {2}  \nTarget: {3} \"{4}\"",
+                getDefectDojoScanName(securityTest.getName()), currentDate(), currentTime(), securityTest.getTarget().getName(), securityTest.getTarget().getLocation());
+        engagementPayload.setDescription(description);
         engagementPayload.setBranch(securityTest.getMetaData().get("SCB_BRANCH"));
         engagementPayload.setBuildID(securityTest.getMetaData().get("SCB_BUILD_ID"));
         engagementPayload.setCommitHash(securityTest.getMetaData().get("SCB_COMMIT_HASH"));
         engagementPayload.setRepo(securityTest.getMetaData().get("SCB_REPO"));  //Url
         engagementPayload.setTracker(securityTest.getMetaData().get("SCB_TRACKER"));  //Url
-
-        String description = MessageFormat.format("#{0}   \nDate: {1}   Time: {2}  \nTarget: {3} \"{4}\"",
-                getDefectDojoScanName(securityTest.getName()), currentDate(), currentTime(), securityTest.getTarget().getName(), securityTest.getTarget().getLocation());
-        engagementPayload.setDescription(description);
-
-        //TODO: Configure Tool Configurations for the Fields below
-        /*
-        engagementPayload.setBuildServer(securityTest.getMetaData().get("SCB_BUILD_SERVER"));
-        engagementPayload.setScmServer(securityTest.getMetaData().get("SCB_SCM_SERVER"));
-        */
+        engagementPayload.setBuildServer(getToolConfiguration(securityTest.getMetaData().get("SCB_BUILD_SERVER"), "BuildServer"));
+        engagementPayload.setScmServer(getToolConfiguration(securityTest.getMetaData().get("SCB_SCM_SERVER"), "GitServer"));
+        engagementPayload.setOrchestrationEngine(getToolConfiguration("https://github.com/secureCodeBox/engine","SecurityTestOrchestrationEngine"));
 
         String productId = securityTest.getMetaData().get("DEFECT_DOJO_PRODUCT");
 
@@ -266,9 +293,12 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         }
     }
 
-    /*--------------------------------------------------------------------------------------------------------
-    private String getToolConfiguration(String toolUrl){
+    private String getToolConfiguration(String toolUrl, String toolType){
         RestTemplate restTemplate = new RestTemplate();
+
+        if (toolUrl == null){
+            return null;
+        }
 
         String uri = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/tool_configurations/").queryParam("url", toolUrl).toUriString();
         HttpEntity toolRequest = new HttpEntity(getHeaders());
@@ -277,20 +307,21 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
             return toolResponse.getBody().getResults().get(0).getUrl();
         }
         else {
+            String toolTypeUri = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/tool_types/").queryParam("name", toolType).toUriString();
 
             ToolConfig toolConfig = new ToolConfig();
             toolConfig.setName(toolUrl);
-            toolConfig.setToolType();
+            toolConfig.setToolType(toolTypeUri);
             toolConfig.setConfigUrl(toolUrl);
-            toolConfig.setDescription();
+            toolConfig.setDescription(toolType);
 
             HttpEntity<ToolConfig> toolPayload = new HttpEntity<>(toolConfig, getHeaders());
 
             restTemplate.exchange(uri, HttpMethod.POST, toolPayload, ToolConfig.class);
-            return getToolConfiguration(toolUrl);
+            return getToolConfiguration(toolUrl, toolType);
+
         }
     }
-    *///--------------------------------------------------------------------------------------------------------
 
     private HttpHeaders getHeaders(){
         HttpHeaders headers = new HttpHeaders();
