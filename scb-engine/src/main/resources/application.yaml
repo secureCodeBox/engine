@@ -46,7 +46,7 @@ securecodebox.persistence.elasticsearch.index.prefix: securecodebox
 securecodebox.persistence.elasticsearch.index.delete_on_init: false
 
 # Configuration for the defectdojo persistence provider:
-securecodebox.persistence.defectdojo.host: persistence-defectdojo
+securecodebox.persistence.defectdojo.host: localhost
 securecodebox.persistence.defectdojo.port: 8000
 
 

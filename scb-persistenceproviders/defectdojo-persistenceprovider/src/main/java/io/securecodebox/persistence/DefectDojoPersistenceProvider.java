@@ -21,9 +21,7 @@ package io.securecodebox.persistence;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.model.securitytest.SecurityTest;
 
-import io.securecodebox.persistence.models.EngagementPayload;
-import io.securecodebox.persistence.models.EngagementResponse;
-import io.securecodebox.persistence.models.ImportScanResponse;
+import io.securecodebox.persistence.models.*;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -31,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -45,10 +44,12 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -64,6 +65,9 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
     @Value("${securecodebox.persistence.defectdojo.scheme:http}")
     private String defectdojoScheme;
 
+    private RestHighLevelClient highLevelClient;
+    private boolean connected = false;
+
     @Value("${securecodebox.persistence.defectdojo.baseurl}")
     protected String defectDojoUrl;
 
@@ -71,7 +75,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
     protected String defectDojoApiKey;
 
     protected static final String DATE_FORMAT = "yyyy-MM-dd";
-    protected static final String TIME_FORMAT = "HH-mm-ss";
+    protected static final String TIME_FORMAT = "HH:mm:ss";
 
     @Override
     public void persist(SecurityTest securityTest) throws PersistenceException {
@@ -79,6 +83,8 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         LOG.debug("RawFindings: {}", securityTest.getReport().getRawFindings());
 
         checkConnection();
+
+        ObjectMapper objectMapper = new ObjectMapper();
 
         ResponseEntity<EngagementResponse> res = createEngagement(securityTest);
         String engagementUrl = res.getBody().getUrl();
@@ -113,31 +119,29 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
     private ResponseEntity<EngagementResponse> createEngagement(SecurityTest securityTest) {
         RestTemplate restTemplate = new RestTemplate();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Token " + defectDojoApiKey);
-
         EngagementPayload engagementPayload = new EngagementPayload();
         engagementPayload.setName(securityTest.getContext());
 
-        // TODO: Make User configurable / always use technical user?
-        engagementPayload.setLead(defectDojoUrl + "/api/v2/users/1/");
+        String username = securityTest.getMetaData().get("DEFECT_DOJO_USER");
+        engagementPayload.setLead(getUserUrl(username));
+
         engagementPayload.setBranch(securityTest.getMetaData().get("SCB_BRANCH"));
         engagementPayload.setBuildID(securityTest.getMetaData().get("SCB_BUILD_ID"));
         engagementPayload.setCommitHash(securityTest.getMetaData().get("SCB_COMMIT_HASH"));
-        engagementPayload.setRepo(securityTest.getMetaData().get("SCB_REPO"));
-        engagementPayload.setTracker(securityTest.getMetaData().get("SCB_TRACKER"));
+        engagementPayload.setRepo(securityTest.getMetaData().get("SCB_REPO"));  //Url
+        engagementPayload.setTracker(securityTest.getMetaData().get("SCB_TRACKER"));  //Url
 
-        //TODO Fill Description with necessary Information about the security Test
-        //engagementPayload.setDescription(currentDate() + "  " + currentTime());
+        String description = MessageFormat.format("#{0}   \nDate: {1}   Time: {2}  \nTarget: {3} \"{4}\"",
+                getDefectDojoScanName(securityTest.getName()), currentDate(), currentTime(), securityTest.getTarget().getName(), securityTest.getTarget().getLocation());
+        engagementPayload.setDescription(description);
 
         //TODO: Configure Tool Configurations for the Fields below
         /*
         engagementPayload.setBuildServer(securityTest.getMetaData().get("SCB_BUILD_SERVER"));
         engagementPayload.setScmServer(securityTest.getMetaData().get("SCB_SCM_SERVER"));
-        engagementPayload.setOrchestrationEngine(securityTest.getMetaData().get("SCB_ORCHESTRATION_ENGINE"));
         */
 
-        String productId = securityTest.getMetaData().get("SCB_PRODUCT");
+        String productId = securityTest.getMetaData().get("DEFECT_DOJO_PRODUCT");
 
         if (productId == null) {
             throw new DefectDojoPersistenceException("DefectDojo persistence provider was configured but no product id was provided in the security test meta fields.");
@@ -150,7 +154,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
         engagementPayload.setStatus(EngagementPayload.Status.COMPLETED);
 
-        HttpEntity<EngagementPayload> payload = new HttpEntity<>(engagementPayload, headers);
+        HttpEntity<EngagementPayload> payload = new HttpEntity<>(engagementPayload, getHeaders());
 
         try {
             return restTemplate.exchange(defectDojoUrl + "/api/v2/engagements/", HttpMethod.POST, payload, EngagementResponse.class);
@@ -172,16 +176,13 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
     private ResponseEntity<ImportScanResponse> createFindings(SecurityTest securityTest, String rawResult, String engagementUrl) {
         RestTemplate restTemplate = new RestTemplate();
 
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.set("Authorization", "Token " + defectDojoApiKey);
+        HttpHeaders headers = getHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         restTemplate.setMessageConverters(Arrays.asList(new FormHttpMessageConverter(), new ResourceHttpMessageConverter(), new MappingJackson2HttpMessageConverter()));
 
         MultiValueMap<String, Object> mvn = new LinkedMultiValueMap<>();
         mvn.add("engagement", engagementUrl);
-        // TODO: Fix User hardcoding
-        mvn.add("lead", defectDojoUrl + "/api/v2/users/1/");
+        mvn.add("lead", getUserUrl(securityTest.getMetaData().get("DEFECT_DOJO_USER")));
         mvn.add("scan_date", currentDate());
         mvn.add("scan_type", getDefectDojoScanName(securityTest.getName()));
 
@@ -247,4 +248,53 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         throw new DefectDojoPersistenceException("No defectdojo parser for securityTest: '" + securityTestName + "'");
     }
 
+    private String getUserUrl(String username){
+        RestTemplate restTemplate = new RestTemplate();
+
+        if(username == null){
+            username = "admin";
+        }
+
+        String uri = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/users/").queryParam("username", username).toUriString();
+        HttpEntity userRequest = new HttpEntity(getHeaders());
+        ResponseEntity<DefectDojoResponse<DefectDojoUser>> userResponse = restTemplate.exchange(uri, HttpMethod.GET, userRequest, new ParameterizedTypeReference<DefectDojoResponse<DefectDojoUser>>(){});
+        if(userResponse.getBody().getCount() == 1){
+            return userResponse.getBody().getResults().get(0).getUrl();
+        }
+        else {
+            throw new DefectDojoPersistenceException(MessageFormat.format("Could not find user: \"{0}\" in DefectDojo", username));
+        }
+    }
+
+    /*--------------------------------------------------------------------------------------------------------
+    private String getToolConfiguration(String toolUrl){
+        RestTemplate restTemplate = new RestTemplate();
+
+        String uri = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/tool_configurations/").queryParam("url", toolUrl).toUriString();
+        HttpEntity toolRequest = new HttpEntity(getHeaders());
+        ResponseEntity<DefectDojoResponse<ToolConfig>> toolResponse = restTemplate.exchange(uri, HttpMethod.GET, toolRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolConfig>>(){});
+        if(toolResponse.getBody().getCount() > 0){
+            return toolResponse.getBody().getResults().get(0).getUrl();
+        }
+        else {
+
+            ToolConfig toolConfig = new ToolConfig();
+            toolConfig.setName(toolUrl);
+            toolConfig.setToolType();
+            toolConfig.setConfigUrl(toolUrl);
+            toolConfig.setDescription();
+
+            HttpEntity<ToolConfig> toolPayload = new HttpEntity<>(toolConfig, getHeaders());
+
+            restTemplate.exchange(uri, HttpMethod.POST, toolPayload, ToolConfig.class);
+            return getToolConfiguration(toolUrl);
+        }
+    }
+    *///--------------------------------------------------------------------------------------------------------
+
+    private HttpHeaders getHeaders(){
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Token " + defectDojoApiKey);
+        return headers;
+    }
 }

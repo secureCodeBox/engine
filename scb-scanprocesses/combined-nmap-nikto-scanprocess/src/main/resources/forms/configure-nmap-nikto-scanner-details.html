@@ -217,8 +217,8 @@
                     -A: Enable OS detection, version detection, script scanning, and traceroute<br>
                     --datadir &lt;dirname&gt;: Specify custom Nmap data file location<br>
                     --send-eth/--send-ip: Send using raw ethernet frames or IP packets<br>
-                    --privileged: Assume that the user is fully privileged<br>
-                    --unprivileged: Assume the user lacks raw socket privileges<br>
+                    --privileged: Assume that the authorized_users is fully privileged<br>
+                    --unprivileged: Assume the authorized_users lacks raw socket privileges<br>
                     -V: Print version number<br>
                     -h: Print this help summary page.</p>
                 <p><strong>EXAMPLES:</strong><br>
@@ -280,8 +280,8 @@
        -mutate+           Guess additional file names:
                                1     Test all files with all root directories
                                2     Guess for password file names
-                               3     Enumerate user names via Apache (/~user type requests)
-                               4     Enumerate user names via cgiwrap (/cgi-bin/cgiwrap/~user type requests)
+                               3     Enumerate authorized_users names via Apache (/~authorized_users type requests)
+                               4     Enumerate authorized_users names via cgiwrap (/cgi-bin/cgiwrap/~authorized_users type requests)
                                5     Attempt to brute force sub-domain names, assume that the host name is the parent domain
                                6     Attempt to guess directory names from the supplied dictionary file
        -mutate-options    Provide information for mutates
@@ -316,8 +316,8 @@
                                e     Administrative Console
                                x     Reverse Tuning Options (i.e., include all except specified)
        -timeout+          Timeout for requests (default 10 seconds)
-       -Userdbs           Load only user databases, not the standard databases
-                               all   Disable standard dbs and load only user dbs
+       -Userdbs           Load only authorized_users databases, not the standard databases
+                               all   Disable standard dbs and load only authorized_users dbs
                                tests Disable only db_tests and load udb_tests
        -useragent         Over-rides the default useragent
        -until             Run until the specified time or duration
