@@ -164,9 +164,10 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         engagementPayload.setCommitHash(securityTest.getMetaData().get("SCB_COMMIT_HASH"));
         engagementPayload.setRepo(securityTest.getMetaData().get("SCB_REPO"));  //Url
         engagementPayload.setTracker(securityTest.getMetaData().get("SCB_TRACKER"));  //Url
-        engagementPayload.setBuildServer(getToolConfiguration(securityTest.getMetaData().get("SCB_BUILD_SERVER"), "BuildServer"));
-        engagementPayload.setScmServer(getToolConfiguration(securityTest.getMetaData().get("SCB_SCM_SERVER"), "GitServer"));
-        engagementPayload.setOrchestrationEngine(getToolConfiguration("https://github.com/secureCodeBox/engine","SecurityTestOrchestrationEngine"));
+        // TODO: Fix Method getToolConfiguration(String toolUrl, String toolType)
+        //engagementPayload.setBuildServer(getToolConfiguration(securityTest.getMetaData().get("SCB_BUILD_SERVER"), "BuildServer"));
+        //engagementPayload.setScmServer(getToolConfiguration(securityTest.getMetaData().get("SCB_SCM_SERVER"), "GitServer"));
+        //engagementPayload.setOrchestrationEngine(getToolConfiguration("https://github.com/secureCodeBox/engine","SecurityTestOrchestrationEngine"));
 
         String productId = securityTest.getMetaData().get("DEFECT_DOJO_PRODUCT");
 
@@ -293,6 +294,8 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         }
     }
 
+    // TODO: Fix ToolConfiguration creation and setting
+    /*
     private String getToolConfiguration(String toolUrl, String toolType){
         RestTemplate restTemplate = new RestTemplate();
 
@@ -322,6 +325,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
         }
     }
+    */
 
     private HttpHeaders getHeaders(){
         HttpHeaders headers = new HttpHeaders();
