@@ -18,9 +18,11 @@
  */
 package io.securecodebox.engine.execution;
 
+import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.variable.value.StringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,12 +63,20 @@ public class DefaultScanProcessExcecutionFactory implements ScanProcessExecution
     private <P extends ScanProcessExecution> P getInstance(DelegateExecution execution, Class<P> customProcess) {
         try {
             execution.setVariable(PROCESS_EXECUTION_TYPE.name(), customProcess.getTypeName());
+            execution.setVariable(DefaultFields.PROCESS_NAME.name(), getProcessName(execution));
             LOG.debug("Writing {} to {}", PROCESS_EXECUTION_TYPE.name(), customProcess.getTypeName());
             return customProcess.getConstructor(DelegateExecution.class).newInstance(execution);
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             LOG.error("Error creating custom process execution", e);
             throw new IllegalStateException("Error creating custom process execution", e);
         }
+    }
+
+    private String getProcessName(DelegateExecution execution) {
+        ProcessDefinition definition = execution.getProcessEngineServices().getRepositoryService().getProcessDefinition(execution.getProcessDefinitionId());
+        String processName = definition.getKey().replace("-process", "");
+        LOG.debug("Create DefaultScanProcessExecution for process " + processName);
+        return processName;
     }
 
     protected enum FactoryFields {
