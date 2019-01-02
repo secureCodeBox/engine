@@ -162,13 +162,11 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         engagementPayload.setBranch(securityTest.getMetaData().get("SCB_BRANCH"));
         engagementPayload.setBuildID(securityTest.getMetaData().get("SCB_BUILD_ID"));
         engagementPayload.setCommitHash(securityTest.getMetaData().get("SCB_COMMIT_HASH"));
-        engagementPayload.setRepo(securityTest.getMetaData().get("SCB_REPO"));  //Url
-        engagementPayload.setTracker(securityTest.getMetaData().get("SCB_TRACKER"));  //Url
-        // TODO: Fix Method getToolConfiguration(String toolUrl, String toolType)
-        //engagementPayload.setBuildServer(getToolConfiguration(securityTest.getMetaData().get("SCB_BUILD_SERVER"), "BuildServer"));
-        //engagementPayload.setScmServer(getToolConfiguration(securityTest.getMetaData().get("SCB_SCM_SERVER"), "GitServer"));
-        //engagementPayload.setOrchestrationEngine(getToolConfiguration("https://github.com/secureCodeBox/engine","SecurityTestOrchestrationEngine"));
-
+        engagementPayload.setRepo(securityTest.getMetaData().get("SCB_REPO"));
+        engagementPayload.setTracker(securityTest.getMetaData().get("SCB_TRACKER"));
+        engagementPayload.setBuildServer(getToolConfiguration(securityTest.getMetaData().get("SCB_BUILD_SERVER"), "BuildServer"));
+        engagementPayload.setScmServer(getToolConfiguration(securityTest.getMetaData().get("SCB_SCM_SERVER"), "GitServer"));
+        engagementPayload.setOrchestrationEngine(getToolConfiguration("https://github.com/secureCodeBox","SecurityTestOrchestrationEngine"));
         String productId = securityTest.getMetaData().get("DEFECT_DOJO_PRODUCT");
 
         if (productId == null) {
@@ -294,8 +292,6 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         }
     }
 
-    // TODO: Fix ToolConfiguration creation and setting
-    /*
     private String getToolConfiguration(String toolUrl, String toolType){
         RestTemplate restTemplate = new RestTemplate();
 
@@ -310,7 +306,10 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
             return toolResponse.getBody().getResults().get(0).getUrl();
         }
         else {
-            String toolTypeUri = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/tool_types/").queryParam("name", toolType).toUriString();
+            HttpEntity toolTypeRequest = new HttpEntity(getHeaders());
+            String toolTypeRequestUri = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/tool_types/").queryParam("name", toolType).toUriString();
+            ResponseEntity<DefectDojoResponse<ToolType>> toolTypeResponse = restTemplate.exchange(toolTypeRequestUri, HttpMethod.GET, toolTypeRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolType>>(){});
+            String toolTypeUri = toolTypeResponse.getBody().getResults().get(0).getUrl();
 
             ToolConfig toolConfig = new ToolConfig();
             toolConfig.setName(toolUrl);
@@ -319,13 +318,11 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
             toolConfig.setDescription(toolType);
 
             HttpEntity<ToolConfig> toolPayload = new HttpEntity<>(toolConfig, getHeaders());
-
-            restTemplate.exchange(uri, HttpMethod.POST, toolPayload, ToolConfig.class);
+            restTemplate.exchange(defectDojoUrl + "/api/v2/tool_configurations/", HttpMethod.POST, toolPayload, ToolConfig.class);
             return getToolConfiguration(toolUrl, toolType);
 
         }
     }
-    */
 
     private HttpHeaders getHeaders(){
         HttpHeaders headers = new HttpHeaders();

@@ -60,13 +60,13 @@ public class EngagementPayload {
     @JsonProperty("branch_tag")
     protected String branch;
 
-    @JsonProperty
+    @JsonProperty("source_code_management_uri")
     protected String repo;
 
     @JsonProperty("build_server")
     protected String buildServer;
 
-    @JsonProperty("source_code_management_uri")
+    @JsonProperty("source_code_management_server")
     protected String scmServer;
 
     @JsonProperty("orchestration_engine")
@@ -84,13 +84,13 @@ public class EngagementPayload {
         @JsonProperty("Completed")
         COMPLETED,
         @JsonProperty("In Progress")
-        IN_PROGRESS;
-
-
+        IN_PROGRESS
     }
+
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
