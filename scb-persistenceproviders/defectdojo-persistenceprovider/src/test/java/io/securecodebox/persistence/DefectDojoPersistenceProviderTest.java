@@ -1,5 +1,7 @@
 package io.securecodebox.persistence;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.model.rest.Report;
 import io.securecodebox.model.securitytest.CommonMetaFields;
 import io.securecodebox.model.securitytest.SecurityTest;
@@ -15,10 +17,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -62,6 +61,7 @@ public class DefectDojoPersistenceProviderTest {
         metaData = new HashMap<>();
         metaData.put(DefectDojoMetaFields.DEFECT_DOJO_PRODUCT.name(), "1");
         metaData.put(DefectDojoMetaFields.DEFECT_DOJO_USER.name(), "John Doe");
+        when(defectDojoService.getUserUrl(eq("John Doe"))).thenReturn("http://localhost:8000/api/v2/users/5/");
 
         report = new Report();
         report.setRawFindings("\"[]\"");
@@ -111,7 +111,6 @@ public class DefectDojoPersistenceProviderTest {
 
     @Test
     public void createsTheEngagement(){
-        when(defectDojoService.getUserUrl(eq("John Doe"))).thenReturn("http://localhost:8000/api/v2/users/5/");
 
         SecurityTest securityTest = new SecurityTest();
         securityTest.setContext("Nmap Scan 11");
@@ -170,4 +169,29 @@ public class DefectDojoPersistenceProviderTest {
         persistenceProvider.persist(securityTest);
     }
 
+    @Test
+    public void createsFindings() throws JsonProcessingException {
+        SecurityTest securityTest = new SecurityTest();
+        securityTest.setContext("Nmap Scan 11");
+        securityTest.setName("nmap");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        List<String> list = new ArrayList();
+        list.add("<Some Xml stuff>\n<Don't know how the form is>");
+        String doubleSer = objectMapper.writeValueAsString(objectMapper.writeValueAsString(list));
+
+        report.setRawFindings(doubleSer);
+        securityTest.setMetaData(metaData);
+        securityTest.setReport(report);
+
+        persistenceProvider.persist(securityTest);
+        verify(defectDojoService, times(1)).createFindings(
+                eq("<Some Xml stuff>\n<Don't know how the form is>"),
+                eq("http://localhost:8000/api/v2/engagements/2/"),
+                eq("http://localhost:8000/api/v2/users/5/"),
+                eq("2019-01-07"),
+                eq("Nmap Scan")
+                );
+    }
 }
