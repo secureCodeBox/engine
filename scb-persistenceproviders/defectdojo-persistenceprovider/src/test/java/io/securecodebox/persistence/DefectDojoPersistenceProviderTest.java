@@ -1,6 +1,7 @@
 package io.securecodebox.persistence;
 
 import io.securecodebox.model.rest.Report;
+import io.securecodebox.model.securitytest.CommonMetaFields;
 import io.securecodebox.model.securitytest.SecurityTest;
 import io.securecodebox.persistence.models.DefectDojoResponse;
 import io.securecodebox.persistence.models.EngagementPayload;
@@ -38,6 +39,8 @@ public class DefectDojoPersistenceProviderTest {
     @InjectMocks
     DefectDojoPersistenceProvider persistenceProvider;
 
+    Map<String, String> metaData;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -49,6 +52,14 @@ public class DefectDojoPersistenceProviderTest {
         DefectDojoResponse<ToolType> responseExisting = new DefectDojoResponse<>();
         responseExisting.setCount(1);
         when(defectDojoService.getToolTypeByName(any())).thenReturn(responseExisting);
+
+        EngagementResponse response = new EngagementResponse();
+        response.setUrl("http://localhost:8000/api/v2/engagements/2/");
+        when(defectDojoService.createEngagement(any())).thenReturn(response);
+
+        metaData = new HashMap<>();
+        metaData.put(DefectDojoMetaFields.DEFECT_DOJO_PRODUCT.name(), "1");
+        metaData.put(DefectDojoMetaFields.DEFECT_DOJO_USER.name(), "John Doe");
     }
 
     @Test
@@ -63,6 +74,7 @@ public class DefectDojoPersistenceProviderTest {
 
         SecurityTest securityTest = new SecurityTest();
         securityTest.setReport(new Report());
+        securityTest.setMetaData(metaData);
 
         persistenceProvider.persist(securityTest);
 
@@ -79,6 +91,7 @@ public class DefectDojoPersistenceProviderTest {
 
         SecurityTest securityTest = new SecurityTest();
         securityTest.setReport(new Report());
+        securityTest.setMetaData(metaData);
 
         persistenceProvider.persist(securityTest);
 
@@ -93,10 +106,6 @@ public class DefectDojoPersistenceProviderTest {
         when(defectDojoService.getToolConfiguration(eq("http://crazy.scm_server"), eq("GitServer"))).thenReturn("http://localhost:8000/api/v2/tool_types/7/");
         when(defectDojoService.getToolConfiguration(eq("https://github.com/secureCodeBox"), eq("SecurityTestOrchestrationEngine"))).thenReturn("http://localhost:8000/api/v2/tool_types/9/");
 
-        EngagementResponse response = new EngagementResponse();
-        response.setUrl("http://localhost:8000/api/v2/engagements/2/");
-        when(defectDojoService.createEngagement(any())).thenReturn(response);
-
         UUID securityTestUuid = UUID.randomUUID();
 
         SecurityTest securityTest = new SecurityTest();
@@ -104,14 +113,11 @@ public class DefectDojoPersistenceProviderTest {
         securityTest.setContext("Nmap Scan 11");
         Report report = new Report();
 
-        Map<String, String> metafields = new HashMap<>();
-        metafields.put("DEFECT_DOJO_PRODUCT", "1");
-        metafields.put("SCB_BRANCH", "master");
-        metafields.put("SCB_REPO", "https://github.com/secureCodeBox/engine");
-        metafields.put("DEFECT_DOJO_USER", "John Doe");
-        metafields.put("SCB_BUILD_SERVER", "http://crazy.buildserver");
-        metafields.put("SCB_SCM_SERVER", "http://crazy.scm_server");
-        securityTest.setMetaData(metafields);
+        metaData.put(CommonMetaFields.SCB_BRANCH.name(), "master");
+        metaData.put(CommonMetaFields.SCB_REPO.name(), "https://github.com/secureCodeBox/engine");
+        metaData.put(CommonMetaFields.SCB_BUILD_SERVER.name(), "http://crazy.buildserver");
+        metaData.put(CommonMetaFields.SCB_SCM_SERVER.name(), "http://crazy.scm_server");
+        securityTest.setMetaData(metaData);
 
         report.setFindings(Collections.emptyList());
         report.setRawFindings("[\"<custom xml stuff>\"]");
@@ -153,10 +159,8 @@ public class DefectDojoPersistenceProviderTest {
         securityTest.setId(securityTestUuid);
         securityTest.setContext("Nmap Scan 11");
 
-        Map<String, String> metafield = new HashMap<>();
-        metafield.put("DEFECT_DOJO_PRODUCT", "1");
-        metafield.put("DEFECT_DOJO_USER", "This User really does not exist");
-        securityTest.setMetaData(metafield);
+        metaData.put(DefectDojoMetaFields.DEFECT_DOJO_USER.name(), "This User really does not exist");
+        securityTest.setMetaData(metaData);
         Report report = new Report();
         securityTest.setReport(report);
 

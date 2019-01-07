@@ -19,6 +19,7 @@
 package io.securecodebox.persistence;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.securecodebox.model.securitytest.CommonMetaFields;
 import io.securecodebox.model.securitytest.SecurityTest;
 
 import io.securecodebox.persistence.models.*;
@@ -152,23 +153,23 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         EngagementPayload engagementPayload = new EngagementPayload();
         engagementPayload.setName(securityTest.getContext());
 
-        String productId = securityTest.getMetaData().get("DEFECT_DOJO_PRODUCT");
+        String productId = securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_PRODUCT.name());
         if (productId == null) {
             throw new DefectDojoPersistenceException("DefectDojo persistence provider was configured but no product id was provided in the security test meta fields.");
         }
-        String username = securityTest.getMetaData().get("DEFECT_DOJO_USER");
+        String username = securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_USER.name());
 
         engagementPayload.setProduct(defectDojoUrl + "/api/v2/products/" + productId + "/");
         engagementPayload.setLead(defectDojoService.getUserUrl(username));
         engagementPayload.setDescription(descriptionGenerator.generate(securityTest));
-        engagementPayload.setBranch(securityTest.getMetaData().get("SCB_BRANCH"));
-        engagementPayload.setBuildID(securityTest.getMetaData().get("SCB_BUILD_ID"));
-        engagementPayload.setCommitHash(securityTest.getMetaData().get("SCB_COMMIT_HASH"));
-        engagementPayload.setRepo(securityTest.getMetaData().get("SCB_REPO"));
-        engagementPayload.setTracker(securityTest.getMetaData().get("SCB_TRACKER"));
+        engagementPayload.setBranch(securityTest.getMetaData().get(CommonMetaFields.SCB_BRANCH.name()));
+        engagementPayload.setBuildID(securityTest.getMetaData().get(CommonMetaFields.SCB_BUILD_ID.name()));
+        engagementPayload.setCommitHash(securityTest.getMetaData().get(CommonMetaFields.SCB_COMMIT_HASH.name()));
+        engagementPayload.setRepo(securityTest.getMetaData().get(CommonMetaFields.SCB_REPO.name()));
+        engagementPayload.setTracker(securityTest.getMetaData().get(CommonMetaFields.SCB_TRACKER.name()));
 
-        engagementPayload.setBuildServer(defectDojoService.getToolConfiguration(securityTest.getMetaData().get("SCB_BUILD_SERVER"), "BuildServer"));
-        engagementPayload.setScmServer(defectDojoService.getToolConfiguration(securityTest.getMetaData().get("SCB_SCM_SERVER"), "GitServer"));
+        engagementPayload.setBuildServer(defectDojoService.getToolConfiguration(securityTest.getMetaData().get(CommonMetaFields.SCB_BUILD_SERVER.name()), "BuildServer"));
+        engagementPayload.setScmServer(defectDojoService.getToolConfiguration(securityTest.getMetaData().get(CommonMetaFields.SCB_SCM_SERVER.name()), "GitServer"));
         engagementPayload.setOrchestrationEngine(defectDojoService.getToolConfiguration("https://github.com/secureCodeBox","SecurityTestOrchestrationEngine"));
 
         engagementPayload.setTargetStart(currentDate());
@@ -192,7 +193,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
         MultiValueMap<String, Object> mvn = new LinkedMultiValueMap<>();
         mvn.add("engagement", engagementUrl);
-        mvn.add("lead", defectDojoService.getUserUrl(securityTest.getMetaData().get("DEFECT_DOJO_USER")));
+        mvn.add("lead", defectDojoService.getUserUrl(securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_USER.name())));
         mvn.add("scan_date", currentDate());
         mvn.add("scan_type", getDefectDojoScanName(securityTest.getName()));
 
