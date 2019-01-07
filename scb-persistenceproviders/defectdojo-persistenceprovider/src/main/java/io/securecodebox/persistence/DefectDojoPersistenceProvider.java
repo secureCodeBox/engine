@@ -45,16 +45,16 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import sun.rmi.runtime.Log;
 
-import javax.print.DocFlavor;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.sql.Array;
-import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @ConditionalOnProperty(name = "securecodebox.persistence.defectdojo.enabled", havingValue = "true")
@@ -196,7 +196,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
     }
 
     private String currentTime() {
-        return new SimpleDateFormat(TIME_FORMAT).format(new Timestamp(System.currentTimeMillis()));
+        return new SimpleDateFormat(TIME_FORMAT).format(new Date());
     }
 
     private ResponseEntity<ImportScanResponse> createFindings(SecurityTest securityTest, String rawResult, String engagementUrl) {
