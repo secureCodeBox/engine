@@ -41,6 +41,8 @@ public class DefectDojoPersistenceProviderTest {
 
     Map<String, String> metaData;
 
+    Report report;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -60,6 +62,15 @@ public class DefectDojoPersistenceProviderTest {
         metaData = new HashMap<>();
         metaData.put(DefectDojoMetaFields.DEFECT_DOJO_PRODUCT.name(), "1");
         metaData.put(DefectDojoMetaFields.DEFECT_DOJO_USER.name(), "John Doe");
+
+        report = new Report();
+        report.setRawFindings("\"[]\"");
+        report.setFindings(Collections.emptyList());
+
+        when(defectDojoService.getToolConfiguration(eq("http://crazy.buildserver"), eq("BuildServer"))).thenReturn("http://localhost:8000/api/v2/tool_types/5/");
+        when(defectDojoService.getToolConfiguration(eq("http://crazy.scm_server"), eq("GitServer"))).thenReturn("http://localhost:8000/api/v2/tool_types/7/");
+        when(defectDojoService.getToolConfiguration(eq("https://github.com/secureCodeBox"), eq("SecurityTestOrchestrationEngine"))).thenReturn("http://localhost:8000/api/v2/tool_types/9/");
+
     }
 
     @Test
@@ -73,7 +84,7 @@ public class DefectDojoPersistenceProviderTest {
         when(defectDojoService.getToolTypeByName("GitServer")).thenReturn(responseEmpty);
 
         SecurityTest securityTest = new SecurityTest();
-        securityTest.setReport(new Report());
+        securityTest.setReport(report);
         securityTest.setMetaData(metaData);
 
         persistenceProvider.persist(securityTest);
@@ -90,7 +101,7 @@ public class DefectDojoPersistenceProviderTest {
         when(defectDojoService.getToolTypeByName(any())).thenReturn(responseExisting);
 
         SecurityTest securityTest = new SecurityTest();
-        securityTest.setReport(new Report());
+        securityTest.setReport(report);
         securityTest.setMetaData(metaData);
 
         persistenceProvider.persist(securityTest);
@@ -102,26 +113,14 @@ public class DefectDojoPersistenceProviderTest {
     public void createsTheEngagement(){
         when(defectDojoService.getUserUrl(eq("John Doe"))).thenReturn("http://localhost:8000/api/v2/users/5/");
 
-        when(defectDojoService.getToolConfiguration(eq("http://crazy.buildserver"), eq("BuildServer"))).thenReturn("http://localhost:8000/api/v2/tool_types/5/");
-        when(defectDojoService.getToolConfiguration(eq("http://crazy.scm_server"), eq("GitServer"))).thenReturn("http://localhost:8000/api/v2/tool_types/7/");
-        when(defectDojoService.getToolConfiguration(eq("https://github.com/secureCodeBox"), eq("SecurityTestOrchestrationEngine"))).thenReturn("http://localhost:8000/api/v2/tool_types/9/");
-
-        UUID securityTestUuid = UUID.randomUUID();
-
         SecurityTest securityTest = new SecurityTest();
-        securityTest.setId(securityTestUuid);
         securityTest.setContext("Nmap Scan 11");
-        Report report = new Report();
 
         metaData.put(CommonMetaFields.SCB_BRANCH.name(), "master");
         metaData.put(CommonMetaFields.SCB_REPO.name(), "https://github.com/secureCodeBox/engine");
         metaData.put(CommonMetaFields.SCB_BUILD_SERVER.name(), "http://crazy.buildserver");
         metaData.put(CommonMetaFields.SCB_SCM_SERVER.name(), "http://crazy.scm_server");
         securityTest.setMetaData(metaData);
-
-        report.setFindings(Collections.emptyList());
-        report.setRawFindings("[\"<custom xml stuff>\"]");
-
         securityTest.setReport(report);
 
         EngagementPayload payload = new EngagementPayload();
@@ -149,19 +148,11 @@ public class DefectDojoPersistenceProviderTest {
     public void failsIfUserCouldNotBeFound(){
         when(defectDojoService.getUserUrl(any())).thenThrow(new DefectDojoUserNotFound(""));
 
-        when(defectDojoService.getToolConfiguration(eq("http://crazy.buildserver"), eq("BuildServer"))).thenReturn("http://localhost:8000/api/v2/tool_types/5/");
-        when(defectDojoService.getToolConfiguration(eq("http://crazy.scm_server"), eq("GitServer"))).thenReturn("http://localhost:8000/api/v2/tool_types/7/");
-        when(defectDojoService.getToolConfiguration(eq("https://github.com/secureCodeBox"), eq("SecurityTestOrchestrationEngine"))).thenReturn("http://localhost:8000/api/v2/tool_types/9/");
-
-        UUID securityTestUuid = UUID.randomUUID();
-
         SecurityTest securityTest = new SecurityTest();
-        securityTest.setId(securityTestUuid);
         securityTest.setContext("Nmap Scan 11");
 
         metaData.put(DefectDojoMetaFields.DEFECT_DOJO_USER.name(), "This User really does not exist");
         securityTest.setMetaData(metaData);
-        Report report = new Report();
         securityTest.setReport(report);
 
         persistenceProvider.persist(securityTest);
@@ -169,21 +160,14 @@ public class DefectDojoPersistenceProviderTest {
 
     @Test(expected = DefectDojoProductNotProvided.class)
     public void failsIfProductCouldNotBeFound(){
-        when(defectDojoService.getToolConfiguration(eq("http://crazy.buildserver"), eq("BuildServer"))).thenReturn("http://localhost:8000/api/v2/tool_types/5/");
-        when(defectDojoService.getToolConfiguration(eq("http://crazy.scm_server"), eq("GitServer"))).thenReturn("http://localhost:8000/api/v2/tool_types/7/");
-        when(defectDojoService.getToolConfiguration(eq("https://github.com/secureCodeBox"), eq("SecurityTestOrchestrationEngine"))).thenReturn("http://localhost:8000/api/v2/tool_types/9/");
-
-        UUID securityTestUuid = UUID.randomUUID();
-
         SecurityTest securityTest = new SecurityTest();
-        securityTest.setId(securityTestUuid);
         securityTest.setContext("Nmap Scan 11");
 
         metaData.remove(DefectDojoMetaFields.DEFECT_DOJO_PRODUCT.name());
         securityTest.setMetaData(metaData);
-        Report report = new Report();
         securityTest.setReport(report);
 
         persistenceProvider.persist(securityTest);
     }
+
 }
