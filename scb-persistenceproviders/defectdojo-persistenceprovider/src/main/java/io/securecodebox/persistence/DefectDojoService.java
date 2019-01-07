@@ -19,26 +19,26 @@
 package io.securecodebox.persistence;
 
 import io.securecodebox.model.securitytest.SecurityTest;
-import io.securecodebox.persistence.models.DefectDojoResponse;
-import io.securecodebox.persistence.models.DefectDojoUser;
-import io.securecodebox.persistence.models.EngagementPayload;
-import io.securecodebox.persistence.models.EngagementResponse;
-import io.securecodebox.persistence.models.ToolConfig;
-import io.securecodebox.persistence.models.ToolType;
+import io.securecodebox.persistence.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.*;
+import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.ResourceHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.util.Arrays;
 
 @Component
 public class DefectDojoService {
@@ -140,6 +140,38 @@ public class DefectDojoService {
             LOG.warn("Failed to create Engagement for SecurityTest. {}", e);
             LOG.warn("Failure response body. {}", e.getResponseBodyAsString());
             throw new DefectDojoPersistenceException("Failed to create Engagement for SecurityTest", e);
+        }
+    }
+
+    public ImportScanResponse createFindings(String rawResult, String engagementUrl, String lead, String currentDate,String defectDojoScanName) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = getHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        restTemplate.setMessageConverters(Arrays.asList(new FormHttpMessageConverter(), new ResourceHttpMessageConverter(), new MappingJackson2HttpMessageConverter()));
+
+        MultiValueMap<String, Object> mvn = new LinkedMultiValueMap<>();
+        mvn.add("engagement", engagementUrl);
+        mvn.add("lead", lead);
+        mvn.add("scan_date", currentDate);
+        mvn.add("scan_type", defectDojoScanName);
+
+        try {
+            ByteArrayResource contentsAsResource = new ByteArrayResource(rawResult.getBytes(StandardCharsets.UTF_8)) {
+                @Override
+                public String getFilename() {
+                    return "this_needs_to_be_here_but_doesnt_really_matter.txt";
+                }
+            };
+
+            mvn.add("file", contentsAsResource);
+
+            HttpEntity<MultiValueMap> payload = new HttpEntity<>(mvn, headers);
+
+            return restTemplate.exchange(defectDojoUrl + "/api/v2/import-scan/", HttpMethod.POST, payload, ImportScanResponse.class).getBody();
+        } catch (HttpClientErrorException e) {
+            LOG.warn("Failed to import findings to DefectDojo. Request failed with status code: '{}'.", e.getStatusCode());
+            LOG.warn("Failure body: {}", e.getResponseBodyAsString());
+            throw new DefectDojoPersistenceException("Failed to attach findings to engagement.");
         }
     }
 

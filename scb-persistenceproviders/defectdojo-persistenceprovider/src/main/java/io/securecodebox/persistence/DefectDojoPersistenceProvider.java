@@ -103,9 +103,15 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         String engagementUrl = res.getUrl();
         LOG.debug("Created engagement: '{}'", engagementUrl);
 
-//        for (String rawResult : getRawResults(securityTest)) {
-//            createFindings(securityTest, rawResult, engagementUrl);
-//        }
+        for (String rawResult : getRawResults(securityTest)) {
+            defectDojoService.createFindings(
+                    rawResult,
+                    engagementUrl,
+                    defectDojoService.getUserUrl(DefectDojoMetaFields.DEFECT_DOJO_USER.name()),
+                    currentDate(),
+                    getDefectDojoScanName(securityTest.getName())
+            );
+        }
     }
 
     static final String GIT_SERVER_NAME = "GitServer";
@@ -185,40 +191,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         return new SimpleDateFormat(DATE_FORMAT).format(new Date());
     }
 
-    private ResponseEntity<ImportScanResponse> createFindings(SecurityTest securityTest, String rawResult, String engagementUrl) {
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpHeaders headers = getHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        restTemplate.setMessageConverters(Arrays.asList(new FormHttpMessageConverter(), new ResourceHttpMessageConverter(), new MappingJackson2HttpMessageConverter()));
-
-        MultiValueMap<String, Object> mvn = new LinkedMultiValueMap<>();
-        mvn.add("engagement", engagementUrl);
-        mvn.add("lead", defectDojoService.getUserUrl(securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_USER.name())));
-        mvn.add("scan_date", currentDate());
-        mvn.add("scan_type", getDefectDojoScanName(securityTest.getName()));
-
-        try {
-            ByteArrayResource contentsAsResource = new ByteArrayResource(rawResult.getBytes(StandardCharsets.UTF_8)) {
-                @Override
-                public String getFilename() {
-                    return "this_needs_to_be_here_but_doesnt_really_matter.txt";
-                }
-            };
-
-            mvn.add("file", contentsAsResource);
-
-            HttpEntity<MultiValueMap> payload = new HttpEntity<>(mvn, headers);
-
-            return restTemplate.exchange(defectDojoUrl + "/api/v2/import-scan/", HttpMethod.POST, payload, ImportScanResponse.class);
-        } catch (HttpClientErrorException e) {
-            LOG.warn("Failed to import findings to DefectDojo. Request failed with status code: '{}'.", e.getStatusCode());
-            LOG.warn("Failure body: {}", e.getResponseBodyAsString());
-            throw new DefectDojoPersistenceException("Failed to attach findings to engagement.");
-        }
-    }
-
-    protected String getDefectDojoScanName(String securityTestName) {
+    protected static String getDefectDojoScanName(String securityTestName) {
         Map<String, String> scannerDefectDojoMapping = new HashMap<>();
 
         // Officially supported by secureCodeBox

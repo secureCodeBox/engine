@@ -29,7 +29,7 @@ import java.util.Date;
 public class DescriptionGenerator {
     public String generate(SecurityTest securityTest){
         return MessageFormat.format("#{0}  \nTime: {1}  \nTarget: {2} \"{3}\"",
-                securityTest.getName(),
+                getDefectDojoScanName(securityTest),
                 currentTime(),
                 securityTest.getTarget().getName(),
                 securityTest.getTarget().getLocation()
@@ -40,5 +40,14 @@ public class DescriptionGenerator {
 
     private String currentTime() {
         return new SimpleDateFormat(TIME_FORMAT).format(new Date());
+    }
+
+    private String getDefectDojoScanName(SecurityTest securityTest){
+        try{
+            return DefectDojoPersistenceProvider.getDefectDojoScanName(securityTest.getName());
+        }
+        catch(DefectDojoPersistenceException e){
+            return securityTest.getName();
+        }
     }
 }
