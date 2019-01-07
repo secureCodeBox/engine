@@ -156,7 +156,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
         String productId = securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_PRODUCT.name());
         if (productId == null) {
-            throw new DefectDojoPersistenceException("DefectDojo persistence provider was configured but no product id was provided in the security test meta fields.");
+            throw new DefectDojoProductNotProvided("DefectDojo persistence provider was configured but no product id was provided in the security test meta fields.");
         }
         String username = securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_USER.name());
 

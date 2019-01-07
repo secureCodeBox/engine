@@ -167,7 +167,23 @@ public class DefectDojoPersistenceProviderTest {
         persistenceProvider.persist(securityTest);
     }
 
+    @Test(expected = DefectDojoProductNotProvided.class)
+    public void failsIfProductCouldNotBeFound(){
+        when(defectDojoService.getToolConfiguration(eq("http://crazy.buildserver"), eq("BuildServer"))).thenReturn("http://localhost:8000/api/v2/tool_types/5/");
+        when(defectDojoService.getToolConfiguration(eq("http://crazy.scm_server"), eq("GitServer"))).thenReturn("http://localhost:8000/api/v2/tool_types/7/");
+        when(defectDojoService.getToolConfiguration(eq("https://github.com/secureCodeBox"), eq("SecurityTestOrchestrationEngine"))).thenReturn("http://localhost:8000/api/v2/tool_types/9/");
 
-    // Leere Product Id wirft exception
-    // User gesetzt / nicht gesetzt
+        UUID securityTestUuid = UUID.randomUUID();
+
+        SecurityTest securityTest = new SecurityTest();
+        securityTest.setId(securityTestUuid);
+        securityTest.setContext("Nmap Scan 11");
+
+        metaData.remove(DefectDojoMetaFields.DEFECT_DOJO_PRODUCT.name());
+        securityTest.setMetaData(metaData);
+        Report report = new Report();
+        securityTest.setReport(report);
+
+        persistenceProvider.persist(securityTest);
+    }
 }
