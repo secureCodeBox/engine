@@ -99,11 +99,14 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         String engagementUrl = res.getUrl();
         LOG.debug("Created engagement: '{}'", engagementUrl);
 
+        String username = securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_USER.name());
+        String userUrl = defectDojoService.getUserUrl(username);
+
         for (String rawResult : getRawResults(securityTest)) {
             defectDojoService.createFindings(
                     rawResult,
                     engagementUrl,
-                    defectDojoService.getUserUrl(DefectDojoMetaFields.DEFECT_DOJO_USER.name()),
+                    userUrl,
                     currentDate(),
                     getDefectDojoScanName(securityTest.getName())
             );
