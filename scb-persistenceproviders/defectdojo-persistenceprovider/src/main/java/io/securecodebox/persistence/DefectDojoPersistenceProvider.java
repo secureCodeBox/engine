@@ -27,6 +27,7 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.ParameterizedTypeReference;
@@ -68,63 +69,60 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
     @Value("${securecodebox.persistence.defectdojo.scheme:http}")
     private String defectdojoScheme;
 
+    @Autowired
+    protected DefectDojoService defectDojoService;
+
+    protected static final String DATE_FORMAT = "yyyy-MM-dd";
+    protected static final String TIME_FORMAT = "HH:mm:ss";
+
     @Value("${securecodebox.persistence.defectdojo.baseurl}")
     protected String defectDojoUrl;
 
     @Value("${securecodebox.persistence.defectdojo.apikey}")
     protected String defectDojoApiKey;
 
-    protected static final String DATE_FORMAT = "yyyy-MM-dd";
-    protected static final String TIME_FORMAT = "HH:mm:ss";
+    private HttpHeaders getHeaders(){
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Token " + defectDojoApiKey);
+        return headers;
+    }
 
     @Override
     public void persist(SecurityTest securityTest) throws PersistenceException {
         LOG.debug("Starting defectdojo persistence provider");
-        LOG.debug("RawFindings: {}", securityTest.getReport().getRawFindings());
+        //LOG.debug("RawFindings: {}", securityTest.getReport().getRawFindings());
 
-        checkConnection();
+//        checkConnection();
         checkToolTypes();
 
-        ResponseEntity<EngagementResponse> res = createEngagement(securityTest);
-        String engagementUrl = res.getBody().getUrl();
-        LOG.debug("Created engagement: '{}'", engagementUrl);
-
-        for (String rawResult : getRawResults(securityTest)) {
-            createFindings(securityTest, rawResult, engagementUrl);
-        }
+//        ResponseEntity<EngagementResponse> res = createEngagement(securityTest);
+//        String engagementUrl = res.getBody().getUrl();
+//        LOG.debug("Created engagement: '{}'", engagementUrl);
+//
+//        for (String rawResult : getRawResults(securityTest)) {
+//            createFindings(securityTest, rawResult, engagementUrl);
+//        }
     }
 
+    static final String GIT_SERVER_NAME = "GitServer";
+    static final String BUILD_SERVER_NAME = "BuildServer";
+    static final String SECURITY_TEST_SERVER_NAME = "SecurityTestOrchestrationEngine";
+
     private void checkToolTypes() {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpEntity toolTypeRequest = new HttpEntity(getHeaders());
-
-        String gitUri = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/tool_types/").queryParam("name", "GitServer").toUriString();
-        ResponseEntity<DefectDojoResponse<ToolType>> toolTypeGitResponse = restTemplate.exchange(gitUri, HttpMethod.GET, toolTypeRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolType>>(){});
-        String buildUri = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/tool_types/").queryParam("name", "BuildServer").toUriString();
-        ResponseEntity<DefectDojoResponse<ToolType>> toolTypeScmResponse = restTemplate.exchange(buildUri, HttpMethod.GET, toolTypeRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolType>>(){});
-        String stoeUri = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/tool_types/").queryParam("name", "SecurityTestOrchestrationEngine").toUriString();
-        ResponseEntity<DefectDojoResponse<ToolType>> toolTypeStoeResponse = restTemplate.exchange(stoeUri, HttpMethod.GET, toolTypeRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolType>>(){});
-
-        ToolType toolType = new ToolType();
-        if(toolTypeGitResponse.getBody().getCount() == 0){
-            toolType.setName("GitServer");
-            toolType.setDescription("Source Code Management Server");
-            HttpEntity<ToolType> toolPayload = new HttpEntity<>(toolType, getHeaders());
-            restTemplate.exchange(defectDojoUrl + "/api/v2/tool_types/", HttpMethod.POST, toolPayload, ToolType.class);
-        }
-        if(toolTypeScmResponse.getBody().getCount() == 0){
-            toolType.setName("BuildServer");
-            toolType.setDescription("Build Server responsible for starting Security Scan");
-            HttpEntity<ToolType> toolPayload = new HttpEntity<>(toolType, getHeaders());
-            restTemplate.exchange(defectDojoUrl + "/api/v2/tool_types/", HttpMethod.POST, toolPayload, ToolType.class);
-        }
-        if(toolTypeStoeResponse.getBody().getCount() == 0){
-            toolType.setName("SecurityTestOrchestrationEngine");
-            toolType.setDescription("Software Engine responsible for orchestrating execution of Security Test");
-            HttpEntity<ToolType> toolPayload = new HttpEntity<>(toolType, getHeaders());
-            restTemplate.exchange(defectDojoUrl + "/api/v2/tool_types/", HttpMethod.POST, toolPayload, ToolType.class);
+        DefectDojoResponse<ToolType> toolTypeGitResponse = defectDojoService.getToolTypeByName(GIT_SERVER_NAME);
+        if(toolTypeGitResponse.getCount() == 0){
+            defectDojoService.createToolType(GIT_SERVER_NAME, "Source Code Management Server");
         }
 
+        DefectDojoResponse<ToolType> toolTypeScmResponse = defectDojoService.getToolTypeByName(BUILD_SERVER_NAME);
+        if(toolTypeScmResponse.getCount() == 0){
+            defectDojoService.createToolType(BUILD_SERVER_NAME, "Build Server responsible for starting Security Scan");
+        }
+
+        DefectDojoResponse<ToolType> toolTypeStoeResponse = defectDojoService.getToolTypeByName(SECURITY_TEST_SERVER_NAME);
+        if(toolTypeStoeResponse.getCount() == 0){
+            defectDojoService.createToolType(SECURITY_TEST_SERVER_NAME, "Security Test Orchestration Engine");
+        }
     }
 
     private void checkConnection() throws DefectDojoUnreachableException {
@@ -322,11 +320,5 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
             return getToolConfiguration(toolUrl, toolType);
 
         }
-    }
-
-    private HttpHeaders getHeaders(){
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Token " + defectDojoApiKey);
-        return headers;
     }
 }
