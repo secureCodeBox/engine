@@ -50,6 +50,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -198,7 +199,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         mvn.add("scan_type", getDefectDojoScanName(securityTest.getName()));
 
         try {
-            ByteArrayResource contentsAsResource = new ByteArrayResource(rawResult.getBytes("UTF-8")) {
+            ByteArrayResource contentsAsResource = new ByteArrayResource(rawResult.getBytes(StandardCharsets.UTF_8)) {
                 @Override
                 public String getFilename() {
                     return "this_needs_to_be_here_but_doesnt_really_matter.txt";
@@ -210,14 +211,11 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
             HttpEntity<MultiValueMap> payload = new HttpEntity<>(mvn, headers);
 
             return restTemplate.exchange(defectDojoUrl + "/api/v2/import-scan/", HttpMethod.POST, payload, ImportScanResponse.class);
-        } catch (UnsupportedEncodingException e) {
-            LOG.error("UnsupportedEncodingException {}", e);
         } catch (HttpClientErrorException e) {
             LOG.warn("Failed to import findings to DefectDojo. Request failed with status code: '{}'.", e.getStatusCode());
             LOG.warn("Failure body: {}", e.getResponseBodyAsString());
             throw new DefectDojoPersistenceException("Failed to attach findings to engagement.");
         }
-        return null;
     }
 
     protected String getDefectDojoScanName(String securityTestName) {
