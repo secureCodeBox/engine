@@ -17,11 +17,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
+import java.time.ZoneId;
 import java.util.*;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -45,6 +46,7 @@ public class DefectDojoPersistenceProviderTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        persistenceProvider.setClock(Clock.fixed(Instant.ofEpochSecond(1546876203), ZoneId.systemDefault()));
         when(descriptionGenerator.generate(any())).thenReturn("Foobar Description");
 
         persistenceProvider.defectDojoUrl = "http://localhost:8000";
@@ -192,6 +194,6 @@ public class DefectDojoPersistenceProviderTest {
                 eq("http://localhost:8000/api/v2/users/5/"),
                 eq("2019-01-07"),
                 eq("Nmap Scan")
-                );
+        );
     }
 }

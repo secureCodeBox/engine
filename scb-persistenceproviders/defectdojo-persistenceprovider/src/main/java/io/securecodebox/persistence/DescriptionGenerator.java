@@ -22,8 +22,9 @@ import io.securecodebox.model.securitytest.SecurityTest;
 import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Component
 public class DescriptionGenerator {
@@ -38,8 +39,10 @@ public class DescriptionGenerator {
 
     protected static final String TIME_FORMAT = "dd.MM.yyyy HH:mm:ss";
 
+    Clock clock = Clock.systemDefaultZone();
+
     private String currentTime() {
-        return new SimpleDateFormat(TIME_FORMAT).format(new Date());
+        return LocalDate.now(clock).format(DateTimeFormatter.ofPattern(TIME_FORMAT));
     }
 
     private String getDefectDojoScanName(SecurityTest securityTest){
@@ -49,5 +52,9 @@ public class DescriptionGenerator {
         catch(DefectDojoPersistenceException e){
             return securityTest.getName();
         }
+    }
+
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 }

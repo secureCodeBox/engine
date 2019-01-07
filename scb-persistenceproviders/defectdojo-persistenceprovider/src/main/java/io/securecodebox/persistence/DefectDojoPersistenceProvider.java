@@ -31,28 +31,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.FormHttpMessageConverter;
-import org.springframework.http.converter.ResourceHttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Component
@@ -81,10 +66,16 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
     @Value("${securecodebox.persistence.defectdojo.apikey}")
     protected String defectDojoApiKey;
 
+    Clock clock = Clock.systemDefaultZone();
+
     private HttpHeaders getHeaders(){
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Token " + defectDojoApiKey);
         return headers;
+    }
+
+    public void setClock(Clock clock){
+        this.clock = clock;
     }
 
     @Override
@@ -187,7 +178,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
     }
 
     private String currentDate() {
-        return new SimpleDateFormat(DATE_FORMAT).format(new Date());
+        return LocalDate.now(clock).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
     }
 
     protected static String getDefectDojoScanName(String securityTestName) {
