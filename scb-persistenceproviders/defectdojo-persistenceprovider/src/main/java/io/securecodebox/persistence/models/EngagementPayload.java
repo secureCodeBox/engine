@@ -19,10 +19,13 @@
 package io.securecodebox.persistence.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
+@Data
 public class EngagementPayload {
     @JsonProperty
     protected String name;
@@ -75,7 +78,6 @@ public class EngagementPayload {
     @JsonProperty
     protected String description;
 
-
     /**
      * Currently only contains the statuses relevant to us.
      * If you need others, feel free to add them ;)
@@ -86,104 +88,4 @@ public class EngagementPayload {
         @JsonProperty("In Progress")
         IN_PROGRESS
     }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getProduct() {
-        return product;
-    }
-
-    public void setProduct(String product) {
-        this.product = product;
-    }
-
-    public String getTargetStart() {
-        return targetStart;
-    }
-
-    public void setTargetStart(String targetStart) {
-        this.targetStart = targetStart;
-    }
-
-    public String getTargetEnd() {
-        return targetEnd;
-    }
-
-    public void setTargetEnd(String targetEnd) {
-        this.targetEnd = targetEnd;
-    }
-
-    public String getLead() {
-        return lead;
-    }
-
-    public void setLead(String lead) {
-        this.lead = lead;
-    }
-
-    public String getEngagementType() {
-        return engagementType;
-    }
-
-    public void setEngagementType(String engagementType) {
-        this.engagementType = engagementType;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public List<String> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<String> tags) {
-        this.tags = tags;
-    }
-
-    public String getTracker() { return tracker; }
-
-    public void setTracker(String tracker) { this.tracker = tracker; }
-
-    public String getBuildID() { return buildID; }
-
-    public void setBuildID(String buildID) { this.buildID = buildID; }
-
-    public String getCommitHash() { return commitHash; }
-
-    public void setCommitHash(String commitHash) { this.commitHash = commitHash; }
-
-    public String getBranch() { return branch; }
-
-    public void setBranch(String branch) { this.branch = branch; }
-
-    public String getRepo() { return repo; }
-
-    public void setRepo(String repo) { this.repo = repo; }
-
-    public String getBuildServer() { return buildServer; }
-
-    public void setBuildServer(String buildServer) { this.buildServer = buildServer; }
-
-    public String getScmServer() { return scmServer; }
-
-    public void setScmServer(String scmServer) { this.scmServer = scmServer; }
-
-    public String getOrchestrationEngine() { return orchestrationEngine; }
-
-    public void setOrchestrationEngine(String orchestrationEngine) { this.orchestrationEngine = orchestrationEngine; }
-
-    public String getDescription() { return description; }
-
-    public void setDescription(String description) { this.description = description; }
 }
