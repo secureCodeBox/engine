@@ -49,7 +49,7 @@ public class SecurityTestDefinitionsResourceTest {
     AuthService authService;
 
     @Test
-    public void shouldReturnAllAvailableProcessKeys() throws Exception {
+    public void shouldReturnAllAvailableProcessKeys() {
         given(securityTestServiceDummy.getAvailableSecurityTestDefinitionNames()).willReturn(Arrays.asList("foo", "bar"));
         ResponseEntity<List<String>> response = classUnderTest.getSecurityTestDefinitions();
 
@@ -57,7 +57,7 @@ public class SecurityTestDefinitionsResourceTest {
     }
 
     @Test
-    public void shouldReturnAnEmptyListIfNoProcessesAreAvailable() throws Exception {
+    public void shouldReturnAnEmptyListIfNoProcessesAreAvailable() {
         given(securityTestServiceDummy.getAvailableSecurityTestDefinitionNames()).willReturn(new LinkedList<>());
         ResponseEntity<List<String>> response = classUnderTest.getSecurityTestDefinitions();
 
@@ -65,8 +65,7 @@ public class SecurityTestDefinitionsResourceTest {
     }
 
     @Test
-    public void shouldReturnA403WhenTheUserIsntPermittedToAccessProcessDefinitions() throws Exception {
-        given(securityTestServiceDummy.getAvailableSecurityTestDefinitionNames()).willReturn(new LinkedList<>());
+    public void shouldReturnA403WhenTheUserIsntPermittedToAccessProcessDefinitions() {
         willThrow(new InsufficientAuthorizationException("")).given(authService).checkAuthorizedFor(any(), any());
 
         ResponseEntity<List<String>> response = classUnderTest.getSecurityTestDefinitions();

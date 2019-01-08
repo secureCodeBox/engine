@@ -169,7 +169,7 @@ public class ScanJobResource {
     ) {
         try{
             authService.checkAuthorizedFor(id.toString(), ResourceType.SECURITY_TEST, PermissionType.UPDATE);
-        }catch (InsufficientAuthenticationException e){
+        } catch (InsufficientAuthenticationException e){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
