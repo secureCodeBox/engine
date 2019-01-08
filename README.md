@@ -52,9 +52,9 @@ To run the testsuite run:
 
 ## Build
 
-To build the docker container run:
+To build the docker image run:
 
-`docker build -t CONTAINER_NAME .`
+`docker build -t IMAGE_NAME .`
 
 # Guidelines & Standards
 Well boring yes - but please read our [guidelines and naming standards][scb-developer-guidelines].
