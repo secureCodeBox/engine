@@ -20,7 +20,7 @@
 package io.securecodebox.scanprocess.test;
 
 import io.securecodebox.constants.DefaultFields;
-import io.securecodebox.scanprocesses.SummaryGeneratorDelegate;
+import io.securecodebox.scanprocess.delegate.SummaryGeneratorDelegate;
 import org.camunda.bpm.engine.ExternalTaskService;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.delegate.Expression;
@@ -76,7 +76,7 @@ import static org.mockito.Mockito.when;
 public class DefaultProcessTest {
 
     //Define the Process Activity IDs
-    private static final String PROCESS_ID = "arachni_webapplicationscan";
+    private static final String PROCESS_ID = "arachni-process";
     private static final String DO_SCAN_TASK_ID = "ServiceTask_DoScan";
     private static final String CREATE_REPORT_TASK_ID = "ServiceTask_CreateSummary";
     private static final String APPROVE_RESULTS_TASK_ID = "UserTask_ApproveResults";

@@ -35,11 +35,6 @@
             <version>2.0.2.RELEASE</version>
         </dependency>
 
-        <!-- Enable the camunda rest API -->
-        <dependency>
-            <groupId>org.camunda.bpm.springboot</groupId>
-            <artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
-        </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
@@ -47,6 +42,14 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
         <!-- Camunda Spin lib -->
@@ -170,6 +173,12 @@
                 </dependency>
                 <dependency>
                     <groupId>io.securecodebox.scanprocesses</groupId>
+                    <artifactId>combined-amass-nmap-process</artifactId>
+                    <version>0.0.1-SNAPSHOT</version>
+                    <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                    <groupId>io.securecodebox.scanprocesses</groupId>
                     <artifactId>combined-nmap-nikto-scanprocess</artifactId>
                     <version>0.0.1-SNAPSHOT</version>
                     <scope>runtime</scope>
@@ -186,7 +195,32 @@
                     <version>0.0.1-SNAPSHOT</version>
                     <scope>runtime</scope>
                 </dependency>
+                <dependency>
+                    <groupId>io.securecodebox.persistenceproviders</groupId>
+                    <artifactId>s3-persistenceprovider</artifactId>
+                    <version>0.0.1-SNAPSHOT</version>
+                    <scope>runtime</scope>
+                </dependency>
             </dependencies>
+            <dependencyManagement>
+                <!-- This will overwrite spring boot dependency management version for elastic search-->
+                <dependencies>
+                    <dependency>
+                        <groupId>org.elasticsearch</groupId>
+                        <artifactId>elasticsearch</artifactId>
+                        <version>6.2.4</version>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+        <profile>
+            <id>test</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <activatedProfiles>test</activatedProfiles>
+            </properties>
         </profile>
         <profile>
             <id>docs</id>

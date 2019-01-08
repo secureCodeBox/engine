@@ -49,7 +49,10 @@ import static org.junit.Assert.fail;
  * @since 21.05.18
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { SecureCodeBoxEngine.class })
+@SpringBootTest(
+        classes = { SecureCodeBoxEngine.class },
+        properties = { "securecodebox.rest.auth=none" }
+)
 @AutoConfigureMockMvc
 public class ScanJobResourceValidationTest {
 

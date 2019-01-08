@@ -20,12 +20,16 @@
 package io.securecodebox.engine.execution;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
+import io.securecodebox.model.rest.Report;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.Scanner;
 import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.scanprocess.ProcessVariableHelper;
+import java.util.Map;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.variable.value.BooleanValue;
 import org.camunda.bpm.engine.variable.value.StringValue;
@@ -155,13 +159,30 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
     }
 
     @Override
-    public String getTenantId() {
-        StringValue tenantId = execution.<StringValue>getVariableTyped(DefaultFields.PROCESS_TENANT_ID.name());
-        return tenantId != null ? tenantId.getValue() : null;
+    public String getScannerType(){
+        return (String) execution.getVariable(DefaultFields.PROCESS_SCANNER_TYPE.name());
+    }
+
+
+    /**
+     * Same as the Name of the securityTest. e.g. nmap
+     */
+    @Override
+    public String getName(){
+        return (String) execution.getVariable(DefaultFields.PROCESS_NAME.name());
+    }
+
+
+    /**
+     * Same as the Name of the securityTest. e.g. nmap
+     */
+    @Override
+    public void setName(String name) {
+        execution.setVariable(DefaultFields.PROCESS_NAME.name(), name);
     }
 
     @Override
-    public String getScannerType(){
-        return (String) execution.getVariable(DefaultFields.PROCESS_SCANNER_TYPE.name());
+    public Map<String, String> getMetaData(){
+        return (Map<String, String>) execution.getVariable(DefaultFields.PROCESS_META_DATA.name());
     }
 }

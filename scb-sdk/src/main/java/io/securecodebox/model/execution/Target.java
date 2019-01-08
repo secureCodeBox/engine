@@ -41,19 +41,26 @@ import java.util.Map;
 @ApiModel(description = "This type represents targets to scan by a scanner.")
 public class Target {
 
-    @ApiModelProperty(value = "The name of this target.", example = "SecureCodeBox Demo Instance", required = true)
+    @ApiModelProperty(value = "The name of this target.",
+                        example = "SecureCodeBox Demo Website ",
+                        required = true)
     @Size(min = 1, max = 4000)
     @Pattern(regexp = "^[\\w-]*$")
     @JsonProperty
     private String name;
-    @ApiModelProperty(value = "The location of this target.", example = "162.222.1.3", required = true)
+
+    @ApiModelProperty(value = "The location of this target, this could be a URL, Hostname or IP-Address.",
+                        example = "127.0.0.1",
+                        required = true)
     @Size(min = 1, max = 4000)
     @JsonProperty
     @Pattern(regexp = "^[^<>\\\\\\[\\]()%$]*$")
     private String location;
+
     @JsonProperty
-    @ApiModelProperty(value = "Key value pairs of target / scanner specific values.",
-            example = "{\"NMAP_START_PORT\":34, \"NMAP_IP\":\"162.222.1.3\", \"NMAP_END_PORT\": 125}", required = false)
+    @ApiModelProperty(value = "Key (in upper case) / value pairs of target / scanner specific configuration options.",
+            example = "{\"NMAP_PARAMETER\":\"-Pn\"}",
+            required = false)
     private Map<String, Object> attributes = new HashMap<>();
 
     public String getName() {

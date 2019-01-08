@@ -35,6 +35,7 @@
     <modules>
         <module>elasticsearch-persistenceprovider</module>
         <module>empty-persistenceprovider</module>
+        <module>s3-persistenceprovider</module>
     </modules>
 
     <dependencyManagement>

@@ -1,6 +1,7 @@
-  ![Build Status](https://travis-ci.com/secureCodeBox/engine.svg?token=N5PJUt4SAUxNTYFZNtLj&branch=develop)
-  [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-  [![Known Vulnerabilities](https://snyk.io/test/github/secureCodeBox/engine/badge.svg)](https://snyk.io/test/github/secureCodeBox/engine)
+[![Build Status](https://travis-ci.com/secureCodeBox/engine.svg?branch=develop)](https://travis-ci.com/secureCodeBox/engine)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Known Vulnerabilities](https://snyk.io/test/github/secureCodeBox/engine/badge.svg)](https://snyk.io/test/github/secureCodeBox/engine)
+[![GitHub release](https://img.shields.io/github/release/secureCodeBox/engine.svg)](https://github.com/secureCodeBox/engine/releases/latest)
 
  # SecureCodeBox Engine – the Core
 
@@ -16,12 +17,24 @@ This is the main component of the _secureCodeBox_ it's a [Camunda][camunda] [BPM
 # Configuration Options
 To configure the SCB engine specify the following environment variables:
 
-| Environment Variable                  | Description                        | Example Value               |
-| ------------------------------------- | ---------------------------------- | --------------------------- |
-| SECURECODEBOX_DEFAULT_TARGET_NAME     | Default target identifier          | BodgeIT Public Host         |
-| SECURECODEBOX_DEFAULT_TARGET_LOCATION | Default target hostname/ip address | bodgeit                     |
-| SECURECODEBOX_DEFAULT_TARGET_URI      | Default target URI/URL             | http://bodgeit:8080/bodgeit |
-| SECURECODEBOX_DEFAULT_CONTEXT         | Default business context           | BodgeIT                     |
+| Environment Variable                  | Description                           | Example Value               |
+| ------------------------------------- | ------------------------------------- | --------------------------- |
+| SECURECODEBOX_DEFAULT_TARGET_NAME     | Default target identifier             | BodgeIT Public Host         |
+| SECURECODEBOX_DEFAULT_TARGET_LOCATION | Default target hostname/ip address    | bodgeit                     |
+| SECURECODEBOX_DEFAULT_TARGET_URI      | Default target URI/URL                | http://bodgeit:8080/bodgeit |
+| SECURECODEBOX_DEFAULT_CONTEXT         | Default business context              | BodgeIT                     |
+| SECURECODEBOX_USER_SCANNER            | Default user for scanner services     | default-scanner             |
+| SECURECODEBOX_USER_SCANNER_PW         | Default password for scanner services | AStrongPassword-NotThisOne! |
+
+## Server Configuration
+Additionally all properties defined in scb-engine/src/main/resources/application.yaml can be overwritten via environment variables.
+This allows you to e.g. enable https using:
+
+| Environment Variable                  | Description                           | Example Value               |
+| ------------------------------------- | ------------------------------------- | --------------------------- |
+| SERVER_PORT                           | Defines the server port               | 8443                        |
+| SERVER_SSL_ENABLED                    | Enables http over ssl                 | true                        |
+| SERVER_SSL_KEY_STORE_PASSWORD         | Password to the java keystore         | AStrongPassword-NotThisOne! |
 
 # Development
 
