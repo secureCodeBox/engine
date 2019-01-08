@@ -126,7 +126,7 @@ public class DefaultScanProcessExecutionTest {
         underTest.appendFinding(TestHelper.createBasicFinding(finding1Id));
         underTest.appendFinding(TestHelper.createBasicFindingDifferent(finding2Id));
 
-        Mockito.verify(executionMock, times(2)).setVariable(eq(DefaultFields.PROCESS_FINDINGS.name()), anyString());
+        Mockito.verify(executionMock, times(2)).setVariable(eq(DefaultFields.PROCESS_FINDINGS.name()), any());
 
         ScanProcessExecution processExecution = processExecutionFactory.get(executionMock);
 
@@ -164,7 +164,7 @@ public class DefaultScanProcessExecutionTest {
         underTest.clearFindings();
 
         Mockito.verify(executionMock, atLeastOnce()).getVariable(eq(DefaultFields.PROCESS_FINDINGS.name()));
-        Mockito.verify(executionMock, times(3)).setVariable(eq(DefaultFields.PROCESS_FINDINGS.name()), anyString());
+        Mockito.verify(executionMock, times(3)).setVariable(eq(DefaultFields.PROCESS_FINDINGS.name()), any());
         Mockito.verifyNoMoreInteractions(executionMock);
         assertEquals(0, processExecution.getFindings().size());
     }
@@ -177,7 +177,7 @@ public class DefaultScanProcessExecutionTest {
         underTest.appendTarget(TestHelper.createBaiscTarget());
         underTest.appendTarget(TestHelper.createTarget("http://w1.w2.www", "some wired"));
 
-        Mockito.verify(executionMock, times(2)).setVariable(eq(DefaultFields.PROCESS_TARGETS.name()), anyString());
+        Mockito.verify(executionMock, times(2)).setVariable(eq(DefaultFields.PROCESS_TARGETS.name()), any());
 
         ScanProcessExecution processExecution = processExecutionFactory.get(executionMock);
 
@@ -202,7 +202,7 @@ public class DefaultScanProcessExecutionTest {
         //
         underTest.clearTargets();
         Mockito.verify(executionMock, atLeastOnce()).getVariable(eq(DefaultFields.PROCESS_TARGETS.name()));
-        Mockito.verify(executionMock, times(3)).setVariable(eq(DefaultFields.PROCESS_TARGETS.name()), anyString());
+        Mockito.verify(executionMock, times(3)).setVariable(eq(DefaultFields.PROCESS_TARGETS.name()), any());
         Mockito.verifyNoMoreInteractions(executionMock);
         assertEquals(0, processExecution.getTargets().size());
 
