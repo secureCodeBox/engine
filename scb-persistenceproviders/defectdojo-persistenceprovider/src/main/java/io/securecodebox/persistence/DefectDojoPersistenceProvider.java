@@ -178,9 +178,6 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         scannerDefectDojoMapping.put("nmap", "Nmap Scan");
         scannerDefectDojoMapping.put("zap", "ZAP Scan");
 
-        // Usage of generic importer for unsupported scanner by defectdojo
-        scannerDefectDojoMapping.put("amass", "Generic Findings Import");
-
         // TODO: Why is nikto not in the list?
 
         // Can be used by 3rd party integrations to

@@ -15,5 +15,5 @@ securecodebox.rest.user.scanner-default:
   password: scan
 
 securecodebox.persistence.defectdojo.baseurl: http://localhost:8000
-securecodebox.persistence.defectdojo.apikey: 6fd1b5e90d7afa33d1da939d7d51a9b745b11660
+securecodebox.persistence.defectdojo.apikey:
 
