@@ -68,12 +68,6 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
     Clock clock = Clock.systemDefaultZone();
 
-    private HttpHeaders getHeaders(){
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Token " + defectDojoApiKey);
-        return headers;
-    }
-
     public void setClock(Clock clock){
         this.clock = clock;
     }

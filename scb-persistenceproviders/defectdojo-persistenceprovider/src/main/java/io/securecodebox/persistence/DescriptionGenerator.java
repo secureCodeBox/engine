@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Component
@@ -42,7 +43,7 @@ public class DescriptionGenerator {
     Clock clock = Clock.systemDefaultZone();
 
     private String currentTime() {
-        return LocalDate.now(clock).format(DateTimeFormatter.ofPattern(TIME_FORMAT));
+        return LocalDateTime.now(clock).format(DateTimeFormatter.ofPattern(TIME_FORMAT));
     }
 
     private String getDefectDojoScanName(SecurityTest securityTest){
