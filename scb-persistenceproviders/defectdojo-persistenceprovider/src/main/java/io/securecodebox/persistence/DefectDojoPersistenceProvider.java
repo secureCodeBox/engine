@@ -23,18 +23,17 @@ import io.securecodebox.model.securitytest.CommonMetaFields;
 import io.securecodebox.model.securitytest.SecurityTest;
 
 import io.securecodebox.persistence.models.*;
-import org.apache.http.HttpHost;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -44,13 +43,6 @@ import java.util.*;
 @ConditionalOnProperty(name = "securecodebox.persistence.defectdojo.enabled", havingValue = "true")
 public class DefectDojoPersistenceProvider implements PersistenceProvider {
     private static final Logger LOG = LoggerFactory.getLogger(DefectDojoPersistenceProvider.class);
-
-    @Value("${securecodebox.persistence.defectdojo.host}")
-    private String defectdojoHost;
-    @Value("${securecodebox.persistence.defectdojo.port}")
-    private int defectdojoPort;
-    @Value("${securecodebox.persistence.defectdojo.scheme:http}")
-    private String defectdojoScheme;
 
     @Autowired
     DefectDojoService defectDojoService;
@@ -77,7 +69,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         LOG.debug("Starting defectdojo persistence provider");
         LOG.debug("RawFindings: {}", securityTest.getReport().getRawFindings());
 
-//        checkConnection();
+        checkConnection();
         checkToolTypes();
 
         EngagementResponse res = createEngagement(securityTest);
@@ -120,10 +112,13 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
     }
 
     private void checkConnection() throws DefectDojoUnreachableException {
-        try (RestHighLevelClient highLevelClient = new RestHighLevelClient(RestClient.builder(new HttpHost(defectdojoHost, defectdojoPort, defectdojoScheme)))) {
-            highLevelClient.ping();
-        } catch (IOException e) {
-            throw new DefectDojoUnreachableException("Could not reach defectdojo at '" + defectdojoHost + "'!");
+        try {
+            final URLConnection connection = new URL(defectDojoUrl).openConnection();
+            connection.connect();
+        }catch (final MalformedURLException e){
+            throw new DefectDojoUnreachableException("Could not reach defectdojo at '" + defectDojoUrl + "'!");
+        }catch (final IOException e){
+            throw new DefectDojoUnreachableException("Could not reach defectdojo at '" + defectDojoUrl + "'!");
         }
     }
 
@@ -182,6 +177,9 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         scannerDefectDojoMapping.put("arachni", "Arachni Scan");
         scannerDefectDojoMapping.put("nmap", "Nmap Scan");
         scannerDefectDojoMapping.put("zap", "ZAP Scan");
+
+        // Usage of generic importer for unsupported scanner by defectdojo
+        scannerDefectDojoMapping.put("amass", "Generic Findings Import");
 
         // TODO: Why is nikto not in the list?
 

@@ -45,10 +45,6 @@ securecodebox.persistence.elasticsearch.port: 9200
 securecodebox.persistence.elasticsearch.index.prefix: securecodebox
 securecodebox.persistence.elasticsearch.index.delete_on_init: false
 
-# Configuration for the defectdojo persistence provider:
-securecodebox.persistence.defectdojo.host: localhost
-securecodebox.persistence.defectdojo.port: 8000
-
 
 securecodebox.default.target.name: BodgeIT Public Host
 securecodebox.default.target.location: bodgeit
