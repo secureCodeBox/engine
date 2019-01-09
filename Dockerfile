@@ -1,4 +1,4 @@
-FROM maven as builder
+FROM maven:3-jdk-8 as builder
 COPY . .
 RUN mvn clean install -T6 -DskipTests=true -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
 
