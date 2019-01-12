@@ -56,11 +56,11 @@
             IMPORTANT: camunda.version and camunda.spring.boot.starter.version must be compatible
             please see org.camunda.bpm.springboot.project:camunda-bpm-spring-boot-starter-root
          -->
-        <camunda.version>7.9.0</camunda.version>
-        <camunda.spring.boot.starter.version>3.0.0</camunda.spring.boot.starter.version>
+        <camunda.version>7.10.0</camunda.version>
+        <camunda.spring.boot.starter.version>3.2.0</camunda.spring.boot.starter.version>
         <!-- END IMPORTANT -->
 
-        <spring-boot.version>2.0.2.RELEASE</spring-boot.version>
+        <spring-boot.version>2.1.1.RELEASE</spring-boot.version>
         <swagger-version>2.9.0</swagger-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
