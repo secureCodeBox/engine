@@ -46,7 +46,7 @@ public class DefaultGroupConfiguration extends AbstractCamundaConfiguration {
 
     public static final String GROUP_SCANNER = "scanner";
     public static final String GROUP_APPROVER = "approver";
-    public static final String GROUP_CI = "continuous-integration";
+    public static final String GROUP_CI = "continuousIntegration";
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultGroupConfiguration.class);
 

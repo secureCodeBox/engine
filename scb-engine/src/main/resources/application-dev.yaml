@@ -12,5 +12,5 @@ logging.level.io.securecodebox: DEBUG
 securecodebox.persistence.provider: none
 
 securecodebox.rest.user.scanner-default:
-  user-id: default-scanner
+  user-id: defaultScanner
   password: scan
