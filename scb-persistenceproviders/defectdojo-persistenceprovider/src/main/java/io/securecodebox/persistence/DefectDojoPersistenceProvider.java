@@ -19,6 +19,7 @@
 package io.securecodebox.persistence;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.securitytest.CommonMetaFields;
 import io.securecodebox.model.securitytest.SecurityTest;
 
@@ -34,6 +35,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -79,21 +81,22 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         String username = securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_USER.name());
         String userUrl = defectDojoService.getUserUrl(username);
 
-        for (String rawResult : getRawResults(securityTest)) {
-            defectDojoService.createFindings(
-                    rawResult,
-                    engagementUrl,
-                    userUrl,
-                    currentDate(),
-                    getDefectDojoScanName(securityTest.getName())
-            );
-        }
+        List<String> results = getDefectDojoScanName(securityTest.getName()).equals("Generic Findings Import") ? getGenericResults(securityTest) : getRawResults(securityTest);
+            for (String result : results) {
+                defectDojoService.createFindings(
+                        result,
+                        engagementUrl,
+                        userUrl,
+                        currentDate(),
+                        getDefectDojoScanName(securityTest.getName())
+                );
+            }
     }
 
     static final String GIT_SERVER_NAME = "GitServer";
+
     static final String BUILD_SERVER_NAME = "BuildServer";
     static final String SECURITY_TEST_SERVER_NAME = "SecurityTestOrchestrationEngine";
-
     private void checkToolTypes() {
         DefectDojoResponse<ToolType> toolTypeGitResponse = defectDojoService.getToolTypeByName(GIT_SERVER_NAME);
         if(toolTypeGitResponse.getCount() == 0){
@@ -133,6 +136,23 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         } catch (IOException e) {
             throw new DefectDojoPersistenceException("RawResults were in an unexpected format. Might be something wrong with the scanner implementation?");
         }
+    }
+
+    private List<String> getGenericResults(SecurityTest securityTest) {
+        List<String> genericResults = new LinkedList<>();
+        for(Finding finding: securityTest.getReport().getFindings()){
+            genericResults.add(MessageFormat.format("date,title,cweid,url,severity,description,mitigation,impact,references,active,verified,falsepositive,duplicate\n" +
+                            "{0},{1},,{2},{3},{4},,,,,,{5},{6}",
+                    currentDate(),
+                    finding.getName(),
+                    finding.getLocation(),
+                    finding.getSeverity(),
+                    finding.getDescription(),
+                    finding.isFalsePositive(),
+                    "false"
+            ));
+        }
+        return genericResults;
     }
 
     private EngagementResponse createEngagement(SecurityTest securityTest) {
@@ -204,8 +224,9 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
         if (scannerDefectDojoMapping.containsKey(securityTestName)) {
             return scannerDefectDojoMapping.get(securityTestName);
+        }else{
+            //For non supported scanner
+            return "Generic Findings Import";
         }
-
-        throw new DefectDojoPersistenceException("No defectdojo parser for securityTest: '" + securityTestName + "'");
     }
 }
