@@ -198,7 +198,8 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         scannerDefectDojoMapping.put("nmap", "Nmap Scan");
         scannerDefectDojoMapping.put("zap", "ZAP Scan");
 
-        // TODO: Why is nikto not in the list?
+        // Nikto is a supported tool as well but currently not accessible for supported import.
+        // Nikto thus will use Generic Findings Import.
 
         // Can be used by 3rd party integrations to
         // import these scan results directly into defectdojo
@@ -225,7 +226,6 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         if (scannerDefectDojoMapping.containsKey(securityTestName)) {
             return scannerDefectDojoMapping.get(securityTestName);
         }else{
-            //For non supported scanner
             return "Generic Findings Import";
         }
     }

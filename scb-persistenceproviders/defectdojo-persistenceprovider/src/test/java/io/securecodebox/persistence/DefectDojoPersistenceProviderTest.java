@@ -201,7 +201,7 @@ public class DefectDojoPersistenceProviderTest {
     }
 
     @Test
-    public void createsFindingsForNonSupportedScanner() throws JsonProcessingException {
+    public void createsFindingsForNonSupportedScanner() {
         SecurityTest securityTest = new SecurityTest();
         securityTest.setContext("Non supported Scan 11");
         securityTest.setName("any non supported scanner");
