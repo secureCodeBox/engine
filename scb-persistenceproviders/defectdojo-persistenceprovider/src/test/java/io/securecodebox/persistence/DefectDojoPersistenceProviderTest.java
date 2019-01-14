@@ -2,6 +2,7 @@ package io.securecodebox.persistence;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.rest.Report;
 import io.securecodebox.model.securitytest.CommonMetaFields;
 import io.securecodebox.model.securitytest.SecurityTest;
@@ -22,6 +23,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.*;
 
+import static io.securecodebox.model.findings.Severity.INFORMATIONAL;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
@@ -173,7 +175,7 @@ public class DefectDojoPersistenceProviderTest {
     }
 
     @Test
-    public void createsFindings() throws JsonProcessingException {
+    public void createsFindingsForSupportedScanner() throws JsonProcessingException {
         SecurityTest securityTest = new SecurityTest();
         securityTest.setContext("Nmap Scan 11");
         securityTest.setName("nmap");
@@ -195,6 +197,36 @@ public class DefectDojoPersistenceProviderTest {
                 eq("http://localhost:8000/api/v2/users/5/"),
                 eq("2019-01-07"),
                 eq("Nmap Scan")
+        );
+    }
+
+    @Test
+    public void createsFindingsForNonSupportedScanner() throws JsonProcessingException {
+        SecurityTest securityTest = new SecurityTest();
+        securityTest.setContext("Non supported Scan 11");
+        securityTest.setName("any non supported scanner");
+
+        List<Finding> findings = new ArrayList<>();
+        Finding finding = new Finding();
+        finding.setName("findingname");
+        finding.setDescription("description");
+        finding.setFalsePositive(false);
+        finding.setLocation("http://someadress");
+        finding.setSeverity(INFORMATIONAL);
+        findings.add(finding);
+
+        report.setFindings(findings);
+        securityTest.setMetaData(metaData);
+        securityTest.setReport(report);
+
+        persistenceProvider.persist(securityTest);
+        verify(defectDojoService, times(1)).createFindings(
+                eq( "date,title,cweid,url,severity,description,mitigation,impact,references,active,verified,falsepositive,duplicate\n"+
+                        "2019-01-07,findingname,,http://someadress,INFORMATIONAL,description,,,,,,false,false"),
+                eq("http://localhost:8000/api/v2/engagements/2/"),
+                eq("http://localhost:8000/api/v2/users/5/"),
+                eq("2019-01-07"),
+                eq("Generic Findings Import")
         );
     }
 }
