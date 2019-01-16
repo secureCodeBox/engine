@@ -130,13 +130,14 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
     private EngagementResponse createEngagement(SecurityTest securityTest) {
         EngagementPayload engagementPayload = new EngagementPayload();
-        engagementPayload.setName(getDefectDojoScanName(securityTest.getName()));
         engagementPayload.setProduct(defectDojoService.getProductUrl(securityTest.getContext()));
 
         if(securityTest.getMetaData() == null){
             securityTest.setMetaData(new HashMap<>());
         }
 
+        engagementPayload.setName(securityTest.getMetaData().get(CommonMetaFields.SCB_ENGAGEMENT_TITLE.name()) != null ?
+                securityTest.getMetaData().get(CommonMetaFields.SCB_ENGAGEMENT_TITLE.name()) : getDefectDojoScanName(securityTest.getName()));
         engagementPayload.setLead(defectDojoService.getUserUrl(securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_USER.name())));
         engagementPayload.setDescription(descriptionGenerator.generate(securityTest));
         engagementPayload.setBranch(securityTest.getMetaData().get(CommonMetaFields.SCB_BRANCH.name()));
@@ -151,7 +152,6 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
         engagementPayload.setTargetStart(currentDate());
         engagementPayload.setTargetEnd(currentDate());
-
         engagementPayload.setStatus(EngagementPayload.Status.COMPLETED);
 
         return defectDojoService.createEngagement(engagementPayload);
