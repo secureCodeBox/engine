@@ -83,8 +83,8 @@ public class AuthService {
             );
         }
 
-        LOG.debug("Current User '{}' with groups: '{}'", authentication.getName(), groups);
-        LOG.debug("Access check for [{}, {}, {}]: {}", resourceId, resource, permission, isAuthorized);
+        LOG.trace("Current User '{}' with groups: '{}'", authentication.getName(), groups);
+        LOG.trace("Access check for [{}, {}, {}]: {}", resourceId, resource, permission, isAuthorized);
 
         if(!isAuthorized){
             throw new InsufficientAuthorizationException("User is not authorised to perform this action.");

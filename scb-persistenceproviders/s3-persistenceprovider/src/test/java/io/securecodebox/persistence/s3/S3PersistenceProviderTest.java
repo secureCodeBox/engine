@@ -19,78 +19,65 @@
 
 package io.securecodebox.persistence.s3;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import io.securecodebox.model.findings.Finding;
-import io.securecodebox.model.findings.Severity;
 import io.securecodebox.model.rest.Report;
 import io.securecodebox.model.securitytest.SecurityTest;
-import org.apache.commons.io.FileUtils;
-import org.junit.Before;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.sql.DriverManager;
+import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.*;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PowerMockIgnore("javax.management.*")
+@PrepareForTest(AmazonS3ClientBuilder.class)
 public class S3PersistenceProviderTest {
 
-    @Spy
-    ObjectMapper mapper = new ObjectMapper();
-
     @InjectMocks
-    S3PersistenceProvider s3PersistenceProvider;
+    private S3PersistenceProvider persistenceProvider;
 
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
+    @Mock
+    private FindingWriter findingWriter;
 
-    @Test
-    public void testWriteReportToFile() throws IOException {
-        Finding finding = new Finding();
-        finding.setId(UUID.fromString("49bf7fd3-8512-4d73-a28f-608e493cd726"));
-        finding.setDescription("BAD_TEST_FINDIG_DESC");
-        finding.setName("BAD_TEST_FINDIG");
-        finding.setSeverity(Severity.HIGH);
-
-        List<Finding> findings = new LinkedList<>();
-        findings.add(finding);
-
-        Report report = new Report(findings, "<rawFindings/>");
-        report.setId(UUID.fromString("49bf7fd3-8512-4d73-a28f-608e493cd781"));
-
-        Map<String, String> metaData = new HashMap<>();
-        metaData.put("started-by", "PersistencProviderTest");
-
-        SecurityTest securityTest = new SecurityTest(UUID.fromString("281ccc0f-a933-4106-a3d3-209954e6305e"), "testContext","nmap", null, report, metaData);
-        
-        File file = s3PersistenceProvider.writeReportToFile(securityTest);
-        String content = FileUtils.readFileToString(file, "UTF-8");
-        assertEquals(
-            "{\"context\":\"testContext\",\"target\":null,\"metaData\":{\"started-by\":\"PersistencProviderTest\"},\"id\":\"281ccc0f-a933-4106-a3d3-209954e6305e\",\"report\":{\"report_id\":\"49bf7fd3-8512-4d73-a28f-608e493cd781\",\"findings\":[{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"BAD_TEST_FINDIG_DESC\",\"severity\":\"HIGH\",\"false_positive\":false}],\"raw_findings\":\"<rawFindings/>\",\"severity_highest\":\"HIGH\",\"severity_overview\":{\"HIGH\":1}},\"name\":\"nmap\",\"finished\":true}",
-            content
-        );
-    }
+    @Mock
+    private AmazonS3Client s3ClientDummy;
 
     @Test
-    public void testNullReport() throws IOException {
-        File file = s3PersistenceProvider.writeReportToFile(null);
-        assertEquals("null", readFile(file.getPath(), Charset.forName("UTF-8")));
-    }
+    public void persistShouldWriteOneFilePerFinding() throws IOException {
+        // given
+        PowerMockito.mockStatic(AmazonS3ClientBuilder.class);
+        given(AmazonS3ClientBuilder.defaultClient()).willReturn(s3ClientDummy);
 
-    private static String readFile(String path, Charset encoding) throws IOException {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return new String(encoded, encoding);
+        SecurityTest securityTest = new SecurityTest();
+        securityTest.setContext("test-context");
+        Report report = new Report();
+        securityTest.setReport(report);
+        Finding f1 = new Finding();
+        Finding f2 = new Finding();
+        report.setFindings(Arrays.asList(f1, f2));
+
+        // when
+        persistenceProvider.persist(securityTest);
+
+        // then
+        verify(findingWriter, times(2)).writeFindingToFile(any(), any());
+        verify(s3ClientDummy, times(2)).putObject(any());
     }
 }

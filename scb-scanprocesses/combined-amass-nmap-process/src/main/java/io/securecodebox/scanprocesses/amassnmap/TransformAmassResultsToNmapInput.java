@@ -50,24 +50,27 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
             List<Finding> findings = objectMapper.readValue(objectMapper.readValue(findingsAsString, String.class),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, Finding.class));
 
-            String nmapProfile = (String) execution.getVariable(ProcessVariables.NMAP_CONFIGURATION_PROFILE.name());
+            String targetsAsString = objectMapper.writeValueAsString(execution.getVariable(DefaultFields.PROCESS_TARGETS.name()));
+            List<Target> targets = objectMapper.readValue(objectMapper.readValue(targetsAsString, String.class),
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
+
+            String nmapProfile = (String) targets.get(0).getAttributes().get(AdditionalTargetAttributes.NMAP_CONFIGURATION_PROFILE.name());
+            String nmapParameters = getNmapParameters(nmapProfile);
 
             List<Target> newTargets = new ArrayList<>();
             for (Finding finding : findings) {
                 Target target = new Target();
                 target.setLocation(finding.getLocation());
-                setNmapProfile(nmapProfile, target);
+                target.appendOrUpdateAttribute("NMAP_PARAMETER", nmapParameters);
                 newTargets.add(target);
             }
-
-            LOG.debug("Transformed findings to new newTargets: " + newTargets);
+            LOG.debug("Transformed findings to new targets: " + newTargets);
 
             ObjectValue objectValue = Variables.objectValue(objectMapper.writeValueAsString(newTargets))
                     .serializationDataFormat(Variables.SerializationDataFormats.JSON)
                     .create();
             execution.setVariable(DefaultFields.PROCESS_TARGETS.name(), objectValue);
 
-            // SET NMAP PROCESS VARIABLES
             execution.setVariable("NMAP_CONFIGURATION_TYPE","default");
 
             LOG.debug("Finished TransformAmassResultsToNmapInput Service Task. Continue with nmap scan");
@@ -77,16 +80,21 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
         }
     }
 
-    private void setNmapProfile(String nmapProfile, Target target) {
+    private String getNmapParameters(String nmapProfile) {
+        String defaultNmapParameters = NmapConfigProfile.HTTP_PORTS.getParameter();
+        if(nmapProfile == null) {
+            LOG.info("No nmap profile set for combined amass-nmap test. Use http ports as default");
+            return defaultNmapParameters;
+        }
+
         switch (NmapConfigProfile.valueOf(nmapProfile)) {
             case HTTP_PORTS:
-                target.appendOrUpdateAttribute("NMAP_PARAMETER", NmapConfigProfile.HTTP_PORTS.getParameter());
-                break;
+                return NmapConfigProfile.HTTP_PORTS.getParameter();
             case TOP_100_PORTS:
-                target.appendOrUpdateAttribute("NMAP_PARAMETER", NmapConfigProfile.TOP_100_PORTS.getParameter());
-                break;
+                return NmapConfigProfile.TOP_100_PORTS.getParameter();
             default:
-                throw new IllegalArgumentException("Unknown nmap profile for combined scan");
+                LOG.info("Invalid nmap profile set for combined amass-nmap test. Use http ports as default");
+                return defaultNmapParameters;
         }
     }
 

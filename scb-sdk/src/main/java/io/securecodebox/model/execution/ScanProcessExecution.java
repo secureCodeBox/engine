@@ -41,7 +41,7 @@ public interface ScanProcessExecution {
     UUID getId();
 
     @JsonProperty("context")
-    void setContext(String id);
+    void setContext(String context);
 
     @JsonProperty("context")
     String getContext();

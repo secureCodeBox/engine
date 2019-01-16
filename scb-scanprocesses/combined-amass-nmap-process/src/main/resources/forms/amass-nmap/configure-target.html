@@ -32,11 +32,6 @@
             $scope.targetList = [{
                 attributes: { "NO_DNS": true}
             }];
-
-            $scope.nmapConfigProfiles = [
-                {label: "HTTP Ports (80,8080,443,8443)", value: "HTTP_PORTS", selected: true},
-                {label: "Top 100 Ports", value: "TOP_100_PORTS"}
-            ]
         });
 
         camForm.on('submit', function () {
@@ -78,19 +73,21 @@
                                ng-model="target.location"
                         />
                     </div>
-                </div>
-                <code class="hidden">{{ targetList }}</code>
-            </div>
 
-            <!-- Nmap Port Config -->
-            <div class="form-group">
-                <label for="inputNmapConfig">Nmap Port Config</label>
-                <div class="controls">
-                    <select id="inputNmapConfig" cam-variable-name="NMAP_CONFIGURATION_PROFILE" cam-variable-type="String">
-                        <option ng-repeat="profile in nmapConfigProfiles"
-                                value="{{profile.value}}" ng-selected="profile.selected">{{profile.label}}</option>
-                    </select>
+                    <!-- Nmap Port Config -->
+                    <div class="col-xs-12 form-group">
+                        <label for="inputNmapConfig">Nmap Port Config</label>
+                        <div class="controls">
+                            <select id="inputNmapConfig" ng-model="target.attributes.NMAP_CONFIGURATION_PROFILE"
+                                    ng-init="target.attributes.NMAP_CONFIGURATION_PROFILE='HTTP_PORTS'">
+                                <option value="HTTP_PORTS">HTTP Ports (80,8080,443,8443)</option>
+                                <option value="TOP_100_PORTS">Top 100 Ports</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
+
+                <code class="hidden">{{ targetList }}</code>
             </div>
 
             <!-- Context (Project/Team/System...) -->
