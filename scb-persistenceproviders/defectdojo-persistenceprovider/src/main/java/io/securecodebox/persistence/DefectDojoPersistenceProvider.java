@@ -144,10 +144,10 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
             genericResults.add(MessageFormat.format("date,title,cweid,url,severity,description,mitigation,impact,references,active,verified,falsepositive,duplicate\n" +
                             "{0},{1},,{2},{3},{4},,,,,,{5},{6}",
                     currentDate(),
-                    finding.getName(),
-                    finding.getLocation(),
+                    finding.getName().replace(",", "  "),
+                    finding.getLocation().replace(",", "  "),
                     finding.getSeverity(),
-                    finding.getDescription(),
+                    finding.getDescription().replace(",", "  "),
                     finding.isFalsePositive(),
                     "false"
             ));
