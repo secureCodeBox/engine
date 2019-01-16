@@ -145,9 +145,9 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         engagementPayload.setRepo(securityTest.getMetaData().get(CommonMetaFields.SCB_REPO.name()));
         engagementPayload.setTracker(securityTest.getMetaData().get(CommonMetaFields.SCB_TRACKER.name()));
 
-        engagementPayload.setBuildServer(defectDojoService.getToolConfiguration(securityTest.getMetaData().get(CommonMetaFields.SCB_BUILD_SERVER.name()), "BuildServer"));
-        engagementPayload.setScmServer(defectDojoService.getToolConfiguration(securityTest.getMetaData().get(CommonMetaFields.SCB_SCM_SERVER.name()), "GitServer"));
-        engagementPayload.setOrchestrationEngine(defectDojoService.getToolConfiguration("https://github.com/secureCodeBox","SecurityTestOrchestrationEngine"));
+        engagementPayload.setBuildServer(defectDojoService.getToolConfiguration(securityTest.getMetaData().get(CommonMetaFields.SCB_BUILD_SERVER.name()), "Build Server"));
+        engagementPayload.setScmServer(defectDojoService.getToolConfiguration(securityTest.getMetaData().get(CommonMetaFields.SCB_SCM_SERVER.name()), "Git Server"));
+        engagementPayload.setOrchestrationEngine(defectDojoService.getToolConfiguration("https://github.com/secureCodeBox","Security Test Orchestration Engine"));
 
         engagementPayload.setTargetStart(currentDate());
         engagementPayload.setTargetEnd(currentDate());

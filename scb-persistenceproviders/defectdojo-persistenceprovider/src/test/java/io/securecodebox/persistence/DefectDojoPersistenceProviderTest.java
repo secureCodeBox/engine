@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.model.rest.Report;
 import io.securecodebox.model.securitytest.CommonMetaFields;
 import io.securecodebox.model.securitytest.SecurityTest;
-import io.securecodebox.persistence.models.DefectDojoResponse;
-import io.securecodebox.persistence.models.EngagementPayload;
-import io.securecodebox.persistence.models.EngagementResponse;
-import io.securecodebox.persistence.models.ToolType;
+import io.securecodebox.persistence.models.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,19 +47,20 @@ public class DefectDojoPersistenceProviderTest {
         persistenceProvider.setClock(Clock.fixed(Instant.ofEpochSecond(1546876203), ZoneId.systemDefault()));
         when(descriptionGenerator.generate(any())).thenReturn("Foobar Description");
 
-        persistenceProvider.defectDojoUrl = "http://localhost:8000";
         defectDojoService.defectDojoUrl = "http://localhost:8000";
 
         DefectDojoResponse<ToolType> responseExisting = new DefectDojoResponse<>();
         responseExisting.setCount(1);
         when(defectDojoService.getToolTypeByName(any())).thenReturn(responseExisting);
 
-        EngagementResponse response = new EngagementResponse();
-        response.setUrl("http://localhost:8000/api/v2/engagements/2/");
-        when(defectDojoService.createEngagement(any())).thenReturn(response);
+        EngagementResponse engagementResponse = new EngagementResponse();
+        engagementResponse.setUrl("http://localhost:8000/api/v2/engagements/2/");
+        when(defectDojoService.createEngagement(any())).thenReturn(engagementResponse);
+        when(defectDojoService.getProductUrl("Nmap Scan 11")).thenReturn("http://localhost:8000/api/v2/products/1/");
+        when(defectDojoService.getProductUrl("Nonexisting")).thenThrow(DefectDojoProductNotFound.class);
+
 
         metaData = new HashMap<>();
-        metaData.put(DefectDojoMetaFields.DEFECT_DOJO_PRODUCT.name(), "1");
         metaData.put(DefectDojoMetaFields.DEFECT_DOJO_USER.name(), "John Doe");
         when(defectDojoService.getUserUrl(eq("John Doe"))).thenReturn("http://localhost:8000/api/v2/users/5/");
 
@@ -70,9 +68,9 @@ public class DefectDojoPersistenceProviderTest {
         report.setRawFindings("\"[]\"");
         report.setFindings(Collections.emptyList());
 
-        when(defectDojoService.getToolConfiguration(eq("http://crazy.buildserver"), eq("BuildServer"))).thenReturn("http://localhost:8000/api/v2/tool_types/5/");
-        when(defectDojoService.getToolConfiguration(eq("http://crazy.scm_server"), eq("GitServer"))).thenReturn("http://localhost:8000/api/v2/tool_types/7/");
-        when(defectDojoService.getToolConfiguration(eq("https://github.com/secureCodeBox"), eq("SecurityTestOrchestrationEngine"))).thenReturn("http://localhost:8000/api/v2/tool_types/9/");
+        when(defectDojoService.getToolConfiguration(eq("http://crazy.buildserver"), eq("Build Server"))).thenReturn("http://localhost:8000/api/v2/tool_types/5/");
+        when(defectDojoService.getToolConfiguration(eq("http://crazy.scm_server"), eq("Git Server"))).thenReturn("http://localhost:8000/api/v2/tool_types/7/");
+        when(defectDojoService.getToolConfiguration(eq("https://github.com/secureCodeBox"), eq("Security Test Orchestration Engine"))).thenReturn("http://localhost:8000/api/v2/tool_types/9/");
 
     }
 
@@ -84,17 +82,18 @@ public class DefectDojoPersistenceProviderTest {
 
         DefectDojoResponse<ToolType> responseEmpty = new DefectDojoResponse<>();
         responseEmpty.setCount(0);
-        when(defectDojoService.getToolTypeByName("GitServer")).thenReturn(responseEmpty);
+        when(defectDojoService.getToolTypeByName("Git Server")).thenReturn(responseEmpty);
 
         SecurityTest securityTest = new SecurityTest();
         securityTest.setReport(report);
         securityTest.setMetaData(metaData);
+        securityTest.setName("nmap");
 
         persistenceProvider.persist(securityTest);
 
-        verify(defectDojoService, times(1)).createToolType(eq("GitServer"), any());
-        verify(defectDojoService, times(0)).createToolType(eq("BuildServer"), any());
-        verify(defectDojoService, times(0)).createToolType(eq("SecurityTestOrchestrationEngine"), any());
+        verify(defectDojoService, times(1)).createToolType(eq("Git Server"), any());
+        verify(defectDojoService, times(0)).createToolType(eq("Build Server"), any());
+        verify(defectDojoService, times(0)).createToolType(eq("Security Test Orchestration Engine"), any());
     }
 
     @Test
@@ -106,6 +105,8 @@ public class DefectDojoPersistenceProviderTest {
         SecurityTest securityTest = new SecurityTest();
         securityTest.setReport(report);
         securityTest.setMetaData(metaData);
+        securityTest.setName("nmap");
+        securityTest.setContext("Nmap Scan 11");
 
         persistenceProvider.persist(securityTest);
 
@@ -114,7 +115,6 @@ public class DefectDojoPersistenceProviderTest {
 
     @Test
     public void createsTheEngagement(){
-
         SecurityTest securityTest = new SecurityTest();
         securityTest.setContext("Nmap Scan 11");
 
@@ -124,10 +124,11 @@ public class DefectDojoPersistenceProviderTest {
         metaData.put(CommonMetaFields.SCB_SCM_SERVER.name(), "http://crazy.scm_server");
         securityTest.setMetaData(metaData);
         securityTest.setReport(report);
+        securityTest.setName("nmap");
 
         EngagementPayload payload = new EngagementPayload();
         payload.setStatus(EngagementPayload.Status.COMPLETED);
-        payload.setName("Nmap Scan 11");
+        payload.setName("Nmap Scan");
         payload.setProduct("http://localhost:8000/api/v2/products/1/");
         payload.setLead("http://localhost:8000/api/v2/users/5/");
         payload.setBranch("master");
@@ -156,18 +157,19 @@ public class DefectDojoPersistenceProviderTest {
         metaData.put(DefectDojoMetaFields.DEFECT_DOJO_USER.name(), "This User really does not exist");
         securityTest.setMetaData(metaData);
         securityTest.setReport(report);
+        securityTest.setName("nmap");
 
         persistenceProvider.persist(securityTest);
     }
 
-    @Test(expected = DefectDojoProductNotProvided.class)
+    @Test(expected = DefectDojoProductNotFound.class)
     public void failsIfProductCouldNotBeFound(){
         SecurityTest securityTest = new SecurityTest();
-        securityTest.setContext("Nmap Scan 11");
+        securityTest.setContext("Nonexisting");
 
-        metaData.remove(DefectDojoMetaFields.DEFECT_DOJO_PRODUCT.name());
         securityTest.setMetaData(metaData);
         securityTest.setReport(report);
+        securityTest.setName("nmap");
 
         persistenceProvider.persist(securityTest);
     }
@@ -187,6 +189,7 @@ public class DefectDojoPersistenceProviderTest {
         report.setRawFindings(doubleSer);
         securityTest.setMetaData(metaData);
         securityTest.setReport(report);
+        securityTest.setName("nmap");
 
         persistenceProvider.persist(securityTest);
         verify(defectDojoService, times(1)).createFindings(
