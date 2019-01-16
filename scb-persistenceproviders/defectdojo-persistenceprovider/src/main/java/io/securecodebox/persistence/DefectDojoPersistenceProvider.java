@@ -26,7 +26,6 @@ import io.securecodebox.persistence.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -51,12 +50,6 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
     DescriptionGenerator descriptionGenerator;
 
     protected static final String DATE_FORMAT = "yyyy-MM-dd";
-
-    @Value("${securecodebox.persistence.defectdojo.baseurl}")
-    String defectDojoUrl;
-
-    @Value("${securecodebox.persistence.defectdojo.apikey}")
-    protected String defectDojoApiKey;
 
     Clock clock = Clock.systemDefaultZone();
 
@@ -90,9 +83,9 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         }
     }
 
-    static final String GIT_SERVER_NAME = "GitServer";
-    static final String BUILD_SERVER_NAME = "BuildServer";
-    static final String SECURITY_TEST_SERVER_NAME = "SecurityTestOrchestrationEngine";
+    static final String GIT_SERVER_NAME = "Git Server";
+    static final String BUILD_SERVER_NAME = "Build Server";
+    static final String SECURITY_TEST_SERVER_NAME = "Security Test Orchestration Engine";
 
     private void checkToolTypes() {
         DefectDojoResponse<ToolType> toolTypeGitResponse = defectDojoService.getToolTypeByName(GIT_SERVER_NAME);
@@ -113,12 +106,12 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
     private void checkConnection() throws DefectDojoUnreachableException {
         try {
-            final URLConnection connection = new URL(defectDojoUrl).openConnection();
+            final URLConnection connection = new URL(defectDojoService.defectDojoUrl).openConnection();
             connection.connect();
         }catch (final MalformedURLException e){
-            throw new DefectDojoUnreachableException("Could not reach defectdojo at '" + defectDojoUrl + "'!");
+            throw new DefectDojoUnreachableException("Could not reach defectdojo at '" + defectDojoService.defectDojoUrl + "'!");
         }catch (final IOException e){
-            throw new DefectDojoUnreachableException("Could not reach defectdojo at '" + defectDojoUrl + "'!");
+            throw new DefectDojoUnreachableException("Could not reach defectdojo at '" + defectDojoService.defectDojoUrl + "'!");
         }
     }
 
@@ -137,16 +130,14 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
     private EngagementResponse createEngagement(SecurityTest securityTest) {
         EngagementPayload engagementPayload = new EngagementPayload();
-        engagementPayload.setName(securityTest.getContext());
+        engagementPayload.setName(getDefectDojoScanName(securityTest.getName()));
+        engagementPayload.setProduct(defectDojoService.getProductUrl(securityTest.getContext()));
 
-        String productId = securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_PRODUCT.name());
-        if (productId == null) {
-            throw new DefectDojoProductNotProvided("DefectDojo persistence provider was configured but no product id was provided in the security test meta fields.");
+        if(securityTest.getMetaData() == null){
+            securityTest.setMetaData(new HashMap<>());
         }
-        String username = securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_USER.name());
 
-        engagementPayload.setProduct(defectDojoUrl + "/api/v2/products/" + productId + "/");
-        engagementPayload.setLead(defectDojoService.getUserUrl(username));
+        engagementPayload.setLead(defectDojoService.getUserUrl(securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_USER.name())));
         engagementPayload.setDescription(descriptionGenerator.generate(securityTest));
         engagementPayload.setBranch(securityTest.getMetaData().get(CommonMetaFields.SCB_BRANCH.name()));
         engagementPayload.setBuildID(securityTest.getMetaData().get(CommonMetaFields.SCB_BUILD_ID.name()));
