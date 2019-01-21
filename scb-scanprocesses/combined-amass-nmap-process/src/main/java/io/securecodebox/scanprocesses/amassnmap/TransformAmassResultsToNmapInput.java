@@ -32,6 +32,7 @@ import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -39,13 +40,18 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
 
     private static final Logger LOG = LoggerFactory.getLogger(TransformAmassResultsToNmapInput.class);
 
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @Autowired
+    private OriginalTargetRestorer originalTargetRestorer;
+
     @Override
     public void execute(DelegateExecution execution) throws Exception {
 
         LOG.debug("Converting amass output to nmap input");
 
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
             String findingsAsString = objectMapper.writeValueAsString(execution.getVariable(DefaultFields.PROCESS_FINDINGS.name()));
             List<Finding> findings = objectMapper.readValue(objectMapper.readValue(findingsAsString, String.class),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, Finding.class));
@@ -54,15 +60,18 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
             List<Target> targets = objectMapper.readValue(objectMapper.readValue(targetsAsString, String.class),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
 
-            String nmapProfile = (String) targets.get(0).getAttributes().get(AdditionalTargetAttributes.NMAP_CONFIGURATION_PROFILE.name());
+            Target originalTarget = targets.get(0);
+            originalTargetRestorer.storeOriginalTargetInSeparateProcessVariable(originalTarget, execution);
+
+            String nmapProfile = (String) originalTarget.getAttributes().get(AdditionalTargetAttributes.NMAP_CONFIGURATION_PROFILE.name());
             String nmapParameters = getNmapParameters(nmapProfile);
 
             List<Target> newTargets = new ArrayList<>();
             for (Finding finding : findings) {
-                Target target = new Target();
-                target.setLocation(finding.getLocation());
-                target.appendOrUpdateAttribute("NMAP_PARAMETER", nmapParameters);
-                newTargets.add(target);
+                Target newTarget = new Target();
+                newTarget.setLocation(finding.getLocation());
+                newTarget.appendOrUpdateAttribute("NMAP_PARAMETER", nmapParameters);
+                newTargets.add(newTarget);
             }
             LOG.debug("Transformed findings to new targets: " + newTargets);
 
