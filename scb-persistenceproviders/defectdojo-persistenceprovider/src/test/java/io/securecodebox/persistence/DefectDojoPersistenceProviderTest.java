@@ -21,9 +21,7 @@ import java.util.*;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefectDojoPersistenceProviderTest {
@@ -35,7 +33,7 @@ public class DefectDojoPersistenceProviderTest {
     DescriptionGenerator descriptionGenerator;
 
     @InjectMocks
-    DefectDojoPersistenceProvider persistenceProvider;
+    DefectDojoPersistenceProvider persistenceProvider = spy(new DefectDojoPersistenceProvider());
 
     Map<String, String> metaData;
 
@@ -46,6 +44,7 @@ public class DefectDojoPersistenceProviderTest {
         MockitoAnnotations.initMocks(this);
         persistenceProvider.setClock(Clock.fixed(Instant.ofEpochSecond(1546876203), ZoneId.systemDefault()));
         when(descriptionGenerator.generate(any())).thenReturn("Foobar Description");
+        doNothing().when(persistenceProvider).checkConnection();
 
         defectDojoService.defectDojoUrl = "http://localhost:8000";
 

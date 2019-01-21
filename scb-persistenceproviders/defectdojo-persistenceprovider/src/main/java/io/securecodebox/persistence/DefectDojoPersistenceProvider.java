@@ -104,7 +104,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         }
     }
 
-    private void checkConnection() throws DefectDojoUnreachableException {
+    void checkConnection() throws DefectDojoUnreachableException {
         try {
             final URLConnection connection = new URL(defectDojoService.defectDojoUrl).openConnection();
             connection.connect();
