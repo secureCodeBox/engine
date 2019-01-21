@@ -19,7 +19,7 @@ public class DescriptionGeneratorTest {
     @Before
     public void setUp() {
         descriptionGenerator = new DescriptionGenerator();
-        descriptionGenerator.setClock(Clock.fixed(Instant.ofEpochSecond(1546876203), ZoneId.systemDefault()));
+        descriptionGenerator.setClock(Clock.fixed(Instant.ofEpochSecond(1546876203), ZoneId.of("Europe/Berlin")));
         securityTest = new SecurityTest();
     }
 
