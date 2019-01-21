@@ -37,7 +37,7 @@ public class DescriptionGeneratorTest {
     public void nullGenerate(){
         securityTest.setTarget(new Target());
 
-        assertEquals("#null  \nTime: 07.01.2019 16:50:03  \nTarget: null \"null\"", descriptionGenerator.generate(securityTest));
+        assertEquals("#Generic Findings Import  \nTime: 07.01.2019 16:50:03  \nTarget: null \"null\"", descriptionGenerator.generate(securityTest));
     }
 
 }
