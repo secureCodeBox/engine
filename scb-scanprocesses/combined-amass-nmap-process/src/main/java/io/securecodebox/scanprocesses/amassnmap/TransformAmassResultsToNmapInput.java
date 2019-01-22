@@ -55,7 +55,10 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
                     objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
 
             String nmapProfile = (String) targets.get(0).getAttributes().get(AdditionalTargetAttributes.NMAP_CONFIGURATION_PROFILE.name());
-            String nmapParameters = getNmapParameters(nmapProfile);
+            Boolean nmapHttpHeaders = (Boolean) targets.get(0).getAttributes().get(AdditionalTargetAttributes.NMAP_HTTP_HEADERS.name());
+            if (nmapHttpHeaders == null) nmapHttpHeaders = false;
+            String nmapParameters = getNmapParameters(nmapProfile, nmapHttpHeaders);
+
 
             List<Target> newTargets = new ArrayList<>();
             for (Finding finding : findings) {
@@ -80,21 +83,23 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
         }
     }
 
-    private String getNmapParameters(String nmapProfile) {
+    private String getNmapParameters(String nmapProfile, boolean withHttpHeaders) {
+        final String scriptModules = withHttpHeaders ? " " + NmapConfigProfile.WITH_HTTP_HEADERS : "";
         String defaultNmapParameters = NmapConfigProfile.HTTP_PORTS.getParameter();
+
         if(nmapProfile == null) {
             LOG.info("No nmap profile set for combined amass-nmap test. Use http ports as default");
-            return defaultNmapParameters;
+            return defaultNmapParameters + scriptModules;
         }
 
         switch (NmapConfigProfile.valueOf(nmapProfile)) {
             case HTTP_PORTS:
-                return NmapConfigProfile.HTTP_PORTS.getParameter();
+                return NmapConfigProfile.HTTP_PORTS.getParameter() + scriptModules;
             case TOP_100_PORTS:
-                return NmapConfigProfile.TOP_100_PORTS.getParameter();
+                return NmapConfigProfile.TOP_100_PORTS.getParameter() + scriptModules;
             default:
                 LOG.info("Invalid nmap profile set for combined amass-nmap test. Use http ports as default");
-                return defaultNmapParameters;
+                return defaultNmapParameters + scriptModules;
         }
     }
 
