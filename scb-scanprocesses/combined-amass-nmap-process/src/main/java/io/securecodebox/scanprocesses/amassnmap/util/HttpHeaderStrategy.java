@@ -1,9 +1,8 @@
-package io.securecodebox.scanprocess.nmap.util;
+package io.securecodebox.scanprocesses.amassnmap.util;
 
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.findings.OsiLayer;
 import io.securecodebox.model.findings.Severity;
-import io.securecodebox.scanprocess.nmap.delegate.FilterHttpSecurityHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +10,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 

@@ -84,6 +84,7 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
             execution.setVariable(DefaultFields.PROCESS_TARGETS.name(), objectValue);
 
             execution.setVariable("NMAP_CONFIGURATION_TYPE","default");
+            execution.setVariable("PARSE_HTTP_HEADERS", nmapHttpHeaders);
 
             LOG.debug("Finished TransformAmassResultsToNmapInput Service Task. Continue with nmap scan");
 
@@ -93,7 +94,7 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
     }
 
     private String getNmapParameters(String nmapProfile, boolean withHttpHeaders) {
-        final String scriptModules = withHttpHeaders ? " " + NmapConfigProfile.WITH_HTTP_HEADERS : "";
+        final String scriptModules = withHttpHeaders ? " " + NmapConfigProfile.WITH_HTTP_HEADERS.getParameter() : "";
         String defaultNmapParameters = NmapConfigProfile.HTTP_PORTS.getParameter();
 
         if(nmapProfile == null) {

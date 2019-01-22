@@ -1,11 +1,11 @@
-package io.securecodebox.scanprocess.nmap.delegate;
+package io.securecodebox.scanprocesses.amassnmap;
 
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.findings.Severity;
-import io.securecodebox.scanprocess.nmap.util.HttpHeaderStrategy;
-import io.securecodebox.scanprocess.nmap.util.HttpHeaders;
+import io.securecodebox.scanprocesses.amassnmap.util.HttpHeaderStrategy;
+import io.securecodebox.scanprocesses.amassnmap.util.HttpHeaders;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 
 @Component

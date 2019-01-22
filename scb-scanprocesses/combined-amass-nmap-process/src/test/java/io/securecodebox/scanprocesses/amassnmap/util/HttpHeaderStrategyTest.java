@@ -1,4 +1,4 @@
-package io.securecodebox.scanprocess.nmap.util;
+package io.securecodebox.scanprocesses.amassnmap.util;
 
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.findings.OsiLayer;
@@ -8,12 +8,10 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.UUID;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+
+import static org.junit.Assert.*;
 
 public class HttpHeaderStrategyTest {
-
     private HttpHeaders headers;
     private Finding finding;
 
@@ -35,13 +33,13 @@ public class HttpHeaderStrategyTest {
 
     @Test
     public void testHttpHeaders () {
-        assertEquals(true, headers.has("Content-Type"));
+        assertTrue(headers.has("Content-Type"));
         assertEquals("text/imaginary", headers.get("Content-Type"));
-        assertEquals(true, headers.has("Location"));
+        assertTrue(headers.has("Location"));
         assertEquals("https://localhost:443/", headers.get("Location"));
-        assertEquals(true, headers.has("Done"));
+        assertTrue(headers.has("Done"));
         assertEquals("yeah;", headers.get("Done"));
-        assertEquals(false, headers.has("Nothing"));
+        assertFalse(headers.has("Nothing"));
         assertNull(headers.get("Nothing"));
     }
 
@@ -75,5 +73,4 @@ public class HttpHeaderStrategyTest {
                 .ifTrue(value -> !value.startsWith ("0"))
                 .createFinding (Severity.MEDIUM, "Does not start with 0", value -> "Actual value: " + value);
     }
-
 }

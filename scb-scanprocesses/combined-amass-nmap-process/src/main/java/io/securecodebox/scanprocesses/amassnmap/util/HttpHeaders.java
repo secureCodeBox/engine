@@ -1,4 +1,4 @@
-package io.securecodebox.scanprocess.nmap.util;
+package io.securecodebox.scanprocesses.amassnmap.util;
 
 import io.securecodebox.model.findings.Finding;
 
