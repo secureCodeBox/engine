@@ -55,7 +55,7 @@ public class FilterHttpSecurityHeaders implements JavaDelegate {
         final int numberOfAdditionalFindings = findings.size() - process.getFindings().size();
         clearFindings(process);
         findings.forEach(changedFinding -> process.appendFinding(changedFinding));
-        LOG.info("http-headers strategies yielded {} additional findings; finding them took {}ms, storing them {}ms", numberOfAdditionalFindings, T_STRATEGIES_APPLIED - T_START, System.currentTimeMillis() - T_STRATEGIES_APPLIED);
+        LOG.debug("http-headers strategies yielded {} additional findings; finding them took {}ms, storing them {}ms", numberOfAdditionalFindings, T_STRATEGIES_APPLIED - T_START, System.currentTimeMillis() - T_STRATEGIES_APPLIED);
     }
 
     private ArrayList<Finding> applyStrategies(HttpHeaders headers, Finding finding) {

@@ -202,6 +202,7 @@ public final class HttpHeaderStrategy {
         fnd.setName(name);
         fnd.setCategory("Http Header");
         fnd.setOsiLayer(OsiLayer.APPLICATION);
+        fnd.addAttribute("protocol", "http");
         fnd.setDescription(description);
         fnd.setSeverity(severity);
         return fnd;
