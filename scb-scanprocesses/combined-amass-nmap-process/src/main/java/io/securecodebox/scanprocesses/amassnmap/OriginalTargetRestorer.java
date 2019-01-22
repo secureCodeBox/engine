@@ -19,11 +19,9 @@
 
 package io.securecodebox.scanprocesses.amassnmap;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.execution.Target;
-import io.securecodebox.model.findings.Finding;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +31,6 @@ import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -53,14 +50,7 @@ public class OriginalTargetRestorer implements JavaDelegate {
 
 
     void storeOriginalTargetInSeparateProcessVariable(Target target, DelegateExecution execution){
-        try {
-            ObjectValue objectValue = Variables.objectValue(objectMapper.writeValueAsString(target))
-                    .serializationDataFormat(Variables.SerializationDataFormats.JSON)
-                    .create();
-            execution.setVariable(AdditionalProcessVariables.ORIGINAL_PROCESS_TARGET.name(), objectValue);
-        } catch (JsonProcessingException e) {
-            LOG.error("Could not store target in original-target process variable");
-        }
+        execution.setVariable(AdditionalProcessVariables.ORIGINAL_PROCESS_TARGET.name(), target);
     }
 
     void clearOriginalTargetProcessVariable(DelegateExecution execution) {
@@ -68,13 +58,7 @@ public class OriginalTargetRestorer implements JavaDelegate {
     }
 
     private Target restoreOriginalTargetFromProcessVariable(DelegateExecution execution) {
-        Target target = new Target();
-        try {
-            String originalTargetAsString = objectMapper.writeValueAsString(execution.getVariable(AdditionalProcessVariables.ORIGINAL_PROCESS_TARGET.name()));
-            target = objectMapper.readValue(originalTargetAsString, Target.class);
-        } catch (IOException e) {
-            LOG.error("Could not restore original target from process variable");
-        }
+        Target target = (Target) execution.getVariable(AdditionalProcessVariables.ORIGINAL_PROCESS_TARGET.name());
         return target;
     }
 
