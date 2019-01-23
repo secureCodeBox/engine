@@ -39,6 +39,8 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @ConditionalOnProperty(name = "securecodebox.persistence.defectdojo.enabled", havingValue = "true")
@@ -132,20 +134,25 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
     }
 
     private List<String> getGenericResults(SecurityTest securityTest) {
-        List<String> genericResults = new LinkedList<>();
-        for(Finding finding: securityTest.getReport().getFindings()){
-            genericResults.add(MessageFormat.format("date,title,cweid,url,severity,description,mitigation,impact,references,active,verified,falsepositive,duplicate\n" +
-                            "{0},{1},,{2},{3},{4},,,,,,{5},{6}",
-                    currentDate(),
-                    finding.getName().replace(",", "  "),
-                    finding.getLocation().replace(",", "  "),
-                    finding.getSeverity(),
-                    finding.getDescription().replace(",", "  "),
-                    finding.isFalsePositive(),
-                    "false"
-            ));
-        }
-        return genericResults;
+        final String CSV_HEADER = "date,title,cweid,url,severity,description,mitigation,impact,references,active,verified,falsepositive,duplicate";
+
+        List<Finding> findings = securityTest.getReport().getFindings();
+
+        String genericFindingsCsv = Stream.concat(
+                Stream.of(CSV_HEADER),
+                findings.stream().map(finding -> MessageFormat.format(
+                        "{0},{1},,{2},{3},{4},,,,,,{5},{6}",
+                        currentDate(),
+                        finding.getName().replace(",", "  "),
+                        finding.getLocation().replace(",", "  "),
+                        finding.getSeverity(),
+                        finding.getDescription().replace(",", "  "),
+                        finding.isFalsePositive(),
+                        "false"
+                ))
+        ).collect(Collectors.joining("\n"));
+
+        return Collections.singletonList(genericFindingsCsv);
     }
 
     private EngagementResponse createEngagement(SecurityTest securityTest) {
