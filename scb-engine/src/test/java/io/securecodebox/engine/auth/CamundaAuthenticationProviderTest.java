@@ -33,6 +33,14 @@ public class CamundaAuthenticationProviderTest {
     @Mock
     Authentication authDummy;
 
+
+    //--------------------------
+    @Test
+    public void testShouldFail() {
+        throw new RuntimeException("THIS BREAKS ON PURPOSE");
+    }
+    //--------------------------
+
     @Test
     public void shouldAuthenticateIfCredentialsAreValid() {
         given(authDummy.getName()).willReturn("username");
