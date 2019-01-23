@@ -86,9 +86,9 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
             }
     }
 
-    static final String GIT_SERVER_NAME = "GitServer";
-    static final String BUILD_SERVER_NAME = "BuildServer";
-    static final String SECURITY_TEST_SERVER_NAME = "SecurityTestOrchestrationEngine";
+    static final String GIT_SERVER_NAME = "Git Server";
+    static final String BUILD_SERVER_NAME = "Build Server";
+    static final String SECURITY_TEST_SERVER_NAME = "Security TestOrchestration Engine";
 
     private void checkToolTypes() {
         DefectDojoResponse<ToolType> toolTypeGitResponse = defectDojoService.getToolTypeByName(GIT_SERVER_NAME);
