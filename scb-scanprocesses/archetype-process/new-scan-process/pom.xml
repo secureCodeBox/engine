@@ -1,4 +1,3 @@
-#set($dollar = '$')
 
         <!--
           ~ /*
@@ -29,16 +28,16 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>${groupId}</groupId>
-    <artifactId>${artifactId}</artifactId>
-    <version>${version}</version>
+    <groupId>io.securecodebox.scanprocesses</groupId>
+    <artifactId>new-scan-process</artifactId>
+    <version>1.0-SNAPSHOT</version>
 
 
     <dependencies>
         <dependency>
             <groupId>io.securecodebox.core</groupId>
             <artifactId>sdk</artifactId>
-            <version>${dollar}{project.parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <!-- Test Dependencies -->
@@ -65,10 +64,6 @@
             <groupId>org.camunda.bpm.extension</groupId>
             <artifactId>camunda-bpm-process-test-coverage</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.camunda.bpm.extension</groupId>
-            <artifactId>camunda-bpm-assert</artifactId>
         </dependency>
     </dependencies>
 
