@@ -40,11 +40,14 @@ import java.util.Arrays;
 
 @Component
 public class DefectDojoService {
-    @Value("${securecodebox.persistence.defectdojo.baseurl}")
+    @Value("${securecodebox.persistence.defectdojo.url}")
     protected String defectDojoUrl;
 
-    @Value("${securecodebox.persistence.defectdojo.apikey}")
+    @Value("${securecodebox.persistence.defectdojo.auth.key}")
     protected String defectDojoApiKey;
+
+    @Value("${securecodebox.persistence.defectdojo.auth.name}")
+    protected String defectDojoDefaultUserName;
 
     private static final Logger LOG = LoggerFactory.getLogger(DefectDojoService.class);
 
@@ -80,7 +83,7 @@ public class DefectDojoService {
         RestTemplate restTemplate = new RestTemplate();
 
         if(username == null){
-            username = "admin";
+            username = defectDojoDefaultUserName;
         }
 
         String uri = defectDojoUrl + "/api/v2/users/?username=" + username;
