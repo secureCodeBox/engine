@@ -23,6 +23,7 @@ import io.securecodebox.persistence.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
@@ -40,6 +41,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 
 @Component
+@ConditionalOnProperty(name = "securecodebox.persistence.defectdojo.enabled", havingValue = "true")
 public class DefectDojoService {
     @Value("${securecodebox.persistence.defectdojo.url}")
     protected String defectDojoUrl;
