@@ -36,6 +36,7 @@
         <module>elasticsearch-persistenceprovider</module>
         <module>empty-persistenceprovider</module>
         <module>s3-persistenceprovider</module>
+        <module>defectdojo-persistenceprovider</module>
     </modules>
 
     <dependencyManagement>
