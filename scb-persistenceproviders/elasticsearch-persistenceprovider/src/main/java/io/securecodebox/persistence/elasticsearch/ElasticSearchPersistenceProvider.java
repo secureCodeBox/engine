@@ -238,7 +238,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     private void checkForSecurityTestIdExistence(SecurityTest securityTest) throws ElasticsearchPersistenceException, DuplicateUuidException, IOException {
         SearchRequest searchRequest = new SearchRequest();
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.query(QueryBuilders.matchQuery("id.keyword", securityTest.getId()));
+        searchSourceBuilder.query(QueryBuilders.matchQuery("id.keyword", securityTest.getId().toString()));
         searchRequest.source(searchSourceBuilder);
         SearchResponse searchResponse = highLevelClient.search(searchRequest);
         LOG.debug("Search Response Status: {}", searchResponse.status());
