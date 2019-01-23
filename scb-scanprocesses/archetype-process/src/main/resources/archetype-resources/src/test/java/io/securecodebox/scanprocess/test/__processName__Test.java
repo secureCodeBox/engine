@@ -20,7 +20,7 @@
 package io.securecodebox.scanprocess.test;
 
 import io.securecodebox.constants.DefaultFields;
-import ${package}.SummaryGeneratorDelegate;
+import io.securecodebox.scanprocess.delegate.SummaryGeneratorDelegate;
 import org.camunda.bpm.engine.ExternalTaskService;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.delegate.Expression;
@@ -72,7 +72,7 @@ import static org.mockito.Mockito.when;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@Deployment(resources = "bpmn/__processName__-process.bpmn")
+@Deployment(resources = "bpmn/${processName}_process.bpmn")
 public class ${processName}Test {
 
     //Define the Process Activity IDs
@@ -91,7 +91,7 @@ public class ${processName}Test {
     private ProcessScenario process;
 
     @Mock
-    SummaryGeneratorDelegate delegate;
+    private SummaryGeneratorDelegate summeryGeneratorDelegate;
 
     /**
      * Executed before every test-case
@@ -125,7 +125,7 @@ public class ${processName}Test {
         then this guide is helpful:
         https://blog.akquinet.de/2016/11/04/camunda-bpm-test-your-processes-based-on-plain-old-java-delegates/
          */
-        autoMock("bpmn/_processname_ .bpmn");
+        autoMock("bpmn/${processName}_process.bpmn");
 
         /*
         Here we define a default behaviour for all the tasks in the BPMN model.

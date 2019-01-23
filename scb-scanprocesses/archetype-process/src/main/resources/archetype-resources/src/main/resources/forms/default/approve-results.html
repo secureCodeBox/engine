@@ -69,26 +69,26 @@
                             <td>{{ result.name }}</td>
                             <td>{{ result.category }}</td>
                             <td>
-                                <div ng-switch on="result.severity">
+                                <div ng-switch on="result.severity"></div>
                                 <span class="label label-danger" ng-switch-when="HIGH">
                                     <i aria-hidden="true"
                                        class="glyphicon glyphicon-fire"></i>
                                     {{ result.severity }}
                                 </span>
 
-                                    <span class="label label-warning" ng-switch-when="MEDIUM">
+                                <span class="label label-warning" ng-switch-when="MEDIUM">
                                     <i aria-hidden="true"
                                        class="glyphicon glyphicon glyphicon-alert"></i>
                                     {{ result.severity }}
                                 </span>
 
-                                    <span class="label label-primary" ng-switch-when="LOW">
+                                <span class="label label-primary" ng-switch-when="LOW">
                                     <i aria-hidden="true"
                                        class="glyphicon glyphicon-warning-sign"></i>
                                     {{ result.severity }}
                                 </span>
 
-                                    <span class="label label-default" ng-switch-default>
+                                <span class="label label-default" ng-switch-default>
                                     <i aria-hidden="true"
                                        class="glyphicon glyphicon-education"></i>
                                     {{ result.severity }}
