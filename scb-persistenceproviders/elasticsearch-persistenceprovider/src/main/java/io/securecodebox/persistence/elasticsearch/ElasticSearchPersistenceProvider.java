@@ -175,6 +175,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
             BulkRequest bulkRequest = new BulkRequest();
 
             Map<String, Object> securityTestAsMap = serializeAndRemove(securityTest, "report");
+            securityTestAsMap.put("id", securityTest.getId().toString());
             securityTestAsMap.put("type", indexTypeNameForSecurityTests);
 
             String timestamp = new SimpleDateFormat(dateTimeFormatToPersist).format(new Date());
@@ -191,8 +192,10 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
             for (Finding f : securityTest.getReport().getFindings()) {
 
                 Map<String, Object> findingAsMap = serializeAndRemove(f);
+
+                findingAsMap.put("id", f.getId().toString());
                 findingAsMap.put("type", indexTypeNameForFindings);
-                findingAsMap.put("security_test_id", securityTest.getId());
+                findingAsMap.put("security_test_id", securityTest.getId().toString());
                 findingAsMap.put("security_test_name", securityTest.getName());
                 findingAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
 
