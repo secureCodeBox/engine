@@ -18,7 +18,6 @@
  */
 package io.securecodebox.persistence;
 
-import io.securecodebox.model.securitytest.SecurityTest;
 import io.securecodebox.persistence.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +33,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
@@ -61,7 +59,7 @@ public class DefectDojoService {
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity toolTypeRequest = new HttpEntity(getHeaders());
 
-        String uri = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/tool_types/").queryParam("name", name).toUriString();
+        String uri = defectDojoUrl + "/api/v2/tool_types/?name=" + name;
         ResponseEntity<DefectDojoResponse<ToolType>> toolTypeResponse = restTemplate.exchange(uri, HttpMethod.GET, toolTypeRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolType>>(){});
 
         return toolTypeResponse.getBody();
@@ -85,7 +83,7 @@ public class DefectDojoService {
             username = "admin";
         }
 
-        String uri = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/users/").queryParam("username", username).toUriString();
+        String uri = defectDojoUrl + "/api/v2/users/?username=" + username;
         HttpEntity userRequest = new HttpEntity(getHeaders());
         ResponseEntity<DefectDojoResponse<DefectDojoUser>> userResponse = restTemplate.exchange(uri, HttpMethod.GET, userRequest, new ParameterizedTypeReference<DefectDojoResponse<DefectDojoUser>>(){});
         if(userResponse.getBody().getCount() == 1){
@@ -96,6 +94,20 @@ public class DefectDojoService {
         }
     }
 
+    public String getProductUrl(String product){
+        RestTemplate restTemplate = new RestTemplate();
+
+        String uri = defectDojoUrl + "/api/v2/products/?name=" + product;
+        HttpEntity productRequest = new HttpEntity(getHeaders());
+        ResponseEntity<DefectDojoResponse<DefectDojoProduct>> productResponse = restTemplate.exchange(uri, HttpMethod.GET, productRequest, new ParameterizedTypeReference<DefectDojoResponse<DefectDojoProduct>>(){});
+        if(productResponse.getBody().getCount() == 1){
+            return productResponse.getBody().getResults().get(0).getUrl();
+        }
+        else {
+            throw new DefectDojoProductNotFound(MessageFormat.format("Could not find product: \"{0}\" in DefectDojo", product));
+        }
+    }
+
     public String getToolConfiguration(String toolUrl, String toolType){
         RestTemplate restTemplate = new RestTemplate();
 
@@ -103,7 +115,7 @@ public class DefectDojoService {
             return null;
         }
 
-        String uri = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/tool_configurations/").queryParam("url", toolUrl).toUriString();
+        String uri = defectDojoUrl + "/api/v2/tool_configurations/?url=" + toolUrl;
         HttpEntity toolRequest = new HttpEntity(getHeaders());
         ResponseEntity<DefectDojoResponse<ToolConfig>> toolResponse = restTemplate.exchange(uri, HttpMethod.GET, toolRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolConfig>>(){});
         if(toolResponse.getBody().getCount() > 0){
@@ -111,7 +123,7 @@ public class DefectDojoService {
         }
         else {
             HttpEntity toolTypeRequest = new HttpEntity(getHeaders());
-            String toolTypeRequestUri = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/tool_types/").queryParam("name", toolType).toUriString();
+            String toolTypeRequestUri = defectDojoUrl + "/api/v2/tool_types/?name=" + toolType;
             ResponseEntity<DefectDojoResponse<ToolType>> toolTypeResponse = restTemplate.exchange(toolTypeRequestUri, HttpMethod.GET, toolTypeRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolType>>(){});
             String toolTypeUri = toolTypeResponse.getBody().getResults().get(0).getUrl();
 

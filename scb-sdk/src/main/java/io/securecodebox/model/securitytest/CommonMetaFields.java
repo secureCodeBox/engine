@@ -7,5 +7,6 @@ public enum CommonMetaFields {
     SCB_REPO,
     SCB_TRACKER,
     SCB_BUILD_SERVER,
-    SCB_SCM_SERVER
+    SCB_SCM_SERVER,
+    SCB_ENGAGEMENT_TITLE
 }
