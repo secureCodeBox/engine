@@ -22,7 +22,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.securitytest.SecurityTest;
 import io.securecodebox.persistence.PersistenceProvider;
 import org.slf4j.Logger;
@@ -34,16 +34,12 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.UUID;
 
-@ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "s3")
+@ConditionalOnProperty(name = "securecodebox.persistence.s3.enabled", havingValue = "true")
 @Component
 public class S3PersistenceProvider implements PersistenceProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(S3PersistenceProvider.class);
-
-    @Autowired
-    private ObjectMapper mapper;
 
     @Value("${securecodebox.persistence.s3.bucket}")
     private String bucketName;
@@ -51,34 +47,42 @@ public class S3PersistenceProvider implements PersistenceProvider {
     @Value("${securecodebox.persistence.s3.region}")
     private String awsRegion;
 
+    @Autowired
+    FindingWriter findingWriter;
+
     @Override
     public void persist(SecurityTest securityTest) {
-
         if (securityTest == null) {
             LOG.warn("Report is null, nothing to persist.");
-        } else {
-            // Upload a file as a new object with ContentType and title specified.
-            AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
-            File file = writeReportToFile(securityTest);
+            return;
+        }
 
-            String fileName = securityTest.getContext().replace('/', '-') + '/';
-            fileName += UUID.randomUUID();
-            PutObjectRequest request = new PutObjectRequest(bucketName, fileName, file);
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentType("application/json");
-            request.setMetadata(metadata);
-            s3Client.putObject(request);
+        AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
+        String fileName = securityTest.getContext().replace('/', '-') + '/' + securityTest.getId();
+
+        for (Finding finding: securityTest.getReport().getFindings()) {
+            writeFindingFileToS3Bucket(s3Client, fileName, finding, securityTest);
         }
     }
 
-    File writeReportToFile(SecurityTest securityTest) {
-        File tempFile = null;
+    private void writeFindingFileToS3Bucket(AmazonS3 s3Client, String fileName, Finding finding, SecurityTest securityTest) {
         try {
-            tempFile = File.createTempFile(UUID.randomUUID().toString(), ".json");
-            mapper.writeValue(tempFile, securityTest);
+            File findingFile = findingWriter.writeFindingToFile(finding, securityTest);
+            writeFileToS3Bucket(s3Client, findingFile, fileName + "-finding-" + finding.getId());
+            if( findingFile != null) {
+                findingFile.delete();
+            }
         } catch (IOException exception) {
-            LOG.error("Could not write tempfile: ", exception);
+            LOG.error("Could not write tempfile for finding: ", exception);
         }
-        return tempFile;
     }
+
+    private void writeFileToS3Bucket(AmazonS3 s3Client, File file, String fileName) {
+        PutObjectRequest request = new PutObjectRequest(bucketName, fileName, file);
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentType("application/json");
+        request.setMetadata(metadata);
+        s3Client.putObject(request);
+    }
+
 }

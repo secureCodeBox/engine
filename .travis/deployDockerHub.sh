@@ -6,11 +6,10 @@ echo "Pushing to Dockerhub"
 
 if [[ $TRAVIS_BRANCH =~ ^develop$ ]]
 then
-    echo "Develop Build: Pushing develop tag"
-    
+    echo "Develop Build: Tagging develop image"
     echo $(docker tag $REPO:$TAG $REPO:develop)
     echo $(docker tag $REPO:$TAG $REPO:develop-$TRAVIS_BUILD_NUMBER)
-
+    echo "Develop Build: Pushing develop image"
     echo $(docker push $REPO:develop)
     echo $(docker push $REPO:develop-$TRAVIS_BUILD_NUMBER)
 elif [ "$TRAVIS_BRANCH" = "$TRAVIS_TAG" ]

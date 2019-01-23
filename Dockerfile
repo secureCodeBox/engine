@@ -1,4 +1,4 @@
-FROM maven as builder
+FROM maven:3-jdk-8 as builder
 COPY . .
 RUN mvn clean install -T6 -DskipTests=true -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
 
@@ -24,6 +24,7 @@ COPY --from=builder ./scb-scanprocesses/subdomain-scanner-process/target/subdoma
 
 COPY --from=builder ./scb-persistenceproviders/elasticsearch-persistenceprovider/target/elasticsearch-persistenceprovider-0.0.1-SNAPSHOT-jar-with-dependencies.jar /scb-engine/lib/
 COPY --from=builder ./scb-persistenceproviders/s3-persistenceprovider/target/s3-persistenceprovider-0.0.1-SNAPSHOT-jar-with-dependencies.jar /scb-engine/lib/
+COPY --from=builder ./scb-persistenceproviders/defectdojo-persistenceprovider/target/defectdojo-persistenceprovider-0.0.1-SNAPSHOT-jar-with-dependencies.jar /scb-engine/lib/
 
 WORKDIR /scb-engine
 

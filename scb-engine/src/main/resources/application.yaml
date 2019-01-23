@@ -31,10 +31,11 @@ spring.datasource.type: org.apache.tomcat.jdbc.pool.DataSource
 logging.level: INFO
 logging.level.io.securecodebox: INFO
 
-# Configure which persistence provider you would like to choose
-# - none
-# - elasticsearch
-securecodebox.persistence.provider: none
+# Persistence Provider Config
+securecodebox.persistence.none.enabled: "false"
+securecodebox.persistence.elasticsearch.enabled: "false"
+securecodebox.persistence.s3.enabled: "false"
+securecodebox.persistence.defectdojo.enabled: "false"
 
 # Configuration for the s3 persistence provider:
 securecodebox.persistence.s3.bucket: abc-def
@@ -45,6 +46,7 @@ securecodebox.persistence.elasticsearch.host: persistence-elasticsearch
 securecodebox.persistence.elasticsearch.port: 9200
 securecodebox.persistence.elasticsearch.index.prefix: securecodebox
 securecodebox.persistence.elasticsearch.index.delete_on_init: false
+
 
 securecodebox.default.target.name: BodgeIT Public Host
 securecodebox.default.target.location: bodgeit

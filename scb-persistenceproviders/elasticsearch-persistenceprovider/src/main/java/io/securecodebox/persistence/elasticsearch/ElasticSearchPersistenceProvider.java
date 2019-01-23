@@ -61,7 +61,7 @@ import java.util.*;
  * This component is responsible for persisting the scan-process results in elasticsearch (ES).
  */
 @Component
-@ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "elasticsearch")
+@ConditionalOnProperty(name = "securecodebox.persistence.elasticsearch.enabled", havingValue = "true")
 public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElasticSearchPersistenceProvider.class);
