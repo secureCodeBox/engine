@@ -20,5 +20,6 @@
 package io.securecodebox.scanprocesses.amassnmap;
 
 public enum AdditionalTargetAttributes {
-    NMAP_CONFIGURATION_PROFILE
+    NMAP_CONFIGURATION_PROFILE,
+    NMAP_HTTP_HEADERS
 }
