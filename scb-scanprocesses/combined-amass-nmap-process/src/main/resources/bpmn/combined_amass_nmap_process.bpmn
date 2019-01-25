@@ -88,16 +88,16 @@
     <bpmn:sequenceFlow id="SequenceFlow_0v9j7z6" sourceRef="Task_0wsynra" targetRef="Task_0epb1nj" />
     <bpmn:exclusiveGateway id="ExclusiveGateway_1iy5tq6" name="Parse http-headers script output?">
       <bpmn:incoming>SequenceFlow_133ju0r</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0gqomie</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_020pm77</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0gqomie</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_133ju0r" sourceRef="ServiceTask_DoNmapScan" targetRef="ExclusiveGateway_1iy5tq6" />
-    <bpmn:sequenceFlow id="SequenceFlow_0gqomie" name="yes&#10;" sourceRef="ExclusiveGateway_1iy5tq6" targetRef="Task_0wsynra">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PARSE_HTTP_HEADERS == true}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_020pm77" name="no" sourceRef="ExclusiveGateway_1iy5tq6" targetRef="Task_0epb1nj">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PARSE_HTTP_HEADERS == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_0gqomie" name="yes&#10;" sourceRef="ExclusiveGateway_1iy5tq6" targetRef="Task_0wsynra">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PARSE_HTTP_HEADERS == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_133ju0r" sourceRef="ServiceTask_DoNmapScan" targetRef="ExclusiveGateway_1iy5tq6" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="amass-nmap-process">
@@ -117,6 +117,9 @@
       <bpmndi:BPMNEdge id="SequenceFlow_0p5mwz6_di" bpmnElement="SequenceFlow_0p5mwz6">
         <di:waypoint xsi:type="dc:Point" x="433" y="328" />
         <di:waypoint xsi:type="dc:Point" x="513" y="328" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="428" y="303" width="90" height="20" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ServiceTask_14f5aue_di" bpmnElement="Task_1f5zay9">
         <dc:Bounds x="333" y="288" width="100" height="80" />
@@ -229,7 +232,7 @@
         <di:waypoint xsi:type="dc:Point" x="892" y="212" />
         <di:waypoint xsi:type="dc:Point" x="892" y="288" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="856" y="190.5" width="0" height="13" />
+          <dc:Bounds x="811" y="191" width="90" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ExclusiveGateway_1iy5tq6_di" bpmnElement="ExclusiveGateway_1iy5tq6" isMarkerVisible="true">
@@ -238,11 +241,11 @@
           <dc:Bounds x="638" y="356" width="70" height="38" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_133ju0r_di" bpmnElement="SequenceFlow_133ju0r">
-        <di:waypoint xsi:type="dc:Point" x="613" y="328" />
-        <di:waypoint xsi:type="dc:Point" x="646" y="328" />
+      <bpmndi:BPMNEdge id="SequenceFlow_020pm77_di" bpmnElement="SequenceFlow_020pm77">
+        <di:waypoint xsi:type="dc:Point" x="696" y="328" />
+        <di:waypoint xsi:type="dc:Point" x="842" y="328" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="629.5" y="306.5" width="0" height="13" />
+          <dc:Bounds x="763" y="307" width="13" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0gqomie_di" bpmnElement="SequenceFlow_0gqomie">
@@ -253,11 +256,11 @@
           <dc:Bounds x="677" y="260" width="18" height="25" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_020pm77_di" bpmnElement="SequenceFlow_020pm77">
-        <di:waypoint xsi:type="dc:Point" x="696" y="328" />
-        <di:waypoint xsi:type="dc:Point" x="842" y="328" />
+      <bpmndi:BPMNEdge id="SequenceFlow_133ju0r_di" bpmnElement="SequenceFlow_133ju0r">
+        <di:waypoint xsi:type="dc:Point" x="613" y="328" />
+        <di:waypoint xsi:type="dc:Point" x="646" y="328" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="762.9740259740261" y="307" width="13" height="13" />
+          <dc:Bounds x="585" y="307" width="90" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>

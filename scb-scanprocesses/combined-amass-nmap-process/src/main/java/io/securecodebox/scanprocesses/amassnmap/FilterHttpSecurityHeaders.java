@@ -43,7 +43,7 @@ public class FilterHttpSecurityHeaders implements JavaDelegate {
     public void execute(DelegateExecution delegateExecution) throws Exception {
         final ScanProcessExecution process = processExecutionFactory.get(delegateExecution);
         final ArrayList<Finding> findings = new ArrayList<>();
-        final long T_START = System.currentTimeMillis();
+        final long tStart = System.currentTimeMillis();
         process.getFindings().stream()
                 .forEach(finding -> {
                     if (HttpHeaders.headersPresentInFinding(finding)) {
@@ -53,11 +53,11 @@ public class FilterHttpSecurityHeaders implements JavaDelegate {
                         findings.add(finding);
                     }
                 });
-        final long T_STRATEGIES_APPLIED = System.currentTimeMillis();
+        final long tStrategiesApplied = System.currentTimeMillis();
         final int numberOfAdditionalFindings = findings.size() - process.getFindings().size();
         clearFindings(process);
         findings.forEach(changedFinding -> process.appendFinding(changedFinding));
-        LOG.debug("http-headers strategies yielded {} additional findings; finding them took {}ms, storing them {}ms", numberOfAdditionalFindings, T_STRATEGIES_APPLIED - T_START, System.currentTimeMillis() - T_STRATEGIES_APPLIED);
+        LOG.debug("http-headers strategies yielded {} additional findings; finding them took {}ms, storing them {}ms", numberOfAdditionalFindings, tStrategiesApplied - tStart, System.currentTimeMillis() - tStrategiesApplied);
     }
 
     private ArrayList<Finding> applyStrategies(HttpHeaders headers, Finding finding) {
@@ -118,17 +118,17 @@ public class FilterHttpSecurityHeaders implements JavaDelegate {
     private static HttpHeaderStrategy requireXssProtectionToBeEnabled() {
         return new HttpHeaderStrategy("X-XSS-Protection")
                 .ifMissing()
-                .createFinding(Severity.MEDIUM, "X-XSS-Protection header missing")
+                .createFinding(Severity.LOW, "X-XSS-Protection header missing")
                 .ifTrue(value -> value.startsWith("0"))
-                .createFinding(Severity.MEDIUM, "X-XSS-Protection manually disabled");
+                .createFinding(Severity.LOW, "X-XSS-Protection manually disabled");
     }
 
     private static HttpHeaderStrategy requireContentTypeOptionsToEqualNosniff() {
         return new HttpHeaderStrategy("X-Content-Type-Options")
                 .ifMissing()
-                .createFinding(Severity.MEDIUM, "X-Content-Type-Options header missing")
+                .createFinding(Severity.LOW, "X-Content-Type-Options header missing")
                 .ifTrue(value -> !value.equalsIgnoreCase("nosniff"))
-                .createFinding(Severity.MEDIUM, "X-Content-Type-Options misconfigured", value -> "X-Conntent-Type-Options should be set to 'nosniff' instead of '" + value + "'");
+                .createFinding(Severity.LOW, "X-Content-Type-Options misconfigured", value -> "X-Conntent-Type-Options should be set to 'nosniff' instead of '" + value + "'");
     }
 
 

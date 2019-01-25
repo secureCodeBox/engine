@@ -21,9 +21,9 @@ package io.securecodebox.scanprocesses.amassnmap;
 
 public enum NmapConfigProfile {
     HTTP_PORTS("-Pn -p 80,8080,443,8443"),
+    HTTP_PORTS_WITH_HTTP_HEADERS("-Pn -p 80,8080,443,8443 --script=http-headers"),
     TOP_100_PORTS("-Pn --top-ports 100"),
-    WITH_HTTP_HEADERS("--script=http-headers");
-
+    TOP_100_PORTS_WITH_HTTP_HEADERS("-Pn --top-ports 100 --script=http-headers");
     private final String parameter;
 
     NmapConfigProfile(final String parameter) {

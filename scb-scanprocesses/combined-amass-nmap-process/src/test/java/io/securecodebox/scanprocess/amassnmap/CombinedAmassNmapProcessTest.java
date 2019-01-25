@@ -109,6 +109,7 @@ public class CombinedAmassNmapProcessTest {
         //Creating a map of default variables for the process
         defaultVariables.put(DefaultFields.PROCESS_AUTOMATED.name(), true);
         defaultVariables.put(DefaultFields.PROCESS_CONTEXT.name(), "BodgeIT");
+        defaultVariables.put("PARSE_HTTP_HEADERS", false);
 
         /*
         Mocking everything in the BPMN Model

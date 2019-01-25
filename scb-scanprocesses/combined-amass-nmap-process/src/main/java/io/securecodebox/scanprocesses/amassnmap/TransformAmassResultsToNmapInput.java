@@ -94,22 +94,29 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
     }
 
     private String getNmapParameters(String nmapProfile, boolean withHttpHeaders) {
-        final String scriptModules = withHttpHeaders ? " " + NmapConfigProfile.WITH_HTTP_HEADERS.getParameter() : "";
-        String defaultNmapParameters = NmapConfigProfile.HTTP_PORTS.getParameter();
+        String defaultNmapParameters = (withHttpHeaders ? NmapConfigProfile.HTTP_PORTS_WITH_HTTP_HEADERS : NmapConfigProfile.HTTP_PORTS).getParameter();
 
         if(nmapProfile == null) {
             LOG.info("No nmap profile set for combined amass-nmap test. Use http ports as default");
-            return defaultNmapParameters + scriptModules;
+            return defaultNmapParameters;
         }
 
         switch (NmapConfigProfile.valueOf(nmapProfile)) {
             case HTTP_PORTS:
-                return NmapConfigProfile.HTTP_PORTS.getParameter() + scriptModules;
+                if (withHttpHeaders) {
+                    return NmapConfigProfile.HTTP_PORTS_WITH_HTTP_HEADERS.getParameter();
+                } else {
+                    return NmapConfigProfile.HTTP_PORTS.getParameter();
+                }
             case TOP_100_PORTS:
-                return NmapConfigProfile.TOP_100_PORTS.getParameter() + scriptModules;
+                if (withHttpHeaders) {
+                    return NmapConfigProfile.TOP_100_PORTS_WITH_HTTP_HEADERS.getParameter();
+                } else {
+                    return NmapConfigProfile.TOP_100_PORTS.getParameter();
+                }
             default:
                 LOG.info("Invalid nmap profile set for combined amass-nmap test. Use http ports as default");
-                return defaultNmapParameters + scriptModules;
+                return defaultNmapParameters;
         }
     }
 
