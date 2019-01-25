@@ -45,10 +45,13 @@ public class FilterHttpSecurityHeaders implements JavaDelegate {
         final ArrayList<Finding> findings = new ArrayList<>();
         final long T_START = System.currentTimeMillis();
         process.getFindings().stream()
-                .filter(finding -> HttpHeaders.headersPresentInFinding(finding))
                 .forEach(finding -> {
-                    final HttpHeaders headers = HttpHeaders.fromFinding(finding);
-                    findings.addAll(applyStrategies (headers, finding));
+                    if (HttpHeaders.headersPresentInFinding(finding)) {
+                        final HttpHeaders headers = HttpHeaders.fromFinding(finding);
+                        findings.addAll(applyStrategies (headers, finding));
+                    } else {
+                        findings.add(finding);
+                    }
                 });
         final long T_STRATEGIES_APPLIED = System.currentTimeMillis();
         final int numberOfAdditionalFindings = findings.size() - process.getFindings().size();
