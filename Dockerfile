@@ -14,7 +14,6 @@ ARG VERSION
 COPY --from=builder ./scb-engine/target/engine-0.0.1-SNAPSHOT.jar /scb-engine/app.jar
 COPY --from=builder ./scb-scanprocesses/nikto-process/target/nikto-process-0.0.1-SNAPSHOT.jar /scb-engine/lib/
 COPY --from=builder ./scb-scanprocesses/nmap-process/target/nmap-process-0.0.1-SNAPSHOT.jar /scb-engine/lib/
-COPY --from=builder ./scb-scanprocesses/test-process/target/test-process-0.0.1-SNAPSHOT.jar /scb-engine/lib/
 COPY --from=builder ./scb-scanprocesses/zap-process/target/zap-process-0.0.1-SNAPSHOT.jar /scb-engine/lib/
 COPY --from=builder ./scb-scanprocesses/combined-amass-nmap-process/target/combined-amass-nmap-process-0.0.1-SNAPSHOT.jar /scb-engine/lib/
 COPY --from=builder ./scb-scanprocesses/combined-nmap-nikto-scanprocess/target/combined-nmap-nikto-scanprocess-0.0.1-SNAPSHOT.jar /scb-engine/lib/
@@ -24,6 +23,7 @@ COPY --from=builder ./scb-scanprocesses/subdomain-scanner-process/target/subdoma
 
 COPY --from=builder ./scb-persistenceproviders/elasticsearch-persistenceprovider/target/elasticsearch-persistenceprovider-0.0.1-SNAPSHOT-jar-with-dependencies.jar /scb-engine/lib/
 COPY --from=builder ./scb-persistenceproviders/s3-persistenceprovider/target/s3-persistenceprovider-0.0.1-SNAPSHOT-jar-with-dependencies.jar /scb-engine/lib/
+COPY --from=builder ./scb-persistenceproviders/defectdojo-persistenceprovider/target/defectdojo-persistenceprovider-0.0.1-SNAPSHOT-jar-with-dependencies.jar /scb-engine/lib/
 
 WORKDIR /scb-engine
 

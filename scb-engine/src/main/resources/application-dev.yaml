@@ -9,10 +9,6 @@ logging.level.io.securecodebox: DEBUG
 # Configure which persistence provider you would like to choose
 # - none
 # - elasticsearch
-securecodebox.persistence.provider: none
-
-securecodebox.rest.auth: none
-
 securecodebox.rest.user.scanner-default:
   user-id: default-scanner
   password: scan

@@ -18,15 +18,19 @@
  */
 package io.securecodebox.persistence;
 
-import io.securecodebox.model.rest.Report;
 import io.securecodebox.model.securitytest.SecurityTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+/**
+ * This persistence provider isnt strictly neccicary.
+ * It's still usefull as a starting / reference points if you want to develop a custom persistence provider,
+ * as this is the most basic one possible.
+ */
 @Component
-@ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "none")
+@ConditionalOnProperty(name = "securecodebox.persistence.none.enabled", havingValue = "true")
 public class EmptyPersistenceProvider implements PersistenceProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(EmptyPersistenceProvider.class);

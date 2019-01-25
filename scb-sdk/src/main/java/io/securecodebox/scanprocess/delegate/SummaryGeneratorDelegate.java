@@ -46,8 +46,8 @@ public class SummaryGeneratorDelegate implements JavaDelegate {
 
     private static final Logger LOG = LoggerFactory.getLogger(SummaryGeneratorDelegate.class);
 
-    @Autowired
-    PersistenceProvider persistenceProvider;
+    @Autowired(required = false)
+    List<PersistenceProvider> persistenceProviders;
 
     @Autowired
     ScanProcessExecutionFactory executionFactory;
@@ -76,7 +76,12 @@ public class SummaryGeneratorDelegate implements JavaDelegate {
         LOG.trace("starting securityTest persistence. {}", securityTest);
 
         try {
-            if (persistenceProvider != null) {
+            if (persistenceProviders == null || persistenceProviders.isEmpty()) {
+                LOG.warn("No persistence providers were enabled. If you want your findings to get persisted you'll need to enable one via the app properties / environment variables. E.g. 'securecodebox.persistence.elasticsearch.enabled: \"true\"'");
+                return;
+            }
+
+            for (PersistenceProvider persistenceProvider: persistenceProviders) {
                 persistenceProvider.persist(securityTest);
             }
         } catch (PersistenceException e) {
