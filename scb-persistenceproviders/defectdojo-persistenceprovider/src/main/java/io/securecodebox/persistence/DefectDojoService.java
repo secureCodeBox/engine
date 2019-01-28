@@ -131,11 +131,11 @@ public class DefectDojoService {
             HttpEntity toolTypeRequest = new HttpEntity(getHeaders());
             String toolTypeRequestUri = defectDojoUrl + "/api/v2/tool_types/?name=" + toolType;
             ResponseEntity<DefectDojoResponse<ToolType>> toolTypeResponse = restTemplate.exchange(toolTypeRequestUri, HttpMethod.GET, toolTypeRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolType>>(){});
-            String toolTypeUri = toolTypeResponse.getBody().getResults().get(0).getUrl();
+            String toolTypeId = toolTypeResponse.getBody().getResults().get(0).getId();
 
             ToolConfig toolConfig = new ToolConfig();
             toolConfig.setName(toolUrl);
-            toolConfig.setToolType(toolTypeUri);
+            toolConfig.setToolType(toolTypeId);
             toolConfig.setConfigUrl(toolUrl);
             toolConfig.setDescription(toolType);
 
