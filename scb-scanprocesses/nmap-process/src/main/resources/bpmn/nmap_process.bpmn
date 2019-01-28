@@ -17,6 +17,7 @@
       <bpmn:incoming>SequenceFlow_ManualStart</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_DefaultConfig</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_AdvancedConfig</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0whyqlc</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_TargetConfigured" sourceRef="StartEvent_ConfigurePortscan" targetRef="ExclusiveGateway_AutomatedStart" />
     <bpmn:sequenceFlow id="SequenceFlow_DefaultConfig" name="default configuration" sourceRef="ExclusiveGateway_AdvancedConfiguration" targetRef="ServiceTask_DoPortscan">
@@ -84,6 +85,7 @@
       <bpmn:incoming>SequenceFlow_PortscanConfigured</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_DefaultConfig</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_AutomatedStart</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0whyqlc</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_PortscanFinished</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_SummaryCreated" name="summary created" sourceRef="ServiceTask_CreateSummary" targetRef="ExclusiveGateway_AutomatedFinish" />
@@ -94,6 +96,12 @@
     </bpmn:serviceTask>
     <bpmn:dataObjectReference id="DataObjectReference_0vhjx0n" name="PROCESS_FINDINGS" dataObjectRef="DataObject_0lpf2y8" />
     <bpmn:dataObject id="DataObject_0lpf2y8" />
+    <bpmn:sequenceFlow id="SequenceFlow_0whyqlc" name="check http-headers" sourceRef="ExclusiveGateway_AdvancedConfiguration" targetRef="ServiceTask_DoPortscan">
+      <bpmn:extensionElements>
+        <camunda:executionListener delegateExpression="${configureHttpHeaderCheck}" event="take" />
+      </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${NMAP_CONFIGURATION_TYPE == 'http-headers'}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
     <bpmn:textAnnotation id="TextAnnotation_0lm3esn">
       <bpmn:text>results in a generic format</bpmn:text>
     </bpmn:textAnnotation>
@@ -258,6 +266,13 @@
       <bpmndi:BPMNEdge id="Association_16qrr9w_di" bpmnElement="Association_16qrr9w">
         <di:waypoint xsi:type="dc:Point" x="677" y="420" />
         <di:waypoint xsi:type="dc:Point" x="680" y="447" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0whyqlc_di" bpmnElement="SequenceFlow_0whyqlc">
+        <di:waypoint xsi:type="dc:Point" x="314" y="133" />
+        <di:waypoint xsi:type="dc:Point" x="467" y="289" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="357.69709969796145" y="155.02857400651177" width="54" height="25" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
