@@ -82,7 +82,7 @@ public class DefectDojoService {
         restTemplate.exchange(defectDojoUrl + "/api/v2/tool_types/", HttpMethod.POST, toolPayload, ToolType.class);
     }
 
-    public String getUserUrl(String username){
+    public Long retrieveUserId(String username){
         RestTemplate restTemplate = new RestTemplate();
 
         if(username == null){
@@ -93,57 +93,66 @@ public class DefectDojoService {
         HttpEntity userRequest = new HttpEntity(getHeaders());
         ResponseEntity<DefectDojoResponse<DefectDojoUser>> userResponse = restTemplate.exchange(uri, HttpMethod.GET, userRequest, new ParameterizedTypeReference<DefectDojoResponse<DefectDojoUser>>(){});
         if(userResponse.getBody().getCount() == 1){
-            return userResponse.getBody().getResults().get(0).getUrl();
+            return userResponse.getBody().getResults().get(0).getId();
         }
         else {
             throw new DefectDojoUserNotFound(MessageFormat.format("Could not find user: \"{0}\" in DefectDojo", username));
         }
     }
 
-    public String getProductUrl(String product){
+    public long retrieveProductId(String product){
         RestTemplate restTemplate = new RestTemplate();
 
         String uri = defectDojoUrl + "/api/v2/products/?name=" + product;
         HttpEntity productRequest = new HttpEntity(getHeaders());
         ResponseEntity<DefectDojoResponse<DefectDojoProduct>> productResponse = restTemplate.exchange(uri, HttpMethod.GET, productRequest, new ParameterizedTypeReference<DefectDojoResponse<DefectDojoProduct>>(){});
         if(productResponse.getBody().getCount() == 1){
-            return productResponse.getBody().getResults().get(0).getUrl();
+            return productResponse.getBody().getResults().get(0).getId();
         }
         else {
             throw new DefectDojoProductNotFound(MessageFormat.format("Could not find product: \"{0}\" in DefectDojo", product));
         }
     }
 
-    public String getToolConfiguration(String toolUrl, String toolType){
-        RestTemplate restTemplate = new RestTemplate();
-
+    public Long retrieveOrCreateToolConfiguration(String toolUrl, String toolType){
         if (toolUrl == null){
             return null;
         }
 
-        String uri = defectDojoUrl + "/api/v2/tool_configurations/?url=" + toolUrl;
-        HttpEntity toolRequest = new HttpEntity(getHeaders());
-        ResponseEntity<DefectDojoResponse<ToolConfig>> toolResponse = restTemplate.exchange(uri, HttpMethod.GET, toolRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolConfig>>(){});
+        ResponseEntity<DefectDojoResponse<ToolConfig>> toolResponse = retrieveToolConfiguration(toolUrl);
         if(toolResponse.getBody().getCount() > 0){
-            return toolResponse.getBody().getResults().get(0).getUrl();
+            LOG.info("Tool configuration already exists. Returning existing configuration.");
+            return toolResponse.getBody().getResults().get(0).getId();
         }
         else {
-            HttpEntity toolTypeRequest = new HttpEntity(getHeaders());
-            String toolTypeRequestUri = defectDojoUrl + "/api/v2/tool_types/?name=" + toolType;
-            ResponseEntity<DefectDojoResponse<ToolType>> toolTypeResponse = restTemplate.exchange(toolTypeRequestUri, HttpMethod.GET, toolTypeRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolType>>(){});
-            String toolTypeId = toolTypeResponse.getBody().getResults().get(0).getId();
-
-            ToolConfig toolConfig = new ToolConfig();
-            toolConfig.setName(toolUrl);
-            toolConfig.setToolType(toolTypeId);
-            toolConfig.setConfigUrl(toolUrl);
-            toolConfig.setDescription(toolType);
-
-            HttpEntity<ToolConfig> toolPayload = new HttpEntity<>(toolConfig, getHeaders());
-            restTemplate.exchange(defectDojoUrl + "/api/v2/tool_configurations/", HttpMethod.POST, toolPayload, ToolConfig.class);
-            return getToolConfiguration(toolUrl, toolType);
-
+            LOG.info("Tool configuration does not exist yet. Creating new configuration.");
+            createToolConfiguration(toolUrl, toolType);
+            return retrieveToolConfiguration(toolUrl).getBody().getResults().get(0).getId();
         }
+    }
+
+    private ResponseEntity<DefectDojoResponse<ToolConfig>> retrieveToolConfiguration(String toolUrl) {
+        RestTemplate restTemplate = new RestTemplate();
+        String uri = defectDojoUrl + "/api/v2/tool_configurations/?url=" + toolUrl;
+        HttpEntity toolRequest = new HttpEntity(getHeaders());
+        return restTemplate.exchange(uri, HttpMethod.GET, toolRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolConfig>>(){});
+    }
+
+    private void createToolConfiguration(String toolUrl, String toolType) {
+        HttpEntity toolTypeRequest = new HttpEntity(getHeaders());
+        String toolTypeRequestUri = defectDojoUrl + "/api/v2/tool_types/?name=" + toolType;
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<DefectDojoResponse<ToolType>> toolTypeResponse = restTemplate.exchange(toolTypeRequestUri, HttpMethod.GET, toolTypeRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolType>>(){});
+        String toolTypeId = toolTypeResponse.getBody().getResults().get(0).getId();
+
+        ToolConfig toolConfig = new ToolConfig();
+        toolConfig.setName(toolUrl);
+        toolConfig.setToolType(toolTypeId);
+        toolConfig.setConfigUrl(toolUrl);
+        toolConfig.setDescription(toolType);
+
+        HttpEntity<ToolConfig> toolPayload = new HttpEntity<>(toolConfig, getHeaders());
+        restTemplate.exchange(defectDojoUrl + "/api/v2/tool_configurations/", HttpMethod.POST, toolPayload, ToolConfig.class);
     }
 
     public EngagementResponse createEngagement(EngagementPayload engagementPayload) {
@@ -161,14 +170,14 @@ public class DefectDojoService {
         }
     }
 
-    public ImportScanResponse createFindings(String rawResult, String engagementUrl, String lead, String currentDate,String defectDojoScanName) {
+    public ImportScanResponse createFindings(String rawResult, long engagementId, long lead, String currentDate,String defectDojoScanName) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = getHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         restTemplate.setMessageConverters(Arrays.asList(new FormHttpMessageConverter(), new ResourceHttpMessageConverter(), new MappingJackson2HttpMessageConverter()));
 
         MultiValueMap<String, Object> mvn = new LinkedMultiValueMap<>();
-        mvn.add("engagement", engagementUrl);
+        mvn.add("engagement", engagementId);
         mvn.add("lead", lead);
         mvn.add("scan_date", currentDate);
         mvn.add("scan_type", defectDojoScanName);

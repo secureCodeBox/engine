@@ -70,17 +70,17 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         checkToolTypes();
 
         EngagementResponse res = createEngagement(securityTest);
-        String engagementUrl = res.getUrl();
-        LOG.debug("Created engagement: '{}'", engagementUrl);
+        long engagementId = res.getId();
+        LOG.debug("Created engagement: '{}'", engagementId);
 
         String username = securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_USER.name());
-        String userUrl = defectDojoService.getUserUrl(username);
+        long userUrl = defectDojoService.retrieveUserId(username);
 
         List<String> results = getDefectDojoScanName(securityTest.getName()).equals("Generic Findings Import") ? getGenericResults(securityTest) : getRawResults(securityTest);
             for (String result : results) {
                 defectDojoService.createFindings(
                         result,
-                        engagementUrl,
+                        engagementId,
                         userUrl,
                         currentDate(),
                         getDefectDojoScanName(securityTest.getName())
@@ -157,7 +157,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
     private EngagementResponse createEngagement(SecurityTest securityTest) {
         EngagementPayload engagementPayload = new EngagementPayload();
-        engagementPayload.setProduct(defectDojoService.getProductUrl(securityTest.getContext()));
+        engagementPayload.setProduct(defectDojoService.retrieveProductId(securityTest.getContext()));
 
         if(securityTest.getMetaData() == null){
             securityTest.setMetaData(new HashMap<>());
@@ -165,7 +165,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
         engagementPayload.setName(securityTest.getMetaData().get(CommonMetaFields.SCB_ENGAGEMENT_TITLE.name()) != null ?
                 securityTest.getMetaData().get(CommonMetaFields.SCB_ENGAGEMENT_TITLE.name()) : getDefectDojoScanName(securityTest.getName()));
-        engagementPayload.setLead(defectDojoService.getUserUrl(securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_USER.name())));
+        engagementPayload.setLead(defectDojoService.retrieveUserId(securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_USER.name())));
         engagementPayload.setDescription(descriptionGenerator.generate(securityTest));
         engagementPayload.setBranch(securityTest.getMetaData().get(CommonMetaFields.SCB_BRANCH.name()));
         engagementPayload.setBuildID(securityTest.getMetaData().get(CommonMetaFields.SCB_BUILD_ID.name()));
@@ -173,9 +173,9 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         engagementPayload.setRepo(securityTest.getMetaData().get(CommonMetaFields.SCB_REPO.name()));
         engagementPayload.setTracker(securityTest.getMetaData().get(CommonMetaFields.SCB_TRACKER.name()));
 
-        engagementPayload.setBuildServer(defectDojoService.getToolConfiguration(securityTest.getMetaData().get(CommonMetaFields.SCB_BUILD_SERVER.name()), BUILD_SERVER_NAME));
-        engagementPayload.setScmServer(defectDojoService.getToolConfiguration(securityTest.getMetaData().get(CommonMetaFields.SCB_SCM_SERVER.name()), GIT_SERVER_NAME));
-        engagementPayload.setOrchestrationEngine(defectDojoService.getToolConfiguration("https://github.com/secureCodeBox", SECURITY_TEST_SERVER_NAME));
+        engagementPayload.setBuildServer(defectDojoService.retrieveOrCreateToolConfiguration(securityTest.getMetaData().get(CommonMetaFields.SCB_BUILD_SERVER.name()), BUILD_SERVER_NAME));
+        engagementPayload.setScmServer(defectDojoService.retrieveOrCreateToolConfiguration(securityTest.getMetaData().get(CommonMetaFields.SCB_SCM_SERVER.name()), GIT_SERVER_NAME));
+        engagementPayload.setOrchestrationEngine(defectDojoService.retrieveOrCreateToolConfiguration("https://github.com/secureCodeBox", SECURITY_TEST_SERVER_NAME));
 
         engagementPayload.setTargetStart(currentDate());
         engagementPayload.setTargetEnd(currentDate());

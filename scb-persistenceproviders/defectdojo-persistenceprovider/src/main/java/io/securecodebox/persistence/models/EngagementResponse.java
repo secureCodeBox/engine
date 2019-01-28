@@ -22,13 +22,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class EngagementResponse {
     @JsonProperty
-    protected String url;
+    protected long id;
 
-    public String getUrl() {
-        return url;
+    public long getId() {
+        return id;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setId(long id) {
+        this.id = id;
     }
 }

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DefectDojoUser {
     @JsonProperty
-    String url;
+    Long id;
 
     @JsonProperty
     String username;
@@ -15,12 +15,12 @@ public class DefectDojoUser {
     @JsonProperty("last_name")
     String lastName;
 
-    public String getUrl() {
-        return url;
+    public Long getId() {
+        return id;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getUsername() {
