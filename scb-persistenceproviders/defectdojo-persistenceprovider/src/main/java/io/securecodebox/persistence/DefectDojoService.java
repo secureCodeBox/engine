@@ -177,8 +177,8 @@ public class DefectDojoService {
         restTemplate.setMessageConverters(Arrays.asList(new FormHttpMessageConverter(), new ResourceHttpMessageConverter(), new MappingJackson2HttpMessageConverter()));
 
         MultiValueMap<String, Object> mvn = new LinkedMultiValueMap<>();
-        mvn.add("engagement", engagementId);
-        mvn.add("lead", lead);
+        mvn.add("engagement", Long.toString(engagementId));
+        mvn.add("lead", Long.toString(lead));
         mvn.add("scan_date", currentDate);
         mvn.add("scan_type", defectDojoScanName);
 
