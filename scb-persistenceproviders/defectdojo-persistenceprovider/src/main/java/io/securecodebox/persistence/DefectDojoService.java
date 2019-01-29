@@ -133,7 +133,7 @@ public class DefectDojoService {
 
     private ResponseEntity<DefectDojoResponse<ToolConfig>> retrieveToolConfiguration(String toolUrl) {
         RestTemplate restTemplate = new RestTemplate();
-        String uri = defectDojoUrl + "/api/v2/tool_configurations/?url=" + toolUrl;
+        String uri = defectDojoUrl + "/api/v2/tool_configurations/?name=" + toolUrl;
         HttpEntity toolRequest = new HttpEntity(getHeaders());
         return restTemplate.exchange(uri, HttpMethod.GET, toolRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolConfig>>(){});
     }
