@@ -27,6 +27,7 @@ import io.securecodebox.persistence.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -47,6 +48,9 @@ import java.util.stream.Stream;
 public class DefectDojoPersistenceProvider implements PersistenceProvider {
     private static final Logger LOG = LoggerFactory.getLogger(DefectDojoPersistenceProvider.class);
 
+    @Value("${securecodebox.persistence.defectdojo.optional:false}")
+    protected boolean isOptional;
+
     @Autowired
     DefectDojoService defectDojoService;
 
@@ -66,6 +70,18 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         LOG.debug("Starting defectdojo persistence provider");
         LOG.debug("RawFindings: {}", securityTest.getReport().getRawFindings());
 
+        try {
+            persistInDefectDojo(securityTest);
+        } catch (Exception e) {
+            // ignore error if defect dojo provider is set to optional
+            if(isOptional) {
+                LOG.error("Failed to persist security test in defect dojo", e);
+                return;
+            } else throw e;
+        }
+    }
+
+    private void persistInDefectDojo(SecurityTest securityTest) throws PersistenceException {
         checkConnection();
         checkToolTypes();
 
@@ -77,15 +93,15 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         long userUrl = defectDojoService.retrieveUserId(username);
 
         List<String> results = getDefectDojoScanName(securityTest.getName()).equals("Generic Findings Import") ? getGenericResults(securityTest) : getRawResults(securityTest);
-            for (String result : results) {
-                defectDojoService.createFindings(
-                        result,
-                        engagementId,
-                        userUrl,
-                        currentDate(),
-                        getDefectDojoScanName(securityTest.getName())
-                );
-            }
+        for (String result : results) {
+            defectDojoService.createFindings(
+                    result,
+                    engagementId,
+                    userUrl,
+                    currentDate(),
+                    getDefectDojoScanName(securityTest.getName())
+            );
+        }
     }
 
     static final String GIT_SERVER_NAME = "Git Server";
