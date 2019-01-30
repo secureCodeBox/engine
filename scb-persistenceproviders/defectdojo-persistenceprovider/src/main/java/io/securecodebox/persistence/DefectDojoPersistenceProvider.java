@@ -90,7 +90,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
     static final String GIT_SERVER_NAME = "Git Server";
     static final String BUILD_SERVER_NAME = "Build Server";
-    static final String SECURITY_TEST_SERVER_NAME = "Security TestOrchestration Engine";
+    static final String SECURITY_TEST_SERVER_NAME = "Security Test Orchestration Engine";
 
     private void checkToolTypes() {
         DefectDojoResponse<ToolType> toolTypeGitResponse = defectDojoService.getToolTypeByName(GIT_SERVER_NAME);
@@ -173,9 +173,9 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         engagementPayload.setRepo(securityTest.getMetaData().get(CommonMetaFields.SCB_REPO.name()));
         engagementPayload.setTracker(securityTest.getMetaData().get(CommonMetaFields.SCB_TRACKER.name()));
 
-        engagementPayload.setBuildServer(defectDojoService.getToolConfiguration(securityTest.getMetaData().get(CommonMetaFields.SCB_BUILD_SERVER.name()), "Build Server"));
-        engagementPayload.setScmServer(defectDojoService.getToolConfiguration(securityTest.getMetaData().get(CommonMetaFields.SCB_SCM_SERVER.name()), "Git Server"));
-        engagementPayload.setOrchestrationEngine(defectDojoService.getToolConfiguration("https://github.com/secureCodeBox","Security Test Orchestration Engine"));
+        engagementPayload.setBuildServer(defectDojoService.getToolConfiguration(securityTest.getMetaData().get(CommonMetaFields.SCB_BUILD_SERVER.name()), BUILD_SERVER_NAME));
+        engagementPayload.setScmServer(defectDojoService.getToolConfiguration(securityTest.getMetaData().get(CommonMetaFields.SCB_SCM_SERVER.name()), GIT_SERVER_NAME));
+        engagementPayload.setOrchestrationEngine(defectDojoService.getToolConfiguration("https://github.com/secureCodeBox", SECURITY_TEST_SERVER_NAME));
 
         engagementPayload.setTargetStart(currentDate());
         engagementPayload.setTargetEnd(currentDate());
