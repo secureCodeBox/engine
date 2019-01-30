@@ -212,6 +212,9 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         scannerDefectDojoMapping.put("nmap", "Nmap Scan");
         scannerDefectDojoMapping.put("zap", "ZAP Scan");
 
+        // Map amass-nmap raw results to be imported as Nmap Results
+        scannerDefectDojoMapping.put("amass-nmap", "Nmap Scan");
+
         // Nikto is a supported tool as well but currently not accessible for supported import.
         // Nikto thus will use Generic Findings Import.
 
