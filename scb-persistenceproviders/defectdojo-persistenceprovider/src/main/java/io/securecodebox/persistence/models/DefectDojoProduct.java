@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class DefectDojoProduct {
     @JsonProperty
-    String url;
+    long id;
 
     @JsonProperty
     String name;

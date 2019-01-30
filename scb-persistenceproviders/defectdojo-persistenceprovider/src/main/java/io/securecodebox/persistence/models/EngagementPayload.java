@@ -31,7 +31,7 @@ public class EngagementPayload {
     protected String name;
 
     @JsonProperty
-    protected String product;
+    protected long product;
 
     @JsonProperty("target_start")
     protected String targetStart;
@@ -40,7 +40,7 @@ public class EngagementPayload {
     protected String targetEnd;
 
     @JsonProperty
-    protected String lead;
+    protected Long lead;
 
     @JsonProperty("engagement_type")
     protected String engagementType = "CI/CD";
@@ -67,13 +67,13 @@ public class EngagementPayload {
     protected String repo;
 
     @JsonProperty("build_server")
-    protected String buildServer;
+    protected Long buildServer;
 
     @JsonProperty("source_code_management_server")
-    protected String scmServer;
+    protected Long scmServer;
 
     @JsonProperty("orchestration_engine")
-    protected String orchestrationEngine;
+    protected Long orchestrationEngine;
 
     @JsonProperty
     protected String description;
