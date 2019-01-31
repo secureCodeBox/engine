@@ -20,6 +20,7 @@ management.endpoints:
     web.base-path: /
     web.path-mapping.health: status
 management.endpoint.health.enabled: true
+management.health.elasticsearch.enabled: false
 
 management.server.port: 8080
 
