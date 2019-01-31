@@ -101,7 +101,6 @@ public class SecurityTestResourceTest {
 
     @Test
     public void shouldReturnA403IfTheUserIsntAuthorizedToStartASecurityTest() throws Exception {
-        given(securityTestServiceDummy.startSecurityTest(any())).willReturn(UUID.fromString("47bd8786-84f2-49ed-9ca9-20ed22be532b"));
         willThrow(new InsufficientAuthorizationException("Foobar")).given(authService).checkAuthorizedFor(any(), any(), any());
         SecurityTestConfiguration secTest = new SecurityTestConfiguration();
         secTest.setName("this-process-is-ok");
@@ -114,7 +113,6 @@ public class SecurityTestResourceTest {
 
     @Test
     public void shouldReturnA403IfTheUserIsntAuthorizedToOneOfTheSecurityTestsOfThePayload() throws Exception {
-        given(securityTestServiceDummy.startSecurityTest(any())).willReturn(UUID.fromString("47bd8786-84f2-49ed-9ca9-20ed22be532b"));
         willThrow(new InsufficientAuthorizationException("Foobar")).given(authService).checkAuthorizedFor(eq("this-isnt-process"), any(), any());
 
         SecurityTestConfiguration secTest = new SecurityTestConfiguration();

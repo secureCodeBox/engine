@@ -28,6 +28,12 @@
             <groupId>org.camunda.bpm.springboot</groupId>
             <artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-properties-migrator</artifactId>
+            <scope>runtime</scope>
+            <version>2.0.2.RELEASE</version>
+        </dependency>
 
         <dependency>
             <groupId>io.springfox</groupId>
@@ -70,6 +76,11 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-jdbc</artifactId>
         </dependency>
 
         <dependency>
@@ -203,7 +214,7 @@
                     <dependency>
                         <groupId>org.elasticsearch</groupId>
                         <artifactId>elasticsearch</artifactId>
-                        <version>6.2.4</version>
+                        <version>6.4.3</version>
                     </dependency>
                 </dependencies>
             </dependencyManagement>

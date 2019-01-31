@@ -56,11 +56,11 @@
             IMPORTANT: camunda.version and camunda.spring.boot.starter.version must be compatible
             please see org.camunda.bpm.springboot.project:camunda-bpm-spring-boot-starter-root
          -->
-        <camunda.version>7.8.0</camunda.version>
-        <camunda.spring.boot.starter.version>2.3.0</camunda.spring.boot.starter.version>
+        <camunda.version>7.10.0</camunda.version>
+        <camunda.spring.boot.starter.version>3.2.0</camunda.spring.boot.starter.version>
         <!-- END IMPORTANT -->
 
-        <spring-boot.version>1.5.13.RELEASE</spring-boot.version>
+        <spring-boot.version>2.1.1.RELEASE</spring-boot.version>
         <swagger-version>2.9.0</swagger-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -96,6 +96,12 @@
                 <version>${spring-boot.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-properties-migrator</artifactId>
+                <scope>runtime</scope>
             </dependency>
 
             <!-- Add camunda spring boot starter classes -->
@@ -138,7 +144,13 @@
                 <groupId>org.camunda.bpm.extension.mockito</groupId>
                 <artifactId>camunda-bpm-mockito</artifactId>
                 <scope>test</scope>
-                <version>3.1.0</version>
+                <version>3.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.camunda.bpm.extension</groupId>
+                <artifactId>camunda-bpm-assert</artifactId>
+                <version>1.2</version> <!-- Use 2.0-alpha2 for the CMMN assertions preview! -->
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.camunda.bpm.extension</groupId>

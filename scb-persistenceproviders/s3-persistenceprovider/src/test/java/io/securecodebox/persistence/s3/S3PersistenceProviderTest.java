@@ -25,21 +25,17 @@ import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.rest.Report;
 import io.securecodebox.model.securitytest.SecurityTest;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.sql.DriverManager;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 
-import static org.junit.Assert.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;

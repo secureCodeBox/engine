@@ -10,5 +10,5 @@ logging.level.io.securecodebox: DEBUG
 # - none
 # - elasticsearch
 securecodebox.rest.user.scanner-default:
-  user-id: default-scanner
+  user-id: defaultScanner
   password: scan
