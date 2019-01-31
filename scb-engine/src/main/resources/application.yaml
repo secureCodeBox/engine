@@ -14,13 +14,14 @@ server.ssl:
     key-alias: scb-engine
 
 # Spring Boot Actuator configuration
-# Used to enable an endpoint for health checks at '/health'
-management.port: 8080
-management.security.enabled: true
-endpoints:
-  enabled: false
-  health.enabled: true
-  health.path: /status
+# Used to enable an endpoint for health checks at '/status'
+management.endpoints:
+    enabled-by-default: false
+    web.base-path: /
+    web.path-mapping.health: status
+management.endpoint.health.enabled: true
+
+management.server.port: 8080
 
 camunda.bpm:
   webapp.index-redirect-enabled: true
