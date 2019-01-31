@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ToolConfig {
     @JsonProperty
+    long id;
+
+    @JsonProperty
     String url;
 
     @JsonProperty
@@ -17,6 +20,14 @@ public class ToolConfig {
 
     @JsonProperty
     String description;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public String getDescription() {
         return description;

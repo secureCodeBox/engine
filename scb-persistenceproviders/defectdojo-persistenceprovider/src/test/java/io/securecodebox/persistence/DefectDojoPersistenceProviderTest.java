@@ -55,23 +55,23 @@ public class DefectDojoPersistenceProviderTest {
         when(defectDojoService.getToolTypeByName(any())).thenReturn(responseExisting);
 
         EngagementResponse engagementResponse = new EngagementResponse();
-        engagementResponse.setUrl("http://localhost:8000/api/v2/engagements/2/");
+        engagementResponse.setId(2);
         when(defectDojoService.createEngagement(any())).thenReturn(engagementResponse);
-        when(defectDojoService.getProductUrl("Nmap Scan 11")).thenReturn("http://localhost:8000/api/v2/products/1/");
-        when(defectDojoService.getProductUrl("Nonexisting")).thenThrow(DefectDojoProductNotFound.class);
+        when(defectDojoService.retrieveProductId("Nmap Scan 11")).thenReturn(1l);
+        when(defectDojoService.retrieveProductId("Nonexisting")).thenThrow(DefectDojoProductNotFound.class);
 
 
         metaData = new HashMap<>();
         metaData.put(DefectDojoMetaFields.DEFECT_DOJO_USER.name(), "John Doe");
-        when(defectDojoService.getUserUrl(eq("John Doe"))).thenReturn("http://localhost:8000/api/v2/users/5/");
+        when(defectDojoService.retrieveUserId(eq("John Doe"))).thenReturn(5l);
 
         report = new Report();
         report.setRawFindings("\"[]\"");
         report.setFindings(Collections.emptyList());
 
-        when(defectDojoService.getToolConfiguration(eq("http://crazy.buildserver"), eq("Build Server"))).thenReturn("http://localhost:8000/api/v2/tool_types/5/");
-        when(defectDojoService.getToolConfiguration(eq("http://crazy.scm_server"), eq("Git Server"))).thenReturn("http://localhost:8000/api/v2/tool_types/7/");
-        when(defectDojoService.getToolConfiguration(eq("https://github.com/secureCodeBox"), eq("Security Test Orchestration Engine"))).thenReturn("http://localhost:8000/api/v2/tool_types/9/");
+        when(defectDojoService.retrieveOrCreateToolConfiguration(eq("http://crazy.buildserver"), eq("Build Server"))).thenReturn(5l);
+        when(defectDojoService.retrieveOrCreateToolConfiguration(eq("http://crazy.scm_server"), eq("Git Server"))).thenReturn(7l);
+        when(defectDojoService.retrieveOrCreateToolConfiguration(eq("https://github.com/secureCodeBox"), eq("Security Test Orchestration Engine"))).thenReturn(9l);
 
     }
 
@@ -130,16 +130,16 @@ public class DefectDojoPersistenceProviderTest {
         EngagementPayload payload = new EngagementPayload();
         payload.setStatus(EngagementPayload.Status.COMPLETED);
         payload.setName("Nmap Scan");
-        payload.setProduct("http://localhost:8000/api/v2/products/1/");
-        payload.setLead("http://localhost:8000/api/v2/users/5/");
+        payload.setProduct(1l);
+        payload.setLead(5l);
         payload.setBranch("master");
         payload.setRepo("https://github.com/secureCodeBox/engine");
         payload.setDescription("Foobar Description");
         payload.setTargetStart("2019-01-07");
         payload.setTargetEnd("2019-01-07");
-        payload.setBuildServer("http://localhost:8000/api/v2/tool_types/5/");
-        payload.setScmServer("http://localhost:8000/api/v2/tool_types/7/");
-        payload.setOrchestrationEngine("http://localhost:8000/api/v2/tool_types/9/");
+        payload.setBuildServer(5l);
+        payload.setScmServer(7l);
+        payload.setOrchestrationEngine(9l);
 
         persistenceProvider.persist(securityTest);
 
@@ -150,7 +150,7 @@ public class DefectDojoPersistenceProviderTest {
 
     @Test(expected = DefectDojoUserNotFound.class)
     public void failsIfUserCouldNotBeFound(){
-        when(defectDojoService.getUserUrl(any())).thenThrow(new DefectDojoUserNotFound(""));
+        when(defectDojoService.retrieveUserId(any())).thenThrow(new DefectDojoUserNotFound(""));
 
         SecurityTest securityTest = new SecurityTest();
         securityTest.setContext("Nmap Scan 11");
@@ -195,8 +195,8 @@ public class DefectDojoPersistenceProviderTest {
         persistenceProvider.persist(securityTest);
         verify(defectDojoService, times(1)).createFindings(
                 eq("<Some Xml stuff>\n<Don't know how the form is>"),
-                eq("http://localhost:8000/api/v2/engagements/2/"),
-                eq("http://localhost:8000/api/v2/users/5/"),
+                eq(2l),
+                eq(5l),
                 eq("2019-01-07"),
                 eq("Nmap Scan")
         );
@@ -225,8 +225,8 @@ public class DefectDojoPersistenceProviderTest {
         verify(defectDojoService, times(1)).createFindings(
                 eq( "date,title,cweid,url,severity,description,mitigation,impact,references,active,verified,falsepositive,duplicate\n"+
                         "2019-01-07,findingname,,http://someadress,INFORMATIONAL,description,,,,,,false,false"),
-                eq("http://localhost:8000/api/v2/engagements/2/"),
-                eq("http://localhost:8000/api/v2/users/5/"),
+                eq(2l),
+                eq(5l),
                 eq("2019-01-07"),
                 eq("Generic Findings Import")
         );

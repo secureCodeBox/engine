@@ -27,6 +27,7 @@ import io.securecodebox.persistence.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -47,6 +48,9 @@ import java.util.stream.Stream;
 public class DefectDojoPersistenceProvider implements PersistenceProvider {
     private static final Logger LOG = LoggerFactory.getLogger(DefectDojoPersistenceProvider.class);
 
+    @Value("${securecodebox.persistence.defectdojo.optional:false}")
+    protected boolean isOptional;
+
     @Autowired
     DefectDojoService defectDojoService;
 
@@ -66,26 +70,38 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         LOG.debug("Starting defectdojo persistence provider");
         LOG.debug("RawFindings: {}", securityTest.getReport().getRawFindings());
 
+        try {
+            persistInDefectDojo(securityTest);
+        } catch (Exception e) {
+            // ignore error if defect dojo provider is set to optional
+            if(isOptional) {
+                LOG.error("Failed to persist security test in defect dojo", e);
+                return;
+            } else throw e;
+        }
+    }
+
+    private void persistInDefectDojo(SecurityTest securityTest) throws PersistenceException {
         checkConnection();
         checkToolTypes();
 
         EngagementResponse res = createEngagement(securityTest);
-        String engagementUrl = res.getUrl();
-        LOG.debug("Created engagement: '{}'", engagementUrl);
+        long engagementId = res.getId();
+        LOG.debug("Created engagement: '{}'", engagementId);
 
         String username = securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_USER.name());
-        String userUrl = defectDojoService.getUserUrl(username);
+        long userUrl = defectDojoService.retrieveUserId(username);
 
         List<String> results = getDefectDojoScanName(securityTest.getName()).equals("Generic Findings Import") ? getGenericResults(securityTest) : getRawResults(securityTest);
-            for (String result : results) {
-                defectDojoService.createFindings(
-                        result,
-                        engagementUrl,
-                        userUrl,
-                        currentDate(),
-                        getDefectDojoScanName(securityTest.getName())
-                );
-            }
+        for (String result : results) {
+            defectDojoService.createFindings(
+                    result,
+                    engagementId,
+                    userUrl,
+                    currentDate(),
+                    getDefectDojoScanName(securityTest.getName())
+            );
+        }
     }
 
     static final String GIT_SERVER_NAME = "Git Server";
@@ -157,7 +173,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
     private EngagementResponse createEngagement(SecurityTest securityTest) {
         EngagementPayload engagementPayload = new EngagementPayload();
-        engagementPayload.setProduct(defectDojoService.getProductUrl(securityTest.getContext()));
+        engagementPayload.setProduct(defectDojoService.retrieveProductId(securityTest.getContext()));
 
         if(securityTest.getMetaData() == null){
             securityTest.setMetaData(new HashMap<>());
@@ -165,7 +181,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
         engagementPayload.setName(securityTest.getMetaData().get(CommonMetaFields.SCB_ENGAGEMENT_TITLE.name()) != null ?
                 securityTest.getMetaData().get(CommonMetaFields.SCB_ENGAGEMENT_TITLE.name()) : getDefectDojoScanName(securityTest.getName()));
-        engagementPayload.setLead(defectDojoService.getUserUrl(securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_USER.name())));
+        engagementPayload.setLead(defectDojoService.retrieveUserId(securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_USER.name())));
         engagementPayload.setDescription(descriptionGenerator.generate(securityTest));
         engagementPayload.setBranch(securityTest.getMetaData().get(CommonMetaFields.SCB_BRANCH.name()));
         engagementPayload.setBuildID(securityTest.getMetaData().get(CommonMetaFields.SCB_BUILD_ID.name()));
@@ -173,9 +189,9 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         engagementPayload.setRepo(securityTest.getMetaData().get(CommonMetaFields.SCB_REPO.name()));
         engagementPayload.setTracker(securityTest.getMetaData().get(CommonMetaFields.SCB_TRACKER.name()));
 
-        engagementPayload.setBuildServer(defectDojoService.getToolConfiguration(securityTest.getMetaData().get(CommonMetaFields.SCB_BUILD_SERVER.name()), BUILD_SERVER_NAME));
-        engagementPayload.setScmServer(defectDojoService.getToolConfiguration(securityTest.getMetaData().get(CommonMetaFields.SCB_SCM_SERVER.name()), GIT_SERVER_NAME));
-        engagementPayload.setOrchestrationEngine(defectDojoService.getToolConfiguration("https://github.com/secureCodeBox", SECURITY_TEST_SERVER_NAME));
+        engagementPayload.setBuildServer(defectDojoService.retrieveOrCreateToolConfiguration(securityTest.getMetaData().get(CommonMetaFields.SCB_BUILD_SERVER.name()), BUILD_SERVER_NAME));
+        engagementPayload.setScmServer(defectDojoService.retrieveOrCreateToolConfiguration(securityTest.getMetaData().get(CommonMetaFields.SCB_SCM_SERVER.name()), GIT_SERVER_NAME));
+        engagementPayload.setOrchestrationEngine(defectDojoService.retrieveOrCreateToolConfiguration("https://github.com/secureCodeBox", SECURITY_TEST_SERVER_NAME));
 
         engagementPayload.setTargetStart(currentDate());
         engagementPayload.setTargetEnd(currentDate());
@@ -195,6 +211,9 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         scannerDefectDojoMapping.put("arachni", "Arachni Scan");
         scannerDefectDojoMapping.put("nmap", "Nmap Scan");
         scannerDefectDojoMapping.put("zap", "ZAP Scan");
+
+        // Map amass-nmap raw results to be imported as Nmap Results
+        scannerDefectDojoMapping.put("amass-nmap", "Nmap Scan");
 
         // Nikto is a supported tool as well but currently not accessible for supported import.
         // Nikto thus will use Generic Findings Import.

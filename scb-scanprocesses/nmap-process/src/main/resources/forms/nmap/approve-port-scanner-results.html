@@ -91,13 +91,17 @@
                     </tr>
                     <tr class="danger" ng-repeat="port in host">
                         <td>{{ address }} ({{ port.attributes.ip_address }})</td></td>
-                        <td>{{ port.category === 'Open Port' ? port.attributes.port : '' }}</td>
-                        <td>{{ port.category === 'Open Port' ? port.attributes.service : port.name}}</td>
-                        <td>{{ port.category === 'Open Port' ? port.attributes.protocol : '' }}</td>
+                        <td>{{ (port.category === 'Open Port' || port.category === 'Http Header') ? port.attributes.port : '' }}</td>
+                        <td>{{ (port.category === 'Open Port' && !port.name) ? port.attributes.service : port.name}}</td>
+                        <td>{{ (port.category === 'Open Port' || port.category === 'Http Header') ? port.attributes.protocol : '' }}</td>
                         <td>
-                            <span class="label label-danger" ng-if="port.category === 'Open Port'">
+                            <span class="label" ng-if="port.category === 'Open Port'" ng-class="port.severity==='INFORMATIONAL'?'label-default':(port.severity==='MEDIUM'?'label-warning':'label-danger')">
                                 <i aria-hidden="true" class="glyphicon glyphicon-fire"></i>
                                 Open
+                            </span>
+                            <span class="label" ng-if="port.category === 'Http Header'" ng-class="port.severity==='INFORMATIONAL'?'label-default':(port.severity==='MEDIUM'?'label-warning':'label-danger')">
+                                <i aria-hidden="true" class="glyphicon glyphicon-fire"></i>
+                                {{ port.description.includes('missing') ? 'Missing' : 'Misconfigured' }}
                             </span>
                         </td>
                     </tr>

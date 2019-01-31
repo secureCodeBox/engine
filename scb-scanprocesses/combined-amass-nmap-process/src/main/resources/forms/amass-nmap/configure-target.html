@@ -83,6 +83,13 @@
                                 <option value="HTTP_PORTS">HTTP Ports (80,8080,443,8443)</option>
                                 <option value="TOP_100_PORTS">Top 100 Ports</option>
                             </select>
+
+                            <br />
+
+                            <input type="checkbox" id="inputNmapHeaderConfig"
+                                   ng-model="target.attributes.NMAP_HTTP_HEADERS"
+                                   ng-init="target.attributes.NMAP_HTTP_HEADERS = false" />
+                            <label for="inputNmapHeaderConfig" style="font-weight: normal">Inspect http headers</label>
                         </div>
                     </div>
                 </div>

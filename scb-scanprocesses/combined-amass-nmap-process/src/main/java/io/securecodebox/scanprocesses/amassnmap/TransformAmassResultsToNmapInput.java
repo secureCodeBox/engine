@@ -64,7 +64,10 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
             originalTargetRestorer.storeOriginalTargetInSeparateProcessVariable(originalTarget, execution);
 
             String nmapProfile = (String) originalTarget.getAttributes().get(AdditionalTargetAttributes.NMAP_CONFIGURATION_PROFILE.name());
-            String nmapParameters = getNmapParameters(nmapProfile);
+            Boolean nmapHttpHeaders = (Boolean) originalTarget.getAttributes().get(AdditionalTargetAttributes.NMAP_HTTP_HEADERS.name());
+            if (nmapHttpHeaders == null) nmapHttpHeaders = false;
+            String nmapParameters = getNmapParameters(nmapProfile, nmapHttpHeaders);
+
 
             List<Target> newTargets = new ArrayList<>();
             for (Finding finding : findings) {
@@ -81,6 +84,7 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
             execution.setVariable(DefaultFields.PROCESS_TARGETS.name(), objectValue);
 
             execution.setVariable("NMAP_CONFIGURATION_TYPE","default");
+            execution.setVariable("PARSE_HTTP_HEADERS", nmapHttpHeaders);
 
             LOG.debug("Finished TransformAmassResultsToNmapInput Service Task. Continue with nmap scan");
 
@@ -89,8 +93,9 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
         }
     }
 
-    private String getNmapParameters(String nmapProfile) {
-        String defaultNmapParameters = NmapConfigProfile.HTTP_PORTS.getParameter();
+    private String getNmapParameters(String nmapProfile, boolean withHttpHeaders) {
+        String defaultNmapParameters = (withHttpHeaders ? NmapConfigProfile.HTTP_PORTS_WITH_HTTP_HEADERS : NmapConfigProfile.HTTP_PORTS).getParameter();
+
         if(nmapProfile == null) {
             LOG.info("No nmap profile set for combined amass-nmap test. Use http ports as default");
             return defaultNmapParameters;
@@ -98,9 +103,17 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
 
         switch (NmapConfigProfile.valueOf(nmapProfile)) {
             case HTTP_PORTS:
-                return NmapConfigProfile.HTTP_PORTS.getParameter();
+                if (withHttpHeaders) {
+                    return NmapConfigProfile.HTTP_PORTS_WITH_HTTP_HEADERS.getParameter();
+                } else {
+                    return NmapConfigProfile.HTTP_PORTS.getParameter();
+                }
             case TOP_100_PORTS:
-                return NmapConfigProfile.TOP_100_PORTS.getParameter();
+                if (withHttpHeaders) {
+                    return NmapConfigProfile.TOP_100_PORTS_WITH_HTTP_HEADERS.getParameter();
+                } else {
+                    return NmapConfigProfile.TOP_100_PORTS.getParameter();
+                }
             default:
                 LOG.info("Invalid nmap profile set for combined amass-nmap test. Use http ports as default");
                 return defaultNmapParameters;
