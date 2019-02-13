@@ -13,3 +13,6 @@ securecodebox.rest.user.scanner-default:
   user-id: defaultScanner
   password: scan
 
+securecodebox.persistence.defectdojo.url:
+securecodebox.persistence.defectdojo.auth.key:
+securecodebox.persistence.defectdojo.auth.name:
