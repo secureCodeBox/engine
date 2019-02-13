@@ -73,7 +73,7 @@ import static org.mockito.Mockito.when;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@Deployment(resources = "bpmn/subdomain_scanner_process.bpmn")
+@Deployment(resources = "bpmn/amass_process.bpmn")
 @Ignore("Ignored until problems with camunda testing frameworks are handled. Introduces via update to camunda 7.10")
 public class SubdomainScannerProcessTest {
 
@@ -127,7 +127,7 @@ public class SubdomainScannerProcessTest {
         then this guide is helpful:
         https://blog.akquinet.de/2016/11/04/camunda-bpm-test-your-processes-based-on-plain-old-java-delegates/
          */
-        autoMock("bpmn/subdomain_scanner_process.bpmn");
+        autoMock("bpmn/amass_process.bpmn");
 
         /*
         Here we define a default behaviour for all the tasks in the BPMN model.

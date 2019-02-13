@@ -19,10 +19,10 @@
         <module>nikto-process</module>
         <module>zap-process</module>
         <module>sslyze-process</module>
-        <module>combined-nmap-nikto-scanprocess</module>
+        <module>combined-nmap-nikto-process</module>
         <module>combined-amass-nmap-process</module>
         <module>arachni-process</module>
-        <module>subdomain-scanner-process</module>
+        <module>amass-process</module>
   </modules>
 
 </project>

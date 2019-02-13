@@ -45,7 +45,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_AutomatedFinish" name="automated finish" sourceRef="ExclusiveGateway_AutomatedFinish" targetRef="ServiceTask_CreateSummary">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_AUTOMATED == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:serviceTask id="ServiceTask_DoScan" name="Run the scan" camunda:asyncBefore="true" camunda:type="external" camunda:topic="subdomain_scan">
+    <bpmn:serviceTask id="ServiceTask_DoScan" name="Run the scan" camunda:asyncBefore="true" camunda:type="external" camunda:topic="amass-process">
       <bpmn:extensionElements />
       <bpmn:incoming>SequenceFlow_TargetConfigured</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_PortscanFinished</bpmn:outgoing>
