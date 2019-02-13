@@ -15,12 +15,12 @@
 
     <modules>
         <module>archetype-process</module>
-        <module>test-process</module>
         <module>nmap-process</module>
         <module>nikto-process</module>
         <module>zap-process</module>
         <module>sslyze-process</module>
         <module>combined-nmap-nikto-scanprocess</module>
+        <module>combined-amass-nmap-process</module>
         <module>arachni-process</module>
         <module>subdomain-scanner-process</module>
   </modules>

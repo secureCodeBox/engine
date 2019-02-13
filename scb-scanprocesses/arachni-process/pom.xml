@@ -36,7 +36,7 @@
         <dependency>
             <groupId>io.securecodebox.core</groupId>
             <artifactId>sdk</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <!-- Test Dependencies -->
@@ -63,6 +63,10 @@
             <groupId>org.camunda.bpm.extension</groupId>
             <artifactId>camunda-bpm-process-test-coverage</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.camunda.bpm.extension</groupId>
+            <artifactId>camunda-bpm-assert</artifactId>
         </dependency>
     </dependencies>
 

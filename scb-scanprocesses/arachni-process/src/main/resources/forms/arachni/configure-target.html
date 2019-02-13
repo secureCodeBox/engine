@@ -32,20 +32,7 @@
         $scope.target = {
             location: '',
             name: '',
-            attributes: {
-                ARACHNI_DOM_DEPTH_LIMIT: 1000,
-                ARACHNI_DIR_DEPTH_LIMIT: 1000,
-                ARACHNI_PAGE_LIMIT: 1000,
-                ARACHNI_EXCLUDE_PATTERNS: '',
-                ARACHNI_INCLUDE_PATTERNS: '',
-                ARACHNI_SCAN_METHODS: '',
-                ARACHNI_COOKIE_STRING: '',
-                ARACHNI_EXTEND_PATH: '',
-                ARACHNI_LOGIN_URL: '',
-                ARACHNI_LOGIN_CREDENTIALS: '',
-                ARACHNI_LOGIN_CHECK: '',
-                ARACHNI_LOGIN_SCRIPT_FILENAME: ''
-            }
+            attributes: {}
         };
         $scope.context = '';
         $scope.acceptLicense = false;
@@ -165,18 +152,40 @@
 
                 <label for="dom_depth_limit">Limit of DOM depth</label>
                 <br>
-                <input id="dom_depth_limit" ng-model="target.attributes.ARACHNI_DOM_DEPTH_LIMIT" type="number" class="form-control">
+                <input id="dom_depth_limit" ng-model="target.attributes.ARACHNI_DOM_DEPTH_LIMIT" type="number" class="form-control" placeholder="1000">
                 <br>
 
                 <label for="directory_depth_limit">Limit of directory depths</label>
                 <br>
-                <input id="directory_depth_limit" ng-model="target.attributes.ARACHNI_DIR_DEPTH_LIMIT" type="number" class="form-control"
+                <input id="directory_depth_limit" ng-model="target.attributes.ARACHNI_DIR_DEPTH_LIMIT" type="number" class="form-control" placeholder="1000"
                 />
                 <br>
 
                 <label for="page_limit">Limit of scanned pages</label>
                 <br>
-                <input id="page_limit" ng-model="target.attributes.ARACHNI_PAGE_LIMIT" type="number" class="form-control" />
+                <input id="page_limit" ng-model="target.attributes.ARACHNI_PAGE_LIMIT" type="number" class="form-control" placeholder="1000"/>
+            </div>
+            <div class="clearfix"></div>
+
+            <button class="btn btn-info pull-right scanner-btn" onclick="togglediv('arachniRateLimits');" type="button">
+                <span class="glyphicon glyphicon-scale "></span> Define the rate limits
+            </button>
+            <div id="arachniRateLimits" name="rateLimitsDefinition" style="display: none">
+
+                <label for="requests_per_second">Requests per Second</label>
+                <br>
+                <input id="requests_per_second" ng-model="target.attributes.ARACHNI_REQUESTS_PER_SECOND" type="number" class="form-control" placeholder="20">
+                <br>
+
+                <label for="pool_size">Browser Cluster Pool Size</label>
+                <br>
+                <input id="pool_size" ng-model="target.attributes.ARACHNI_POOL_SIZE" type="number" class="form-control" placeholder="6"
+                />
+                <br>
+
+                <label for="request_concurrency">Request Concurrency</label>
+                <br>
+                <input id="request_concurrency" ng-model="target.attributes.ARACHNI_REQUEST_CONCURRENCY" type="number" class="form-control" placeholder="20"/>
             </div>
             <div class="clearfix"></div>
 

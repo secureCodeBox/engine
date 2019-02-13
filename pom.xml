@@ -25,8 +25,8 @@
         </developer>
 
         <developer>
-            <id>rseedorf</id>
-            <name>Robert Seedorf</name>
+            <id>rseedorff</id>
+            <name>Robert Seedorff</name>
             <organization>iteratec GmbH</organization>
             <organizationUrl>https://www.iteratec.com</organizationUrl>
         </developer>
@@ -56,12 +56,13 @@
             IMPORTANT: camunda.version and camunda.spring.boot.starter.version must be compatible
             please see org.camunda.bpm.springboot.project:camunda-bpm-spring-boot-starter-root
          -->
-        <camunda.version>7.8.0</camunda.version>
-        <camunda.spring.boot.starter.version>2.3.0</camunda.spring.boot.starter.version>
+        <camunda.version>7.10.0</camunda.version>
+        <camunda.spring.boot.starter.version>3.2.0</camunda.spring.boot.starter.version>
         <!-- END IMPORTANT -->
 
-        <spring-boot.version>1.5.13.RELEASE</spring-boot.version>
+        <spring-boot.version>2.1.1.RELEASE</spring-boot.version>
         <swagger-version>2.9.0</swagger-version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <modules>
@@ -97,7 +98,13 @@
                 <type>pom</type>
             </dependency>
 
-            <!-- Add camunda spring boot stater classes -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-properties-migrator</artifactId>
+                <scope>runtime</scope>
+            </dependency>
+
+            <!-- Add camunda spring boot starter classes -->
             <dependency>
                 <groupId>org.camunda.bpm.springboot</groupId>
                 <artifactId>camunda-bpm-spring-boot-starter</artifactId>
@@ -117,7 +124,16 @@
                 <artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
                 <version>${camunda.spring.boot.starter.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-security</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-actuator</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.camunda.bpm.springboot</groupId>
                 <artifactId>camunda-bpm-spring-boot-starter-test</artifactId>
@@ -128,7 +144,13 @@
                 <groupId>org.camunda.bpm.extension.mockito</groupId>
                 <artifactId>camunda-bpm-mockito</artifactId>
                 <scope>test</scope>
-                <version>3.1.0</version>
+                <version>3.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.camunda.bpm.extension</groupId>
+                <artifactId>camunda-bpm-assert</artifactId>
+                <version>1.2</version> <!-- Use 2.0-alpha2 for the CMMN assertions preview! -->
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.camunda.bpm.extension</groupId>

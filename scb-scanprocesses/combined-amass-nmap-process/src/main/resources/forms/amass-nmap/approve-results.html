@@ -1,0 +1,108 @@
+<!--
+  ~ /*
+  ~ * SecureCodeBox (SCB)
+  ~ * Copyright 2015-2018 iteratec GmbH
+  ~ *
+  ~ * Licensed under the Apache License, Version 2.0 (the "License");
+  ~ * you may not use this file except in compliance with the License.
+  ~ * You may obtain a copy of the License at
+  ~ *
+  ~ * 	http://www.apache.org/licenses/LICENSE-2.0
+  ~ *
+  ~ * Unless required by applicable law or agreed to in writing, software
+  ~ * distributed under the License is distributed on an "AS IS" BASIS,
+  ~ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ * See the License for the specific language governing permissions and
+  ~ * limitations under the License.
+  ~ */
+  -->
+
+<form role="form" name="configure-reporting">
+
+    <script cam-script type="text/form-script">
+        camForm.on('form-loaded', function () {
+            camForm.variableManager.fetchVariable('PROCESS_CONTEXT');
+            camForm.variableManager.fetchVariable('PROCESS_TARGETS');
+            camForm.variableManager.fetchVariable('PROCESS_FINDINGS');
+            camForm.variableManager.fetchVariable('PROCESS_SCANNER_ID');
+        });
+
+        camForm.on('variables-restored', function () {
+            $scope.context = camForm.variableManager.variableValue('PROCESS_CONTEXT');
+            $scope.targets = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
+            $scope.portScannerResult = JSON.parse(camForm.variableManager.variableValue('PROCESS_FINDINGS'));
+            $scope.portScannerId = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
+
+            $scope.firstTarget = $scope.targets[0];
+            $scope.otherTargetsLength = $scope.targets.length - 1;
+
+            $scope.groupedResults = $scope.portScannerResult.reduce(
+                    function (carry, item) {
+                        if (!carry.hasOwnProperty(item.attributes.hostname)) {
+                            carry[item.attributes.hostname] = [];
+                        }
+                        carry[item.attributes.hostname].push(item);
+                        return carry;
+                    },
+                    {}
+            );
+        });
+    </script>
+
+    <h2>
+        Port scan results for subdomains of "{{ firstTarget.location }}"
+    </h2>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div>
+                <div>
+                    <label>Business Context:</label>
+                    <code>{{ context }}</code>
+                </div>
+            </div>
+
+            <div class="well well-sm" style="color: inherit;" ng-repeat="(address, host) in groupedResults">
+                <strong>Results for Host: {{ address }}</strong>
+                <table class="table table-striped">
+                    <tr>
+                        <th>Host:</th>
+                        <th>Port:</th>
+                        <th>Name:</th>
+                        <th>Protocol:</th>
+                        <th>State:</th>
+                    </tr>
+                    <tr class="danger" ng-repeat="port in host">
+                        <td>{{ address }} ({{ port.attributes.ip_address }})</td>
+                        <td>{{ (port.category === 'Open Port' || port.category === 'Http Header') ? port.attributes.port : '' }}</td>
+                        <td>{{ (port.category === 'Open Port' && !port.name) ? port.attributes.service : port.name}}</td>
+                        <td>{{ (port.category === 'Open Port' || port.category === 'Http Header') ? port.attributes.protocol : '' }}</td>
+                        <td>
+                            <span class="label" ng-if="port.category === 'Open Port'" ng-class="port.severity==='INFORMATIONAL'?'label-default':(port.severity==='MEDIUM'?'label-warning':'label-danger')">
+                                <i aria-hidden="true" class="glyphicon glyphicon-fire"></i>
+                                Open
+                            </span>
+                            <span class="label" ng-if="port.category === 'Http Header'" ng-class="port.severity==='INFORMATIONAL'?'label-default':(port.severity==='MEDIUM'?'label-warning':'label-danger')">
+                                <i aria-hidden="true" class="glyphicon glyphicon-fire"></i>
+                                {{ port.description.includes('missing') ? 'Missing' : 'Misconfigured' }}
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <h2>Approve Result</h2>
+            <!-- reporting configuration -->
+            <div class="form-group">
+                <label for="selectResultApproved">Approve Result</label>
+                <div id="selectResultApproved" class="controls">
+                    <!--select box -->
+                    <select required class="form-control" name="resultApproved" cam-variable-name="PROCESS_RESULT_APPROVED" cam-variable-type="String">
+                        <option value="approved" checked>Approved (Finished)</option>
+                        <option value="disapproved">Not Approved (Restart Scan)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

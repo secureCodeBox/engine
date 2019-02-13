@@ -8,6 +8,7 @@ cache:
   - "$HOME/.m2"
 install: true
 script:
+  - set -e
   - echo -en "travis_fold:start:Test\r"
   - mvn install -Pdependency-check
   - echo -en "travis_fold:end:Test\r"
@@ -17,6 +18,7 @@ script:
   - docker build -t $REPO:$TAG --build-arg="BUILD_DATE=$(date --rfc-3339=seconds)" --build-arg=VERSION=$TRAVIS_TAG --build-arg=COMMIT_ID=$TRAVIS_COMMIT --build-arg=BRANCH=$TRAVIS_BRANCH --build-arg=REPOSITORY_URL="https://github.com/secureCodeBox/engine" .
   - echo -en "travis_fold:end:Docker_Build\r"
   - docker images
+  - set +e
 
 deploy:
   - provider: script
@@ -24,7 +26,10 @@ deploy:
     script: bash .travis/deployDockerHub.sh
     on:
       all_branches: true
+      condition: $TRAVIS_PULL_REQUEST = false
 
 before_install:
-  - openssl aes-256-cbc -K $encrypted_e1e85fb8c151_key -iv $encrypted_e1e85fb8c151_iv
-    -in .travis/security_at_iteratec-signing.key.enc -out .travis/security_at_iteratec-signing.key -d
+  - if [ "$TRAVIS_PULL_REQUEST" = "false" ];
+     then bash -c "openssl aes-256-cbc -K $encrypted_e1e85fb8c151_key -iv $encrypted_e1e85fb8c151_iv
+       -in .travis/security_at_iteratec-signing.key.enc -out .travis/security_at_iteratec-signing.key -d";
+    fi

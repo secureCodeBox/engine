@@ -22,8 +22,9 @@ package io.securecodebox.persistence.elasticsearch;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.securecodebox.model.Report;
 import io.securecodebox.model.findings.Finding;
+import io.securecodebox.model.securitytest.SecurityTest;
+import io.securecodebox.persistence.PersistenceException;
 import io.securecodebox.persistence.PersistenceProvider;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.ActionListener;
@@ -37,8 +38,10 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.cluster.metadata.MetaDataCreateIndexService;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.indices.InvalidIndexNameException;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
@@ -55,10 +58,10 @@ import java.time.Instant;
 import java.util.*;
 
 /**
- * This component is responsible for persisting the scan-process results (reports) in elasticsearch (ES).
+ * This component is responsible for persisting the scan-process results in elasticsearch (ES).
  */
 @Component
-@ConditionalOnProperty(name = "securecodebox.persistence.provider", havingValue = "elasticsearch")
+@ConditionalOnProperty(name = "securecodebox.persistence.elasticsearch.enabled", havingValue = "true")
 public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElasticSearchPersistenceProvider.class);
@@ -67,8 +70,8 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     private String indexPrefix;
     @Value("${securecodebox.persistence.elasticsearch.index.pattern:yyyy-MM-dd}")
     private String indexDatePattern;
-    @Value("${securecodebox.persistence.elasticsearch.index.type.report:report}")
-    private String indexTypeNameForReports;
+    @Value("${securecodebox.persistence.elasticsearch.index.type.security_test:security_test}")
+    private String indexTypeNameForSecurityTests;
     @Value("${securecodebox.persistence.elasticsearch.index.type.finding:finding_entry}")
     private String indexTypeNameForFindings;
 
@@ -93,7 +96,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     private RestHighLevelClient highLevelClient;
     private boolean connected = false;
 
-    private String tenantId = null;
+    private String context = null;
 
     /**
      * Initializes elasticsearch with an secureCodeBox specific index based on the configuration settings.
@@ -138,14 +141,14 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     }
 
     @Override
-    public void persist(Report report) {
+    public void persist(SecurityTest securityTest) throws PersistenceException{
 
-        if (report == null) {
-            LOG.warn("The given Report is null, nothing to persist.");
+        if (securityTest == null) {
+            LOG.warn("The given SecurityTest is null, nothing to persist.");
             return;
         }
 
-        this.tenantId = report.getTenantId();
+        this.context = securityTest.getContext();
 
         if (!initialized || !indexExists(getElasticIndexName())) {
             init();
@@ -159,106 +162,114 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         }
 
         //Second check because, if the initialization wasn't successful, it's still false
-        if (initialized && connected) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            try {
-
-                boolean uuidAlreadyExists = true;
-
-                /*
-                This is typically executed only once because we create random UUIDs which are very unlikely to ever be
-                the same (if not impossible)
-                Anyway, we want to make sure that we don't save the same Report Id twice
-                 */
-                while (uuidAlreadyExists) {
-                    SearchRequest searchRequest = new SearchRequest();
-                    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-                    searchSourceBuilder.query(QueryBuilders.matchQuery("report_id", report.getId()));
-                    searchRequest.source(searchSourceBuilder);
-                    SearchResponse searchResponse = highLevelClient.search(searchRequest);
-                    LOG.debug("Search Response Status: " + searchResponse.status());
-                    boolean searchFailure = searchResponse.isTimedOut() || (searchResponse.status() != RestStatus.OK);
-                    if (searchFailure) {
-                        LOG.error("Searching the index failed. Skipping persisting...");
-                        return;
-                    }
-
-                    LOG.debug("SearchResponse from UUID Search: " + searchResponse);
-                    if (searchResponse.getHits().totalHits > 0) {
-                        report.setId(UUID.randomUUID());
-                        uuidAlreadyExists = true;
-                    } else {
-                        uuidAlreadyExists = false;
-                    }
-                }
-
-                String dateTimeFormatToPersist = "yyyy-MM-dd'T'HH:mm:ss";
-                BulkRequest bulkRequest = new BulkRequest();
-
-                Map<String, Object> reportAsMap = serializeAndRemove(report, "findings", "execution");
-                Map<String, Object> execution = serializeAndRemove(report.getExecution(), "findings", "scanners");
-                execution.put("scanners",
-                        serializeAndRemoveList(report.getExecution().getScanners(), "findings", "rawFindings"));
-                reportAsMap.put("type", indexTypeNameForReports);
-                reportAsMap.put("execution", execution);
-                // TODO remove this. scanner_type is accessible via execution attribute
-                reportAsMap.put("scanner_type", report.getExecution().getScannerType());
-                reportAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
-
-                LOG.debug("Timestamp: " + new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
-
-                IndexRequest reportIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
-                reportIndexRequest.source(objectMapper.writeValueAsString(reportAsMap), XContentType.JSON);
-
-                // Persist the execution as report document in elasticsearch
-                bulkRequest.add(reportIndexRequest);
-
-                // Create a lightweight execution object copy without targets for the findings persistence (to prevent duplicated data)
-                Map<String, Object> findingExecution = new HashMap<>(execution);
-                findingExecution.remove("targets");
-
-                // Persist each finding as a separate document in elasticsearch (with a lightweight object)
-                for (Finding f : report.getFindings()) {
-
-                    Map<String, Object> findingAsMap = serializeAndRemove(f);
-                    findingAsMap.put("type", indexTypeNameForFindings);
-                    findingAsMap.put("execution", findingExecution);
-                    findingAsMap.put("report_id", report.getId());
-                    // TODO remove this. scanner_type is accessible via execution attribute
-                    findingAsMap.put("scanner_type", report.getExecution().getScannerType());
-                    findingAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
-
-                    IndexRequest findingIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
-                    findingIndexRequest.source(objectMapper.writeValueAsString(findingAsMap), XContentType.JSON);
-                    bulkRequest.add(findingIndexRequest);
-                }
-
-                LOG.info("Persisting Report and Findings...");
-                highLevelClient.bulkAsync(bulkRequest, new ActionListener<BulkResponse>() {
-                    @Override
-                    public void onResponse(BulkResponse bulkItemResponses) {
-                        if (bulkItemResponses.hasFailures()) {
-                            LOG.warn("Some findings may not have been persisted correctly, because the bulkResponse has some errors!");
-                            LOG.warn(bulkItemResponses.buildFailureMessage());
-                        } else {
-                            LOG.debug("Successfully saved findings to " + getElasticIndexName());
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Exception e) {
-                        LOG.error("Error persisting findings. Reason: " + e);
-                        LOG.error(e.getMessage());
-                    }
-                });
-            } catch (JsonProcessingException e) {
-                LOG.error(e.getMessage());
-            } catch (IOException e) {
-                LOG.error(e.getMessage());
-            }
-        } else {
+        if(!initialized || !connected){
             LOG.error("Could not persist data. It seems like ElasticSearch is not reachable.");
+            throw new ElasticsearchPersistenceException("Could not persist data. It seems like ElasticSearch is not reachable.");
         }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            checkForSecurityTestIdExistence(securityTest);
+
+            String dateTimeFormatToPersist = "yyyy-MM-dd'T'HH:mm:ss";
+            BulkRequest bulkRequest = new BulkRequest();
+
+            Map<String, Object> securityTestAsMap = serializeAndRemove(securityTest, "report");
+            securityTestAsMap.put("id", securityTest.getId().toString());
+            securityTestAsMap.put("type", indexTypeNameForSecurityTests);
+
+            String timestamp = new SimpleDateFormat(dateTimeFormatToPersist).format(new Date());
+            securityTestAsMap.put("@timestamp", timestamp);
+            LOG.debug("Timestamp: {}", timestamp);
+
+            IndexRequest securityTestIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
+            securityTestIndexRequest.source(objectMapper.writeValueAsString(securityTestAsMap), XContentType.JSON);
+
+            // Persist the execution as securityTest document in elasticsearch
+            bulkRequest.add(securityTestIndexRequest);
+
+            // Persist each finding as a separate document in elasticsearch (with a lightweight object)
+            for (Finding f : securityTest.getReport().getFindings()) {
+
+                Map<String, Object> findingAsMap = serializeAndRemove(f);
+
+                findingAsMap.put("id", f.getId().toString());
+                findingAsMap.put("type", indexTypeNameForFindings);
+                findingAsMap.put("security_test_id", securityTest.getId().toString());
+                findingAsMap.put("security_test_name", securityTest.getName());
+                findingAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
+
+                IndexRequest findingIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
+                findingIndexRequest.source(objectMapper.writeValueAsString(findingAsMap), XContentType.JSON);
+                bulkRequest.add(findingIndexRequest);
+            }
+
+            LOG.info("Persisting SecurityTest and Findings...");
+            highLevelClient.bulkAsync(bulkRequest, new ActionListener<BulkResponse>() {
+                @Override
+                public void onResponse(BulkResponse bulkItemResponses) {
+                    if (bulkItemResponses.hasFailures()) {
+                        LOG.warn("Some findings may not have been persisted correctly, because the bulkResponse has some errors!");
+                        LOG.warn(bulkItemResponses.buildFailureMessage());
+                    } else {
+                        LOG.debug("Successfully saved findings to {}", getElasticIndexName());
+                    }
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    LOG.error("Error persisting findings. Reason: {}", e);
+                    throw new ElasticsearchPersistenceException("Request to persist findings to elasticsearch failed.", e);
+                }
+            });
+        } catch (JsonProcessingException e) {
+            LOG.error(e.getMessage());
+        } catch (IOException e) {
+            throw new ElasticsearchPersistenceException("Error while persisting securityTest into elasticsearch. Is elasticsearch available?.", e);
+        }
+    }
+
+    /**
+     * Check if there already is a securityTest persisted under the same uuid.
+     * This is extremely unlikely but theoretically possible.
+     *
+     * @param securityTest
+     */
+    private void checkForSecurityTestIdExistence(SecurityTest securityTest) throws ElasticsearchPersistenceException, DuplicateUuidException, IOException {
+        SearchRequest searchRequest = new SearchRequest();
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(QueryBuilders.matchQuery("id.keyword", securityTest.getId().toString()));
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse = highLevelClient.search(searchRequest);
+        LOG.debug("Search Response Status: {}", searchResponse.status());
+        boolean searchFailure = searchResponse.isTimedOut() || (searchResponse.status() != RestStatus.OK);
+
+        if (searchFailure) {
+            LOG.error("Searching the index failed. Creating Incident...");
+            throw new ElasticsearchPersistenceException("Could not query elasticsearch, to check for preexisting securityTest ids.");
+        }
+
+        LOG.debug("SearchResponse from UUID Search: {}", searchResponse);
+        if (searchResponse.getHits().totalHits > 0) {
+            LOG.error("Tried persisting securityTest '{}' but there is already a securityTest saved for that id.", securityTest.getId());
+            throw new DuplicateUuidException("There already exists a persisted securityTest for id: '"  + securityTest.getId() + "'. Cannot persist a new one under the same id.");
+        }
+    }
+
+    private String transformContextForElasticsearchIndexCompatibility() {
+        if (context != null && !context.equals("")) {
+            String contextIndex = context.toLowerCase().replace(" ", "_") + "_";
+
+            try {
+                MetaDataCreateIndexService.validateIndexOrAliasName(contextIndex, InvalidIndexNameException::new);
+                return contextIndex;
+            } catch (InvalidIndexNameException e) {
+                LOG.error("Context name contains chars which are invalid to be a elasticsearch index name. Please change the context name so that a context specific index can be created.");
+                throw new InvalidContextNameForElkIndex("Cannot create custom elasticsearch index for context name '" + context + "' as it contains reserved characters. Please choose a different context name.");
+            }
+        }
+
+        return "";
     }
 
     /**
@@ -268,10 +279,9 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
      */
     private String getElasticIndexName() {
         Date date = Date.from(Instant.now());
-
         SimpleDateFormat sdf = new SimpleDateFormat(indexDatePattern);
         String dateAsString = sdf.format(date);
-        String indexName = indexPrefix + "_" + ((tenantId != null) ? tenantId + "_" : "") + dateAsString;
+        String indexName = indexPrefix + "_" + transformContextForElasticsearchIndexCompatibility() + dateAsString;
         return indexName.toLowerCase();
     }
 
@@ -355,7 +365,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
      */
     private void initializeKibana() throws IOException {
 
-        if(!indexExists(".kibana")) {
+        if (!indexExists(".kibana")) {
 
             LOG.info(".kibana index doesn't exist. Creating it...");
 
@@ -396,7 +406,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
             List<KibanaData> dataElements = objectMapper.readValue(kibanaFile, objectMapper.getTypeFactory().constructCollectionType(List.class, KibanaData.class));
 
             BulkRequest bulkRequest = new BulkRequest();
-            for(KibanaData data: dataElements) {
+            for (KibanaData data : dataElements) {
                 IndexRequest indexRequest = new IndexRequest(data.getIndex(), data.getType(), data.getId());
                 indexRequest.source(objectMapper.writeValueAsString(data.getSource()), XContentType.JSON);
                 bulkRequest.add(indexRequest);
@@ -409,9 +419,9 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                         DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(".kibana");
                         try {
                             highLevelClient.indices().delete(deleteIndexRequest);
-                        }
-                        catch (IOException e){
+                        } catch (IOException e) {
                             LOG.error("Kibana index could not be successfully deleted and might be corrupted. Delete it manually!");
+                            throw new ElasticsearchPersistenceException("Kibana index could not be successfully deleted and might be corrupted. Delete it manually!", e);
                         }
                     } else {
                         LOG.info("Successfully created kibana data");
@@ -423,8 +433,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                     LOG.error("Could not import kibana data");
                 }
             });
-        }
-        else {
+        } else {
             LOG.info("Index Pattern securecodebox* exists. Assuming that searches, visualizations and dashboards are imported already.");
         }
     }

@@ -28,12 +28,13 @@
             <groupId>org.camunda.bpm.springboot</groupId>
             <artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId>
         </dependency>
-
-        <!-- Enable the camunda rest API -->
         <dependency>
-            <groupId>org.camunda.bpm.springboot</groupId>
-            <artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-properties-migrator</artifactId>
+            <scope>runtime</scope>
+            <version>2.0.2.RELEASE</version>
         </dependency>
+
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
@@ -41,6 +42,14 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
         <!-- Camunda Spin lib -->
@@ -67,6 +76,11 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-jdbc</artifactId>
         </dependency>
 
         <dependency>
@@ -159,13 +173,19 @@
                 </dependency>
                 <dependency>
                     <groupId>io.securecodebox.scanprocesses</groupId>
-                    <artifactId>combined-nmap-nikto-scanprocess</artifactId>
+                    <artifactId>combined-amass-nmap-process</artifactId>
                     <version>0.0.1-SNAPSHOT</version>
                     <scope>runtime</scope>
                 </dependency>
                 <dependency>
                     <groupId>io.securecodebox.scanprocesses</groupId>
-                    <artifactId>test-process</artifactId>
+                    <artifactId>subdomain-scanner-process</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                    <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                    <groupId>io.securecodebox.scanprocesses</groupId>
+                    <artifactId>combined-nmap-nikto-scanprocess</artifactId>
                     <version>0.0.1-SNAPSHOT</version>
                     <scope>runtime</scope>
                 </dependency>
@@ -175,7 +195,38 @@
                     <version>0.0.1-SNAPSHOT</version>
                     <scope>runtime</scope>
                 </dependency>
+                <dependency>
+                    <groupId>io.securecodebox.persistenceproviders</groupId>
+                    <artifactId>s3-persistenceprovider</artifactId>
+                    <version>0.0.1-SNAPSHOT</version>
+                    <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                    <groupId>io.securecodebox.persistenceproviders</groupId>
+                    <artifactId>defectdojo-persistenceprovider</artifactId>
+                    <version>0.0.1-SNAPSHOT</version>
+                    <scope>runtime</scope>
+                </dependency>
             </dependencies>
+            <dependencyManagement>
+                <!-- This will overwrite spring boot dependency management version for elastic search-->
+                <dependencies>
+                    <dependency>
+                        <groupId>org.elasticsearch</groupId>
+                        <artifactId>elasticsearch</artifactId>
+                        <version>6.4.3</version>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+        <profile>
+            <id>test</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <activatedProfiles>test</activatedProfiles>
+            </properties>
         </profile>
         <profile>
             <id>docs</id>

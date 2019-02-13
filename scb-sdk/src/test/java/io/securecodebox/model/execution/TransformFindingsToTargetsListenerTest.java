@@ -88,7 +88,7 @@ public class TransformFindingsToTargetsListenerTest {
             doAnswer(invocationOnMock -> {
                 ObjectMapper objectMapper = new ObjectMapper();
                 List<Target> targets = objectMapper.readValue(
-                        (String)invocationOnMock.getArgumentAt(1, ObjectValue.class).getValue(),
+                        (String)((ObjectValue)invocationOnMock.getArgument(1)).getValue(),
                         objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
                 checkTargets(targets, expectedResult);
                 return null;

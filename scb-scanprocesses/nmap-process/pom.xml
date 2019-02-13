@@ -45,6 +45,10 @@
             <version>0.3.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.camunda.bpm.extension</groupId>
+            <artifactId>camunda-bpm-assert</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

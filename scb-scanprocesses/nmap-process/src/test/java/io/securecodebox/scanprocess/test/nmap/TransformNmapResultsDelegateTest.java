@@ -86,7 +86,7 @@ public class TransformNmapResultsDelegateTest {
         MockitoAnnotations.initMocks(this);
         when(execution.getFindings()).thenReturn(findingCache);
         doAnswer((Answer) invocation -> {
-            findingCache.add(invocation.getArgumentAt(0, Finding.class));
+            findingCache.add(invocation.getArgument(0));
             return Void.TYPE;
         }).when(execution).appendFinding(any());
 

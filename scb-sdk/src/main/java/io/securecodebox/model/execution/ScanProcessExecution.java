@@ -26,55 +26,59 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.securecodebox.model.findings.Finding;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
  * @since 08.03.18
  */
-@JsonPropertyOrder({ "id", "context", "automated", "scanners" })
+@JsonPropertyOrder({ "id", "context", "automated", "scanners", "scanner_type", "tenant_id" })
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public interface ScanProcessExecution {
 
     @JsonProperty("id")
-    public abstract UUID getId();
+    UUID getId();
 
     @JsonProperty("context")
-    public abstract void setContext(String id);
+    void setContext(String context);
 
     @JsonProperty("context")
-    public abstract String getContext();
+    String getContext();
 
     @JsonIgnore
-    public abstract boolean isRunning();
+    boolean isRunning();
 
     @JsonIgnore
-    public abstract boolean hasScanner();
+    boolean hasScanner();
 
-    public void addScanner(Scanner scanner);
+    void addScanner(Scanner scanner);
 
     @JsonProperty("scanners")
-    public List<Scanner> getScanners();
+    List<Scanner> getScanners();
 
     /**
      * Returns the Findings directly attached to the process. Mostly it's the result of the last step.
      * If the process has multiple scanners you might want to have a look into getScanners().
      */
     @JsonProperty("findings")
-    public abstract List<Finding> getFindings();
+    List<Finding> getFindings();
 
     /**
      * Returns the RawFindings directly attached to the process. Mostly it's the result of the last step.
      */
     @JsonIgnore
-    public abstract String getRawFindings();
+    String getRawFindings();
 
     /**
      * Clears the Findings currently attached to this process findings.
      * If the process has multiple scanners you might want to have a look into getScanners().
      */
     @JsonIgnore
-    public abstract void clearFindings();
+    void clearFindings();
+
+    @JsonProperty("metaData")
+    Map<String,String> getMetaData();
 
     /**
      * Attaches Findings directly to the process instance.
@@ -83,21 +87,23 @@ public interface ScanProcessExecution {
      * @param finding
      */
     @JsonIgnore
-    public abstract void appendFinding(Finding finding);
+    void appendFinding(Finding finding);
 
-    public abstract void appendTarget(Target target);
+    void appendTarget(Target target);
 
-    public abstract List<Target> getTargets();
+    List<Target> getTargets();
 
-    public abstract void clearTargets();
+    void clearTargets();
 
     @JsonProperty("automated")
-    public abstract boolean isAutomated();
-
-    @JsonProperty("tenant_id")
-    public abstract String getTenantId();
+    boolean isAutomated();
 
     @JsonProperty("scanner_type")
-    public abstract String getScannerType();
+    String getScannerType();
 
+    @JsonProperty("name")
+    String getName();
+
+    @JsonProperty("name")
+    void setName(String name);
 }
