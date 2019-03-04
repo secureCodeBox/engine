@@ -19,6 +19,7 @@
 
 package io.securecodebox.scanprocess;
 
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -29,6 +30,7 @@ import org.springframework.context.annotation.Configuration;
  * @author Rüdiger Heins - iteratec GmbH
  * @since 09.05.18
  */
+@ComponentScan("io.securecodebox.scanprocesses")
 @Configuration
 public class ProcessInitConfiguration {
 }
