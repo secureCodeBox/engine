@@ -56,6 +56,14 @@ To build the docker image run:
 
 `docker build -t IMAGE_NAME .`
 
+## Generating the API Docs
+
+1. Run the Test Suite using the `docs` maven profile. This should generate a `swagger.json` file in the target folder of the `scb-engine` module.
+2. Run the `swagger2markup:convertSwagger2markup` plugin. This should generate a file located `docs/api-doc.md` in the target folder of the `scb-engine module.
+3. Copy the `api-doc.md` file to the user guide of the [secureCodeBox](https://github.com/secureCodeBox/secureCodeBox) repository.
+4. Re Add the first disclaimer paragraph pointing the users to the dynamic swagger docs of their engine. This has to be added by hand as it is not included in the export.
+5. (Optional) Reformat the generated markdown file with prettier to improve the generated markdown output.
+
 # Guidelines & Standards
 Well boring yes - but please read our [guidelines and naming standards][scb-developer-guidelines].
 
