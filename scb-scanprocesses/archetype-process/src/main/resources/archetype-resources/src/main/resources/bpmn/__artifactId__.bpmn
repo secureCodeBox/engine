@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.12.0">
-  <bpmn:process id="$processTopic" name="$processName Scan" isExecutable="true" camunda:versionTag="1" camunda:historyTimeToLive="30">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.7.2">
+  <bpmn:process id="$processTopic" name="$processName" isExecutable="true" camunda:versionTag="1" camunda:historyTimeToLive="30">
     <bpmn:startEvent id="StartEvent_Configure" name="target configured" camunda:formKey="embedded:app:forms/default/configure-target.html">
       <bpmn:extensionElements>
         <camunda:executionListener delegateExpression="${dollar}{checkForAutomatedRunListener}" event="start" />
@@ -14,10 +14,10 @@
       <bpmn:outgoing>SequenceFlow_TargetConfigured</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="SequenceFlow_TargetConfigured" sourceRef="StartEvent_Configure" targetRef="ServiceTask_DoScan" />
-    <bpmn:endEvent id="EndEvent_FinishedPortscan" name="Port Scan finished">
+    <bpmn:endEvent id="EndEvent_FinishedScan" name="Scan finished">
       <bpmn:incoming>SequenceFlow_SummaryCreated</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="SequenceFlow_PortscanFinished" name="finished&#10;&#10;" sourceRef="ServiceTask_DoScan" targetRef="ExclusiveGateway_AutomatedFinish" />
+    <bpmn:sequenceFlow id="SequenceFlow_ScanFinished" name="finished&#10;&#10;" sourceRef="ServiceTask_DoScan" targetRef="ExclusiveGateway_AutomatedFinish" />
     <bpmn:sequenceFlow id="SequenceFlow_ResultReviewed" name="result reviewed" sourceRef="UserTask_ApproveResults" targetRef="ExclusiveGateway_ResultApproved" />
     <bpmn:userTask id="UserTask_ApproveResults" name="Review scan results" camunda:formKey="embedded:app:forms/default/approve-results.html" camunda:candidateGroups="_securebox_admin, _securebox_productowner, _securebox_developer, approver">
       <bpmn:extensionElements>
@@ -35,7 +35,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${dollar}{PROCESS_RESULT_APPROVED == 'approved'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_AutomatedFinish" name="is automated run?">
-      <bpmn:incoming>SequenceFlow_PortscanFinished</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_ScanFinished</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_ManualFinish</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_AutomatedFinish</bpmn:outgoing>
     </bpmn:exclusiveGateway>
@@ -48,9 +48,9 @@
     <bpmn:serviceTask id="ServiceTask_DoScan" name="Run the scan" camunda:asyncBefore="true" camunda:type="external" camunda:topic="$processTopic">
       <bpmn:extensionElements />
       <bpmn:incoming>SequenceFlow_TargetConfigured</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_PortscanFinished</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_ScanFinished</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_SummaryCreated" name="summary created" sourceRef="ServiceTask_CreateSummary" targetRef="EndEvent_FinishedPortscan" />
+    <bpmn:sequenceFlow id="SequenceFlow_SummaryCreated" name="summary created" sourceRef="ServiceTask_CreateSummary" targetRef="EndEvent_FinishedScan" />
     <bpmn:serviceTask id="ServiceTask_CreateSummary" name="Create Report Summary" camunda:asyncBefore="true" camunda:delegateExpression="${summaryGeneratorDelegate}">
       <bpmn:extensionElements />
       <bpmn:incoming>SequenceFlow_ResultApproved</bpmn:incoming>
@@ -68,9 +68,8 @@
       <bpmn:outgoing>SequenceFlow_1i44eck</bpmn:outgoing>
     </bpmn:task>
     <bpmn:sequenceFlow id="SequenceFlow_1i44eck" sourceRef="DoesNothingTask" targetRef="ServiceTask_CreateSummary" />
-    <bpmn:textAnnotation id="TextAnnotation_0lm3esn">
-      <bpmn:text>results in a generic format</bpmn:text>
-    </bpmn:textAnnotation>
+    <bpmn:textAnnotation id="TextAnnotation_0lm3esn">    <bpmn:text>results in a generic format</bpmn:text>
+</bpmn:textAnnotation>
     <bpmn:association id="Association_16qrr9w" sourceRef="DataObjectReference_0vhjx0n" targetRef="TextAnnotation_0lm3esn" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
@@ -82,28 +81,28 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_093mevy_di" bpmnElement="SequenceFlow_TargetConfigured">
-        <di:waypoint x="64" y="328" />
-        <di:waypoint x="142" y="328" />
+        <di:waypoint xsi:type="dc:Point" x="64" y="328" />
+        <di:waypoint xsi:type="dc:Point" x="142" y="328" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="58" y="303" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="EndEvent_07weexy_di" bpmnElement="EndEvent_FinishedPortscan">
+      <bpmndi:BPMNShape id="EndEvent_07weexy_di" bpmnElement="EndEvent_FinishedScan">
         <dc:Bounds x="1309" y="186" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1357" y="197" width="90" height="12" />
+          <dc:Bounds x="1369" y="197" width="67" height="12" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_0kjlgbs_di" bpmnElement="SequenceFlow_PortscanFinished">
-        <di:waypoint x="242" y="328" />
-        <di:waypoint x="437" y="328" />
+      <bpmndi:BPMNEdge id="SequenceFlow_0kjlgbs_di" bpmnElement="SequenceFlow_ScanFinished">
+        <di:waypoint xsi:type="dc:Point" x="242" y="328" />
+        <di:waypoint xsi:type="dc:Point" x="437" y="328" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="316" y="420" width="38" height="37" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_00fmvcb_di" bpmnElement="SequenceFlow_ResultReviewed">
-        <di:waypoint x="673" y="202" />
-        <di:waypoint x="760" y="204" />
+        <di:waypoint xsi:type="dc:Point" x="673" y="202" />
+        <di:waypoint xsi:type="dc:Point" x="760" y="204" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="794" y="176" width="74" height="12" />
         </bpmndi:BPMNLabel>
@@ -118,8 +117,8 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0gjifhk_di" bpmnElement="SequenceFlow_ResultApproved">
-        <di:waypoint x="810" y="204" />
-        <di:waypoint x="1077" y="204" />
+        <di:waypoint xsi:type="dc:Point" x="810" y="204" />
+        <di:waypoint xsi:type="dc:Point" x="1077" y="204" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="999" y="150" width="76" height="13" />
         </bpmndi:BPMNLabel>
@@ -131,18 +130,18 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_17bwrf0_di" bpmnElement="SequenceFlow_ManualFinish">
-        <di:waypoint x="462" y="303" />
-        <di:waypoint x="462" y="204" />
-        <di:waypoint x="573" y="204" />
+        <di:waypoint xsi:type="dc:Point" x="462" y="303" />
+        <di:waypoint xsi:type="dc:Point" x="462" y="204" />
+        <di:waypoint xsi:type="dc:Point" x="573" y="204" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="379" y="246" width="65" height="37" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0s3limw_di" bpmnElement="SequenceFlow_AutomatedFinish">
-        <di:waypoint x="462" y="353" />
-        <di:waypoint x="462" y="456" />
-        <di:waypoint x="1127" y="456" />
-        <di:waypoint x="1127" y="244" />
+        <di:waypoint xsi:type="dc:Point" x="462" y="353" />
+        <di:waypoint xsi:type="dc:Point" x="462" y="456" />
+        <di:waypoint xsi:type="dc:Point" x="1127" y="456" />
+        <di:waypoint xsi:type="dc:Point" x="1127" y="244" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="803" y="503" width="81" height="12" />
         </bpmndi:BPMNLabel>
@@ -151,8 +150,8 @@
         <dc:Bounds x="142" y="288" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_150f8k2_di" bpmnElement="SequenceFlow_SummaryCreated">
-        <di:waypoint x="1177" y="204" />
-        <di:waypoint x="1309" y="204" />
+        <di:waypoint xsi:type="dc:Point" x="1177" y="204" />
+        <di:waypoint xsi:type="dc:Point" x="1309" y="204" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1187" y="209" width="85" height="13" />
         </bpmndi:BPMNLabel>
@@ -170,13 +169,13 @@
         <dc:Bounds x="379" y="420" width="102" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_16qrr9w_di" bpmnElement="Association_16qrr9w">
-        <di:waypoint x="324" y="394" />
-        <di:waypoint x="379" y="420" />
+        <di:waypoint xsi:type="dc:Point" x="324" y="394" />
+        <di:waypoint xsi:type="dc:Point" x="379" y="420" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1z0e6c0_di" bpmnElement="SequenceFlow_ResultRejected">
-        <di:waypoint x="785" y="179" />
-        <di:waypoint x="785" y="65" />
-        <di:waypoint x="995" y="65" />
+        <di:waypoint xsi:type="dc:Point" x="785" y="179" />
+        <di:waypoint xsi:type="dc:Point" x="785" y="65" />
+        <di:waypoint xsi:type="dc:Point" x="995" y="65" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="849" y="96" width="70" height="13" />
         </bpmndi:BPMNLabel>
@@ -185,9 +184,9 @@
         <dc:Bounds x="995" y="25" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_1i44eck_di" bpmnElement="SequenceFlow_1i44eck">
-        <di:waypoint x="1095" y="65" />
-        <di:waypoint x="1127" y="65" />
-        <di:waypoint x="1127" y="164" />
+        <di:waypoint xsi:type="dc:Point" x="1095" y="65" />
+        <di:waypoint xsi:type="dc:Point" x="1127" y="65" />
+        <di:waypoint xsi:type="dc:Point" x="1127" y="164" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1066" y="43.5" width="90" height="13" />
         </bpmndi:BPMNLabel>
