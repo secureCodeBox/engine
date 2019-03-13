@@ -10,7 +10,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>combined-nmap-nikto-scanprocess</artifactId>
+    <artifactId>combined-nmap-nikto-process</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <dependencies>
