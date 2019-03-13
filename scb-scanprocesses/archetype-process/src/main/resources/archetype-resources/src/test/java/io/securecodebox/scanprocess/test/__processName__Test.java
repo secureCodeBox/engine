@@ -72,7 +72,7 @@ import static org.mockito.Mockito.when;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@Deployment(resources = "bpmn/${processName}_process.bpmn")
+@Deployment(resources = "bpmn/${artifactId}.bpmn")
 public class ${processName}Test {
 
     //Define the Process Activity IDs
