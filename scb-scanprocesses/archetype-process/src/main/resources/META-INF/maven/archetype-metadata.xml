@@ -23,8 +23,8 @@
                       name="scanprocess-quickstart">
 
     <requiredProperties>
-        <requiredProperty key="processName" validationRegex="[a-zA-Z_-]*"/>
-        <requiredProperty key="processTopic" validationRegex="[a-zA-Z0-9_-]*"/>
+        <requiredProperty key="processName" validationRegex="[A-Z][a-zA-Z]*"/>
+        <requiredProperty key="processTopic" validationRegex="[a-z0-9-]*"/>
     </requiredProperties>
 
     <fileSets>
