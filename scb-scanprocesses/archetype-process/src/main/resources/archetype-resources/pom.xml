@@ -33,6 +33,7 @@
     <artifactId>${artifactId}</artifactId>
     <version>${version}</version>
 
+
     <dependencies>
         <dependency>
             <groupId>io.securecodebox.core</groupId>

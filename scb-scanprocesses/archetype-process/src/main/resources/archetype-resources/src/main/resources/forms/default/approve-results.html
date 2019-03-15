@@ -37,7 +37,7 @@
         });
     </script>
     <div ng-repeat="target in scannerTargets">
-        <h2>Portscan results for "{{ target.name }}"</h2>
+        <h2>scan results for "{{ target.name }}"</h2>
 
         <div class="row">
             <div class="col-xs-2"><label>Scanner Id:</label></div>
@@ -70,29 +70,30 @@
                             <td>{{ result.category }}</td>
                             <td>
                                 <div ng-switch on="result.severity">
-                                <span class="label label-danger" ng-switch-when="HIGH">
-                                    <i aria-hidden="true"
-                                       class="glyphicon glyphicon-fire"></i>
-                                    {{ result.severity }}
-                                </span>
+                                  <span class="label label-danger" ng-switch-when="HIGH">
+                                      <i aria-hidden="true"
+                                         class="glyphicon glyphicon-fire"></i>
+                                      {{ result.severity }}
+                                  </span>
 
-                                    <span class="label label-warning" ng-switch-when="MEDIUM">
-                                    <i aria-hidden="true"
-                                       class="glyphicon glyphicon glyphicon-alert"></i>
-                                    {{ result.severity }}
-                                </span>
+                                  <span class="label label-warning" ng-switch-when="MEDIUM">
+                                      <i aria-hidden="true"
+                                         class="glyphicon glyphicon glyphicon-alert"></i>
+                                      {{ result.severity }}
+                                  </span>
 
-                                    <span class="label label-primary" ng-switch-when="LOW">
-                                    <i aria-hidden="true"
-                                       class="glyphicon glyphicon-warning-sign"></i>
-                                    {{ result.severity }}
-                                </span>
+                                  <span class="label label-primary" ng-switch-when="LOW">
+                                      <i aria-hidden="true"
+                                         class="glyphicon glyphicon-warning-sign"></i>
+                                      {{ result.severity }}
+                                  </span>
 
-                                    <span class="label label-default" ng-switch-default>
-                                    <i aria-hidden="true"
-                                       class="glyphicon glyphicon-education"></i>
-                                    {{ result.severity }}
-                                </span>
+                                  <span class="label label-default" ng-switch-default>
+                                      <i aria-hidden="true"
+                                         class="glyphicon glyphicon-education"></i>
+                                      {{ result.severity }}
+                                  </span>
+                                </div>
 
                             </td>
                             <td> {{ result.reference.id }}
