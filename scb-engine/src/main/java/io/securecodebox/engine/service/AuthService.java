@@ -22,6 +22,7 @@ import io.securecodebox.engine.auth.InsufficientAuthorizationException;
 import io.securecodebox.engine.model.PermissionType;
 import io.securecodebox.engine.model.ResourceType;
 import org.camunda.bpm.engine.identity.Group;
+import org.camunda.bpm.engine.identity.Tenant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -46,13 +47,13 @@ public class AuthService {
     private String authType;
 
     public void checkAuthorizedFor(String resourceId, ResourceType resource, PermissionType permission) throws InsufficientAuthorizationException {
-        if(AUTH_DISABLED_TYPE.equals(authType)){
+        if (AUTH_DISABLED_TYPE.equals(authType)) {
             return;
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if(authentication == null) {
+        if (authentication == null) {
             throw new InsufficientAuthorizationException("No authentication provided.");
         }
 
@@ -66,7 +67,7 @@ public class AuthService {
                 .collect(Collectors.toList());
 
         boolean isAuthorized = false;
-        if(resourceId == null){
+        if (resourceId == null) {
             isAuthorized = engine.getAuthorizationService().isUserAuthorized(
                     authentication.getName(),
                     groups,
@@ -86,12 +87,41 @@ public class AuthService {
         LOG.trace("Current User '{}' with groups: '{}'", authentication.getName(), groups);
         LOG.trace("Access check for [{}, {}, {}]: {}", resourceId, resource, permission, isAuthorized);
 
-        if(!isAuthorized){
+        if (!isAuthorized) {
             throw new InsufficientAuthorizationException("User is not authorised to perform this action.");
         }
     }
 
     public void checkAuthorizedFor(ResourceType resource, PermissionType permission) throws InsufficientAuthorizationException {
         this.checkAuthorizedFor(null, resource, permission);
+    }
+
+    public org.camunda.bpm.engine.impl.identity.Authentication getAuthentication() {
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        List<String> groups = engine
+                .getIdentityService()
+                .createGroupQuery()
+                .groupMember(userId)
+                .list()
+                .stream()
+                .map(Group::getId)
+                .collect(Collectors.toList());
+
+        List<String> tenants = engine
+                .getIdentityService()
+                .createTenantQuery()
+                .userMember(userId)
+                .list()
+                .stream()
+                .map(Tenant::getId)
+                .collect(Collectors.toList());
+
+        return new org.camunda.bpm.engine.impl.identity.Authentication(
+                userId,
+                groups,
+                tenants
+        );
+
     }
 }

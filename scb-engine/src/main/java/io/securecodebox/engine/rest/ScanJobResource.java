@@ -36,6 +36,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
+import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.exception.NotFoundException;
 import org.camunda.bpm.engine.externaltask.ExternalTask;
@@ -74,6 +75,9 @@ public class ScanJobResource {
 
     @Autowired
     ProcessEngine engine;
+
+    @Autowired
+    IdentityService identityService;
 
     @Autowired
     AuthService authService;
@@ -117,11 +121,13 @@ public class ScanJobResource {
             )
             @PathVariable UUID scannerId
     ) {
-        try{
+        try {
             authService.checkAuthorizedFor(ResourceType.SECURITY_TEST, PermissionType.READ);
-        }catch (InsufficientAuthenticationException e){
+        } catch (InsufficientAuthenticationException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+
+        identityService.setAuthentication(authService.getAuthentication());
 
         ExternalTaskQueryBuilder externalTaskQueryBuilder = engine.getExternalTaskService()
                 .fetchAndLock(1, scannerId.toString());
@@ -132,8 +138,10 @@ public class ScanJobResource {
             ScanConfiguration config = new ScanConfiguration();
             config.setJobId(UUID.fromString(result.getId()));
             config.setTargets(getVariableListFromJsonField(result, DefaultFields.PROCESS_TARGETS, Target.class));
+            identityService.clearAuthentication();
             return ResponseEntity.ok(config);
         } else {
+            identityService.clearAuthentication();
             return ResponseEntity.noContent().build();
         }
     }
@@ -167,9 +175,9 @@ public class ScanJobResource {
             @PathVariable UUID id,
             @Valid @RequestBody ScanResult result
     ) {
-        try{
+        try {
             authService.checkAuthorizedFor(id.toString(), ResourceType.SECURITY_TEST, PermissionType.UPDATE);
-        } catch (InsufficientAuthenticationException e){
+        } catch (InsufficientAuthenticationException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -188,7 +196,11 @@ public class ScanJobResource {
         }
 
         try {
+            identityService.setAuthentication(authService.getAuthentication());
+
             engine.getExternalTaskService().complete(id.toString(), result.getScannerId().toString(), variables);
+
+            identityService.clearAuthentication();
         } catch (NotFoundException e) {
             LOG.info("Can not find taskId {}", id, e);
             return ResponseEntity.notFound().build();
@@ -227,9 +239,9 @@ public class ScanJobResource {
             @PathVariable UUID id,
             @Valid @RequestBody ScanFailure result
     ) {
-        try{
+        try {
             authService.checkAuthorizedFor(id.toString(), ResourceType.SECURITY_TEST, PermissionType.UPDATE);
-        }catch (InsufficientAuthenticationException e){
+        } catch (InsufficientAuthenticationException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -250,9 +262,14 @@ public class ScanJobResource {
             retriesLeft = externalTask.getRetries() - 1;
         }
 
+        identityService.setAuthentication(authService.getAuthentication());
+
         engine.getExternalTaskService()
                 .handleFailure(id.toString(), result.getScannerId().toString(), result.getErrorMessage(),
                         result.getErrorDetails(), retriesLeft, 1000);
+
+        identityService.clearAuthentication();
+
         return ResponseEntity.ok().build();
     }
 

@@ -32,6 +32,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
+import org.camunda.bpm.engine.IdentityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,9 @@ public class SecurityTestResource {
 
     @Autowired
     AuthService authService;
+
+    @Autowired
+    IdentityService identityService;
 
     @Autowired
     SecurityTestService securityTestService;
@@ -139,11 +143,15 @@ public class SecurityTestResource {
             }
         }
 
+        identityService.setAuthentication(authService.getAuthentication());
+
         List<UUID> processInstances = new LinkedList<>();
 
         for (SecurityTestConfiguration securityTest : securityTests) {
             processInstances.add(securityTestService.startSecurityTest(securityTest));
         }
+
+        identityService.clearAuthentication();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(processInstances);
     }
@@ -204,17 +212,23 @@ public class SecurityTestResource {
         }
 
         try {
+            identityService.setAuthentication(authService.getAuthentication());
+
             SecurityTest securityTest = securityTestService.getCompletedSecurityTest(id);
 
             if (securityTest.isFinished()) {
                 return ResponseEntity.status(HttpStatus.OK).body(securityTest);
             }
-            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT).body(securityTest);
 
+            identityService.clearAuthentication();
+
+            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT).body(securityTest);
         } catch (SecurityTestService.SecurityTestNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (SecurityTestService.SecurityTestErroredException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+
+
     }
 }

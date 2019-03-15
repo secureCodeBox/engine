@@ -28,6 +28,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
+import org.camunda.bpm.engine.IdentityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +52,9 @@ public class SecurityTestDefinitionResource {
 
     @Autowired
     AuthService authService;
+
+    @Autowired
+    IdentityService identityService;
 
     @ApiOperation(value = "Lists all available securityTest definitions.",
             authorizations = {
@@ -81,6 +85,8 @@ public class SecurityTestDefinitionResource {
     })
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<String>> getSecurityTestDefinitions(){
+        identityService.setAuthentication(authService.getAuthentication());
+
         try {
             authService.checkAuthorizedFor(ResourceType.SECURITY_TEST_DEFINITION, PermissionType.READ);
         }catch (InsufficientAuthorizationException e){
@@ -88,6 +94,8 @@ public class SecurityTestDefinitionResource {
         }
 
         List<String> securityTests = securityTestService.getAvailableSecurityTestDefinitionNames();
+
+        identityService.clearAuthentication();
 
         return ResponseEntity.ok(securityTests);
     }
