@@ -179,13 +179,13 @@
                 </dependency>
                 <dependency>
                     <groupId>io.securecodebox.scanprocesses</groupId>
-                    <artifactId>subdomain-scanner-process</artifactId>
+                    <artifactId>amass-process</artifactId>
                     <version>1.0-SNAPSHOT</version>
                     <scope>runtime</scope>
                 </dependency>
                 <dependency>
                     <groupId>io.securecodebox.scanprocesses</groupId>
-                    <artifactId>combined-nmap-nikto-scanprocess</artifactId>
+                    <artifactId>combined-nmap-nikto-process</artifactId>
                     <version>0.0.1-SNAPSHOT</version>
                     <scope>runtime</scope>
                 </dependency>

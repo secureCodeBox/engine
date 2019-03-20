@@ -60,7 +60,7 @@
         <camunda.spring.boot.starter.version>3.2.0</camunda.spring.boot.starter.version>
         <!-- END IMPORTANT -->
 
-        <spring-boot.version>2.1.1.RELEASE</spring-boot.version>
+        <spring-boot.version>2.1.2.RELEASE</spring-boot.version>
         <swagger-version>2.9.0</swagger-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
