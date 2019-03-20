@@ -12,3 +12,5 @@ logging.level.io.securecodebox: DEBUG
 securecodebox.rest.user.scanner-default:
   user-id: defaultScanner
   password: scan
+
+securecodebox.persistence.elasticsearch.enabled: "true"

@@ -23,7 +23,7 @@
         <module>combined-amass-nmap-process</module>
         <module>arachni-process</module>
         <module>subdomain-scanner-process</module>
-    <module>mozilla-ssh-process</module>
+    <module>ssh-process</module>
   </modules>
 
 </project>

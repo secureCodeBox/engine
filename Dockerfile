@@ -20,7 +20,7 @@ COPY --from=builder ./scb-scanprocesses/combined-nmap-nikto-scanprocess/target/c
 COPY --from=builder ./scb-scanprocesses/sslyze-process/target/sslyze-process-0.0.1-SNAPSHOT.jar /scb-engine/lib/
 COPY --from=builder ./scb-scanprocesses/arachni-process/target/arachni-process-1.0-SNAPSHOT.jar /scb-engine/lib/
 COPY --from=builder ./scb-scanprocesses/subdomain-scanner-process/target/subdomain-scanner-process-1.0-SNAPSHOT.jar /scb-engine/lib/
-COPY --from=builder ./scb-scanprocesses/mozilla-ssh-process/target/mozilla-ssh-process-1.0-SNAPSHOT.jar /scb-engine/lib/
+COPY --from=builder ./scb-scanprocesses/ssh-process/target/ssh-process-1.0-SNAPSHOT.jar /scb-engine/lib/
 
 COPY --from=builder ./scb-persistenceproviders/elasticsearch-persistenceprovider/target/elasticsearch-persistenceprovider-0.0.1-SNAPSHOT-jar-with-dependencies.jar /scb-engine/lib/
 COPY --from=builder ./scb-persistenceproviders/s3-persistenceprovider/target/s3-persistenceprovider-0.0.1-SNAPSHOT-jar-with-dependencies.jar /scb-engine/lib/

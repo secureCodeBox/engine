@@ -51,7 +51,7 @@
       <bpmn:outgoing>SequenceFlow_PortscanFinished</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_SummaryCreated" name="summary created" sourceRef="ServiceTask_CreateSummary" targetRef="EndEvent_FinishedPortscan" />
-    <bpmn:serviceTask id="ServiceTask_CreateSummary" name="Create Report Summary" camunda:asyncBefore="true" camunda:delegateExpression="${dollar}{${component}_SummaryGeneratorDelegate}">
+    <bpmn:serviceTask id="ServiceTask_CreateSummary" name="Create Report Summary" camunda:asyncBefore="true" camunda:delegateExpression="${dollar}{${summaryGeneratorDelegate}">
       <bpmn:extensionElements />
       <bpmn:incoming>SequenceFlow_ResultApproved</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1i44eck</bpmn:incoming>

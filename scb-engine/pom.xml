@@ -191,7 +191,7 @@
                 </dependency>
                 <dependency>
                     <groupId>io.securecodebox.scanprocesses</groupId>
-                    <artifactId>mozilla-ssh-process</artifactId>
+                    <artifactId>ssh-process</artifactId>
                     <version>1.0-SNAPSHOT</version>
                     <scope>runtime</scope>
                 </dependency>
