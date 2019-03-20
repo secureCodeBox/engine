@@ -197,6 +197,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                 findingAsMap.put("type", indexTypeNameForFindings);
                 findingAsMap.put("security_test_id", securityTest.getId().toString());
                 findingAsMap.put("security_test_name", securityTest.getName());
+                findingAsMap.put("security_test_context", securityTest.getContext());
                 findingAsMap.put("@timestamp", new SimpleDateFormat(dateTimeFormatToPersist).format(new Date()));
 
                 IndexRequest findingIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
