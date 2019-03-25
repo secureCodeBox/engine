@@ -51,7 +51,6 @@
         });
 
         camForm.on('submit', function () {
-            camForm.variableManager.destroyVariable('PROCESS_TARGETS');
             camForm.variableManager.createVariable({
                 name: 'PROCESS_TARGETS',
                 type: 'Object',
