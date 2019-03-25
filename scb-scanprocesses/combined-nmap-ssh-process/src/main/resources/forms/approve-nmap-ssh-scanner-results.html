@@ -1,0 +1,121 @@
+<!--
+  ~ /*
+  ~ * SecureCodeBox (SCB)
+  ~ * Copyright 2015-2018 iteratec GmbH
+  ~ *
+  ~ * Licensed under the Apache License, Version 2.0 (the "License");
+  ~ * you may not use this file except in compliance with the License.
+  ~ * You may obtain a copy of the License at
+  ~ *
+  ~ * 	http://www.apache.org/licenses/LICENSE-2.0
+  ~ *
+  ~ * Unless required by applicable law or agreed to in writing, software
+  ~ * distributed under the License is distributed on an "AS IS" BASIS,
+  ~ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ * See the License for the specific language governing permissions and
+  ~ * limitations under the License.
+  ~ */
+  -->
+
+<form role="form" name="configure-reporting">
+
+	<script cam-script type="text/form-script">
+        camForm.on('form-loaded', function () {
+
+            camForm.variableManager.fetchVariable('PROCESS_CONTEXT');
+            camForm.variableManager.fetchVariable('PROCESS_TARGETS');
+            camForm.variableManager.fetchVariable('PROCESS_FINDINGS');
+            camForm.variableManager.fetchVariable('PROCESS_SCANNER_ID');
+        });
+
+        camForm.on('variables-restored', function () {
+            $scope.context = camForm.variableManager.variableValue('PROCESS_CONTEXT');
+
+            $scope.scannerId = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
+            $scope.scannerResult = JSON.parse(camForm.variableManager.variableValue('PROCESS_FINDINGS'));
+            $scope.scannerTargets = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
+        });
+    </script>
+	<div ng-repeat="target in scannerTargets">
+		<h2>SSH scan results for "{{ target.name }}"</h2>
+
+		<div class="row">
+			<div class="col-xs-2"><label>Scanner Id:</label></div>
+			<div class="col-xs-10">{{ scannerId }}</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-2"><label>Target Location:</label></div>
+			<div class="col-xs-10">{{ target.location }}</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-2"><label>Business Context:</label></div>
+			<div class="col-xs-10">{{ context }}</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="well well-sm"
+					 style="color: inherit;">
+					<table class="table table-striped">
+						<tr>
+							<th>Host:</th>
+							<th>Name:</th>
+							<th>Category:</th>
+							<th>Severity:</th>
+							<th>Reference:</th>
+						</tr>
+						<tr class="danger" ng-repeat="result in scannerResult">
+							<td>{{ result.location }}</td>
+							<td>{{ result.name }}</td>
+							<td>{{ result.category }}</td>
+							<td>
+								<div ng-switch on="result.severity">
+                                <span class="label label-danger" ng-switch-when="HIGH">
+                                    <i aria-hidden="true"
+									   class="glyphicon glyphicon-fire"></i>
+                                    {{ result.severity }}
+                                </span>
+
+									<span class="label label-warning" ng-switch-when="MEDIUM">
+                                    <i aria-hidden="true"
+									   class="glyphicon glyphicon glyphicon-alert"></i>
+                                    {{ result.severity }}
+                                </span>
+
+									<span class="label label-primary" ng-switch-when="LOW">
+                                    <i aria-hidden="true"
+									   class="glyphicon glyphicon-warning-sign"></i>
+                                    {{ result.severity }}
+                                </span>
+
+									<span class="label label-default" ng-switch-default>
+                                    <i aria-hidden="true"
+									   class="glyphicon glyphicon-education"></i>
+                                    {{ result.severity }}
+                                </span>
+								</div>
+							</td>
+							<td> {{ result.reference.id }}
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<h2>Approve Result</h2>
+	<!-- reporting configuration -->
+	<div class="form-group">
+		<label for="selectResultApproved">Approve Result</label>
+		<div id="selectResultApproved" class="controls">
+			<!--select box -->
+			<select required
+					class="form-control"
+					name="resultApproved"
+					cam-variable-name="PROCESS_RESULT_APPROVED"
+					cam-variable-type="String">
+				<option value="approved" checked>Approved (finished)</option>
+				<option value="disapproved">Not Approved (finished)</option>
+			</select>
+		</div>
+	</div>
+</form>
