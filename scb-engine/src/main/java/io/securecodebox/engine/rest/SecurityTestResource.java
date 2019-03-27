@@ -143,15 +143,11 @@ public class SecurityTestResource {
             }
         }
 
-        identityService.setAuthentication(authService.getAuthentication());
-
         List<UUID> processInstances = new LinkedList<>();
 
         for (SecurityTestConfiguration securityTest : securityTests) {
             processInstances.add(securityTestService.startSecurityTest(securityTest));
         }
-
-        identityService.clearAuthentication();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(processInstances);
     }

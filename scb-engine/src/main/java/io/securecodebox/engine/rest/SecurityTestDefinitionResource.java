@@ -85,8 +85,6 @@ public class SecurityTestDefinitionResource {
     })
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<String>> getSecurityTestDefinitions(){
-        identityService.setAuthentication(authService.getAuthentication());
-
         try {
             authService.checkAuthorizedFor(ResourceType.SECURITY_TEST_DEFINITION, PermissionType.READ);
         }catch (InsufficientAuthorizationException e){
@@ -94,8 +92,6 @@ public class SecurityTestDefinitionResource {
         }
 
         List<String> securityTests = securityTestService.getAvailableSecurityTestDefinitionNames();
-
-        identityService.clearAuthentication();
 
         return ResponseEntity.ok(securityTests);
     }

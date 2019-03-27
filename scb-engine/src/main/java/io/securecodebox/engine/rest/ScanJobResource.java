@@ -77,9 +77,6 @@ public class ScanJobResource {
     ProcessEngine engine;
 
     @Autowired
-    IdentityService identityService;
-
-    @Autowired
     AuthService authService;
 
     @Autowired
@@ -126,9 +123,6 @@ public class ScanJobResource {
         } catch (InsufficientAuthenticationException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
-        identityService.setAuthentication(authService.getAuthentication());
-
         ExternalTaskQueryBuilder externalTaskQueryBuilder = engine.getExternalTaskService()
                 .fetchAndLock(1, scannerId.toString());
         externalTaskQueryBuilder.topic(topic, LOCK_DURATION_MS);
@@ -138,10 +132,8 @@ public class ScanJobResource {
             ScanConfiguration config = new ScanConfiguration();
             config.setJobId(UUID.fromString(result.getId()));
             config.setTargets(getVariableListFromJsonField(result, DefaultFields.PROCESS_TARGETS, Target.class));
-            identityService.clearAuthentication();
             return ResponseEntity.ok(config);
         } else {
-            identityService.clearAuthentication();
             return ResponseEntity.noContent().build();
         }
     }
@@ -196,11 +188,7 @@ public class ScanJobResource {
         }
 
         try {
-            identityService.setAuthentication(authService.getAuthentication());
-
             engine.getExternalTaskService().complete(id.toString(), result.getScannerId().toString(), variables);
-
-            identityService.clearAuthentication();
         } catch (NotFoundException e) {
             LOG.info("Can not find taskId {}", id, e);
             return ResponseEntity.notFound().build();
@@ -262,13 +250,9 @@ public class ScanJobResource {
             retriesLeft = externalTask.getRetries() - 1;
         }
 
-        identityService.setAuthentication(authService.getAuthentication());
-
         engine.getExternalTaskService()
                 .handleFailure(id.toString(), result.getScannerId().toString(), result.getErrorMessage(),
                         result.getErrorDetails(), retriesLeft, 1000);
-
-        identityService.clearAuthentication();
 
         return ResponseEntity.ok().build();
     }
