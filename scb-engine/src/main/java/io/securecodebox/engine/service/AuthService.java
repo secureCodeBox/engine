@@ -40,11 +40,15 @@ public class AuthService {
     private static String AUTH_DISABLED_TYPE = "none";
     private static final Logger LOG = LoggerFactory.getLogger(AuthService.class);
 
-    @Autowired
     ProcessEngine engine;
 
     @Value("${securecodebox.rest.auth}")
     private String authType;
+
+    @Autowired
+    public AuthService(ProcessEngine engine){
+        this.engine = engine;
+    }
 
     public void checkAuthorizedFor(String resourceId, ResourceType resource, PermissionType permission) throws InsufficientAuthorizationException {
         if (AUTH_DISABLED_TYPE.equals(authType)) {

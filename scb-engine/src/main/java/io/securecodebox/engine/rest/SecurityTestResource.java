@@ -43,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.validation.Valid;
 import java.util.*;
@@ -145,8 +146,12 @@ public class SecurityTestResource {
 
         List<UUID> processInstances = new LinkedList<>();
 
-        for (SecurityTestConfiguration securityTest : securityTests) {
-            processInstances.add(securityTestService.startSecurityTest(securityTest));
+        try {
+            for (SecurityTestConfiguration securityTest : securityTests) {
+                processInstances.add(securityTestService.startSecurityTest(securityTest));
+            }
+        } catch (InsufficientAuthorizationException e){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(processInstances);

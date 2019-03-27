@@ -20,6 +20,7 @@ package io.securecodebox.engine.tenancy;
 
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.engine.auth.InsufficientAuthorizationException;
+import io.securecodebox.engine.service.AuthService;
 import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.impl.cfg.multitenancy.TenantIdProvider;
 import org.camunda.bpm.engine.impl.cfg.multitenancy.TenantIdProviderCaseInstanceContext;
@@ -30,6 +31,7 @@ import org.camunda.bpm.engine.impl.identity.Authentication;
 import org.camunda.bpm.engine.variable.VariableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -73,11 +75,11 @@ public class CustomTenantIdProvider implements TenantIdProvider {
             return null;
         }
 
-        IdentityService identityService = Context.getProcessEngineConfiguration().getIdentityService();
-        Authentication currentAuthentication = identityService.getCurrentAuthentication();
+        AuthService authService = new AuthService(Context.getProcessEngineConfiguration().getProcessEngine());
+        Authentication currentAuthentication = authService.getAuthentication();
 
         if (currentAuthentication == null) {
-            throw new IllegalStateException("no authentication");
+            throw new InsufficientAuthorizationException("No authenticated user");
         }
 
         boolean userIsMemberOfTenant = currentAuthentication.getTenantIds().stream().anyMatch(tenant -> tenant.equals(specifiedTenant));

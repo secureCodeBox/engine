@@ -19,6 +19,7 @@
 package io.securecodebox.engine.service;
 
 import io.securecodebox.constants.DefaultFields;
+import io.securecodebox.engine.auth.InsufficientAuthorizationException;
 import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.rest.Report;
@@ -65,7 +66,7 @@ public class SecurityTestService {
         }
     }
 
-    public UUID startSecurityTest(SecurityTestConfiguration securityTest){
+    public UUID startSecurityTest(SecurityTestConfiguration securityTest) throws InsufficientAuthorizationException {
         Map<String, Object> values = new HashMap<>();
 
         List<Target> targets = new LinkedList<>();
