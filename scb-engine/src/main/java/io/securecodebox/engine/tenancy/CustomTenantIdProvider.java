@@ -18,6 +18,8 @@
  */
 package io.securecodebox.engine.tenancy;
 
+import io.securecodebox.constants.DefaultFields;
+import io.securecodebox.engine.auth.InsufficientAuthorizationException;
 import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.impl.cfg.multitenancy.TenantIdProvider;
 import org.camunda.bpm.engine.impl.cfg.multitenancy.TenantIdProviderCaseInstanceContext;
@@ -25,11 +27,10 @@ import org.camunda.bpm.engine.impl.cfg.multitenancy.TenantIdProviderHistoricDeci
 import org.camunda.bpm.engine.impl.cfg.multitenancy.TenantIdProviderProcessInstanceContext;
 import org.camunda.bpm.engine.impl.context.Context;
 import org.camunda.bpm.engine.impl.identity.Authentication;
+import org.camunda.bpm.engine.variable.VariableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class CustomTenantIdProvider implements TenantIdProvider {
@@ -42,42 +43,51 @@ public class CustomTenantIdProvider implements TenantIdProvider {
 
     @Override
     public String provideTenantIdForProcessInstance(TenantIdProviderProcessInstanceContext ctx) {
-        return getTenantIdOfCurrentAuthentication();
+        return getTenantIdOfCurrentAuthentication(ctx.getVariables());
     }
 
     @Override
     public String provideTenantIdForCaseInstance(TenantIdProviderCaseInstanceContext ctx) {
-        return getTenantIdOfCurrentAuthentication();
+        return getTenantIdOfCurrentAuthentication(ctx.getVariables());
     }
 
     @Override
     public String provideTenantIdForHistoricDecisionInstance(TenantIdProviderHistoricDecisionInstanceContext ctx) {
-        return getTenantIdOfCurrentAuthentication();
+        return getTenantIdOfCurrentAuthentication(ctx.getExecution().getVariablesTyped());
     }
 
-    protected String getTenantIdOfCurrentAuthentication() {
+    protected String getTenantIdOfCurrentAuthentication(VariableMap variableMap) {
+        LOG.debug("Determining if process should be started with a tenant.");
+
+        // Process doesn't have tenant variable -> was most likely started via camunda ui
+        if(!variableMap.containsKey(DefaultFields.PROCESS_TENANT.name())){
+            LOG.debug("Process started without tenant variable -> Process will not be associated with a tenant");
+            return null;
+        }
+
+        String specifiedTenant = variableMap.getValue(DefaultFields.PROCESS_TENANT.name(), String.class);
+
+        // Tenant Id was left empty or was explicitly set to null -> start without tenant
+        if(specifiedTenant ==  null || specifiedTenant.equals("")){
+            LOG.debug("Tenant field in target was not specified or set to null -> Process will not be associated with a tenant");
+            return null;
+        }
 
         IdentityService identityService = Context.getProcessEngineConfiguration().getIdentityService();
         Authentication currentAuthentication = identityService.getCurrentAuthentication();
 
-
-        if (currentAuthentication != null) {
-            LOG.debug("Fetching Tenant for user ${}", currentAuthentication.getUserId());
-
-            List<String> tenantIds = currentAuthentication.getTenantIds();
-            if (tenantIds.size() == 1) {
-
-                return tenantIds.get(0);
-
-            } else if (tenantIds.isEmpty()) {
-                throw new IllegalStateException("no authenticated tenant");
-
-            } else {
-                throw new IllegalStateException("more than one authenticated tenant");
-            }
-
-        } else {
+        if (currentAuthentication == null) {
             throw new IllegalStateException("no authentication");
+        }
+
+        boolean userIsMemberOfTenant = currentAuthentication.getTenantIds().stream().anyMatch(tenant -> tenant.equals(specifiedTenant));
+
+        if(userIsMemberOfTenant){
+            LOG.debug("Process started with tenant and user is member of tenant -> Process will be started with tenant '{}'", specifiedTenant);
+            return specifiedTenant;
+        } else {
+            LOG.debug("Process started with tenant, BUT user is NOT a member of the tenant -> Process will crash");
+            throw new InsufficientAuthorizationException("User is not a member of the specified Tenant");
         }
     }
 

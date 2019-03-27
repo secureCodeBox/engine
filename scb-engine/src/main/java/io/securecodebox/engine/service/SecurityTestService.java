@@ -77,6 +77,10 @@ public class SecurityTestService {
         values.put(DefaultFields.PROCESS_TARGETS.name(), ProcessVariableHelper.generateObjectValue(targets));
         values.put(DefaultFields.PROCESS_META_DATA.name(), securityTest.getMetaData());
 
+        if(securityTest.getTenant() != null){
+            values.put(DefaultFields.PROCESS_TENANT.name(), securityTest.getTenant());
+        }
+
         ProcessInstance instance = engine.getRuntimeService().startProcessInstanceByKey(securityTest.getProcessDefinitionKey(), values);
         return UUID.fromString(instance.getProcessInstanceId());
     }
