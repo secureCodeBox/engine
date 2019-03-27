@@ -59,6 +59,7 @@
 						<tr>
 							<th>Host:</th>
 							<th>Name:</th>
+							<th>Description:</th>
 							<th>Category:</th>
 							<th>Severity:</th>
 							<th>Reference:</th>
@@ -66,6 +67,7 @@
 						<tr class="danger" ng-repeat="result in scannerResult">
 							<td>{{ result.location }}</td>
 							<td>{{ result.name }}</td>
+							<td>{{result.description}}</td>
 							<td>{{ result.category }}</td>
 							<td>
 								<div ng-switch on="result.severity">

@@ -1,4 +1,4 @@
-package io.securecodebox.scanprocess.listener;
+package io.securecodebox.scanprocess;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,6 +10,7 @@ import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -24,11 +25,17 @@ public class NmapToSshTransformListener extends TransformFindingsToTargetsListen
             List<Target> newTargets = objectMapper.readValue(objectMapper.readValue(findingsAsString, String.class),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
 
+            List<Target> removeTargets = new ArrayList<>();
             for (Target target : newTargets) {
-                if (target.getAttributes().get("SERVICE").equals("ssh")){
+                if (target.getAttributes().get("service").equals("ssh")){
                     target.setLocation(target.getAttributes().get("hostname") + ":" + target.getAttributes().get("port"));
                 }
                 else {
+                    removeTargets.add(target);
+                }
+            }
+            if(removeTargets != null){
+                for(Target target : removeTargets){
                     newTargets.remove(target);
                 }
             }

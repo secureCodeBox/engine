@@ -33,7 +33,10 @@
 
             $scope.targetList = [{
                 name: camForm.variableManager.variableValue('DEFAULT_TARGET_NAME'),
-                location: camForm.variableManager.variableValue('DEFAULT_TARGET_LOCATION')
+                location: camForm.variableManager.variableValue('DEFAULT_TARGET_LOCATION'),
+                attributes: {
+                    NMAP_PARAMETERS: "--version-all"
+                    }
             }];
 
             $scope.checkForEnter = function ($event) {
@@ -114,22 +117,6 @@
                            ng-maxlength="50"
                            ng-model="context"
                            name="context" />
-                </div>
-            </div>
-
-            <!-- port scanner configuration -->
-            <div class="form-group">
-                <label for="selectPortScannerConfigurationType">Type of the scanner configuration</label>
-                <div class="controls">
-                    <!--select box -->
-                    <select required id="selectPortScannerConfigurationType"
-                            class="form-control"
-                            name="configurationType"
-                            cam-variable-name="CONFIGURATION_TYPE"
-                            cam-variable-type="String">
-                        <option value="default" checked>Default</option>
-                        <option value="advanced">Advanced</option>
-                    </select>
                 </div>
             </div>
         </div>
