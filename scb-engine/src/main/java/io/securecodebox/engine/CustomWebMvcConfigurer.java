@@ -41,11 +41,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Configuration
 public class CustomWebMvcConfigurer implements WebMvcConfigurer {
-    @Autowired
-    IdentityService identityService;
-
-    @Autowired
-    AuthService authService;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
