@@ -29,7 +29,7 @@
     </parent>
 
     <groupId>io.securecodebox.scanprocesses</groupId>
-    <artifactId>subdomain-scanner-process</artifactId>
+    <artifactId>amass-process</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
