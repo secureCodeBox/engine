@@ -28,7 +28,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
-import org.camunda.bpm.engine.IdentityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,9 +51,6 @@ public class SecurityTestDefinitionResource {
 
     @Autowired
     AuthService authService;
-
-    @Autowired
-    IdentityService identityService;
 
     @ApiOperation(value = "Lists all available securityTest definitions.",
             authorizations = {
