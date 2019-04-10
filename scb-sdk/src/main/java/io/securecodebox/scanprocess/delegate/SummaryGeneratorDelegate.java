@@ -54,7 +54,6 @@ public class SummaryGeneratorDelegate implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution delegateExecution) {
-
         List<Finding> findings = new LinkedList<>(ProcessVariableHelper.readListFromValue(
                 (String) delegateExecution.getVariable(DefaultFields.PROCESS_FINDINGS.name()), Finding.class));
         removeDuplicates(findings);
