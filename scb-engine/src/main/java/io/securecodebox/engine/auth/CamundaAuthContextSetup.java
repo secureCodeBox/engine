@@ -51,23 +51,28 @@ public class CamundaAuthContextSetup extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) {
-        LOG.debug("Init: Camunda Auth Contex Setup Filter");
+        LOG.debug("Init: Camunda Auth Context Setup Filter");
         http.antMatcher("/box/**").addFilterAfter(new CamundaAuthContextSetupFilter(), FilterSecurityInterceptor.class);
     }
 
-    /**
-     * Sets up the Camunda Authentication Context before the Resource gets executed
-     */
     private class CamundaAuthContextSetupFilter extends GenericFilterBean {
+
+        /**
+         * Sets up the Camunda Authentication Context before the Resource gets executed
+         */
         @Override
         public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-            LOG.debug("Setting up Camunda Auth Context for request");
-
-            identityService.clearAuthentication();
-
             identityService.setAuthentication(authService.getAuthentication());
 
             filterChain.doFilter(servletRequest, servletResponse);
+        }
+
+        /**
+         * Tears down the Camunda Authentication Context after the Resource got executed
+         */
+        @Override
+        public void destroy(){
+            identityService.clearAuthentication();
         }
     }
 }
