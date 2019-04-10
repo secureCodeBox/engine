@@ -213,15 +213,11 @@ public class SecurityTestResource {
         }
 
         try {
-            identityService.setAuthentication(authService.getAuthentication());
-
             SecurityTest securityTest = securityTestService.getCompletedSecurityTest(id);
 
             if (securityTest.isFinished()) {
                 return ResponseEntity.status(HttpStatus.OK).body(securityTest);
             }
-
-            identityService.clearAuthentication();
 
             return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT).body(securityTest);
         } catch (SecurityTestService.SecurityTestNotFoundException e) {
@@ -229,7 +225,5 @@ public class SecurityTestResource {
         } catch (SecurityTestService.SecurityTestErroredException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
-
     }
 }
