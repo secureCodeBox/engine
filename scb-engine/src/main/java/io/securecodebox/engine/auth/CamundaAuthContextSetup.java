@@ -25,24 +25,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
-import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
-@Order(1231231)
 @ConditionalOnProperty(name = "securecodebox.rest.auth", havingValue = "basic auth")
-public class CamundaAuthContextSetup extends WebSecurityConfigurerAdapter {
+public class CamundaAuthContextSetup implements WebMvcConfigurer {
     private static final Logger LOG = LoggerFactory.getLogger(CamundaAuthContextSetup.class);
 
     @Autowired
@@ -52,28 +47,28 @@ public class CamundaAuthContextSetup extends WebSecurityConfigurerAdapter {
     private AuthService authService;
 
     @Override
-    public void configure(HttpSecurity http) {
-        LOG.debug("Init: Camunda Auth Context Setup Filter");
-        http.antMatcher("/box/**").addFilterAfter(new CamundaAuthContextSetupFilter(), FilterSecurityInterceptor.class);
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new CamundaAuthContextSetupInterceptor()).addPathPatterns("/box/**");
     }
 
-    private class CamundaAuthContextSetupFilter extends GenericFilterBean {
+    private class CamundaAuthContextSetupInterceptor implements HandlerInterceptor {
 
-        /**
-         * Sets up the Camunda Authentication Context before the Resource gets executed
-         */
         @Override
-        public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        public boolean preHandle(
+                HttpServletRequest request,
+                HttpServletResponse response,
+                Object handler) {
             identityService.setAuthentication(authService.getAuthentication());
 
-            filterChain.doFilter(servletRequest, servletResponse);
+            return true;
         }
 
-        /**
-         * Tears down the Camunda Authentication Context after the Resource got executed
-         */
         @Override
-        public void destroy(){
+        public void postHandle(
+                HttpServletRequest request,
+                HttpServletResponse response,
+                Object handler,
+                ModelAndView modelAndView) {
             identityService.clearAuthentication();
         }
     }
