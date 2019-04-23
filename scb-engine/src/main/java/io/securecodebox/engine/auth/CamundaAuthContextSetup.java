@@ -51,6 +51,10 @@ public class CamundaAuthContextSetup implements WebMvcConfigurer {
         registry.addInterceptor(new CamundaAuthContextSetupInterceptor()).addPathPatterns("/box/**");
     }
 
+    /**
+     * Sets up the Camunda Authentication Context before
+     * the Resource gets executed and tears it down afterwards
+     */
     private class CamundaAuthContextSetupInterceptor implements HandlerInterceptor {
 
         @Override
