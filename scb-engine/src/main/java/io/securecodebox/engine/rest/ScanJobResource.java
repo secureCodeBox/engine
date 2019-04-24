@@ -56,9 +56,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * API / Endpoint for scan jobs.
@@ -125,7 +127,13 @@ public class ScanJobResource {
         }
         ExternalTaskQueryBuilder externalTaskQueryBuilder = engine.getExternalTaskService()
                 .fetchAndLock(1, scannerId.toString());
-        externalTaskQueryBuilder.topic(topic, LOCK_DURATION_MS);
+
+        List<String> tenantIds = authService.getAuthentication().getTenantIds();
+        if(tenantIds.isEmpty()){
+            externalTaskQueryBuilder.topic(topic, LOCK_DURATION_MS).withoutTenantId();
+        } else {
+            externalTaskQueryBuilder.topic(topic, LOCK_DURATION_MS).tenantIdIn(tenantIds.stream().toArray(String[]::new));
+        }
 
         LockedExternalTask result = Iterables.getFirst(externalTaskQueryBuilder.execute(), null);
         if (result != null) {
