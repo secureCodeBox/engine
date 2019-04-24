@@ -38,5 +38,12 @@
         <cve>CVE-2016-5425</cve>
     </suppress>
 
+    <!--
+    The issue CVE-2019-0232 seems to only affect Windows Systems. The engine isn' intended run run windows.
+        -->
+    <suppress>
+        <cve>CVE-2019-0232</cve>
+    </suppress>
+
 
 </suppressions>
