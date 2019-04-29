@@ -43,7 +43,15 @@ public abstract class AbstractSecurityTest {
     Target target;
 
     @JsonProperty
-    private Map<String,String> metaData;
+    @ApiModelProperty(
+            value = "A tenant is a camunda concept. A tenant can have both users and groups. It can be used to restrict the access to your security tests to members of the tenant.",
+            allowEmptyValue = true,
+            example = "team-1"
+    )
+    String tenant;
+
+    @JsonProperty
+    private Map<String, String> metaData;
 
     public String getContext() {
         return context;
@@ -75,5 +83,13 @@ public abstract class AbstractSecurityTest {
 
     public void setMetaData(Map<String, String> metaData) {
         this.metaData = metaData;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

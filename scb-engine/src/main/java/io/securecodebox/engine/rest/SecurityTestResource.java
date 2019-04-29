@@ -141,8 +141,12 @@ public class SecurityTestResource {
 
         List<UUID> processInstances = new LinkedList<>();
 
-        for (SecurityTestConfiguration securityTest : securityTests) {
-            processInstances.add(securityTestService.startSecurityTest(securityTest));
+        try {
+            for (SecurityTestConfiguration securityTest : securityTests) {
+                processInstances.add(securityTestService.startSecurityTest(securityTest));
+            }
+        } catch (InsufficientAuthorizationException e){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(processInstances);
@@ -209,8 +213,8 @@ public class SecurityTestResource {
             if (securityTest.isFinished()) {
                 return ResponseEntity.status(HttpStatus.OK).body(securityTest);
             }
-            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT).body(securityTest);
 
+            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT).body(securityTest);
         } catch (SecurityTestService.SecurityTestNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (SecurityTestService.SecurityTestErroredException e) {
