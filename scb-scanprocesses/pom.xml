@@ -24,6 +24,7 @@
         <module>arachni-process</module>
         <module>amass-process</module>
     <module>ssh-process</module>
+    <module>combined-universal</module>
   </modules>
 
 </project>
