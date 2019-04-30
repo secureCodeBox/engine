@@ -17,15 +17,16 @@
   ~ */
   -->
 
-<h2>Please configure the Port Scan</h2>
+<h2>Please configure the SSH Scan</h2>
 
-<form role="form" name="configure_target">
+<form role="form" name="configure-target">
 
     <script cam-script type="text/form-script">
         camForm.on('form-loaded', function () {
             camForm.variableManager.fetchVariable('DEFAULT_CONTEXT');
             camForm.variableManager.fetchVariable('DEFAULT_TARGET_NAME');
             camForm.variableManager.fetchVariable('DEFAULT_TARGET_LOCATION');
+            camForm.variableManager.fetchVariable('DEFAULT_TARGET_URI');
         });
 
         camForm.on('variables-fetched', function () {
@@ -37,7 +38,7 @@
             }];
 
             $scope.addTarget = function () {
-                $scope.targetList.push({'name': '', 'location': ''});
+                $scope.targetList.push({'name':'', 'location': ''});
             };
 
             $scope.checkForEnter = function ($event) {
@@ -66,38 +67,28 @@
     <div class="row">
 
         <div class="col-xs-12">
-            <h3>Portscan Target</h3>
+            <h3>SSH scan Target</h3>
 
             <!-- Target Hosts -->
             <div class="form-group">
                 <div class="controls row form-group" ng-repeat="target in targetList track by $index">
                     <div class="col-xs-5">
-                        <label>
-                            Target Name
-                        </label>
+                        <label>Target Name</label>
                         <input required class="form-control"
                                type="text"
-                               id="inputPortScannerName"
-                               name="inputPortScannerName"
                                placeholder="Public Site Name"
                                ng-minlength="2"
-                               ng-maxlength="128"
-                               ng-model="target.name"
-                        />
+                               ng-maxlength="30"
+                               ng-model="target.name"/>
                     </div>
                     <div class="col-xs-6">
-                        <label>
-                            Target Hosts
-                        </label>
+                        <label>Target Hosts</label>
                         <input required class="form-control"
                                type="text"
                                placeholder="Hostname/IP address"
-                               id="inputPortScannerTarget"
-                               name="inputPortScannerTarget"
-                               ng-minlength="2"
-                               ng-maxlength="256"
+                               ng-minlength="3"
+                               ng-maxlength="100"
                                ng-model="target.location"
-                               ng-pattern="/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-\/]*[A-Za-z0-9])$/"
                                ng-keydown="checkForEnter($event)"
                         />
                     </div>
@@ -111,7 +102,7 @@
                     </div>
                 </div>
                 <button class="btn btn-primary" ng-click="addTarget()">Add Host</button>
-                <code class="hidden2">{{ targetList }}</code>
+                <code class="hidden">{{ targetList }}</code>
             </div>
 
             <!-- Context (Project/Team/System...) -->
@@ -127,24 +118,7 @@
                            ng-required="false"
                            ng-maxlength="50"
                            ng-model="context"
-                           name="context"/>
-                </div>
-            </div>
-
-            <!-- port scanner configuration -->
-            <div class="form-group">
-                <label for="selectPortScannerConfigurationType">Type of the port scanner configuration</label>
-                <div class="controls">
-                    <!--select box -->
-                    <select required id="selectPortScannerConfigurationType"
-                            class="form-control"
-                            name="configurationType"
-                            cam-variable-name="NMAP_CONFIGURATION_TYPE"
-                            cam-variable-type="String">
-                        <option value="default" checked>Default</option>
-                        <option value="http-headers">Check HTTP-headers</option>
-                        <option value="advanced">Advanced</option>
-                    </select>
+                           name="context" />
                 </div>
             </div>
 

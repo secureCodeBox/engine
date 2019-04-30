@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.12.0">
+  <bpmn:process id="ssh-process" name="SSH Scan" isExecutable="true" camunda:versionTag="3" camunda:historyTimeToLive="30">
+    <bpmn:startEvent id="StartEvent_Configure" name="target configured" camunda:formKey="embedded:app:forms/ssh/configure-target.html">
+      <bpmn:extensionElements>
+        <camunda:executionListener delegateExpression="${checkForAutomatedRunListener}" event="start" />
+        <camunda:formData>
+          <camunda:formField id="DEFAULT_CONTEXT" type="string" defaultValue="${propertyValueProvider.defaultContext}" />
+          <camunda:formField id="DEFAULT_TARGET_NAME" type="string" defaultValue="${propertyValueProvider.defaultTargetName}" />
+          <camunda:formField id="DEFAULT_TARGET_LOCATION" type="string" defaultValue="${propertyValueProvider.defaultTargetLocation}" />
+          <camunda:formField id="DEFAULT_TARGET_URI" type="string" defaultValue="${propertyValueProvider.defaultTargetUri}" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>SequenceFlow_TargetConfigured</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_TargetConfigured" sourceRef="StartEvent_Configure" targetRef="ServiceTask_DoScan" />
+    <bpmn:endEvent id="EndEvent_FinishedPortscan" name="SSH Scan finished">
+      <bpmn:incoming>SequenceFlow_SummaryCreated</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_PortscanFinished" name="finished&#10;&#10;" sourceRef="ServiceTask_DoScan" targetRef="ExclusiveGateway_AutomatedFinish" />
+    <bpmn:sequenceFlow id="SequenceFlow_ResultReviewed" name="result reviewed" sourceRef="UserTask_ApproveResults" targetRef="ExclusiveGateway_ResultApproved" />
+    <bpmn:userTask id="UserTask_ApproveResults" name="Review scan results" camunda:formKey="embedded:app:forms/ssh/approve-results.html" camunda:candidateGroups="_securebox_admin, _securebox_productowner, _securebox_developer, approver">
+      <bpmn:extensionElements>
+        <camunda:formData />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_ManualFinish</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_ResultReviewed</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_ResultApproved" name="Is scan result approved?">
+      <bpmn:incoming>SequenceFlow_ResultReviewed</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_ResultApproved</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_ResultRejected</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_ResultApproved" name="result approved" sourceRef="ExclusiveGateway_ResultApproved" targetRef="ServiceTask_CreateSummary">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${PROCESS_RESULT_APPROVED == 'approved'}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_AutomatedFinish" name="is automated run?">
+      <bpmn:incoming>SequenceFlow_PortscanFinished</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_ManualFinish</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_AutomatedFinish</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_ManualFinish" name="manual finish&#10;&#10;" sourceRef="ExclusiveGateway_AutomatedFinish" targetRef="UserTask_ApproveResults">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_AUTOMATED == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_AutomatedFinish" name="automated finish" sourceRef="ExclusiveGateway_AutomatedFinish" targetRef="ServiceTask_CreateSummary">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_AUTOMATED == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="ServiceTask_DoScan" name="Run the scan" camunda:asyncBefore="true" camunda:type="external" camunda:topic="ssh_webserverscan">
+      <bpmn:extensionElements />
+      <bpmn:incoming>SequenceFlow_TargetConfigured</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_PortscanFinished</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_SummaryCreated" name="summary created" sourceRef="ServiceTask_CreateSummary" targetRef="EndEvent_FinishedPortscan" />
+    <bpmn:serviceTask id="ServiceTask_CreateSummary" name="Create Report Summary" camunda:asyncBefore="true" camunda:delegateExpression="${summaryGeneratorDelegate}">
+      <bpmn:extensionElements />
+      <bpmn:incoming>SequenceFlow_ResultApproved</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1i44eck</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_AutomatedFinish</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_SummaryCreated</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:dataObjectReference id="DataObjectReference_0vhjx0n" name="PROCESS_FINDINGS" dataObjectRef="DataObject_0lpf2y8" />
+    <bpmn:dataObject id="DataObject_0lpf2y8" />
+    <bpmn:sequenceFlow id="SequenceFlow_ResultRejected" name="result rejected" sourceRef="ExclusiveGateway_ResultApproved" targetRef="DoesNothingTask">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${PROCESS_RESULT_APPROVED == 'disapproved'}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:task id="DoesNothingTask" name="Does Nothing">
+      <bpmn:incoming>SequenceFlow_ResultRejected</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1i44eck</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="SequenceFlow_1i44eck" sourceRef="DoesNothingTask" targetRef="ServiceTask_CreateSummary" />
+    <bpmn:textAnnotation id="TextAnnotation_0lm3esn">
+      <bpmn:text>results in a generic format</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_16qrr9w" sourceRef="DataObjectReference_0vhjx0n" targetRef="TextAnnotation_0lm3esn" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="ssh-process">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_Configure">
+        <dc:Bounds x="28" y="310" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="4" y="356" width="83" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_093mevy_di" bpmnElement="SequenceFlow_TargetConfigured">
+        <di:waypoint x="64" y="328" />
+        <di:waypoint x="142" y="328" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="58" y="303" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_07weexy_di" bpmnElement="EndEvent_FinishedPortscan">
+        <dc:Bounds x="1309" y="186" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1357" y="197" width="90" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0kjlgbs_di" bpmnElement="SequenceFlow_PortscanFinished">
+        <di:waypoint x="242" y="328" />
+        <di:waypoint x="437" y="328" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="316" y="420" width="38" height="37" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_00fmvcb_di" bpmnElement="SequenceFlow_ResultReviewed">
+        <di:waypoint x="673" y="202" />
+        <di:waypoint x="760" y="204" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="794" y="176" width="74" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_0jv6ygb_di" bpmnElement="UserTask_ApproveResults">
+        <dc:Bounds x="573" y="164" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_0ukn4uh_di" bpmnElement="ExclusiveGateway_ResultApproved" isMarkerVisible="true">
+        <dc:Bounds x="760" y="179" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="752" y="239" width="65" height="25" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0gjifhk_di" bpmnElement="SequenceFlow_ResultApproved">
+        <di:waypoint x="810" y="204" />
+        <di:waypoint x="1077" y="204" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="999" y="150" width="76" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ExclusiveGateway_1bzno3f_di" bpmnElement="ExclusiveGateway_AutomatedFinish" isMarkerVisible="true">
+        <dc:Bounds x="437" y="303" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="497" y="322" width="89" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_17bwrf0_di" bpmnElement="SequenceFlow_ManualFinish">
+        <di:waypoint x="462" y="303" />
+        <di:waypoint x="462" y="204" />
+        <di:waypoint x="573" y="204" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="379" y="246" width="65" height="37" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0s3limw_di" bpmnElement="SequenceFlow_AutomatedFinish">
+        <di:waypoint x="462" y="353" />
+        <di:waypoint x="462" y="456" />
+        <di:waypoint x="1127" y="456" />
+        <di:waypoint x="1127" y="244" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="803" y="503" width="81" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0pps66n_di" bpmnElement="ServiceTask_DoScan">
+        <dc:Bounds x="142" y="288" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_150f8k2_di" bpmnElement="SequenceFlow_SummaryCreated">
+        <di:waypoint x="1177" y="204" />
+        <di:waypoint x="1309" y="204" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1187" y="209" width="85" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1foo790_di" bpmnElement="ServiceTask_CreateSummary">
+        <dc:Bounds x="1077" y="164" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataObjectReference_0vhjx0n_di" bpmnElement="DataObjectReference_0vhjx0n">
+        <dc:Bounds x="288" y="360" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="263" y="331" width="86" height="25" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_0lm3esn_di" bpmnElement="TextAnnotation_0lm3esn">
+        <dc:Bounds x="379" y="420" width="102" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_16qrr9w_di" bpmnElement="Association_16qrr9w">
+        <di:waypoint x="324" y="394" />
+        <di:waypoint x="379" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1z0e6c0_di" bpmnElement="SequenceFlow_ResultRejected">
+        <di:waypoint x="785" y="179" />
+        <di:waypoint x="785" y="65" />
+        <di:waypoint x="995" y="65" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="849" y="96" width="70" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Task_1691u70_di" bpmnElement="DoesNothingTask">
+        <dc:Bounds x="995" y="25" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1i44eck_di" bpmnElement="SequenceFlow_1i44eck">
+        <di:waypoint x="1095" y="65" />
+        <di:waypoint x="1127" y="65" />
+        <di:waypoint x="1127" y="164" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1066" y="43.5" width="90" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
