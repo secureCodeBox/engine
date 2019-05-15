@@ -87,6 +87,31 @@
             var div = document.getElementById(id);
             div.style.display == 'none' ? div.style.display = 'block' : div.style.display = 'none';
         }
+
+        function updateButtons(id) {
+            var checked = document.getElementById(id).checked;
+            var buttons = [
+                document.getElementById('wpTimeoutAndDurationButton'),
+                document.getElementById('wpEnumerationProcessButton'),
+                document.getElementById('wpDetectionModeButton'),
+                document.getElementById('wpUAButton'),
+                document.getElementById('wpHeadersDesButton')
+            ];
+
+            buttons.forEach(function(element) {
+               element.disabled = checked;
+               reload(element);
+            });
+        }
+
+        function reload(element){
+            var container = element;
+            var content = container.innerHTML;
+            container.innerHTML= content;
+        }
+    </script>
+
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js">
     </script>
 
     <div class="row">
@@ -151,12 +176,12 @@
                 <label for="stealthy">Stealthy mode: random user agent, passive detection mode and passive plugins version detection.
                 </label>
                 <div class="controls">
-                    <input class="form-control" id="stealthy" type="checkbox" name="stealthy" ng-model="config.WP_STEALTHY" ng-value="true"/>
+                    <input class="form-control" id="stealthy" type="checkbox" name="stealthy" ng-model="config.WP_STEALTHY" onchange="updateButtons('stealthy')"/>
                 </div>
             </div>
 
             <br>
-            <button class="btn btn-info pull-right scanner-btn" onclick="togglediv('wpTimeoutAndDuration');" type="button">
+            <button id="wpTimeoutAndDurationButton" class="btn btn-info pull-right scanner-btn" onclick="togglediv('wpTimeoutAndDuration');" type="button">
                 <span class="glyphicon glyphicon-time "></span> Durations & Timeouts
             </button>
             <div id="wpTimeoutAndDuration" name="timoutAndDuration" style="display: none">
@@ -177,7 +202,7 @@
             <div class="clearfix"></div>
 
             <br>
-            <button class="btn btn-info pull-right scanner-btn" onclick="togglediv('wpEnumerationProcess');" type="button">
+            <button id="wpEnumerationProcessButton" class="btn btn-info pull-right scanner-btn" onclick="togglediv('wpEnumerationProcess');" type="button">
                 <span class="glyphicon glyphicon-th-list "></span> Enumeration Process
             </button>
             <div id="wpEnumerationProcess" name="enumerationProcess" style="display: none">
@@ -216,13 +241,13 @@
 
                     <label for="tt">Timthumbs
                     </label>
-                    <input class="form-control" id="tt" type="checkbox" name="timthumbs" ng-model="config.WP_ENUMERATE.timthumbs" value="tt"/>
+                    <input class="form-control" id="tt" type="checkbox" name="timthumbs" ng-model="config.WP_ENUMERATE.timthumbs" ng-true-value="tt"/>
                     <label for="cb">Config Backups
                     </label>
-                    <input class="form-control" id="cb" type="checkbox" name="configBackups" ng-model="config.WP_ENUMERATE.configBackups" value="cb"/>
+                    <input class="form-control" id="cb" type="checkbox" name="configBackups" ng-model="config.WP_ENUMERATE.configBackups" ng-true-value="cb"/>
                     <label for="dbe">Db Exports
                     </label>
-                    <input class="form-control" id="dbe" type="checkbox" name="dbExports" ng-model="config.WP_ENUMERATE.dbExports" value="dbe"/>
+                    <input class="form-control" id="dbe" type="checkbox" name="dbExports" ng-model="config.WP_ENUMERATE.dbExports" ng-true-value="dbe"/>
                 </fieldset>
 
                 <fieldset id="additionalEnumRanges">
@@ -240,42 +265,42 @@
             <div class="clearfix"></div>
 
             <br>
-            <button class="btn btn-info pull-right scanner-btn" onclick="togglediv('wpDetectionMode');" type="button">
+            <button id="wpDetectionModeButton" class="btn btn-info pull-right scanner-btn" onclick="togglediv('wpDetectionMode');" type="button">
                 <span class="glyphicon glyphicon-search"></span> Detection Mode
             </button>
             <div id="wpDetectionMode" name="detectionMode" style="display: none">
 
                 <fieldset id="detectionMode">
-                    <legend>Choose Plugin Scope</legend>
+                    <legend>Choose Detection Mode</legend>
 
                     <label for="mixed">Mixed
                     </label>
-                    <input class="form-control" id="mixed" type="radio" name="detectionMode" ng-model="target.attributes.WP_DETECTION_MODE" value="mixed"/>
+                    <input class="form-control" id="mixed" type="radio" name="detectionMode" ng-model="config.WP_DETECTION_MODE" value="mixed"/>
                     <label for="aggressive">Aggressive
                     </label>
-                    <input class="form-control" id="aggressive" type="radio" name="detectionMode" ng-model="target.attributes.WP_DETECTION_MODE" value="aggressive"/>
+                    <input class="form-control" id="aggressive" type="radio" name="detectionMode" ng-model="config.WP_DETECTION_MODE" value="aggressive"/>
                     <label for="passive">Passive
                     </label>
-                    <input class="form-control" id="passive" type="radio" name="detectionMode" ng-model="target.attributes.WP_DETECTION_MODE" value="passive"/>
+                    <input class="form-control" id="passive" type="radio" name="detectionMode" ng-model="config.WP_DETECTION_MODE" value="passive"/>
                 </fieldset>
             </div>
             <div class="clearfix"></div>
 
             <br>
-            <button class="btn btn-info pull-right scanner-btn" onclick="togglediv('wpUA');" type="button">
+            <button id="wpUAButton" class="btn btn-info pull-right scanner-btn" onclick="togglediv('wpUA');" type="button">
                 <span class="glyphicon glyphicon-user "></span> User Agent
             </button>
             <div class="clearfix"></div>
             <div id="wpUA" style="display: none">
                 <label for="wpUserAgent">User Agent</label>
                 <br>
-                <input id="wpUserAgent" name="wpuserAgent" class="form-control" type="text" ng-model="target.attributes.WP_USER_AGENT"
+                <input id="wpUserAgent" name="wpuserAgent" class="form-control" type="text" ng-model="config.WP_USER_AGENT"
                 />
             </div>
             <div class="clearfix"></div>
 
             <br>
-            <button class="btn btn-info pull-right scanner-btn" onclick="togglediv('wpHeadersDes');" type="button">
+            <button id="wpHeadersDesButton" class="btn btn-info pull-right scanner-btn" onclick="togglediv('wpHeadersDes');" type="button">
                 <span class="glyphicon glyphicon-sort "></span> Additional Headers
             </button>
             <div class="clearfix"></div>
@@ -288,7 +313,7 @@
                 </p>
                 <label for="wpHeaders">Additional Headers</label>
                 <br>
-                <input id="wpHeaders" name="wpHeaders" class="form-control" type="text" ng-model="target.attributes.WP_HEADERS"
+                <input id="wpHeaders" name="wpHeaders" class="form-control" type="text" ng-model="config.WP_HEADERS"
                 />
             </div>
 
