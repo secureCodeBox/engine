@@ -63,53 +63,53 @@
 
     </script>
 
+    <!-- TODO: Variable Fields for scan config -->
     <div class="row">
 
         <div class="col-xs-12">
             <h3>Further Scan Selection</h3>
 
-            <fieldset>
+            <fieldset id="sslyzeConfig">
+                <legend>Configure SSLyze</legend>
+
                 <div class="form-group">
-                    <label for="inputLicense">I'm aware of and I do accept the
-                        <a href="https://github.com/Arachni/arachni/blob/master/LICENSE.md" target="_blank"
-                           style="text-decoration: underline;">Arachni license terms</a>
+                    <label for="sslyze">Do SSLyze Scan
                     </label>
                     <div class="controls">
-                        <input class="form-control" id="inputLicense" type="checkbox" ng-required="true" name="acceptLicense" ng-model="acceptLicense"
+                        <input class="form-control" id="sslyze" type="checkbox" ng-required="true" name="sslyzeActive" ng-model="sslyzeActive"
                         />
                     </div>
                 </div>
 
                 <br>
-                <button class="btn btn-info pull-right scanner-btn" onclick="togglediv('arachniScope');" type="button">
-                    <span class="glyphicon glyphicon-search "></span> Define the scans scope
-                </button>
-                <div id="arachniScope" name="scopeDefinition" style="display: none">
-                    <label for="include_path_patterns">Included paths of the scanner (e.g. ".*login"), (in-/exclude paths are exclusive, you can only use one!)</label>
-                    <br>
-                    <textarea id="include_path_patterns" name="include_path_patterns" class="form-control" rows="5" ng-model="target.attributes.ARACHNI_INCLUDE_PATTERNS"></textarea>
+                <div id="sslyzeFields" name="fields" style="display: none">
+                    <input id="sslyzePort" name="port" class="form-control" type="number" ng-model="target.attributes.ARACHNI_INCLUDE_PATTERNS" placeholder="port(e.g. 443)">
                     <br>
 
-                    <label for="exclude_path_patterns">Excluded paths of the scanner (e.g. "restricted/.*"), (in-/exclude paths are exclusive, you can only use
-                        one!)</label>
-                    <br>
-                    <textarea id="exclude_path_patterns" name="exclude_path_patterns" class="form-control" rows="5" ng-model="target.attributes.ARACHNI_EXCLUDE_PATTERNS"></textarea>
+                    <input id="sslyzeService" name="service" class="form-control" type="text" ng-model="target.attributes.ARACHNI_INCLUDE_PATTERNS" placeholder="service e.g. ">
+                </div>
+                <div class="clearfix"></div>
+            </fieldset>
+
+            <br>
+            <fieldset id="sshConfig">
+                <legend>Configure SSLyze</legend>
+
+                <div class="form-group">
+                    <label for="ssh">Do SSH Scan
+                    </label>
+                    <div class="controls">
+                        <input class="form-control" id="ssh" type="checkbox" ng-required="true" name="sshActive" ng-model="sshActive"
+                        />
+                    </div>
+                </div>
+
+                <br>
+                <div id="sshFields" name="fields" style="display: none">
+                    <input id="sshPort" name="port" class="form-control" type="number" ng-model="target.attributes.ARACHNI_INCLUDE_PATTERNS" placeholder="port(e.g. 22)">
                     <br>
 
-                    <label for="dom_depth_limit">Limit of DOM depth</label>
-                    <br>
-                    <input id="dom_depth_limit" ng-model="target.attributes.ARACHNI_DOM_DEPTH_LIMIT" type="number" class="form-control" placeholder="1000">
-                    <br>
-
-                    <label for="directory_depth_limit">Limit of directory depths</label>
-                    <br>
-                    <input id="directory_depth_limit" ng-model="target.attributes.ARACHNI_DIR_DEPTH_LIMIT" type="number" class="form-control" placeholder="1000"
-                    />
-                    <br>
-
-                    <label for="page_limit">Limit of scanned pages</label>
-                    <br>
-                    <input id="page_limit" ng-model="target.attributes.ARACHNI_PAGE_LIMIT" type="number" class="form-control" placeholder="1000"/>
+                    <input id="sshService" name="service" class="form-control" type="text" ng-model="target.attributes.ARACHNI_INCLUDE_PATTERNS" placeholder="service(e.g. OpenSSH)">
                 </div>
                 <div class="clearfix"></div>
             </fieldset>

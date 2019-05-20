@@ -115,7 +115,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_06jcrzc" name="preview required" sourceRef="ExclusiveGateway_1gtgj8f" targetRef="UserTask_0llrnlb" />
     <bpmn:sequenceFlow id="SequenceFlow_0qgxnc1" name="preview not require" sourceRef="ExclusiveGateway_1gtgj8f" targetRef="SubProcess_1gnnu6u" />
     <bpmn:sequenceFlow id="SequenceFlow_1szj0yb" sourceRef="Task_05h49jl" targetRef="SubProcess_1gnnu6u" />
-    <bpmn:userTask id="Task_05h49jl" name="Configure futher scans" camunda:formKey="embedded:app:forms/universal/configure-further-scanner-details.html">
+    <bpmn:userTask id="Task_05h49jl" name="Configure further scans" camunda:formKey="embedded:app:forms/universal/configure-further-scanner-details.html">
       <bpmn:incoming>SequenceFlow_05rwnea</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1szj0yb</bpmn:outgoing>
     </bpmn:userTask>
