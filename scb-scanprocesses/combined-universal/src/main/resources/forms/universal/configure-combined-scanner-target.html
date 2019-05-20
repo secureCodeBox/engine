@@ -1,0 +1,165 @@
+<!--
+  ~ /*
+  ~ * SecureCodeBox (SCB)
+  ~ * Copyright 2015-2018 iteratec GmbH
+  ~ *
+  ~ * Licensed under the Apache License, Version 2.0 (the "License");
+  ~ * you may not use this file except in compliance with the License.
+  ~ * You may obtain a copy of the License at
+  ~ *
+  ~ * 	http://www.apache.org/licenses/LICENSE-2.0
+  ~ *
+  ~ * Unless required by applicable law or agreed to in writing, software
+  ~ * distributed under the License is distributed on an "AS IS" BASIS,
+  ~ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ * See the License for the specific language governing permissions and
+  ~ * limitations under the License.
+  ~ */
+  -->
+
+<h2>Please configure the Port Scan</h2>
+
+<form role="form" name="configure_target">
+
+    <script cam-script type="text/form-script">
+        camForm.on('form-loaded', function () {
+            camForm.variableManager.fetchVariable('DEFAULT_CONTEXT');
+            camForm.variableManager.fetchVariable('DEFAULT_TARGET_NAME');
+            camForm.variableManager.fetchVariable('DEFAULT_TARGET_LOCATION');
+        });
+
+        camForm.on('variables-fetched', function () {
+            $scope.context = camForm.variableManager.variableValue('DEFAULT_CONTEXT');
+
+            $scope.targetList = [{
+                name: camForm.variableManager.variableValue('DEFAULT_TARGET_NAME'),
+                location: camForm.variableManager.variableValue('DEFAULT_TARGET_LOCATION')
+            }];
+
+            $scope.addTarget = function () {
+                $scope.targetList.push({'name': '', 'location': ''});
+            };
+
+            $scope.checkForEnter = function ($event) {
+                if ($event.key === 'Enter') {
+                    $scope.addTarget();
+                    $event.stopPropagation();
+                    $event.preventDefault();
+                }
+            };
+        });
+
+        camForm.on('submit', function () {
+            camForm.variableManager.createVariable({
+                name: 'PROCESS_TARGETS',
+                type: 'Object',
+                value: JSON.stringify($scope.targetList),
+                valueInfo: {
+                    serializationDataFormat: 'application/json',
+                    objectTypeName: 'java.lang.String'
+                }
+            });
+        });
+
+    </script>
+
+    <div class="row">
+
+        <div class="col-xs-12">
+            <h3>Portscan Target</h3>
+
+            <!-- Target Hosts -->
+            <div class="form-group">
+                <div class="controls row form-group" ng-repeat="target in targetList track by $index">
+                    <div class="col-xs-5">
+                        <label>
+                            Target Name
+                        </label>
+                        <input required class="form-control"
+                               type="text"
+                               id="inputPortScannerName"
+                               name="inputPortScannerName"
+                               placeholder="Public Site Name"
+                               ng-minlength="2"
+                               ng-maxlength="128"
+                               ng-model="target.name"
+                        />
+                    </div>
+                    <div class="col-xs-6">
+                        <label>
+                            Target Hosts
+                        </label>
+                        <input required class="form-control"
+                               type="text"
+                               placeholder="Hostname/IP address"
+                               id="inputPortScannerTarget"
+                               name="inputPortScannerTarget"
+                               ng-minlength="2"
+                               ng-maxlength="256"
+                               ng-model="target.location"
+                               ng-pattern="/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-\/]*[A-Za-z0-9])$/"
+                               ng-keydown="checkForEnter($event)"
+                        />
+                    </div>
+                    <div class="col-xs-1">
+                        <button class="btn btn-danger btn-lg"
+                                ng-click="targetList.splice($index, 1)"
+                                ng-disabled="targetList.length === 1"
+                                style="position: absolute; right: 15px; top: 0;">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </button>
+                    </div>
+                </div>
+                <button class="btn btn-primary" ng-click="addTarget()">Add Host</button>
+                <code class="hidden2">{{ targetList }}</code>
+            </div>
+
+            <!-- Context (Project/Team/System...) -->
+            <div class="form-group">
+                <label for="inputContext">Business Context (Project/Team/System)</label>
+                <div class="controls">
+                    <input class="form-control"
+                           id="inputContext"
+                           cam-variable-type="String"
+                           cam-variable-name="PROCESS_CONTEXT"
+                           type="text"
+                           placeholder="Project/Team/System"
+                           ng-required="false"
+                           ng-maxlength="50"
+                           ng-model="context"
+                           name="context"/>
+                </div>
+            </div>
+
+            <!-- TODO: metafield for previewRequired -->
+            <div class="form-group">
+                <label for="preview">I do want a preview of the Portscan results before further configuration.
+                </label>
+                <div class="controls">
+                    <input class="form-control" id="preview" type="checkbox" ng-required="true" name="previewRequired" ng-model="previewRequired"
+                    />
+                </div>
+            </div>
+
+
+
+            <!-- port scanner configuration -->
+            <div class="form-group">
+                <label for="selectPortScannerConfigurationType">Type of the port scanner configuration</label>
+                <div class="controls">
+                    <!--select box -->
+                    <select required id="selectPortScannerConfigurationType"
+                            class="form-control"
+                            name="configurationType"
+                            cam-variable-name="NMAP_CONFIGURATION_TYPE"
+                            cam-variable-type="String">
+                        <option value="default" checked>Default</option>
+                        <option value="http-headers">Check HTTP-headers</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>
