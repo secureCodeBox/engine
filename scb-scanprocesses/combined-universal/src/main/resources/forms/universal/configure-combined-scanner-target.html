@@ -63,6 +63,44 @@
 
     </script>
 
+    <script>
+        function toggleInputs(scannerName) {
+            let checked = document.getElementById(scannerName).checked;
+
+            const inputFields = [document.getElementById(scannerName + 'Port'), document.getElementById(scannerName + 'Service')];
+
+            for (let inputField of inputFields) {
+                inputField.disabled = !checked;
+
+                switch (inputField.type) {
+                    case 'text':
+                        inputField.value = '';
+                    case 'number':
+                        inputField.value = '';
+                }
+
+                reload(inputField)
+            }
+        }
+
+        function reload(element){
+            let container = element;
+            let content = container.innerHTML;
+            container.innerHTML= content;
+
+        }
+
+        function hideDivIfChecked(checkId, divId) {
+            let div = document.getElementById(divId);
+            document.getElementById(checkId).checked? div.style.display = 'none': div.style.display = 'block';
+            document.getElementById('sslyze').checked = false;
+            toggleInputs('sslyze');
+            document.getElementById('ssh').checked = false;
+            toggleInputs('ssh');
+        }
+    </script>
+
+
     <div class="row">
 
         <div class="col-xs-12">
@@ -131,15 +169,62 @@
                 </div>
             </div>
 
-            <!-- TODO: metafield for previewRequired -->
-            <!-- TODO: include further scan configuration if preview not required -->
             <div class="form-group">
-                <label for="preview">I do want a preview of the Portscan results before further configuration.
+                <label for="review">I do want review the Portscan results before further configuration.
                 </label>
                 <div class="controls">
-                    <input class="form-control" id="preview" type="checkbox" ng-required="true" name="previewRequired" ng-model="previewRequired"
+                    <input class="form-control" id="review" type="checkbox" name="reviewRequired" ng-model="reviewRequired"
+                           cam-variable-name="REVIEW_REQUIRED"
+                           cam-variable-type="String"
+                           ng-true-value="required"
+                           ng-false-value="unrequired"
+                           onclick="hideDivIfChecked('review','scanner-config')"
                     />
                 </div>
+            </div>
+
+            <!-- TODO: Variable Fields for scan config -->
+            <div class="form-group" id="scanner-config">
+                <fieldset id="sslyzeConfig">
+                    <legend>Configure SSLyze</legend>
+
+                    <div class="form-group">
+                        <label for="sslyze">Do SSLyze Scan
+                        </label>
+                        <input class="form-control" id="sslyze" type="checkbox" ng-required="true" name="sslyzeActive" ng-model="sslyzeActive"
+                               onclick="toggleInputs('sslyze')"/>
+                        <br>
+
+                        <input id="sslyzePort" name="port" class="form-control" type="number" ng-model="target.attributes.ARACHNI_INCLUDE_PATTERNS"
+                               placeholder="port (default: 443)" disabled="true">
+                        <br>
+
+                        <input id="sslyzeService" name="service" class="form-control" type="text" ng-model="target.attributes.ARACHNI_INCLUDE_PATTERNS"
+                               placeholder="service e.g. " disabled="true">
+                    </div>
+                    <div class="clearfix"></div>
+                </fieldset>
+
+                <br>
+                <fieldset id="sshConfig">
+                    <legend>Configure SSH</legend>
+
+                    <div class="form-group">
+                        <label for="ssh">Do SSH Scan
+                        </label>
+                        <input class="form-control" id="ssh" type="checkbox" ng-required="true" name="sshActive" ng-model="sshActive"
+                               onclick="toggleInputs('ssh')"/>
+                        <br>
+
+                        <input id="sshPort" name="port" class="form-control" type="number" ng-model="target.attributes.ARACHNI_INCLUDE_PATTERNS"
+                               placeholder="port (default: 22)" disabled="true">
+                        <br>
+
+                        <input id="sshService" name="service" class="form-control" type="text" ng-model="target.attributes.ARACHNI_INCLUDE_PATTERNS"
+                               placeholder="service (default: OpenSSH)" disabled="true">
+                    </div>
+                    <div class="clearfix"></div>
+                </fieldset>
             </div>
 
 

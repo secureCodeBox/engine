@@ -50,7 +50,7 @@
     </script>
 
     <h2>
-        Combined scan results for "{{ firstTarget.name }}"
+        Portscan results for "{{ firstTarget.name }}"
         <span ng-if="otherTargetsLength > 0">, and {{otherTargetsLength}} other targets.</span>
     </h2>
 
@@ -108,19 +108,15 @@
                 </table>
             </div>
 
-            <!-- TODO: Add following:
-                Continue to further scanner configuartion
-                Cancel further scans and approve results
-                Cancel further scans and reject results
-            -->
             <h2>Approve Result</h2>
             <!-- reporting configuration -->
             <div class="form-group">
-                <label for="selectResultApproved">Approve Result</label>
+                <label for="selectResultApproved">Approve result</label>
                 <div id="selectResultApproved" class="controls">
                     <!--select box -->
                     <select required class="form-control" name="resultApproved" cam-variable-name="PROCESS_RESULT_APPROVED" cam-variable-type="String">
-                        <option value="approved" checked>Approved (Finished)</option>
+                        <option value="continue" >Approved & Continue (Configure further scans)</option>
+                        <option value="approved" >Approved & Cancel (Finish)</option>
                         <option value="disapproved">Not Approved (Restart Scan)</option>
                     </select>
                 </div>
