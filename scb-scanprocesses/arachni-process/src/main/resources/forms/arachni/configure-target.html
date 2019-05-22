@@ -32,7 +32,11 @@
         $scope.target = {
             location: '',
             name: '',
-            attributes: {}
+            attributes: {
+                ARACHNI_EXTEND_PATH: '',
+                ARACHNI_INCLUDE_PATTERNS: '',
+                ARACHNI_EXCLUDE_PATTERNS: ''
+            }
         };
         $scope.context = '';
         $scope.acceptLicense = false;
