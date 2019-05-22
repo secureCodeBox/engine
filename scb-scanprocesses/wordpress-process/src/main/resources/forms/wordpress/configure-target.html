@@ -83,14 +83,16 @@
     </script>
 
     <script type="text/javascript">
+
         function togglediv(id) {
-            var div = document.getElementById(id);
+            let div = document.getElementById(id);
             div.style.display == 'none' ? div.style.display = 'block' : div.style.display = 'none';
         }
 
-        function updateButtons(id) {
-            var checked = document.getElementById(id).checked;
-            var buttons = [
+        function updateButtons() {
+            let checked = document.getElementById('stealthy').checked;
+
+            const buttons = [
                 document.getElementById('wpTimeoutAndDurationButton'),
                 document.getElementById('wpEnumerationProcessButton'),
                 document.getElementById('wpDetectionModeButton'),
@@ -98,18 +100,70 @@
                 document.getElementById('wpHeadersDesButton')
             ];
 
-            buttons.forEach(function(element) {
-               element.disabled = checked;
-               reload(element);
+            const divs = [
+                document.getElementById('wpTimeoutAndDuration'),
+                document.getElementById('wpEnumerationProcess'),
+                document.getElementById('wpDetectionMode'),
+                document.getElementById('wpUA'),
+                document.getElementById('wpHeadersDes')
+            ];
+
+            buttons.forEach(function(button) {
+               button.disabled = checked;
+               reload(button);
+            });
+
+            divs.forEach(function (div) {
+                div.disabled = checked;
+                hideDiv(div);
+                clearInputFields(div);
+                reload(div);
             });
         }
 
         function reload(element){
-            var container = element;
-            var content = container.innerHTML;
+            let container = element;
+            let content = container.innerHTML;
             container.innerHTML= content;
         }
+
+        function hideDiv(div) {
+            div.style.display = 'none';
+        }
+
+        function clearInputFields(divElement) {
+            let elements = getInputFields(divElement);
+
+            for (let element of elements) {
+                if (element) {
+                    switch (element.type) {
+                        case 'text':
+                            element.value = '';
+                        case 'number':
+                            element.value = '';
+                        case 'checkbox':
+                            element.checked = false;
+                        case 'radio':
+                            element.checked = false;
+                    }
+                }
+            }
+        }
+
+        function getInputFields(divElement) {
+            let elements = [];
+
+            for (let element of divElement.childNodes) {
+                if (element.tagName == "input") {
+                    elements.push(element);
+                } else if (element.hasChildNodes()) {
+                    getInputFields(element);
+                }
+            }
+            return elements;
+        }
     </script>
+
 
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js">
     </script>
@@ -176,7 +230,7 @@
                 <label for="stealthy">Stealthy mode: random user agent, passive detection mode and passive plugins version detection.
                 </label>
                 <div class="controls">
-                    <input class="form-control" id="stealthy" type="checkbox" name="stealthy" ng-model="config.WP_STEALTHY" onchange="updateButtons('stealthy')"/>
+                    <input class="form-control" id="stealthy" type="checkbox" name="stealthy" ng-model="config.WP_STEALTHY" onchange="updateButtons()"/>
                 </div>
             </div>
 
