@@ -36,6 +36,15 @@
                 location: camForm.variableManager.variableValue('DEFAULT_TARGET_LOCATION')
             }];
 
+            $scope.config = {
+                DO_SSH: false,
+                DO_SSLYZE: false
+                SSH_PORT: 22,
+                SSH_SERVICE: "OpenSSH",
+                SSH_PORT: 443,
+                SSH_SERVICE: null
+            };
+
             $scope.addTarget = function () {
                 $scope.targetList.push({'name': '', 'location': ''});
             };
@@ -50,6 +59,13 @@
         });
 
         camForm.on('submit', function () {
+            const targets = $scope.targetList.map((target) => {
+                    return {
+                        ...target,
+                        attributes: $scope.config
+                    }
+            });
+
             camForm.variableManager.createVariable({
                 name: 'PROCESS_TARGETS',
                 type: 'Object',
@@ -183,21 +199,20 @@
                 </div>
             </div>
 
-            <!-- TODO: Variable Fields for scan config -->
             <div class="form-group" id="scanner-config">
                 <fieldset id="sslyzeConfig">
                     <div class="form-group">
                         <label for="sslyze">Do SSLyze Scan
                         </label>
-                        <input class="form-control" id="sslyze" type="checkbox" name="sslyzeActive" ng-model="sslyzeActive"
+                        <input class="form-control" id="sslyze" type="checkbox" name="sslyzeActive" ng-model="target.attributes.DO_SSLYZE"
                                onclick="toggleInputs('sslyze')"/>
                         <br>
 
-                        <input id="sslyzePort" name="port" class="form-control" type="number" ng-model="target.attributes.ARACHNI_INCLUDE_PATTERNS"
+                        <input id="sslyzePort" name="port" class="form-control" type="number" ng-model="target.attributes.SSLYZE_PORT"
                                placeholder="port (default: 443)" disabled="true">
                         <br>
 
-                        <input id="sslyzeService" name="service" class="form-control" type="text" ng-model="target.attributes.ARACHNI_INCLUDE_PATTERNS"
+                        <input id="sslyzeService" name="service" class="form-control" type="text" ng-model="target.attributes.SSLYZE_SERVICE"
                                placeholder="service e.g. " disabled="true">
                     </div>
                     <div class="clearfix"></div>
@@ -208,15 +223,15 @@
                     <div class="form-group">
                         <label for="ssh">Do SSH Scan
                         </label>
-                        <input class="form-control" id="ssh" type="checkbox" name="sshActive" ng-model="sshActive"
+                        <input class="form-control" id="ssh" type="checkbox" name="sshActive" ng-model="sshActive" ng-model="target.attributes.DO_SSH"
                                onclick="toggleInputs('ssh')"/>
                         <br>
 
-                        <input id="sshPort" name="port" class="form-control" type="number" ng-model="target.attributes.ARACHNI_INCLUDE_PATTERNS"
+                        <input id="sshPort" name="port" class="form-control" type="number" ng-model="target.attributes.SSH_PORT"
                                placeholder="port (default: 22)" disabled="true">
                         <br>
 
-                        <input id="sshService" name="service" class="form-control" type="text" ng-model="target.attributes.ARACHNI_INCLUDE_PATTERNS"
+                        <input id="sshService" name="service" class="form-control" type="text" ng-model="target.attributes.SSH_SERVICE"
                                placeholder="service (default: OpenSSH)" disabled="true">
                     </div>
                     <div class="clearfix"></div>
