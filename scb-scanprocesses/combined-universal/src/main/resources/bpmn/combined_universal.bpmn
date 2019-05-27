@@ -109,16 +109,12 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_1plcyoo" sourceRef="ServiceTask_1iu85gr" targetRef="ExclusiveGateway_1gtgj8f" />
     <bpmn:sequenceFlow id="SequenceFlow_06jcrzc" name="review required" sourceRef="ExclusiveGateway_1gtgj8f" targetRef="UserTask_0llrnlb">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${REVIEW_REQUIRED == 'required'}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_REVIEW_REQUIRED == 'required'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0qgxnc1" name="review not require" sourceRef="ExclusiveGateway_1gtgj8f" targetRef="SubProcess_1gnnu6u">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${REVIEW_REQUIRED == 'unrequired'}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_REVIEW_REQUIRED == 'unrequired'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1szj0yb" sourceRef="Task_05h49jl" targetRef="SubProcess_1gnnu6u" />
-    <bpmn:userTask id="Task_05h49jl" name="Configure further scans" camunda:formKey="embedded:app:forms/universal/configure-further-scanner-details.html">
-      <bpmn:incoming>SequenceFlow_05rwnea</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_1szj0yb</bpmn:outgoing>
-    </bpmn:userTask>
     <bpmn:endEvent id="EndEvent_0cl48it" name="Combined Scan finished">
       <bpmn:incoming>SequenceFlow_1abua3i</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1kd3ej8</bpmn:incoming>
@@ -187,6 +183,10 @@
       <bpmn:outgoing>SequenceFlow_1fxbq0z</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="SequenceFlow_1fxbq0z" sourceRef="StartEvent_1e00aoo" targetRef="ExclusiveGateway_162icjt" />
+    <bpmn:userTask id="Task_05h49jl" name="Configure further scans" camunda:formKey="embedded:app:forms/universal/configure-further-scanner.html">
+      <bpmn:incoming>SequenceFlow_05rwnea</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1szj0yb</bpmn:outgoing>
+    </bpmn:userTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="combined-universal">
@@ -383,9 +383,6 @@
         <di:waypoint x="1736" y="300" />
         <di:waypoint x="1736" y="400" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="UserTask_0ftn2qy_di" bpmnElement="Task_05h49jl">
-        <dc:Bounds x="1686" y="220" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_0cl48it_di" bpmnElement="EndEvent_0cl48it">
         <dc:Bounds x="2394" y="451" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -487,6 +484,9 @@
         <di:waypoint x="90" y="352" />
         <di:waypoint x="251" y="352" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_0ftn2qy_di" bpmnElement="Task_05h49jl">
+        <dc:Bounds x="1686" y="220" width="100" height="80" />
+      </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

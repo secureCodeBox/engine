@@ -98,12 +98,10 @@
             <h3>Further Scan Selection</h3>
 
             <fieldset id="sslyzeConfig">
-                <legend>Configure SSLyze</legend>
-
                 <div class="form-group">
                     <label for="sslyze">Do SSLyze Scan
                     </label>
-                    <input class="form-control" id="sslyze" type="checkbox" ng-required="true" name="sslyzeActive" ng-model="sslyzeActive"
+                    <input class="form-control" id="sslyze" type="checkbox" name="sslyzeActive" ng-model="sslyzeActive"
                            onclick="toggleInputs('sslyze')"/>
                     <br>
 
@@ -119,12 +117,10 @@
 
             <br>
             <fieldset id="sshConfig">
-                <legend>Configure SSH</legend>
-
                 <div class="form-group">
                     <label for="ssh">Do SSH Scan
                     </label>
-                    <input class="form-control" id="ssh" type="checkbox" ng-required="true" name="sshActive" ng-model="sshActive"
+                    <input class="form-control" id="ssh" type="checkbox" name="sshActive" ng-model="sshActive"
                            onclick="toggleInputs('ssh')"/>
                     <br>
 

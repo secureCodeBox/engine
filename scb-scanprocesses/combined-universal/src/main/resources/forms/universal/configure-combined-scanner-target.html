@@ -173,8 +173,8 @@
                 <label for="review">I do want review the Portscan results before further configuration.
                 </label>
                 <div class="controls">
-                    <input class="form-control" id="review" type="checkbox" name="reviewRequired" ng-model="reviewRequired"
-                           cam-variable-name="REVIEW_REQUIRED"
+                    <input class="form-control" id="review" type="checkbox" name="reviewRequired"
+                           cam-variable-name="PROCESS_REVIEW_REQUIRED"
                            cam-variable-type="String"
                            ng-true-value="required"
                            ng-false-value="unrequired"
@@ -186,12 +186,10 @@
             <!-- TODO: Variable Fields for scan config -->
             <div class="form-group" id="scanner-config">
                 <fieldset id="sslyzeConfig">
-                    <legend>Configure SSLyze</legend>
-
                     <div class="form-group">
                         <label for="sslyze">Do SSLyze Scan
                         </label>
-                        <input class="form-control" id="sslyze" type="checkbox" ng-required="true" name="sslyzeActive" ng-model="sslyzeActive"
+                        <input class="form-control" id="sslyze" type="checkbox" name="sslyzeActive" ng-model="sslyzeActive"
                                onclick="toggleInputs('sslyze')"/>
                         <br>
 
@@ -207,12 +205,10 @@
 
                 <br>
                 <fieldset id="sshConfig">
-                    <legend>Configure SSH</legend>
-
                     <div class="form-group">
                         <label for="ssh">Do SSH Scan
                         </label>
-                        <input class="form-control" id="ssh" type="checkbox" ng-required="true" name="sshActive" ng-model="sshActive"
+                        <input class="form-control" id="ssh" type="checkbox" name="sshActive" ng-model="sshActive"
                                onclick="toggleInputs('ssh')"/>
                         <br>
 
