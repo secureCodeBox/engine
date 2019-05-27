@@ -38,11 +38,11 @@
 
             $scope.config = {
                 DO_SSH: false,
-                DO_SSLYZE: false
+                DO_SSLYZE: false,
                 SSH_PORT: 22,
                 SSH_SERVICE: "OpenSSH",
-                SSH_PORT: 443,
-                SSH_SERVICE: null
+                SSLYZE_PORT: 443,
+                SSLYZE_SERVICE: null
             };
 
             $scope.addTarget = function () {
@@ -88,12 +88,17 @@
             for (let inputField of inputFields) {
                 inputField.disabled = !checked;
 
-                switch (inputField.type) {
-                    case 'text':
-                        inputField.value = '';
-                    case 'number':
-                        inputField.value = '';
-                }
+                <!-- TODO: Set default values if empty. -->
+                    switch (inputField.id) {
+                        case 'sshPort':
+                            inputField.value = 22;
+                        case 'sshService':
+                            inputField.value = 'OpenSSH';
+                        case 'sslyzePort':
+                            inputField.value = 443;
+                        case 'sslyzeService':
+                            inputField.value = '';
+                    }
 
                 reload(inputField)
             }
@@ -204,15 +209,15 @@
                     <div class="form-group">
                         <label for="sslyze">Do SSLyze Scan
                         </label>
-                        <input class="form-control" id="sslyze" type="checkbox" name="sslyzeActive" ng-model="target.attributes.DO_SSLYZE"
+                        <input class="form-control" id="sslyze" type="checkbox" name="sslyzeActive" ng-model="config.DO_SSLYZE"
                                onclick="toggleInputs('sslyze')"/>
                         <br>
 
-                        <input id="sslyzePort" name="port" class="form-control" type="number" ng-model="target.attributes.SSLYZE_PORT"
+                        <input id="sslyzePort" name="port" class="form-control" type="number" ng-model="config.SSLYZE_PORT"
                                placeholder="port (default: 443)" disabled="true">
                         <br>
 
-                        <input id="sslyzeService" name="service" class="form-control" type="text" ng-model="target.attributes.SSLYZE_SERVICE"
+                        <input id="sslyzeService" name="service" class="form-control" type="text" ng-model="config.SSLYZE_SERVICE"
                                placeholder="service e.g. " disabled="true">
                     </div>
                     <div class="clearfix"></div>
@@ -223,15 +228,15 @@
                     <div class="form-group">
                         <label for="ssh">Do SSH Scan
                         </label>
-                        <input class="form-control" id="ssh" type="checkbox" name="sshActive" ng-model="sshActive" ng-model="target.attributes.DO_SSH"
+                        <input class="form-control" id="ssh" type="checkbox" name="sshActive" ng-model="config.DO_SSH"
                                onclick="toggleInputs('ssh')"/>
                         <br>
 
-                        <input id="sshPort" name="port" class="form-control" type="number" ng-model="target.attributes.SSH_PORT"
+                        <input id="sshPort" name="port" class="form-control" type="number" ng-model="config.SSH_PORT"
                                placeholder="port (default: 22)" disabled="true">
                         <br>
 
-                        <input id="sshService" name="service" class="form-control" type="text" ng-model="target.attributes.SSH_SERVICE"
+                        <input id="sshService" name="service" class="form-control" type="text" ng-model="config.SSH_SERVICE"
                                placeholder="service (default: OpenSSH)" disabled="true">
                     </div>
                     <div class="clearfix"></div>
@@ -256,7 +261,6 @@
                     </select>
                 </div>
             </div>
-
         </div>
     </div>
 </form>

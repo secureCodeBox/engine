@@ -11,6 +11,7 @@ import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class CombinedTransformListener extends TransformFindingsToTargetsListener {
@@ -25,16 +26,20 @@ public class CombinedTransformListener extends TransformFindingsToTargetsListene
                     objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
 
             for (Target target : newTargets) {
-                if (target.getAttributes().get("DO_SSH").equals(true)) {
-                    if (target.getAttributes().get("service").equals(target.getAttributes().get("SSH_SERVICE")) ||
-                            target.getAttributes().get("port").equals(target.getAttributes().get("SSH_PORT"))) {
-                        target.setLocation(target.getAttributes().get("hostname") + ":" + target.getAttributes().get("port"));
+                Map<String, Object> attributes = target.getAttributes();
+
+                if (attributes.get("DO_SSH").equals(true)) {
+                    if (attributes.get("service").equals(attributes.get("SSH_SERVICE")) ||
+                            attributes.get("port").equals(attributes.get("SSH_PORT"))) {
+                        target.setLocation(attributes.get("hostname") + ":" + attributes.get("port"));
+                        target.appendOrUpdateAttribute("SECOND_SCAN", "ssh");
                     }
                 }
-                if (target.getAttributes().get("DO_SSLYZE").equals(true)) {
-                    if (target.getAttributes().get("service").equals(target.getAttributes().get("SSLYZE_SERVICE")) ||
-                            target.getAttributes().get("port").equals(target.getAttributes().get("SSLYZE_PORT"))) {
-                        target.setLocation(target.getAttributes().get("hostname") + ":" + target.getAttributes().get("port"));
+                if (attributes.get("DO_SSLYZE").equals(true)) {
+                    if (attributes.get("service").equals(attributes.get("SSLYZE_SERVICE")) ||
+                            attributes.get("port").equals(attributes.get("SSLYZE_PORT"))) {
+                        target.setLocation(attributes.get("hostname") + ":" + attributes.get("port"));
+                        target.appendOrUpdateAttribute("SECOND_SCAN", "sslyze");
                     }
                 }
             }
