@@ -2,14 +2,19 @@
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.2.4">
   <bpmn:process id="combined-universal" name="Combined Universal" isExecutable="true">
     <bpmn:subProcess id="SubProcess_1gnnu6u">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="Input_3t5nl3f" />
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0nw28y1</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0j1bj6g</bpmn:outgoing>
-      <bpmn:multiInstanceLoopCharacteristics camunda:collection="TEST_COLLECTION" camunda:elementVariable="TARGET" />
+      <bpmn:multiInstanceLoopCharacteristics camunda:collection="PROCESS_TARGETS" camunda:elementVariable="TARGET" />
       <bpmn:startEvent id="StartEvent_03ann00">
-        <bpmn:outgoing>SequenceFlow_0qfsue2</bpmn:outgoing>
+        <bpmn:outgoing>SequenceFlow_0pv9oa6</bpmn:outgoing>
       </bpmn:startEvent>
       <bpmn:sequenceFlow id="SequenceFlow_1x0soae" name="second_scan == ssh" sourceRef="ExclusiveGateway_1t4g957" targetRef="Task_138whrr">
-        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TARGET.SECOND_SCAN == 'ssh'}</bpmn:conditionExpression>
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="javascript">execution.getVariable('TARGET.SECOND_SCAN') == 'SSH';</bpmn:conditionExpression>
       </bpmn:sequenceFlow>
       <bpmn:sequenceFlow id="SequenceFlow_0h4qu5g" sourceRef="ExclusiveGateway_1t4g957" targetRef="EndEvent_0u59qhc" />
       <bpmn:endEvent id="EndEvent_0u59qhc">
@@ -18,13 +23,12 @@
         <bpmn:incoming>SequenceFlow_0fuj7f0</bpmn:incoming>
       </bpmn:endEvent>
       <bpmn:exclusiveGateway id="ExclusiveGateway_1t4g957" default="SequenceFlow_0h4qu5g">
-        <bpmn:incoming>SequenceFlow_0qfsue2</bpmn:incoming>
+        <bpmn:incoming>SequenceFlow_0pv9oa6</bpmn:incoming>
         <bpmn:outgoing>SequenceFlow_1x0soae</bpmn:outgoing>
         <bpmn:outgoing>SequenceFlow_0h4qu5g</bpmn:outgoing>
         <bpmn:outgoing>SequenceFlow_0hc6hao</bpmn:outgoing>
       </bpmn:exclusiveGateway>
       <bpmn:sequenceFlow id="SequenceFlow_1ybk6dg" sourceRef="Task_138whrr" targetRef="EndEvent_0u59qhc" />
-      <bpmn:sequenceFlow id="SequenceFlow_0qfsue2" sourceRef="StartEvent_03ann00" targetRef="ExclusiveGateway_1t4g957" />
       <bpmn:serviceTask id="Task_138whrr" name="ssh" camunda:asyncBefore="true" camunda:type="external" camunda:topic="ssh_webserverscan">
         <bpmn:incoming>SequenceFlow_1x0soae</bpmn:incoming>
         <bpmn:outgoing>SequenceFlow_1ybk6dg</bpmn:outgoing>
@@ -35,8 +39,9 @@
       </bpmn:serviceTask>
       <bpmn:sequenceFlow id="SequenceFlow_0fuj7f0" sourceRef="ServiceTask_1izamm2" targetRef="EndEvent_0u59qhc" />
       <bpmn:sequenceFlow id="SequenceFlow_0hc6hao" name="second_scan == sslyze" sourceRef="ExclusiveGateway_1t4g957" targetRef="ServiceTask_1izamm2">
-        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TARGET.SECOND_SCAN == 'sslyze'}</bpmn:conditionExpression>
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="javascript">execution.getVariable('TARGET.SECOND_SCAN') == 'SSLYZE';</bpmn:conditionExpression>
       </bpmn:sequenceFlow>
+      <bpmn:sequenceFlow id="SequenceFlow_0pv9oa6" sourceRef="StartEvent_03ann00" targetRef="ExclusiveGateway_1t4g957" />
     </bpmn:subProcess>
     <bpmn:exclusiveGateway id="ExclusiveGateway_0qca283" name="Configure port scan details?">
       <bpmn:incoming>SequenceFlow_1hvao1c</bpmn:incoming>
@@ -85,7 +90,11 @@
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="ServiceTask_1iu85gr" name="Transform Report Summary" camunda:asyncBefore="true" camunda:delegateExpression="${summaryGeneratorDelegate}">
       <bpmn:extensionElements>
-        <camunda:executionListener delegateExpression="${CombinedTransformListener}" event="end" />
+        <camunda:executionListener delegateExpression="${combinedTransformListener}" event="end" />
+        <camunda:inputOutput>
+          <camunda:outputParameter name="Output_25ufdf8" />
+          <camunda:outputParameter name="Output_1qbmu3n" />
+        </camunda:inputOutput>
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0qgxnc1</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1szj0yb</bpmn:incoming>
@@ -98,17 +107,17 @@
       <bpmn:outgoing>SequenceFlow_0qgxnc1</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_06jcrzc" name="review required" sourceRef="ExclusiveGateway_1gtgj8f" targetRef="UserTask_0llrnlb">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_REVIEW_REQUIRED == 'required'}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${REVIEW_REQUIRED == 'required'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0qgxnc1" name="review not require" sourceRef="ExclusiveGateway_1gtgj8f" targetRef="ServiceTask_1iu85gr">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_REVIEW_REQUIRED == 'unrequired'}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${REVIEW_REQUIRED == 'unrequired'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1szj0yb" sourceRef="Task_05h49jl" targetRef="ServiceTask_1iu85gr" />
     <bpmn:endEvent id="EndEvent_0cl48it" name="Combined Scan finished">
       <bpmn:incoming>SequenceFlow_1abua3i</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1kd3ej8</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:userTask id="UserTask_0uek81x" name="Review  combined scan results" camunda:formKey="embedded:app:forms/approve-combined-scanner-results.html" camunda:candidateGroups="_securebox_admin, _securebox_productowner, _securebox_developer, approver">
+    <bpmn:userTask id="UserTask_0uek81x" name="Review  combined scan results" camunda:formKey="embedded:app:forms/universal/approve-combined-scanner-results.html" camunda:candidateGroups="_securebox_admin, _securebox_productowner, _securebox_developer, approver">
       <bpmn:extensionElements>
         <camunda:formData />
       </bpmn:extensionElements>
@@ -136,7 +145,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_AUTOMATED == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_02wu30x" name="result reviewed" sourceRef="UserTask_0uek81x" targetRef="ExclusiveGateway_1qg6b1m" />
-    <bpmn:userTask id="UserTask_0llrnlb" name="Review  portscan results" camunda:formKey="embedded:app:forms/review-port-scanner-results.html" camunda:candidateGroups="_securebox_admin, _securebox_productowner, _securebox_developer, approver">
+    <bpmn:userTask id="UserTask_0llrnlb" name="Review  portscan results" camunda:formKey="embedded:app:forms/universal/review-port-scanner-results.html" camunda:candidateGroups="_securebox_admin, _securebox_productowner, _securebox_developer, approver">
       <bpmn:extensionElements>
         <camunda:formData />
       </bpmn:extensionElements>
@@ -313,10 +322,6 @@
         <di:waypoint x="761" y="332" />
         <di:waypoint x="761" y="332" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_0qfsue2_di" bpmnElement="SequenceFlow_0qfsue2">
-        <di:waypoint x="1118" y="642" />
-        <di:waypoint x="1235" y="642" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_06jcrzc_di" bpmnElement="SequenceFlow_06jcrzc">
         <di:waypoint x="1011" y="307" />
         <di:waypoint x="1011" y="260" />
@@ -481,6 +486,10 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1282" y="828" width="81" height="27" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0pv9oa6_di" bpmnElement="SequenceFlow_0pv9oa6">
+        <di:waypoint x="1118" y="642" />
+        <di:waypoint x="1235" y="642" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
