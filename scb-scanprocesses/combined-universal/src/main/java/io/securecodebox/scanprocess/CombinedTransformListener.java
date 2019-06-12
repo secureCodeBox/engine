@@ -22,9 +22,6 @@ public class CombinedTransformListener extends TransformFindingsToTargetsListene
         put("DEFAULT_SSLYZE_PORT", "443");
     }};
 
-    private List<Target> newTargets;
-    private List<Target> oldTargets;
-
     private enum ScannerEnum {
         AMASS,
         ARACHNI,
@@ -43,44 +40,48 @@ public class CombinedTransformListener extends TransformFindingsToTargetsListene
             //Creating "new" targets out of portscan findings
             String findingsAsString = objectMapper.writeValueAsString(delegateExecution.getVariable(
                     DefaultFields.PROCESS_FINDINGS.name()));
-            newTargets = objectMapper.readValue(objectMapper.readValue(findingsAsString, String.class),
+            List<Target> newTargets = objectMapper.readValue(objectMapper.readValue(findingsAsString, String.class),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
 
             //Retrieving "old" targets for the attributes config
             String oldTargetsAsString = objectMapper.writeValueAsString(delegateExecution.getVariable(
                     DefaultFields.PROCESS_TARGETS.name()));
-            oldTargets = objectMapper.readValue(objectMapper.readValue(oldTargetsAsString, String.class),
+            List<Target> oldTargets = objectMapper.readValue(objectMapper.readValue(oldTargetsAsString, String.class),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
 
             ScannerEnum[] scannerNames = {ScannerEnum.SSH, ScannerEnum.SSLYZE};
 
             for (ScannerEnum scannerName: scannerNames) {
-                createTargetsFor(scannerName);
+                createTargetsFor(scannerName, newTargets, oldTargets);
             }
 
             LOG.info("Created Targets out of Findings: " + newTargets);
 
-            // TODO: SET COLLECTION PROCESS VARIABLE WITH SERIALIZED TARGETS
-            Collection<ObjectValue> objectValue = new LinkedList<>();
+            Collection<ObjectValue> objectValueCollection = new LinkedList<>();
             for (Target target: newTargets) {
-                objectValue.add(Variables.objectValue(objectMapper.writeValueAsString(target))
+                objectValueCollection.add(Variables.objectValue(objectMapper.writeValueAsString(target))
                         .serializationDataFormat(Variables.SerializationDataFormats.JSON)
                         .create());
             }
+            ObjectValue objectValue = Variables.objectValue(objectMapper.writeValueAsString(newTargets))
+                    .serializationDataFormat(Variables.SerializationDataFormats.JSON)
+                    .create();
             delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(), objectValue);
+            delegateExecution.setVariable("PROCESS_TARGETS_COLLECTION", objectValueCollection);
 
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("Can't write field to process!", e);
         }
     }
 
-    private void createTargetsFor (ScannerEnum scannerName) {
+    private void createTargetsFor (ScannerEnum scannerName, List<Target> newTargets, List<Target> oldTargets) {
         //Setting default values if none were provided
         Map<String, Object> targetAttributes = oldTargets.get(0).getAttributes();
+
         if (targetAttributes.get(scannerName+"_SERVICE") == null || targetAttributes.get(scannerName+"_SERVICE").equals(""))
             oldTargets.get(0).appendOrUpdateAttribute(scannerName+"_SERVICE", defaultValues.get("DEFAULT_"+scannerName+"_SERVICE"));
         if (targetAttributes.get(scannerName+"_PORT") == null || targetAttributes.get(scannerName+"_PORT").equals(""))
-            oldTargets.get(0).appendOrUpdateAttribute("SSH_PORT", defaultValues.get("DEFAULT_SSH_PORT"));
+            oldTargets.get(0).appendOrUpdateAttribute(scannerName+"_PORT", defaultValues.get("DEFAULT_"+scannerName+"_PORT"));
         targetAttributes = oldTargets.get(0).getAttributes();
 
         List<Target> scannerTargets = new LinkedList<>();
@@ -100,6 +101,6 @@ public class CombinedTransformListener extends TransformFindingsToTargetsListene
             }
         }
 
-        newTargets.addAll(scannerTargets);
+        return scannerTargets;
     }
 }

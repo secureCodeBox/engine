@@ -37,8 +37,8 @@
             }];
 
             $scope.config = {
-                DO_SSH: false,
-                DO_SSLYZE: false,
+                DO_SSH: true,
+                DO_SSLYZE: true,
                 SSH_PORT: '',
                 SSH_SERVICE: '',
                 SSLYZE_PORT: '',
@@ -205,7 +205,7 @@
                 </div>
             </div>
 
-            <div class="form-group" id="scanner-config" style="overflow-y:auto; height: 200px">
+            <div class="form-group" id="scanner-config" style="overflow-y:auto; height: 220px">
                 <fieldset id="sslyzeConfig">
                     <div class="form-group">
                         <label for="sslyze">Do SSLyze Scan
