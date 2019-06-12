@@ -4,16 +4,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.execution.Target;
+import io.securecodebox.model.findings.Finding;
 import io.securecodebox.scanprocess.listener.TransformFindingsToTargetsListener;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.ObjectValue;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 @Component
-public class CombinedTransformListener extends TransformFindingsToTargetsListener {
+public class CombinedTransformListener implements JavaDelegate {
+
+    protected static final org.slf4j.Logger LOG = LoggerFactory.getLogger(CombinedTransformListener.class);
 
     Map<String, String> defaultValues = new HashMap() {{
         put("DEFAULT_SSH_SERVICE", "ssh");
@@ -32,75 +37,73 @@ public class CombinedTransformListener extends TransformFindingsToTargetsListene
         ZAP
     }
 
-    public void notify(DelegateExecution delegateExecution) throws Exception{
+    @Override
+    public void execute(DelegateExecution delegateExecution) throws Exception{
+        ObjectMapper objectMapper = new ObjectMapper();
 
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
+        List<Target> targets = new LinkedList<>();
+        Target initialTarget = new LinkedList<>(ProcessVariableHelper.readListFromValue(
+                (String) delegateExecution.getVariable(DefaultFields.PROCESS_TARGETS.name()), Target.class)).get(0);
 
-            //Creating "new" targets out of portscan findings
-            String findingsAsString = objectMapper.writeValueAsString(delegateExecution.getVariable(
-                    DefaultFields.PROCESS_FINDINGS.name()));
-            List<Target> newTargets = objectMapper.readValue(objectMapper.readValue(findingsAsString, String.class),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
+        List<Finding> findings = new LinkedList<>(ProcessVariableHelper.readListFromValue(
+                (String) delegateExecution.getVariable(DefaultFields.PROCESS_FINDINGS.name()), Finding.class));
 
-            //Retrieving "old" targets for the attributes config
-            String oldTargetsAsString = objectMapper.writeValueAsString(delegateExecution.getVariable(
-                    DefaultFields.PROCESS_TARGETS.name()));
-            List<Target> oldTargets = objectMapper.readValue(objectMapper.readValue(oldTargetsAsString, String.class),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
+        ScannerEnum[] scannerNames = {ScannerEnum.SSH, ScannerEnum.SSLYZE};
 
-            ScannerEnum[] scannerNames = {ScannerEnum.SSH, ScannerEnum.SSLYZE};
-
-            for (ScannerEnum scannerName: scannerNames) {
-                createTargetsFor(scannerName, newTargets, oldTargets);
-            }
-
-            LOG.info("Created Targets out of Findings: " + newTargets);
-
-            Collection<ObjectValue> objectValueCollection = new LinkedList<>();
-            for (Target target: newTargets) {
-                objectValueCollection.add(Variables.objectValue(objectMapper.writeValueAsString(target))
-                        .serializationDataFormat(Variables.SerializationDataFormats.JSON)
-                        .create());
-            }
-            ObjectValue objectValue = Variables.objectValue(objectMapper.writeValueAsString(newTargets))
-                    .serializationDataFormat(Variables.SerializationDataFormats.JSON)
-                    .create();
-            delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(), objectValue);
-            delegateExecution.setVariable("PROCESS_TARGETS_COLLECTION", objectValueCollection);
-
-        } catch (JsonProcessingException e) {
-            throw new IllegalStateException("Can't write field to process!", e);
+        for (ScannerEnum scannerName: scannerNames) {
+            targets.addAll(
+                createTargetsFor(scannerName, findings, initialTarget)
+            );
         }
+
+        LOG.debug("Created Targets out of Findings");
+
+        Collection<ObjectValue> objectValueCollection = new LinkedList<>();
+        for (Target target: targets) {
+            objectValueCollection.add(Variables.objectValue(objectMapper.writeValueAsString(target))
+                    .serializationDataFormat(Variables.SerializationDataFormats.JSON)
+                    .create());
+        }
+        ObjectValue objectValue = Variables.objectValue(objectMapper.writeValueAsString(targets))
+                .serializationDataFormat(Variables.SerializationDataFormats.JSON)
+                .create();
+        delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(), objectValue);
+        delegateExecution.setVariable("PROCESS_TARGETS_COLLECTION", objectValueCollection);
     }
 
-    private void createTargetsFor (ScannerEnum scannerName, List<Target> newTargets, List<Target> oldTargets) {
+    private List<Target> createTargetsFor (ScannerEnum scannerName, List<Finding> findings, Target initialTarget) {
         //Setting default values if none were provided
-        Map<String, Object> targetAttributes = oldTargets.get(0).getAttributes();
+        Map<String, Object> targetAttributes = initialTarget.getAttributes();
 
-        if (targetAttributes.get(scannerName+"_SERVICE") == null || targetAttributes.get(scannerName+"_SERVICE").equals(""))
-            oldTargets.get(0).appendOrUpdateAttribute(scannerName+"_SERVICE", defaultValues.get("DEFAULT_"+scannerName+"_SERVICE"));
-        if (targetAttributes.get(scannerName+"_PORT") == null || targetAttributes.get(scannerName+"_PORT").equals(""))
-            oldTargets.get(0).appendOrUpdateAttribute(scannerName+"_PORT", defaultValues.get("DEFAULT_"+scannerName+"_PORT"));
-        targetAttributes = oldTargets.get(0).getAttributes();
+        //TODO: Port & Service as Comma separated Lists
+        String port = (String) targetAttributes.getOrDefault(scannerName + "_PORT", defaultValues.get("DEFAULT_" + scannerName + "_PORT"));
+        String service = (String) targetAttributes.getOrDefault(scannerName + "_SERVICE", defaultValues.get("DEFAULT_" + scannerName + "_SERVICE"));
 
-        List<Target> scannerTargets = new LinkedList<>();
+        List<Target> nextTargets = new LinkedList<>();
 
-        for (Target target : newTargets) {
-            Map<String, Object> attributes = target.getAttributes();
+        for (Finding finding : findings) {
+            Map<String, Object>findingAttributes = finding.getAttributes();
 
-            if (targetAttributes.get("DO_"+scannerName).equals(true)) {
-                if (!attributes.containsKey("SECOND_SCAN") && (
-                        targetAttributes.get(scannerName+"_SERVICE").toString().contains(attributes.get("service").toString()) ||
-                        targetAttributes.get(scannerName+"_PORT").toString().contains(attributes.get("port").toString()))) {
-                    Target newTarget = target;
-                    newTarget.setLocation(attributes.get("hostname") + ":" + attributes.get("port"));
-                    newTarget.appendOrUpdateAttribute("SECOND_SCAN", scannerName);
-                    scannerTargets.add(newTarget);
+            String actualPort = findingAttributes.get("port").toString();
+            String actualService = (String) findingAttributes.get("service");
+
+
+            if (targetAttributes.get("DO_" + scannerName).equals(true)) {
+                if (port.equals(actualPort) || service.equals(actualService)) {
+                    Target target = new Target();
+                    switch (scannerName){
+                        case SSH:
+                            target.setLocation(findingAttributes.get("hostname") + ":" + findingAttributes.get("port"));
+                            break;
+                        case SSLYZE:
+                            target.setLocation(findingAttributes.get("hostname") + ":" + findingAttributes.get("port"));
+                            break;
+                    }
+                    target.appendOrUpdateAttribute("SECOND_SCAN", scannerName);
                 }
             }
         }
 
-        return scannerTargets;
+        return nextTargets;
     }
 }

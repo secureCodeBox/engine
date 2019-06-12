@@ -39,12 +39,9 @@
       </bpmn:serviceTask>
       <bpmn:sequenceFlow id="SequenceFlow_0fuj7f0" sourceRef="ServiceTask_1izamm2" targetRef="EndEvent_0u59qhc" />
       <bpmn:sequenceFlow id="SequenceFlow_0hc6hao" name="second_scan == sslyze" sourceRef="ExclusiveGateway_1t4g957" targetRef="ServiceTask_1izamm2">
-        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${SECOND_SCAN == 'SSLYZE'}</bpmn:conditionExpression>
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${SCAN_TYPE == 'SSLYZE'}</bpmn:conditionExpression>
       </bpmn:sequenceFlow>
-      <bpmn:serviceTask id="Task_0y2k5he" name="Set Scan Variable for further Scans" camunda:asyncBefore="true" camunda:delegateExpression="${summaryGeneratorDelegate}">
-        <bpmn:extensionElements>
-          <camunda:executionListener delegateExpression="${targetTransformListener}" event="end" />
-        </bpmn:extensionElements>
+      <bpmn:serviceTask id="Task_0y2k5he" name="Set Scan Variable for further Scans" camunda:asyncBefore="true" camunda:delegateExpression="${targetTransformListener}">
         <bpmn:incoming>SequenceFlow_0dmyg97</bpmn:incoming>
         <bpmn:outgoing>SequenceFlow_0fbne3d</bpmn:outgoing>
       </bpmn:serviceTask>
@@ -96,9 +93,8 @@
     <bpmn:sequenceFlow id="SequenceFlow_1g10cwj" name="automated start" sourceRef="ExclusiveGateway_162icjt" targetRef="ServiceTask_1cqh4xc">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_AUTOMATED == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:serviceTask id="ServiceTask_1iu85gr" name="Transform Report Summary" camunda:asyncBefore="true" camunda:delegateExpression="${summaryGeneratorDelegate}">
+    <bpmn:serviceTask id="ServiceTask_1iu85gr" name="Transform Findings into Targets" camunda:asyncBefore="true" camunda:delegateExpression="${combinedTransformListener}">
       <bpmn:extensionElements>
-        <camunda:executionListener delegateExpression="${combinedTransformListener}" event="end" />
         <camunda:inputOutput>
           <camunda:outputParameter name="Output_25ufdf8" />
           <camunda:outputParameter name="Output_1qbmu3n" />
@@ -419,7 +415,7 @@
         <di:waypoint x="1442" y="260" />
         <di:waypoint x="1686" y="260" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1543" y="269" width="43" height="14" />
+          <dc:Bounds x="1540" y="284" width="43" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_025eg9r_di" bpmnElement="SequenceFlow_025eg9r">
