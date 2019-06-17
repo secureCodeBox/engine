@@ -27,8 +27,6 @@ public class CombinedTransformListener implements JavaDelegate {
         put("DEFAULT_SSLYZE_PORT", "443, 585, 614");
     }};
 
-    private Collection<String> selectedScanner = new LinkedList<>();
-
     private enum ScannerEnum {
         AMASS,
         ARACHNI,
@@ -76,7 +74,6 @@ public class CombinedTransformListener implements JavaDelegate {
                 .create();
         delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(), objectValue);
         delegateExecution.setVariable("PROCESS_TARGETS_COLLECTION", objectValueCollection);
-        delegateExecution.setVariable("SELECTED SCANNER", selectedScanner);
     }
 
     private List<Target> createTargetsFor (ScannerEnum scannerName, List<Finding> findings, Target initialTarget) {
@@ -118,10 +115,8 @@ public class CombinedTransformListener implements JavaDelegate {
                     }
                     target.appendOrUpdateAttribute("SECOND_SCAN", scannerName);
                 }
-                selectedScanner.add(scannerName.name());
             }
         }
-
         return nextTargets;
     }
 }
