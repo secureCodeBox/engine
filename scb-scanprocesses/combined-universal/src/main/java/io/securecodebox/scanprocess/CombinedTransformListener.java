@@ -23,9 +23,11 @@ public class CombinedTransformListener implements JavaDelegate {
     Map<String, String> defaultValues = new HashMap() {{
         put("DEFAULT_SSH_SERVICE", "ssh");
         put("DEFAULT_SSH_PORT", "22");
-        put("DEFAULT_SSLYZE_SERVICE", "");
-        put("DEFAULT_SSLYZE_PORT", "443");
+        put("DEFAULT_SSLYZE_SERVICE", "https, imap4-ssl, sshell");
+        put("DEFAULT_SSLYZE_PORT", "443, 585, 614");
     }};
+
+    private Collection<String> selectedScanner = new LinkedList<>();
 
     private enum ScannerEnum {
         AMASS,
@@ -45,8 +47,13 @@ public class CombinedTransformListener implements JavaDelegate {
         Target initialTarget = new LinkedList<>(ProcessVariableHelper.readListFromValue(
                 (String) delegateExecution.getVariable(DefaultFields.PROCESS_TARGETS.name()), Target.class)).get(0);
 
-        List<Finding> findings = new LinkedList<>(ProcessVariableHelper.readListFromValue(
+        List<Finding> allFindings = new LinkedList<>(ProcessVariableHelper.readListFromValue(
                 (String) delegateExecution.getVariable(DefaultFields.PROCESS_FINDINGS.name()), Finding.class));
+
+        List<Finding> findings = new LinkedList<>();
+        for (Finding finding: allFindings){
+            if (finding.getCategory().equals("Open Port")) findings.add(finding);
+        }
 
         ScannerEnum[] scannerNames = {ScannerEnum.SSH, ScannerEnum.SSLYZE};
 
@@ -69,15 +76,25 @@ public class CombinedTransformListener implements JavaDelegate {
                 .create();
         delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(), objectValue);
         delegateExecution.setVariable("PROCESS_TARGETS_COLLECTION", objectValueCollection);
+        delegateExecution.setVariable("SELECTED SCANNER", selectedScanner);
     }
 
     private List<Target> createTargetsFor (ScannerEnum scannerName, List<Finding> findings, Target initialTarget) {
-        //Setting default values if none were provided
         Map<String, Object> targetAttributes = initialTarget.getAttributes();
 
-        //TODO: Port & Service as Comma separated Lists
         String port = (String) targetAttributes.getOrDefault(scannerName + "_PORT", defaultValues.get("DEFAULT_" + scannerName + "_PORT"));
         String service = (String) targetAttributes.getOrDefault(scannerName + "_SERVICE", defaultValues.get("DEFAULT_" + scannerName + "_SERVICE"));
+
+        List<String> ports = new LinkedList<>();
+        List<String> services = new LinkedList<>();
+        for (String element: port.split(",")){
+            element.trim();
+            ports.add(element);
+        }
+        for (String element: service.split(",")){
+            element.trim();
+            services.add(element);
+        }
 
         List<Target> nextTargets = new LinkedList<>();
 
@@ -89,7 +106,7 @@ public class CombinedTransformListener implements JavaDelegate {
 
 
             if (targetAttributes.get("DO_" + scannerName).equals(true)) {
-                if (port.equals(actualPort) || service.equals(actualService)) {
+                if (ports.contains(actualPort) || services.contains(actualService)) {
                     Target target = new Target();
                     switch (scannerName){
                         case SSH:
@@ -101,6 +118,7 @@ public class CombinedTransformListener implements JavaDelegate {
                     }
                     target.appendOrUpdateAttribute("SECOND_SCAN", scannerName);
                 }
+                selectedScanner.add(scannerName.name());
             }
         }
 
