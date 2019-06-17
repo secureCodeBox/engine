@@ -19,6 +19,7 @@
 
 package io.securecodebox.engine.listener;
 
+import io.securecodebox.engine.tenancy.CustomTenantIdProvider;
 import org.camunda.bpm.engine.impl.bpmn.parser.BpmnParseListener;
 import org.camunda.bpm.engine.impl.cfg.AbstractProcessEnginePlugin;
 import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
@@ -38,8 +39,13 @@ public class ListenerRegistrarPlugin extends AbstractProcessEnginePlugin {
     @Autowired
     DefaultListenerRegistrar registrar;
 
+    @Autowired
+    CustomTenantIdProvider tenantIdProvider;
+
     @Override
     public void preInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
+
+        processEngineConfiguration.setTenantIdProvider(tenantIdProvider);
 
         // get all existing preParseListeners
         List<BpmnParseListener> preParseListeners = processEngineConfiguration.getCustomPreBPMNParseListeners();

@@ -21,7 +21,7 @@ package io.securecodebox.engine;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * This class adds additional resources to the spring application.
@@ -31,7 +31,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
  * @since 02.03.18
  */
 @Configuration
-public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
+public class CustomWebMvcConfigurer implements WebMvcConfigurer {
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/forms/**").addResourceLocations("classpath:/forms/");
