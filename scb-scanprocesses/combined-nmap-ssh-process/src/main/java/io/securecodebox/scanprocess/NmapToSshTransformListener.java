@@ -11,6 +11,7 @@ import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 @Component
@@ -20,10 +21,8 @@ public class NmapToSshTransformListener extends TransformFindingsToTargetsListen
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            String findingsAsString = objectMapper.writeValueAsString(delegateExecution.getVariable(
-                    DefaultFields.PROCESS_FINDINGS.name()));
-            List<Target> newTargets = objectMapper.readValue(objectMapper.readValue(findingsAsString, String.class),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
+            List<Target> newTargets = new LinkedList<>(ProcessVariableHelper.readListFromValue(
+                    (String) delegateExecution.getVariable(DefaultFields.PROCESS_TARGETS.name()), Target.class));
 
             List<Target> removeTargets = new ArrayList<>();
             for (Target target : newTargets) {
@@ -34,7 +33,7 @@ public class NmapToSshTransformListener extends TransformFindingsToTargetsListen
                     removeTargets.add(target);
                 }
             }
-            if(removeTargets != null){
+            if(!removeTargets.isEmpty()){
                 for(Target target : removeTargets){
                     newTargets.remove(target);
                 }
