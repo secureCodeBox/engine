@@ -1,52 +1,46 @@
 package io.securecodebox.scanprocess;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.execution.Target;
+import io.securecodebox.model.findings.Finding;
 import io.securecodebox.scanprocess.listener.TransformFindingsToTargetsListener;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.variable.Variables;
-import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class NmapToSshTransformListener extends TransformFindingsToTargetsListener {
 
     public void notify(DelegateExecution delegateExecution) throws Exception{
 
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            List<Target> newTargets = new LinkedList<>(ProcessVariableHelper.readListFromValue(
-                    (String) delegateExecution.getVariable(DefaultFields.PROCESS_TARGETS.name()), Target.class));
+        List<Finding> findings = ProcessVariableHelper.readListFromValue(
+                (String) delegateExecution.getVariable(DefaultFields.PROCESS_FINDINGS.name()),
+                Finding.class
+        );
 
-            List<Target> removeTargets = new ArrayList<>();
-            for (Target target : newTargets) {
-                if (target.getAttributes().get("service").equals("ssh")){
-                    target.setLocation(target.getAttributes().get("hostname") + ":" + target.getAttributes().get("port"));
-                }
-                else {
-                    removeTargets.add(target);
-                }
-            }
-            if(!removeTargets.isEmpty()){
-                for(Target target : removeTargets){
-                    newTargets.remove(target);
-                }
-            }
+        List<Target> newTargets = findings.stream()
+                .filter(finding -> finding.getCategory().equals("Open Port"))
+                .filter(finding -> {
+                    String service = (String) finding.getAttribute(OpenPortAttributes.service);
+                    return service.equals("ssh");
+                })
+                .map(finding -> {
+                    String hostname = (String) finding.getAttribute(OpenPortAttributes.hostname);
+                    String port = finding.getAttribute(OpenPortAttributes.port).toString();
 
-            LOG.info("Created Targets out of Findings: " + newTargets);
-            ObjectValue objectValue = Variables.objectValue(objectMapper.writeValueAsString(newTargets))
-                    .serializationDataFormat(Variables.SerializationDataFormats.JSON)
-                    .create();
-            delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(), objectValue);
-        } catch (JsonProcessingException e) {
-            throw new IllegalStateException("Can't write field to process!", e);
-        }
+                    Target target = new Target();
+                    target.setLocation(hostname + ":" + port);
+
+                    return target;
+                }).collect(Collectors.toList());
+
+        LOG.info("Created Targets out of Findings: " + newTargets);
+
+        delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(),
+                ProcessVariableHelper.generateObjectValue(newTargets)
+        );
     }
 
 }
