@@ -81,7 +81,6 @@ public class WordpressProcessTest {
     //Define the Process Activity IDs
     private static final String PROCESS_ID = "wordpress-process";
     private static final String DO_SCAN_TASK_ID = "ServiceTask_DoScan";
-    private static final String CREATE_REPORT_TASK_ID = "ServiceTask_CreateSummary";
     private static final String APPROVE_RESULTS_TASK_ID = "UserTask_ApproveResults";
 
     private final Map<String, Object> defaultVariables = new HashMap<>();
@@ -94,7 +93,7 @@ public class WordpressProcessTest {
     private ProcessScenario process;
 
     @Mock
-    SummaryGeneratorDelegate delegate;
+    protected SummaryGeneratorDelegate delegate;
 
     /**
      * Executed before every test-case
@@ -148,7 +147,7 @@ public class WordpressProcessTest {
     }
 
     @Test
-    public void testAutomatedStart_shouldPass() {
+    public void testAutomatedStartShouldPass() {
 
         ProcessInstance processInstance = runtimeService().startProcessInstanceByKey(PROCESS_ID, defaultVariables);
 
@@ -156,7 +155,7 @@ public class WordpressProcessTest {
     }
 
     @Test
-    public void testManualStartWithDefaultConfiguration_shouldPass() {
+    public void testManualStartWithDefaultConfigurationShouldPass() {
         ProcessInstance processInstance = runtimeService().startProcessInstanceByKey(PROCESS_ID, defaultVariables);
 
         assertThat(processInstance).isStarted();
@@ -184,10 +183,10 @@ public class WordpressProcessTest {
              */
         Mocks.register("setFormUrlListener", new TaskListener() {
 
-            @Autowired
+            @Autowired //Dummy implementation
             private Expression scanner_type;
 
-            @Override
+            @Override //Dummy implementation
             public void notify(DelegateTask delegateTask) {
             }
         });
