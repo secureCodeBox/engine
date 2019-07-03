@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.Attribute;
 import io.securecodebox.model.execution.Target;
+import io.securecodebox.scanprocess.ProcessVariableHelper;
 import io.securecodebox.scanprocess.listener.TransformFindingsToTargetsListener;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @Component
@@ -20,10 +22,8 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            String findingsAsString = objectMapper.writeValueAsString(delegateExecution.getVariable(
-                    DefaultFields.PROCESS_FINDINGS.name()));
-            List<Target> newTargets = objectMapper.readValue(objectMapper.readValue(findingsAsString, String.class),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
+            List<Target> newTargets = new LinkedList<>(ProcessVariableHelper.readListFromValue(
+                    (String) delegateExecution.getVariable(DefaultFields.PROCESS_FINDINGS.name()), Target.class));
 
             for (Target target : newTargets) {
                 target.setLocation((String)target.getAttributes().get("hostname"));

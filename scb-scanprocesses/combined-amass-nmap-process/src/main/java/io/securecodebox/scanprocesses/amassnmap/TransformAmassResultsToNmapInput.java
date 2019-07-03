@@ -25,7 +25,10 @@ import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.findings.Finding;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+
+import io.securecodebox.scanprocess.ProcessVariableHelper;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.camunda.bpm.engine.variable.Variables;
@@ -52,13 +55,12 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
         LOG.debug("Converting amass output to nmap input");
 
         try {
-            String findingsAsString = objectMapper.writeValueAsString(execution.getVariable(DefaultFields.PROCESS_FINDINGS.name()));
-            List<Finding> findings = objectMapper.readValue(objectMapper.readValue(findingsAsString, String.class),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, Finding.class));
+            List<Finding> findings = new LinkedList<>(ProcessVariableHelper.readListFromValue(
+                    (String) execution.getVariable(DefaultFields.PROCESS_FINDINGS.name()), Finding.class));
 
-            String targetsAsString = objectMapper.writeValueAsString(execution.getVariable(DefaultFields.PROCESS_TARGETS.name()));
-            List<Target> targets = objectMapper.readValue(objectMapper.readValue(targetsAsString, String.class),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
+            List<Target> targets = new LinkedList<>(ProcessVariableHelper.readListFromValue(
+                    (String) execution.getVariable(DefaultFields.PROCESS_TARGETS.name()), Target.class));
+
 
             Target originalTarget = targets.get(0);
             originalTargetRestorer.storeOriginalTargetInSeparateProcessVariable(originalTarget, execution);
