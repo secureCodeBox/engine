@@ -24,7 +24,7 @@ public class NmapToSshTransformListener extends TransformFindingsToTargetsListen
                 .filter(finding -> finding.getCategory().equals("Open Port"))
                 .filter(finding -> {
                     String service = (String) finding.getAttribute(OpenPortAttributes.service);
-                    return service.equals("ssh");
+                    return "ssh".equals(service);
                 })
                 .map(finding -> {
                     String hostname = (String) finding.getAttribute(OpenPortAttributes.hostname);
