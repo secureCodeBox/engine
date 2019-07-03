@@ -183,10 +183,16 @@ public class WordpressProcessTest {
              */
         Mocks.register("setFormUrlListener", new TaskListener() {
 
-            @Autowired //Dummy implementation
+            /**
+             * Dummy implementation
+             */
+            @Autowired
             private Expression scanner_type;
 
-            @Override //Dummy implementation
+            /**
+             * Dummy implementation
+             */
+            @Override
             public void notify(DelegateTask delegateTask) {
             }
         });
