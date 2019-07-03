@@ -10,7 +10,7 @@ install: true
 script:
   - set -e
   - echo -en "travis_fold:start:Test\r"
-  - mvn install -Pdependency-check
+  - mvn install -Pdependency-check -B
   - echo -en "travis_fold:end:Test\r"
   - export REPO=securecodebox/engine
   - export TAG=$(echo $TRAVIS_BRANCH | sed 's/\//-/g')
