@@ -31,7 +31,7 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
-        <elasticsearch.version>6.4.3</elasticsearch.version>
+        <elasticsearch.version>7.0.0</elasticsearch.version>
     </properties>
 
 
