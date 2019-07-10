@@ -406,8 +406,6 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
             String kibanaFile = readFileResource("kibana-imports.json");
             List<KibanaData> dataElements = objectMapper.readValue(kibanaFile, objectMapper.getTypeFactory().constructCollectionType(List.class, KibanaData.class));
 
-            LOG.debug(dataElements.toString());
-
             BulkRequest bulkRequest = new BulkRequest();
             for (KibanaData data : dataElements) {
                 IndexRequest indexRequest = new IndexRequest(data.getIndex(), data.getType(), data.getId());
