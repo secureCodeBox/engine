@@ -37,11 +37,16 @@ public class SecurityTest extends AbstractSecurityTest {
     public SecurityTest() {}
 
     public SecurityTest(UUID id, String context, String name, Target target, Report report, Map<String, String> metaData) {
+        this(id, context, name, target, report, metaData, null);
+    }
+
+    public SecurityTest(UUID id, String context, String name, Target target, Report report, Map<String, String> metaData, String tenant) {
         this.id = id;
         this.context = context;
         this.name = name;
         this.target = target;
         this.report = report;
+        this.tenant = tenant;
         this.setMetaData(metaData);
     }
 

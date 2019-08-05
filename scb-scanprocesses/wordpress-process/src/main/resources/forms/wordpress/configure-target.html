@@ -1,0 +1,376 @@
+<!--
+  ~ /*
+  ~ * SecureCodeBox (SCB)
+  ~ * Copyright 2015-2018 iteratec GmbH
+  ~ *
+  ~ * Licensed under the Apache License, Version 2.0 (the "License");
+  ~ * you may not use this file except in compliance with the License.
+  ~ * You may obtain a copy of the License at
+  ~ *
+  ~ * 	http://www.apache.org/licenses/LICENSE-2.0
+  ~ *
+  ~ * Unless required by applicable law or agreed to in writing, software
+  ~ * distributed under the License is distributed on an "AS IS" BASIS,
+  ~ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ * See the License for the specific language governing permissions and
+  ~ * limitations under the License.
+  ~ */
+  -->
+
+<h2>Please configure the WordPress Scan</h2>
+
+<form role="form" name="configure-target">
+
+    <script cam-script type="text/form-script">
+        camForm.on('form-loaded', function () {
+            camForm.variableManager.fetchVariable('DEFAULT_CONTEXT');
+            camForm.variableManager.fetchVariable('DEFAULT_TARGET_NAME');
+            camForm.variableManager.fetchVariable('DEFAULT_TARGET_LOCATION');
+            camForm.variableManager.fetchVariable('DEFAULT_TARGET_URI');
+        });
+
+        camForm.on('variables-fetched', function () {
+            $scope.context = camForm.variableManager.variableValue('DEFAULT_CONTEXT');
+
+            $scope.targetList = [{
+                name: camForm.variableManager.variableValue('DEFAULT_TARGET_NAME'),
+                location: camForm.variableManager.variableValue('DEFAULT_TARGET_LOCATION')
+            }];
+
+            $scope.config = {
+                WP_STEALTHY: false,
+                WP_ENUMERATE: {plugins: null, themes: null, timthumbs: null, configBackups: null, dbExports: null, userIDs: null, mediaIDs: null},
+                WP_MAX_DURATION: null,
+                WP_THROTTLE: null,
+                WP_REQUEST_TIMEOUT: null,
+                WP_DETECTION_MODE: null,
+                WP_USER_AGENT: null,
+                WP_HEADERS: null
+            };
+
+            $scope.addTarget = function () {
+                $scope.targetList.push({'name':'', 'location': ''});
+            };
+
+            $scope.checkForEnter = function ($event) {
+                if ($event.key === 'Enter') {
+                    $scope.addTarget();
+                    $event.stopPropagation();
+                    $event.preventDefault();
+                }
+            };
+        });
+
+        camForm.on('submit', function () {
+            const targets = $scope.targetList.map((target) => {
+                return {
+                    ...target,
+                    attributes: $scope.config
+                }
+            });
+
+            camForm.variableManager.createVariable({
+                name: 'PROCESS_TARGETS',
+                type: 'Object',
+                value: JSON.stringify(targets),
+                valueInfo: {
+                    serializationDataFormat: 'application/json',
+                    objectTypeName: 'java.lang.String'
+                }
+            });
+        });
+
+    </script>
+
+    <script type="text/javascript">
+
+        function togglediv(id) {
+            let div = document.getElementById(id);
+            div.style.display == 'none' ? div.style.display = 'block' : div.style.display = 'none';
+        }
+
+        function updateButtons() {
+            let checked = document.getElementById('stealthy').checked;
+
+            const buttons = [
+                document.getElementById('wpTimeoutAndDurationButton'),
+                document.getElementById('wpEnumerationProcessButton'),
+                document.getElementById('wpDetectionModeButton'),
+                document.getElementById('wpUAButton'),
+                document.getElementById('wpHeadersDesButton')
+            ];
+
+            const divs = [
+                document.getElementById('wpTimeoutAndDuration'),
+                document.getElementById('wpEnumerationProcess'),
+                document.getElementById('wpDetectionMode'),
+                document.getElementById('wpUA'),
+                document.getElementById('wpHeadersDes')
+            ];
+
+            buttons.forEach(function(button) {
+               button.disabled = checked;
+               reload(button);
+            });
+
+            divs.forEach(function (div) {
+                div.disabled = checked;
+                hideDiv(div);
+                clearInputFields(div);
+                reload(div);
+            });
+        }
+
+        function reload(element){
+            let container = element;
+            let content = container.innerHTML;
+            container.innerHTML= content;
+        }
+
+        function hideDiv(div) {
+            div.style.display = 'none';
+        }
+
+        function clearInputFields(divElement) {
+            let elements = getInputFields(divElement);
+
+            for (let element of elements) {
+                if (element) {
+                    switch (element.type) {
+                        case 'text':
+                            element.value = '';
+                        case 'number':
+                            element.value = '';
+                        case 'checkbox':
+                            element.checked = false;
+                        case 'radio':
+                            element.checked = false;
+                    }
+                }
+            }
+        }
+
+        function getInputFields(divElement) {
+            let elements = [];
+
+            for (let element of divElement.childNodes) {
+                if (element.tagName == "input") {
+                    elements.push(element);
+                } else if (element.hasChildNodes()) {
+                    getInputFields(element);
+                }
+            }
+            return elements;
+        }
+    </script>
+
+
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js">
+    </script>
+
+    <div class="row">
+
+        <div class="col-xs-12">
+            <h3>WordPress scan Target</h3>
+
+            <!-- Target Hosts -->
+            <div class="form-group">
+                <div class="controls row form-group" ng-repeat="target in targetList track by $index">
+                    <div class="col-xs-5">
+                        <label>Target Name</label>
+                        <input required class="form-control"
+                               type="text"
+                               placeholder="Public Site Name"
+                               ng-minlength="2"
+                               ng-maxlength="30"
+                               ng-model="target.name"/>
+                    </div>
+                    <div class="col-xs-6">
+                        <label>Target Hosts</label>
+                        <input required class="form-control"
+                               type="text"
+                               placeholder="Hostname/IP address"
+                               ng-minlength="3"
+                               ng-maxlength="100"
+                               ng-model="target.location"
+                               ng-keydown="checkForEnter($event)"
+                        />
+                    </div>
+                    <div class="col-xs-1">
+                        <button class="btn btn-danger btn-lg"
+                                ng-click="targetList.splice($index, 1)"
+                                ng-disabled="targetList.length === 1"
+                                style="position: absolute; right: 15px; top: 0;">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </button>
+                    </div>
+                </div>
+                <button class="btn btn-primary" ng-click="addTarget()">Add Host</button>
+                <code class="hidden">{{ targetList }}</code>
+            </div>
+
+            <!-- Context (Project/Team/System...) -->
+            <div class="form-group">
+                <label for="inputContext">Business Context (Project/Team/System)</label>
+                <div class="controls">
+                    <input class="form-control"
+                           id="inputContext"
+                           cam-variable-type="String"
+                           cam-variable-name="PROCESS_CONTEXT"
+                           type="text"
+                           placeholder="Project/Team/System"
+                           ng-required="false"
+                           ng-maxlength="50"
+                           ng-model="context"
+                           name="context" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="stealthy">Stealthy mode: random user agent, passive detection mode and passive plugins version detection.
+                </label>
+                <div class="controls">
+                    <input class="form-control" id="stealthy" type="checkbox" name="stealthy" ng-model="config.WP_STEALTHY" onchange="updateButtons()"/>
+                </div>
+            </div>
+
+            <br>
+            <button id="wpTimeoutAndDurationButton" class="btn btn-info pull-right scanner-btn" onclick="togglediv('wpTimeoutAndDuration');" type="button">
+                <span class="glyphicon glyphicon-time "></span> Durations & Timeouts
+            </button>
+            <div id="wpTimeoutAndDuration" name="timoutAndDuration" style="display: none">
+                <label for="max_scan_duration">Max Scan Duration in Seconds</label>
+                <br>
+                <input id="max_scan_duration" ng-model="config.WP_MAX_DURATION" type="number" class="form-control"/>
+                <br>
+
+                <label for="throttle">Milliseconds to wait before doing another web request</label>
+                <br>
+                <input id="throttle" ng-model="config.WP_THROTTLE" type="number" class="form-control"/>
+                <br>
+
+                <label for="request_timeout">The Request Timeout in Seconds</label>
+                <br>
+                <input id="request_timeout" ng-model="config.WP_REQUEST_TIMEOUT" type="number" class="form-control" placeholder="60"/>
+            </div>
+            <div class="clearfix"></div>
+
+            <br>
+            <button id="wpEnumerationProcessButton" class="btn btn-info pull-right scanner-btn" onclick="togglediv('wpEnumerationProcess');" type="button">
+                <span class="glyphicon glyphicon-th-list "></span> Enumeration Process
+            </button>
+            <div id="wpEnumerationProcess" name="enumerationProcess" style="display: none">
+
+                <fieldset id="plugins">
+                    <legend>Choose Plugin Scope</legend>
+
+                    <label for="vp">Vulnerable Plugins
+                    </label>
+                    <input class="form-control" id="vp" type="radio" name="plugins" ng-model="config.WP_ENUMERATE.plugins" value="vp"/>
+                    <label for="ap">All Plugins
+                    </label>
+                    <input class="form-control" id="ap" type="radio" name="plugins" ng-model="config.WP_ENUMERATE.plugins" value="ap"/>
+                    <label for="p">Plugins
+                    </label>
+                    <input class="form-control" id="p" type="radio" name="plugins" ng-model="config.WP_ENUMERATE.plugins" value="p"/>
+                </fieldset>
+
+                <br>
+                <fieldset id="themes">
+                    <legend>Choose Plugin Scope</legend>
+
+                    <label for="vt">Vulnerable Themes
+                    </label>
+                    <input class="form-control" id="vt" type="radio" name="themes" ng-model="config.WP_ENUMERATE.themes" value="vt"/>
+                    <label for="at">All Themes
+                    </label>
+                    <input class="form-control" id="at" type="radio" name="themes" ng-model="config.WP_ENUMERATE.themes" value="at"/>
+                    <label for="t">Themes
+                    </label>
+                    <input class="form-control" id="t" type="radio" name="themes" ng-model="config.WP_ENUMERATE.themes" value="t"/>
+                </fieldset>
+
+                <fieldset id="additionalEnum">
+                    <legend>Choose Additional Enumeration Options</legend>
+
+                    <label for="tt">Timthumbs
+                    </label>
+                    <input class="form-control" id="tt" type="checkbox" name="timthumbs" ng-model="config.WP_ENUMERATE.timthumbs" ng-true-value="tt"/>
+                    <label for="cb">Config Backups
+                    </label>
+                    <input class="form-control" id="cb" type="checkbox" name="configBackups" ng-model="config.WP_ENUMERATE.configBackups" ng-true-value="cb"/>
+                    <label for="dbe">Db Exports
+                    </label>
+                    <input class="form-control" id="dbe" type="checkbox" name="dbExports" ng-model="config.WP_ENUMERATE.dbExports" ng-true-value="dbe"/>
+                </fieldset>
+
+                <fieldset id="additionalEnumRanges">
+                    <legend>Set Additional Enumeration Range Options</legend>
+
+                    <label for="userIDs">User IDs range.
+                    </label>
+                    <input id="userIDs" ng-model="config.WP_ENUMERATE.userIDs" type="text" class="form-control" placeholder="u1-10"/>
+                    <br>
+                    <label for="mediaIDs"> Media IDs range.
+                    </label>
+                    <input id="mediaIDs" ng-model="config.WP_ENUMERATE.mediaIDs" type="text" class="form-control" placeholder="m1-100"/>
+                </fieldset>
+            </div>
+            <div class="clearfix"></div>
+
+            <br>
+            <button id="wpDetectionModeButton" class="btn btn-info pull-right scanner-btn" onclick="togglediv('wpDetectionMode');" type="button">
+                <span class="glyphicon glyphicon-search"></span> Detection Mode
+            </button>
+            <div id="wpDetectionMode" name="detectionMode" style="display: none">
+
+                <fieldset id="detectionMode">
+                    <legend>Choose Detection Mode</legend>
+
+                    <label for="mixed">Mixed
+                    </label>
+                    <input class="form-control" id="mixed" type="radio" name="detectionMode" ng-model="config.WP_DETECTION_MODE" value="mixed"/>
+                    <label for="aggressive">Aggressive
+                    </label>
+                    <input class="form-control" id="aggressive" type="radio" name="detectionMode" ng-model="config.WP_DETECTION_MODE" value="aggressive"/>
+                    <label for="passive">Passive
+                    </label>
+                    <input class="form-control" id="passive" type="radio" name="detectionMode" ng-model="config.WP_DETECTION_MODE" value="passive"/>
+                </fieldset>
+            </div>
+            <div class="clearfix"></div>
+
+            <br>
+            <button id="wpUAButton" class="btn btn-info pull-right scanner-btn" onclick="togglediv('wpUA');" type="button">
+                <span class="glyphicon glyphicon-user "></span> User Agent
+            </button>
+            <div class="clearfix"></div>
+            <div id="wpUA" style="display: none">
+                <label for="wpUserAgent">User Agent</label>
+                <br>
+                <input id="wpUserAgent" name="wpuserAgent" class="form-control" type="text" ng-model="config.WP_USER_AGENT"
+                />
+            </div>
+            <div class="clearfix"></div>
+
+            <br>
+            <button id="wpHeadersDesButton" class="btn btn-info pull-right scanner-btn" onclick="togglediv('wpHeadersDes');" type="button">
+                <span class="glyphicon glyphicon-sort "></span> Additional Headers
+            </button>
+            <div class="clearfix"></div>
+            <div id="wpHeadersDes" style="display: none">
+                <br>
+                <p>
+                    Additional headers to append in requests<br>
+                    Separator to use between the headers: '; '<br>
+                    Examples: 'X-Forwarded-For: 127.0.0.1', 'X-Forwarded-For: 127.0.0.1; Another: aaa'
+                </p>
+                <label for="wpHeaders">Additional Headers</label>
+                <br>
+                <input id="wpHeaders" name="wpHeaders" class="form-control" type="text" ng-model="config.WP_HEADERS"
+                />
+            </div>
+
+        </div>
+    </div>
+</form>

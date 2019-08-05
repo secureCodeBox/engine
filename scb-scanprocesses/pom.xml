@@ -21,9 +21,11 @@
         <module>sslyze-process</module>
         <module>combined-nmap-nikto-process</module>
         <module>combined-amass-nmap-process</module>
+        <module>combined-nmap-ssh-process</module>
         <module>arachni-process</module>
         <module>amass-process</module>
-    <module>ssh-process</module>
+        <module>ssh-process</module>
+        <module>wordpress-process</module>
   </modules>
 
 </project>

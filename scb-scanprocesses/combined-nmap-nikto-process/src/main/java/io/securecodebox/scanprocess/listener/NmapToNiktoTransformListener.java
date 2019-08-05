@@ -1,49 +1,42 @@
 package io.securecodebox.scanprocess.listener;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
-import io.securecodebox.model.Attribute;
 import io.securecodebox.model.execution.Target;
-import io.securecodebox.scanprocess.listener.TransformFindingsToTargetsListener;
+import io.securecodebox.model.findings.Finding;
+import io.securecodebox.scanprocess.ProcessVariableHelper;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.variable.Variables;
-import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class NmapToNiktoTransformListener extends TransformFindingsToTargetsListener {
 
     public void notify(DelegateExecution delegateExecution) throws Exception{
+        List<Finding> findings = ProcessVariableHelper.readListFromValue(
+                (String) delegateExecution.getVariable(DefaultFields.PROCESS_FINDINGS.name()),
+                Finding.class
+            );
 
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String findingsAsString = objectMapper.writeValueAsString(delegateExecution.getVariable(
-                    DefaultFields.PROCESS_FINDINGS.name()));
-            List<Target> newTargets = objectMapper.readValue(objectMapper.readValue(findingsAsString, String.class),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, Target.class));
+        List<Target> newTargets = findings.stream()
+                .filter(finding -> finding.getCategory().equals("Open Port"))
+                .map(finding -> {
+                    String hostname = (String) finding.getAttribute(OpenPortAttributes.hostname);
+                    String port = finding.getAttribute(OpenPortAttributes.port).toString();
 
-            for (Target target : newTargets) {
-                target.setLocation((String)target.getAttributes().get("hostname"));
-                Object port = target.getAttributes().get("port");
-                if (port != null) {
-                    target.getAttributes().remove("port");
-                    target.getAttributes().put("NIKTO_PORTS", port);
-                }
-            }
+                    Target target = new Target();
+                    target.setLocation(hostname);
+                    target.appendOrUpdateAttribute("NIKTO_PORTS", port);
 
-            LOG.info("Created Targets out of Findings: " + newTargets);
+                    return target;
+                }).collect(Collectors.toList());
 
+        LOG.info("Created Targets out of Findings: " + newTargets);
 
-            ObjectValue objectValue = Variables.objectValue(objectMapper.writeValueAsString(newTargets))
-                    .serializationDataFormat(Variables.SerializationDataFormats.JSON)
-                    .create();
-            delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(), objectValue);
-        } catch (JsonProcessingException e) {
-            throw new IllegalStateException("Can't write field to process!", e);
-        }
+        delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(),
+                ProcessVariableHelper.generateObjectValue(newTargets)
+        );
     }
 
 }
