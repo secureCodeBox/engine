@@ -75,13 +75,13 @@ public class DefaultGroupConfiguration extends AbstractCamundaConfiguration {
                 processEngine.getAuthorizationService(),
                 GROUP_CI,
                 Resources.PROCESS_DEFINITION,
-                Permissions.CREATE_INSTANCE
+                Permissions.CREATE_INSTANCE, Permissions.READ, Permissions.READ_HISTORY
         );
         createAuthorizationForGroup(
                 processEngine.getAuthorizationService(),
                 GROUP_CI,
                 Resources.PROCESS_INSTANCE,
-                Permissions.READ
+                Permissions.READ, Permissions.CREATE
         );
     }
 
