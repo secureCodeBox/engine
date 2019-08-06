@@ -23,6 +23,7 @@ import lombok.Data;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -50,7 +51,7 @@ public class EngagementPayload {
     protected Status status = Status.IN_PROGRESS;
 
     @JsonProperty
-    protected List<String> tags = Collections.emptyList();
+    protected List<String> tags = new LinkedList<>();
 
     @JsonProperty
     protected String tracker;
