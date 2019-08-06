@@ -213,16 +213,17 @@ public class DefectDojoService {
             throw new DefectDojoPersistenceException("Failed to attach findings to engagement.");
         }
     }
-    public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, long productId){
-        createFindingsForEngagementName(engagementName, rawResults, defectDojoScanName, productId, new EngagementPayload());
+    public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, long productId, long lead){
+        return createFindingsForEngagementName(engagementName, rawResults, defectDojoScanName, productId, lead, new EngagementPayload());
     }
 
-    public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, long productId, EngagementPayload engagementPayload){
+    public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, long productId, long lead, EngagementPayload engagementPayload){
         Long engagementId = getEngagementIdByEngagementName(engagementName, productId).orElseGet(() -> {
             engagementPayload.setName(engagementName);
             engagementPayload.setProduct(productId);
             engagementPayload.setTargetStart(currentDate());
             engagementPayload.setTargetEnd(currentDate());
+            engagementPayload.setLead(lead);
             return createEngagement(engagementPayload).getId();
         });
 
@@ -256,24 +257,4 @@ public class DefectDojoService {
         LOG.warn("Engagement with name '{}' not found.", engagementName);
         return Optional.empty();
     }
-
-    public static void main(String[] args) {
-        DefectDojoService dd = new DefectDojoService();
-
-        dd.defectDojoUrl = "http://defectdojo.default.minikube.local:8080";
-        dd.defectDojoDefaultUserName = "admin";
-        dd.defectDojoApiKey = "...";
-
-        EngagementPayload engagement = new EngagementPayload();
-        engagement.setBranch("fix/stuff");
-
-        dd.createFindingsForEngagementName(
-                "NMAP fix/stuff",
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE nmaprun>...</nmaprun>",
-                "Nmap Scan",
-                1,
-                engagement
-        );
-    }
-
 }
