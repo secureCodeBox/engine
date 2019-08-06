@@ -140,6 +140,8 @@ public class DefectDojoPersistenceProviderTest {
         payload.setBuildServer(5l);
         payload.setScmServer(7l);
         payload.setOrchestrationEngine(9l);
+        payload.getTags().add("secureCodeBox");
+        payload.getTags().add("automated");
 
         persistenceProvider.persist(securityTest);
 
