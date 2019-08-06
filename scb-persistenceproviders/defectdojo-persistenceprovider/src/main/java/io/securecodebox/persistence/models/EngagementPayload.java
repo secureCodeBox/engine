@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -49,7 +50,7 @@ public class EngagementPayload {
     protected Status status = Status.IN_PROGRESS;
 
     @JsonProperty
-    protected List<String> tags = Arrays.asList("secureCodeBox", "automated");
+    protected List<String> tags = Collections.emptyList();
 
     @JsonProperty
     protected String tracker;

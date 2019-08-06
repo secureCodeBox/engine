@@ -197,6 +197,9 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         engagementPayload.setTargetEnd(currentDate());
         engagementPayload.setStatus(EngagementPayload.Status.COMPLETED);
 
+        engagementPayload.getTags().add("secureCodeBox");
+        engagementPayload.getTags().add("automated");
+
         return defectDojoService.createEngagement(engagementPayload);
     }
 
