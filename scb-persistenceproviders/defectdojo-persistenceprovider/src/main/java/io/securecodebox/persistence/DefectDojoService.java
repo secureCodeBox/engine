@@ -35,10 +35,15 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Optional;
 
 @Component
 @ConditionalOnProperty(name = "securecodebox.persistence.defectdojo.enabled", havingValue = "true")
@@ -52,8 +57,15 @@ public class DefectDojoService {
     @Value("${securecodebox.persistence.defectdojo.auth.name}")
     protected String defectDojoDefaultUserName;
 
-    private static final Logger LOG = LoggerFactory.getLogger(DefectDojoService.class);
+    protected static final String DATE_FORMAT = "yyyy-MM-dd";
 
+    Clock clock = Clock.systemDefaultZone();
+
+    private String currentDate() {
+        return LocalDate.now(clock).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+    }
+
+    private static final Logger LOG = LoggerFactory.getLogger(DefectDojoService.class);
 
     private HttpHeaders getHeaders(){
         HttpHeaders headers = new HttpHeaders();
@@ -200,6 +212,68 @@ public class DefectDojoService {
             LOG.warn("Failure body: {}", e.getResponseBodyAsString());
             throw new DefectDojoPersistenceException("Failed to attach findings to engagement.");
         }
+    }
+    public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, long productId){
+        createFindingsForEngagementName(engagementName, rawResults, defectDojoScanName, productId, new EngagementPayload());
+    }
+
+    public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, long productId, EngagementPayload engagementPayload){
+        Long engagementId = getEngagementIdByEngagementName(engagementName, productId).orElseGet(() -> {
+            engagementPayload.setName(engagementName);
+            engagementPayload.setProduct(productId);
+            engagementPayload.setTargetStart(currentDate());
+            engagementPayload.setTargetEnd(currentDate());
+            return createEngagement(engagementPayload).getId();
+        });
+
+        return createFindings(rawResults, engagementId, lead, currentDate(), defectDojoScanName);
+    }
+
+    private Optional<Long> getEngagementIdByEngagementName(String engagementName, long productId){
+        return getEngagementIdByEngagementName(engagementName, productId, 0L);
+    }
+
+    private Optional<Long> getEngagementIdByEngagementName(String engagementName, long productId, long offset){
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/engagements")
+                .queryParam("product", Long.toString(productId))
+                .queryParam("limit", Long.toString(50L))
+                .queryParam("offset", Long.toString(offset));
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity engagementRequest = new HttpEntity(getHeaders());
+
+        ResponseEntity<DefectDojoResponse<EngagementResponse>> engagementResponse = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, engagementRequest, new ParameterizedTypeReference<DefectDojoResponse<EngagementResponse>>(){});
+
+        for(EngagementResponse engagement : engagementResponse.getBody().getResults()){
+            if(engagement.getName().equals(engagementName)){
+                return Optional.of(engagement.getId());
+            }
+        }
+        if(engagementResponse.getBody().getNext() != null){
+            return getEngagementIdByEngagementName(engagementName, productId, offset + 1);
+        }
+        LOG.warn("Engagement with name '{}' not found.", engagementName);
+        return Optional.empty();
+    }
+
+    public static void main(String[] args) {
+        DefectDojoService dd = new DefectDojoService();
+
+        dd.defectDojoUrl = "http://defectdojo.default.minikube.local:8080";
+        dd.defectDojoDefaultUserName = "admin";
+        dd.defectDojoApiKey = "...";
+
+        EngagementPayload engagement = new EngagementPayload();
+        engagement.setBranch("fix/stuff");
+
+        dd.createFindingsForEngagementName(
+                "NMAP fix/stuff",
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE nmaprun>...</nmaprun>",
+                "Nmap Scan",
+                1,
+                engagement
+        );
     }
 
 }
