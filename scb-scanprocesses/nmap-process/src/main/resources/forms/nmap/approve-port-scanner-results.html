@@ -30,21 +30,33 @@
         camForm.on('variables-restored', function () {
             $scope.context = camForm.variableManager.variableValue('PROCESS_CONTEXT');
             $scope.targets = JSON.parse(camForm.variableManager.variableValue('PROCESS_TARGETS'));
-            $scope.portScannerResult = JSON.parse(camForm.variableManager.variableValue('PROCESS_FINDINGS'));
+            const portScannerResult = JSON.parse(camForm.variableManager.variableValue('PROCESS_FINDINGS'));
             $scope.portScannerId = camForm.variableManager.variableValue('PROCESS_SCANNER_ID');
 
             $scope.firstTarget = $scope.targets[0];
             $scope.otherTargetsLength = $scope.targets.length - 1;
 
-            $scope.groupedResults = $scope.portScannerResult.reduce(
-                    function (carry, item) {
-                        if (!carry.hasOwnProperty(item.attributes.hostname)) {
-                            carry[item.attributes.hostname] = [];
-                        }
-                        carry[item.attributes.hostname].push(item);
-                        return carry;
-                    },
-                    {}
+            const openPorts = portScannerResult.filter((finding) => finding.category === 'Open Port');
+            const hosts = portScannerResult.filter((finding) => finding.category === 'Host');
+
+            $scope.groupedResults = {};
+
+            for(const host of hosts){
+                $scope.groupedResults[host.attributes.ip_address] = { hostname: host.attributes.hostname, ports: [] };
+            }
+
+            $scope.groupedResults = openPorts.reduce(
+                function (carry, item) {
+                    console.log(item);
+                    if (!carry.hasOwnProperty(item.attributes.ip_address)) {
+                        carry[item.attributes.ip_address] = { hostname: item.attributes.hostname, ports: [] };
+                    }
+                    if(item.attributes.ip_address !== null){
+                        carry[item.attributes.ip_address].ports.push(item);
+                    }
+                    return carry;
+                },
+                $scope.groupedResults
             );
         });
     </script>
@@ -79,9 +91,16 @@
                 </p>
             </div>
 
-            <div class="well well-sm" style="color: inherit;" ng-repeat="(address, host) in groupedResults">
-                <strong>Results for Host: {{ address }}</strong>
-                <table class="table table-striped">
+            <div class="well well-sm" style="color: inherit;" ng-repeat="(ip, host) in groupedResults">
+                <strong>
+                    Results for Host:
+                    <span>{{ ip }}</span>
+                    <span ng-if="host.hostname">({{host.hostname}})</span>
+                </strong>
+                <span class="table table-striped" ng-if="host.ports.length === 0">
+                    No ports identified for this host.
+                </span>
+                <table class="table table-striped" ng-if="host.ports.length > 0">
                     <tr>
                         <th>Host:</th>
                         <th>Port:</th>
@@ -89,8 +108,8 @@
                         <th>Protocol:</th>
                         <th>State:</th>
                     </tr>
-                    <tr class="danger" ng-repeat="port in host">
-                        <td>{{ address }} ({{ port.attributes.ip_address }})</td></td>
+                    <tr class="danger" ng-repeat="port in host.ports">
+                        <td>{{ port.attributes.ip_address }}</td></td>
                         <td>{{ (port.category === 'Open Port' || port.category === 'Http Header') ? port.attributes.port : '' }}</td>
                         <td>{{ (port.category === 'Open Port' && !port.name) ? port.attributes.service : port.name}}</td>
                         <td>{{ (port.category === 'Open Port' || port.category === 'Http Header') ? port.attributes.protocol : '' }}</td>
