@@ -233,4 +233,13 @@ public class DefectDojoPersistenceProviderTest {
                 eq("Generic Findings Import")
         );
     }
+
+    @Test
+    public void createProduct() {
+        String productName = "mytestproduct";
+        defectDojoService.createProduct(productName);
+        verify(defectDojoService, times(1)).createProduct(
+            eq(productName)
+        );
+    }
 }
