@@ -20,7 +20,6 @@ package io.securecodebox.persistence;
 
 import io.securecodebox.persistence.models.*;
 
-import org.camunda.bpm.model.bpmn.instance.ReceiveTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
