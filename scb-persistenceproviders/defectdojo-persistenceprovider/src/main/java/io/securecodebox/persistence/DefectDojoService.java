@@ -70,8 +70,6 @@ public class DefectDojoService {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefectDojoService.class);
 
-	private LinkedMultiValueMap options;
-
     private HttpHeaders getHeaders(){
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Token " + defectDojoApiKey);
