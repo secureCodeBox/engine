@@ -16,41 +16,14 @@
  *  limitations under the License.
  * /
  */
-package io.securecodebox.persistence.models;
+package io.securecodebox.persistence;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-public class EngagementResponse {
-    @JsonProperty
-    protected long id;
-
-    @JsonProperty
-    protected String name;
-
-    @JsonProperty("branch_tag")
-    protected String branch;
-
-    public long getId() {
-        return id;
+public class DefectDojoLoopException extends RuntimeException{
+    public DefectDojoLoopException(String message) {
+        super(message);
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getBanch() {
-        return branch;
-    }
-
-    public void setBranch(String branch) {
-        this.branch = branch;
+    public DefectDojoLoopException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

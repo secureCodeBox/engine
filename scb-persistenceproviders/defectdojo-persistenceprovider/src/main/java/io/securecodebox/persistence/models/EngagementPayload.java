@@ -63,7 +63,7 @@ public class EngagementPayload {
     protected String commitHash;
 
     @JsonProperty("branch_tag")
-    protected String branch;
+    public String branch;
 
     @JsonProperty("source_code_management_uri")
     protected String repo;
@@ -79,6 +79,9 @@ public class EngagementPayload {
 
     @JsonProperty
     protected String description;
+
+    @JsonProperty("deduplication_on_engagement")
+    protected boolean deduplicationOnEngagement;
 
     /**
      * Currently only contains the statuses relevant to us.
