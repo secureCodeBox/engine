@@ -140,6 +140,8 @@ public class DefectDojoPersistenceProviderTest {
         payload.setBuildServer(5l);
         payload.setScmServer(7l);
         payload.setOrchestrationEngine(9l);
+        payload.getTags().add("secureCodeBox");
+        payload.getTags().add("automated");
 
         persistenceProvider.persist(securityTest);
 
@@ -229,6 +231,15 @@ public class DefectDojoPersistenceProviderTest {
                 eq(5l),
                 eq("2019-01-07"),
                 eq("Generic Findings Import")
+        );
+    }
+
+    @Test
+    public void createProduct() {
+        String productName = "mytestproduct";
+        defectDojoService.createProduct(productName);
+        verify(defectDojoService, times(1)).createProduct(
+            eq(productName)
         );
     }
 }
