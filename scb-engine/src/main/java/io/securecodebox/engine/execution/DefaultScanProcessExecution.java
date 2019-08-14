@@ -135,6 +135,13 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
     }
 
     @Override
+    public void appendFindings(List<Finding> newFindings) {
+        List<Finding> findings = getJsonFromProcessVariableModifiable(DefaultFields.PROCESS_FINDINGS, Finding.class);
+        findings.addAll(newFindings);
+        writeToProcess(DefaultFields.PROCESS_FINDINGS, findings);
+    }
+
+    @Override
     public void clearTargets() {
         writeToProcess(DefaultFields.PROCESS_TARGETS, new LinkedList<>());
     }

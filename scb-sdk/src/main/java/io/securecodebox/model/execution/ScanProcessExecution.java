@@ -89,6 +89,9 @@ public interface ScanProcessExecution {
     @JsonIgnore
     void appendFinding(Finding finding);
 
+    @JsonIgnore
+    void appendFindings(List<Finding> newFindings);
+
     void appendTarget(Target target);
 
     List<Target> getTargets();
