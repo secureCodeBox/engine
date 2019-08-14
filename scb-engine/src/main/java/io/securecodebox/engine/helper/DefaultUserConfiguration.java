@@ -19,8 +19,17 @@
 
 package io.securecodebox.engine.helper;
 
+import org.camunda.bpm.engine.AuthorizationService;
 import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.ProcessEngine;
+import org.camunda.bpm.engine.authorization.Authorization;
+import org.camunda.bpm.engine.authorization.AuthorizationQuery;
+import org.camunda.bpm.engine.authorization.Groups;
+import org.camunda.bpm.engine.authorization.Permission;
+import org.camunda.bpm.engine.authorization.Permissions;
+import org.camunda.bpm.engine.authorization.Resource;
+import org.camunda.bpm.engine.authorization.Resources;
+import org.camunda.bpm.engine.identity.Group;
 import org.camunda.bpm.engine.identity.User;
 import org.camunda.bpm.spring.boot.starter.configuration.impl.AbstractCamundaConfiguration;
 import org.slf4j.Logger;
@@ -39,6 +48,11 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserConfiguration.class);
 
+    public static final String GROUP_SCANNER = "scanner";
+    public static final String GROUP_APPROVER = "approver";
+    public static final String GROUP_CI = "continuousIntegration";
+
+
     @Override
     public void postProcessEngineBuild(final ProcessEngine processEngine) {
         final IdentityService identityService = processEngine.getIdentityService();
@@ -48,7 +62,40 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
             return;
         }
 
+        createGroups(processEngine);
         setupTechnicalUserForScanner(identityService);
+    }
+
+    private void createGroups(final ProcessEngine processEngine){
+        createGroup(processEngine.getIdentityService(), GROUP_APPROVER);
+
+        createGroup(processEngine.getIdentityService(), GROUP_SCANNER);
+        createAuthorizationForGroup(
+                processEngine.getAuthorizationService(),
+                GROUP_SCANNER,
+                Resources.PROCESS_INSTANCE,
+                Permissions.READ, Permissions.UPDATE
+        );
+        createAuthorizationForGroup(
+                processEngine.getAuthorizationService(),
+                GROUP_SCANNER,
+                Resources.PROCESS_DEFINITION,
+                Permissions.READ, Permissions.READ_INSTANCE, Permissions.UPDATE_INSTANCE
+        );
+
+        createGroup(processEngine.getIdentityService(), GROUP_CI);
+        createAuthorizationForGroup(
+                processEngine.getAuthorizationService(),
+                GROUP_CI,
+                Resources.PROCESS_DEFINITION,
+                Permissions.CREATE_INSTANCE, Permissions.READ, Permissions.READ_HISTORY
+        );
+        createAuthorizationForGroup(
+                processEngine.getAuthorizationService(),
+                GROUP_CI,
+                Resources.PROCESS_INSTANCE,
+                Permissions.READ, Permissions.CREATE
+        );
     }
 
     private void setupTechnicalUserForScanner(final IdentityService identityService) {
@@ -65,8 +112,9 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
             LOG.info("Technical user for scanners already exists");
         } else {
             LOG.info("Creating technical user for scanners");
+            LOG.info("User: {}, Password: {}", scannerUserId, scannerUserPw);
             createTechnicalUserForScanner(identityService, scannerUserId, scannerUserPw);
-            identityService.createMembership(scannerUserId, DefaultGroupConfiguration.GROUP_SCANNER);
+            identityService.createMembership(scannerUserId, GROUP_SCANNER);
         }
     }
 
@@ -79,5 +127,43 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
         identityService.saveUser(technicalUserForScanner);
     }
 
+    private void createGroup(IdentityService identityService, String groupId) {
+        // create group
+        if (identityService.createGroupQuery().groupId(groupId).count() == 0) {
+            Group group = identityService.newGroup(groupId);
+            group.setName("SecureCodeBox " + groupId);
+            group.setType(Groups.GROUP_TYPE_SYSTEM);
+            identityService.saveGroup(group);
+            LOG.info("Created default secureCodeBox group: {}", group.getName());
+        }
+    }
 
+    private void createAuthorizationForGroup(AuthorizationService authorizationService, String groupId, Resource resource, Permission... permissions){
+        if(permissions.length == 0){
+            throw new IllegalArgumentException("createAuthorizationForGroup needs at least one permission");
+        }
+
+        AuthorizationQuery authorizationQuery = authorizationService
+                .createAuthorizationQuery()
+                .groupIdIn(groupId)
+                .resourceType(resource)
+                .resourceId("*");
+        for (Permission permission: permissions) {
+            authorizationQuery.hasPermission(permission);
+        }
+        long authCounts = authorizationQuery.count();
+
+        if(authCounts == 0){
+            Authorization auth = authorizationService.createNewAuthorization(Authorization.AUTH_TYPE_GRANT);
+            auth.setGroupId(groupId);
+            auth.setResource(resource);
+            auth.setResourceId("*");
+            for (Permission permission: permissions) {
+                auth.addPermission(permission);
+            }
+            authorizationService.saveAuthorization(auth);
+
+            LOG.info("Created Authorization for Group {}", groupId);
+        }
+    }
 }
