@@ -41,6 +41,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -61,12 +62,16 @@ public class DefectDojoService {
     protected String defectDojoDefaultUserName;
 
     protected static final String DATE_FORMAT = "yyyy-MM-dd";
+    protected static final String DATE_TIME_FORMAT = "yyyy-MM-dd hh:m:ss";
 
     Clock clock = Clock.systemDefaultZone();
 
     private String currentDate() {
         return LocalDate.now(clock).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
     }
+    private String currentDateTime() {
+        return LocalDateTime.now(clock).format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT));
+    }    
 
     private static final Logger LOG = LoggerFactory.getLogger(DefectDojoService.class);
 
@@ -198,13 +203,13 @@ public class DefectDojoService {
         }
     }
     
-    public ImportScanResponse createFindings(String rawResult, long engagementId, long lead, String currentDate,String defectDojoScanName) {
-        return createFindings(rawResult, engagementId, lead, currentDate,defectDojoScanName, "");
+    public ImportScanResponse createFindings(String rawResult, long engagementId, long lead, String currentDate, String defectDojoScanName) {
+        return createFindings(rawResult, engagementId, lead, currentDate,defectDojoScanName, "", new LinkedMultiValueMap<>());
     }
     /**
-     * Till version 1.5.4. testName (in defectdojo _test_type_) must be defectDojoScanName, afterwards, you can have somethings else
+     * Before version 1.5.4. testName (in DefectDojo _test_type_) must be defectDojoScanName, afterwards, you can have somethings else
      */
-    public ImportScanResponse createFindings(String rawResult, long engagementId, long lead, String currentDate,String defectDojoScanName, String testName) {
+    public ImportScanResponse createFindings(String rawResult, long engagementId, long lead, String currentDate,String defectDojoScanName, String testName, MultiValueMap<String, Object> options) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = getHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -217,9 +222,18 @@ public class DefectDojoService {
         mvn.add("scan_type", defectDojoScanName);
         mvn.add("close_old_findings", "true");
         mvn.add("skip_duplicates", "false");
-        
+
         if(!testName.isEmpty())
             mvn.add("test_type", testName);
+
+        Iterator<String> it = options.keySet().iterator();
+        while(it.hasNext()){
+            String theKey = (String)it.next();
+            if(mvn.containsKey(theKey)) {
+                mvn.remove(theKey);
+            }
+        }
+        mvn.addAll(options);            
         
         try {
             ByteArrayResource contentsAsResource = new ByteArrayResource(rawResult.getBytes(StandardCharsets.UTF_8)) {
@@ -240,10 +254,12 @@ public class DefectDojoService {
             throw new DefectDojoPersistenceException("Failed to attach findings to engagement.");
         }
     }
+    /**
+     * When DefectDojo >= 1.5.4 is used, add testType to queryParam, till then, the first test in engagement is returned
+     */
     private Optional<Long> getTestIdByEngagementName(long engagementId, String testName, long offset) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/tests")
                 .queryParam("engagement", Long.toString(engagementId))
-                .queryParam("title", testName)
                 .queryParam("limit", Long.toString(50L))
                 .queryParam("offset", Long.toString(offset));
 
@@ -252,10 +268,10 @@ public class DefectDojoService {
 
         ResponseEntity<DefectDojoResponse<TestResponse>> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, engagementRequest, new ParameterizedTypeReference<DefectDojoResponse<TestResponse>>(){});
 
-        for(TestResponse engagement : response.getBody().getResults()){
-            if(engagement.getTitle().equals(testName)){
-                return Optional.of(engagement.getId());
-            }
+        for(TestResponse test : response.getBody().getResults()){
+            //if(test.getTitle().equals(testName)){
+                return Optional.of(test.getId());
+            //}
         }
         if(response.getBody().getNext() != null){
             return getTestIdByEngagementName(engagementId, testName, offset + 1);
@@ -277,23 +293,25 @@ public class DefectDojoService {
             throw new DefectDojoPersistenceException("Failed to create Test for SecurityTest", e);
         }
     }    
-    private long getTestIdOrCreate(long engagementId, TestPayload testPayload) {
+    private long getTestIdOrCreate(long engagementId, TestPayload testPayload, String testType) {
         Long testId = getTestIdByEngagementName(engagementId, testPayload.getTitle(), 0).orElseGet(() -> {
             testPayload.setEngagement(Long.toString(engagementId));
-            testPayload.setTargetStart(currentDate());
-            testPayload.setTargetEnd(currentDate());
+            testPayload.setTargetStart(currentDateTime());
+            testPayload.setTargetEnd(currentDateTime());
+            testPayload.setTestType(Integer.toString(TestPayload.getTestTypeIdForName(testType)));
             return createTest(testPayload).getId();
         });
+        return testId.longValue();
     }
   
-    public ImportScanResponse createFindingsReImport(String rawResult, String productName, String engagementName, long lead, String currentDate, String defectDojoScanName, EngagementPayload engagementPayload, TestPayload testPayload) {
+    public ImportScanResponse createFindingsReImport(String rawResult, String productName, String engagementName, long lead, String currentDate, String defectDojoScanName, EngagementPayload engagementPayload, TestPayload testPayload, MultiValueMap<String, Object> options) {
         long productId = retrieveOrCreateProduct(productName);
         long engagementId = getEngagementIdByEngagementNameOrCreate(productId, engagementName, engagementPayload, lead);
-        long testId = getTestIdOrCreate(engagementId, testPayload);
-        return createFindingsReImport(rawResult, testId, lead, currentDate, defectDojoScanName);
+        long testId = getTestIdOrCreate(engagementId, testPayload, defectDojoScanName);
+        return createFindingsReImport(rawResult, testId, lead, currentDate, defectDojoScanName, options);
     }
-
-    public ImportScanResponse createFindingsReImport(String rawResult, long testId, long lead, String currentDate,String defectDojoScanName) {
+    
+    public ImportScanResponse createFindingsReImport(String rawResult, long testId, long lead, String currentDate,String defectDojoScanName, MultiValueMap<String, Object> options) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = getHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -306,6 +324,15 @@ public class DefectDojoService {
         mvn.add("scan_type", defectDojoScanName);
         mvn.add("close_old_findings", "true");
         mvn.add("skip_duplicates", "false");
+
+        Iterator<String> it = options.keySet().iterator();
+        while(it.hasNext()){
+            String theKey = (String)it.next();
+            if(mvn.containsKey(theKey)) {
+                mvn.remove(theKey);
+            }
+        }
+        mvn.addAll(options);
         
         try {
             ByteArrayResource contentsAsResource = new ByteArrayResource(rawResult.getBytes(StandardCharsets.UTF_8)) {
@@ -325,15 +352,17 @@ public class DefectDojoService {
             LOG.warn("Failure body: {}", e.getResponseBodyAsString());
             throw new DefectDojoPersistenceException("Failed to attach findings to engagement.");
         }
-    }    
-    public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, long productId, long lead){
-        return createFindingsForEngagementName(engagementName, rawResults, defectDojoScanName, productId, lead, new EngagementPayload(), "");
     }
 
-    public ImportScanResponse getEngagementIdByEngagementNameOrCreate(String engagementName, String rawResults, String defectDojoScanName, long productId, long lead, EngagementPayload engagementPayload, String testName){
-        Long engagementId = getEngagementIdByEngagementName(engagementName, productId, engagementPayload, lead);
 
-        return createFindings(rawResults, engagementId, lead, currentDate(), defectDojoScanName, testName);
+    public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, long productId, long lead){
+        return getEngagementIdByEngagementNameOrCreate(engagementName, rawResults, defectDojoScanName, productId, lead, new EngagementPayload(), "", new LinkedMultiValueMap<>());
+    }
+
+    public ImportScanResponse getEngagementIdByEngagementNameOrCreate(String engagementName, String rawResults, String defectDojoScanName, long productId, long lead, EngagementPayload engagementPayload, String testName, MultiValueMap<String, Object> options){
+        long engagementId = getEngagementIdByEngagementNameOrCreate(productId, engagementName, engagementPayload, lead);
+
+        return createFindings(rawResults, engagementId, lead, currentDate(), defectDojoScanName, testName, options);
     }
     private long getEngagementIdByEngagementNameOrCreate(long productId, String engagementName, EngagementPayload engagementPayload, long lead) {
         Long engagementId = getEngagementIdByEngagementName(engagementName, productId).orElseGet(() -> {
@@ -344,12 +373,12 @@ public class DefectDojoService {
             engagementPayload.setLead(lead);
             return createEngagement(engagementPayload).getId();
         });
+        return engagementId.longValue();
     }
-
-    public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, String productName, long lead, EngagementPayload engagementPayload, String testName){
+    public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, String productName, long lead, EngagementPayload engagementPayload, String testName, MultiValueMap<String, Object> options){
         long productId = retrieveOrCreateProduct(productName);
         
-        return createFindingsForEngagementName(engagementName, rawResults, defectDojoScanName, productId, lead, engagementPayload, testName);
+        return getEngagementIdByEngagementNameOrCreate(engagementName, rawResults, defectDojoScanName, productId, lead, engagementPayload, testName, options);
     }
 
     private Optional<Long> getEngagementIdByEngagementName(String engagementName, String productName){
@@ -503,15 +532,9 @@ public class DefectDojoService {
         return builder;
     }    
 
-    public List<Finding> receiveNonHandeldFindings(String productName, String engagementName, String minimumServerity, LinkedMultiValueMap<String, String> options){
+    public List<Finding> receiveNonHandledFindings(String productName, String engagementName, String minimumServerity, LinkedMultiValueMap<String, String> options){
         Long engagementId = getEngagementIdByEngagementName(engagementName, productName).orElse(0L);
-        //getCurrentFindings
-        List<Finding> findings = new LinkedList<Finding>();
-        for (String serverity : Finding.getServeritiesAndHigherServerities(minimumServerity)) {
-            LinkedMultiValueMap<String, String> optionTemp = options.clone();
-            optionTemp.add("serverity", serverity);    
-            findings.addAll(getCurrentFindings(engagementId, optionTemp));
-        }
-        return findings;
+        options.add("serverity", minimumServerity);    
+        return getCurrentFindings(engagementId, options);
     }
 }

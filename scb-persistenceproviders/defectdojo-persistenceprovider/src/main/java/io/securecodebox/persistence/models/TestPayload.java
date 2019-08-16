@@ -40,20 +40,29 @@ public class TestPayload {
     @JsonProperty
     protected List<String> tags = new LinkedList<>();
 
+    @JsonProperty("test_type")
+    protected String testType;
+
     @JsonProperty
     protected String engagement;    
 
+    /**
+     * 1 Development
+     * 3 Production
+     */
     @JsonProperty
-    protected ENVIRONMENT environment = ENVIRONMENT.DEVELOPMENT;
+    protected String environment = "1";
 
     /**
-     * Currently only contains the statuses relevant to us.
-     * If you need others, feel free to add them ;)
+     * 
+     * @return OWASP DefectDojo test type id, -1 in case it is not found
      */
-    public static enum ENVIRONMENT {
-        @JsonProperty("Development")
-        DEVELOPMENT,
-        @JsonProperty("Production")
-        PRODUCTION
+    public static int getTestTypeIdForName(String name) {
+        switch (name) {    
+            case "Dependency Check Scan":
+            return 18;
+            default:
+            return -1;
+        }
     }
 }
