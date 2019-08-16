@@ -104,6 +104,9 @@ public class SecurityTest extends AbstractSecurityTest {
             example = "42"
     )
     public Long getDurationInMilliSeconds() {
+        if(startedAt == null){
+            return null;
+        }
         return endedAt.orElseGet(Date::new).getTime() - startedAt.getTime();
     }
 
