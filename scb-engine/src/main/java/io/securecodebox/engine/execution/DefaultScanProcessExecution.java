@@ -20,25 +20,26 @@
 package io.securecodebox.engine.execution;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.constants.DefaultFields;
-import io.securecodebox.model.rest.Report;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.Scanner;
 import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.scanprocess.ProcessVariableHelper;
-import java.util.Map;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.history.HistoricProcessInstance;
+import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.variable.value.BooleanValue;
 import org.camunda.bpm.engine.variable.value.StringValue;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.util.StringUtils;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -166,7 +167,7 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
     }
 
     @Override
-    public String getScannerType(){
+    public String getScannerType() {
         return (String) execution.getVariable(DefaultFields.PROCESS_SCANNER_TYPE.name());
     }
 
@@ -175,7 +176,7 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
      * Same as the Name of the securityTest. e.g. nmap
      */
     @Override
-    public String getName(){
+    public String getName() {
         return (String) execution.getVariable(DefaultFields.PROCESS_NAME.name());
     }
 
@@ -189,7 +190,43 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
     }
 
     @Override
-    public Map<String, String> getMetaData(){
+    public Map<String, String> getMetaData() {
         return (Map<String, String>) execution.getVariable(DefaultFields.PROCESS_META_DATA.name());
+    }
+
+
+    @JsonIgnore
+    private Optional<HistoricProcessInstance> getHistoricProcessInstance(){
+        return execution.getProcessEngineServices()
+                .getHistoryService()
+                .createHistoricProcessInstanceQuery()
+                .processInstanceId(execution.getProcessInstanceId())
+                .list()
+                .stream()
+                .findFirst();
+    }
+
+    @Override
+    public Date getStartDate(){
+        return getHistoricProcessInstance()
+            .orElseThrow(() -> new RuntimeException("Failed to finding process"))
+            .getStartTime();
+    }
+
+    @Override
+    public Optional<Date> getEndDate(){
+        return Optional.ofNullable(
+            getHistoricProcessInstance()
+                .orElseThrow(() -> new RuntimeException("Failed to finding process"))
+                .getEndTime()
+        );
+    }
+
+    @Override
+    public Long getDurationInMilliSeconds() {
+        Date startTime = getStartDate();
+        Date endTime = getEndDate().orElseGet(Date::new);
+
+        return endTime.getTime() - startTime.getTime();
     }
 }

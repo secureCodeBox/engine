@@ -24,7 +24,9 @@ import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.rest.Report;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class SecurityTest extends AbstractSecurityTest {
@@ -41,6 +43,10 @@ public class SecurityTest extends AbstractSecurityTest {
     }
 
     public SecurityTest(UUID id, String context, String name, Target target, Report report, Map<String, String> metaData, String tenant) {
+        this(id, context, name, target, report, metaData, tenant, null, Optional.empty());
+    }
+
+    public SecurityTest(UUID id, String context, String name, Target target, Report report, Map<String, String> metaData, String tenant, Date startedAt, Optional<Date> endedAt) {
         this.id = id;
         this.context = context;
         this.name = name;
@@ -48,6 +54,8 @@ public class SecurityTest extends AbstractSecurityTest {
         this.report = report;
         this.tenant = tenant;
         this.setMetaData(metaData);
+        this.startedAt = startedAt;
+        this.endedAt = endedAt;
     }
 
     public SecurityTest(ScanProcessExecution execution){
@@ -61,6 +69,8 @@ public class SecurityTest extends AbstractSecurityTest {
             this.target = execution.getTargets().get(0);
         }
         this.report = new Report(execution);
+        this.startedAt = execution.getStartDate();
+        this.endedAt = execution.getEndDate();
     }
 
     public Report getReport() {
@@ -86,5 +96,42 @@ public class SecurityTest extends AbstractSecurityTest {
     )
     public boolean isFinished(){
         return this.report != null;
+    }
+
+    @JsonProperty("durationInMilliSeconds")
+    @ApiModelProperty(
+            value = "Shows the current runtime duration or the time to completion in milli seconds.",
+            example = "42"
+    )
+    public Long getDurationInMilliSeconds() {
+        return endedAt.orElseGet(Date::new).getTime() - startedAt.getTime();
+    }
+
+    @JsonProperty("startedAt")
+    @ApiModelProperty(
+            value = "Timestamp of when the security test was started.",
+            example = "42"
+    )
+    Date startedAt;
+    public Date startedAt() {
+        return startedAt;
+    }
+
+    public void setStartedAt(Date startedAt) {
+        this.startedAt = startedAt;
+    }
+
+    @JsonProperty("endedAt")
+    @ApiModelProperty(
+            value = "Timestamp of when the security test was ended. Null if still running, see finished attributes",
+            example = "42"
+    )
+    Optional<Date> endedAt;
+    public Optional<Date> getEndedAt() {
+        return endedAt;
+    }
+
+    public void setEndedAt(Optional<Date> endedAt) {
+        this.endedAt = endedAt;
     }
 }

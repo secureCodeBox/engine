@@ -25,8 +25,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.securecodebox.model.findings.Finding;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -109,4 +111,13 @@ public interface ScanProcessExecution {
 
     @JsonProperty("name")
     void setName(String name);
+
+    @JsonProperty("durationInMilliSeconds")
+    Long getDurationInMilliSeconds();
+
+    @JsonProperty("startDate")
+    Date getStartDate();
+
+    @JsonProperty("endDate")
+    Optional<Date> getEndDate();
 }

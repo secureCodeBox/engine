@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -143,7 +144,7 @@ public class SecurityTestService {
         List<Target> targets = getListValue(variables, DefaultFields.PROCESS_TARGETS, Target.class);
         Map<String, String> metaData = (Map<String, String>) variables.get(DefaultFields.PROCESS_META_DATA.name()).getValue();
 
-        return new SecurityTest(id, context, name, targets.get(0), report, metaData, tenant);
+        return new SecurityTest(id, context, name, targets.get(0), report, metaData, tenant, process.getStartTime(), Optional.ofNullable(process.getEndTime()));
     }
 
     private <T> List<T> getListValue(Map<String, HistoricVariableInstance> variables, DefaultFields name, Class<T> type) {
