@@ -225,8 +225,11 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
     @Override
     public Long getDurationInMilliSeconds() {
         Date startTime = getStartDate();
-        Date endTime = getEndDate().orElseGet(Date::new);
 
-        return endTime.getTime() - startTime.getTime();
+        if(startTime == null){
+            return null;
+        }
+
+        return getEndDate().orElseGet(Date::new).getTime() - startTime.getTime();
     }
 }
