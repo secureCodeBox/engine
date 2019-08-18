@@ -255,24 +255,30 @@ public class DefectDojoService {
         }
     }
     /**
-     * When DefectDojo >= 1.5.4 is used, add testType to queryParam, till then, the first test in engagement is returned
+     * When DefectDojo >= 1.5.4 is used, testType can be given. Add testName in case DefectDojo >= 1.5.4 is used
      */
     private Optional<Long> getTestIdByEngagementName(long engagementId, String testName, long offset) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/tests")
                 .queryParam("engagement", Long.toString(engagementId))
                 .queryParam("limit", Long.toString(50L))
                 .queryParam("offset", Long.toString(offset));
+        if(testName!= null) builder.queryParam("testType", testName);
 
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity engagementRequest = new HttpEntity(getHeaders());
 
         ResponseEntity<DefectDojoResponse<TestResponse>> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, engagementRequest, new ParameterizedTypeReference<DefectDojoResponse<TestResponse>>(){});
 
+        Optional<Long> testResponseId = null;
         for(TestResponse test : response.getBody().getResults()){
-            //if(test.getTitle().equals(testName)){
-                return Optional.of(test.getId());
-            //}
+            if(testName == null || test.getTitle().equals(testName)){
+                testResponseId = Optional.of(test.getId());
+            }
         }
+        if(testResponseId != null) {
+            return testResponseId;
+        }
+        
         if(response.getBody().getNext() != null){
             return getTestIdByEngagementName(engagementId, testName, offset + 1);
         }
@@ -534,7 +540,7 @@ public class DefectDojoService {
 
     public List<Finding> receiveNonHandledFindings(String productName, String engagementName, String minimumServerity, LinkedMultiValueMap<String, String> options){
         Long engagementId = getEngagementIdByEngagementName(engagementName, productName).orElse(0L);
-        options.add("serverity", minimumServerity);    
+        options.add("serverity", minimumServerity);
         return getCurrentFindings(engagementId, options);
     }
 }
