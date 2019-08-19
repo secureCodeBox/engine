@@ -41,6 +41,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -61,12 +62,16 @@ public class DefectDojoService {
     protected String defectDojoDefaultUserName;
 
     protected static final String DATE_FORMAT = "yyyy-MM-dd";
+    protected static final String DATE_TIME_FORMAT = "yyyy-MM-dd hh:m:ss";
 
     Clock clock = Clock.systemDefaultZone();
 
     private String currentDate() {
         return LocalDate.now(clock).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
     }
+    private String currentDateTime() {
+        return LocalDateTime.now(clock).format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT));
+    }    
 
     private static final Logger LOG = LoggerFactory.getLogger(DefectDojoService.class);
 
@@ -128,6 +133,19 @@ public class DefectDojoService {
             throw new DefectDojoProductNotFound(MessageFormat.format("Could not find product: \"{0}\" in DefectDojo", product));
         }
     }
+    private long retrieveOrCreateProduct(String productName) {
+        long productId = 0;
+        try {
+            productId = retrieveProductId(productName);
+        } catch(DefectDojoProductNotFound e) {
+            LOG.debug("Given product does not exists");
+        }
+        if(productId == 0) {
+            ProductResponse productResponse = createProduct(productName);
+            productId = productResponse.getId();
+        }
+        return productId;
+    }    
 
     public Long retrieveOrCreateToolConfiguration(String toolUrl, String toolType){
         if (toolUrl == null){
@@ -184,13 +202,14 @@ public class DefectDojoService {
             throw new DefectDojoPersistenceException("Failed to create Engagement for SecurityTest", e);
         }
     }
-    public ImportScanResponse createFindings(String rawResult, long engagementId, long lead, String currentDate,String defectDojoScanName) {
-        return createFindings(rawResult, engagementId, lead, currentDate,defectDojoScanName, "");
+    
+    public ImportScanResponse createFindings(String rawResult, long engagementId, long lead, String currentDate, String defectDojoScanName) {
+        return createFindings(rawResult, engagementId, lead, currentDate,defectDojoScanName, "", new LinkedMultiValueMap<>());
     }
     /**
-     * Till version 1.5.4. testName (in defectdojo _test_type_) must be defectDojoScanName, afterwards, you can have somethings else
+     * Before version 1.5.4. testName (in DefectDojo _test_type_) must be defectDojoScanName, afterwards, you can have somethings else
      */
-    public ImportScanResponse createFindings(String rawResult, long engagementId, long lead, String currentDate,String defectDojoScanName, String testName) {
+    public ImportScanResponse createFindings(String rawResult, long engagementId, long lead, String currentDate,String defectDojoScanName, String testName, MultiValueMap<String, Object> options) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = getHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -203,9 +222,18 @@ public class DefectDojoService {
         mvn.add("scan_type", defectDojoScanName);
         mvn.add("close_old_findings", "true");
         mvn.add("skip_duplicates", "false");
-        
+
         if(!testName.isEmpty())
             mvn.add("test_type", testName);
+
+        Iterator<String> it = options.keySet().iterator();
+        while(it.hasNext()){
+            String theKey = (String)it.next();
+            if(mvn.containsKey(theKey)) {
+                mvn.remove(theKey);
+            }
+        }
+        mvn.addAll(options);            
         
         try {
             ByteArrayResource contentsAsResource = new ByteArrayResource(rawResult.getBytes(StandardCharsets.UTF_8)) {
@@ -226,11 +254,123 @@ public class DefectDojoService {
             throw new DefectDojoPersistenceException("Failed to attach findings to engagement.");
         }
     }
-    public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, long productId, long lead){
-        return createFindingsForEngagementName(engagementName, rawResults, defectDojoScanName, productId, lead, new EngagementPayload(), "");
+    /**
+     * When DefectDojo >= 1.5.4 is used, testType can be given. Add testName in case DefectDojo >= 1.5.4 is used
+     */
+    private Optional<Long> getTestIdByEngagementName(long engagementId, String testName, long offset) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/tests")
+                .queryParam("engagement", Long.toString(engagementId))
+                .queryParam("limit", Long.toString(50L))
+                .queryParam("offset", Long.toString(offset));
+        if(testName!= null) builder.queryParam("testType", testName);
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity engagementRequest = new HttpEntity(getHeaders());
+
+        ResponseEntity<DefectDojoResponse<TestResponse>> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, engagementRequest, new ParameterizedTypeReference<DefectDojoResponse<TestResponse>>(){});
+
+        Optional<Long> testResponseId = null;
+        for(TestResponse test : response.getBody().getResults()){
+            if(testName == null || test.getTitle().equals(testName)){
+                testResponseId = Optional.of(test.getId());
+            }
+        }
+        if(testResponseId != null) {
+            return testResponseId;
+        }
+        
+        if(response.getBody().getNext() != null){
+            return getTestIdByEngagementName(engagementId, testName, offset + 1);
+        }
+        LOG.warn("Test with name '{}' not found.", testName);
+        return Optional.empty();
+    }
+    private EngagementResponse createTest(TestPayload testPayload) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpEntity<TestPayload> payload = new HttpEntity<>(testPayload, getHeaders());
+
+        try {
+            ResponseEntity<EngagementResponse> response = restTemplate.exchange(defectDojoUrl + "/api/v2/tests/", HttpMethod.POST, payload, EngagementResponse.class);
+            return response.getBody();
+        } catch (HttpClientErrorException e) {
+            LOG.warn("Failed to create Test for SecurityTest. {}", e);
+            LOG.warn("Failure response body. {}", e.getResponseBodyAsString());
+            throw new DefectDojoPersistenceException("Failed to create Test for SecurityTest", e);
+        }
+    }    
+    private long getTestIdOrCreate(long engagementId, TestPayload testPayload, String testType) {
+        Long testId = getTestIdByEngagementName(engagementId, testPayload.getTitle(), 0).orElseGet(() -> {
+            testPayload.setEngagement(Long.toString(engagementId));
+            testPayload.setTargetStart(currentDateTime());
+            testPayload.setTargetEnd(currentDateTime());
+            testPayload.setTestType(Integer.toString(TestPayload.getTestTypeIdForName(testType)));
+            return createTest(testPayload).getId();
+        });
+        return testId.longValue();
+    }
+  
+    public ImportScanResponse createFindingsReImport(String rawResult, String productName, String engagementName, long lead, String currentDate, String defectDojoScanName, EngagementPayload engagementPayload, TestPayload testPayload, MultiValueMap<String, Object> options) {
+        long productId = retrieveOrCreateProduct(productName);
+        long engagementId = getEngagementIdByEngagementNameOrCreate(productId, engagementName, engagementPayload, lead);
+        long testId = getTestIdOrCreate(engagementId, testPayload, defectDojoScanName);
+        return createFindingsReImport(rawResult, testId, lead, currentDate, defectDojoScanName, options);
+    }
+    
+    public ImportScanResponse createFindingsReImport(String rawResult, long testId, long lead, String currentDate,String defectDojoScanName, MultiValueMap<String, Object> options) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = getHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        restTemplate.setMessageConverters(Arrays.asList(new FormHttpMessageConverter(), new ResourceHttpMessageConverter(), new MappingJackson2HttpMessageConverter()));
+
+        MultiValueMap<String, Object> mvn = new LinkedMultiValueMap<>();
+        mvn.add("test", Long.toString(testId));
+        mvn.add("lead", Long.toString(lead));
+        mvn.add("scan_date", currentDate);
+        mvn.add("scan_type", defectDojoScanName);
+        mvn.add("close_old_findings", "true");
+        mvn.add("skip_duplicates", "false");
+
+        Iterator<String> it = options.keySet().iterator();
+        while(it.hasNext()){
+            String theKey = (String)it.next();
+            if(mvn.containsKey(theKey)) {
+                mvn.remove(theKey);
+            }
+        }
+        mvn.addAll(options);
+        
+        try {
+            ByteArrayResource contentsAsResource = new ByteArrayResource(rawResult.getBytes(StandardCharsets.UTF_8)) {
+                @Override
+                public String getFilename() {
+                    return "this_needs_to_be_here_but_doesnt_really_matter.txt";
+                }
+            };
+
+            mvn.add("file", contentsAsResource);
+
+            HttpEntity<MultiValueMap> payload = new HttpEntity<>(mvn, headers);
+
+            return restTemplate.exchange(defectDojoUrl + "/api/v2/reimport-scan/", HttpMethod.POST, payload, ImportScanResponse.class).getBody();
+        } catch (HttpClientErrorException e) {
+            LOG.warn("Failed to import findings to DefectDojo. Request failed with status code: '{}'.", e.getStatusCode());
+            LOG.warn("Failure body: {}", e.getResponseBodyAsString());
+            throw new DefectDojoPersistenceException("Failed to attach findings to engagement.");
+        }
     }
 
-    public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, long productId, long lead, EngagementPayload engagementPayload, String testName){
+
+    public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, long productId, long lead){
+        return getEngagementIdByEngagementNameOrCreate(engagementName, rawResults, defectDojoScanName, productId, lead, new EngagementPayload(), "", new LinkedMultiValueMap<>());
+    }
+
+    public ImportScanResponse getEngagementIdByEngagementNameOrCreate(String engagementName, String rawResults, String defectDojoScanName, long productId, long lead, EngagementPayload engagementPayload, String testName, MultiValueMap<String, Object> options){
+        long engagementId = getEngagementIdByEngagementNameOrCreate(productId, engagementName, engagementPayload, lead);
+
+        return createFindings(rawResults, engagementId, lead, currentDate(), defectDojoScanName, testName, options);
+    }
+    private long getEngagementIdByEngagementNameOrCreate(long productId, String engagementName, EngagementPayload engagementPayload, long lead) {
         Long engagementId = getEngagementIdByEngagementName(engagementName, productId).orElseGet(() -> {
             engagementPayload.setName(engagementName);
             engagementPayload.setProduct(productId);
@@ -239,23 +379,12 @@ public class DefectDojoService {
             engagementPayload.setLead(lead);
             return createEngagement(engagementPayload).getId();
         });
-
-        return createFindings(rawResults, engagementId, lead, currentDate(), defectDojoScanName, testName);
+        return engagementId.longValue();
     }
-
-    public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, String productName, long lead, EngagementPayload engagementPayload, String testName){
-        long productId = 0;
-        try {
-            productId = retrieveProductId(productName);
-        } catch(DefectDojoProductNotFound e) {
-            LOG.debug("Given product does not exists");
-        }
-        if(productId == 0) {
-            ProductResponse productResponse = createProduct(productName);
-            productId = productResponse.getId();
-        }
+    public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, String productName, long lead, EngagementPayload engagementPayload, String testName, MultiValueMap<String, Object> options){
+        long productId = retrieveOrCreateProduct(productName);
         
-        return createFindingsForEngagementName(engagementName, rawResults, defectDojoScanName, productId, lead, engagementPayload, testName);
+        return getEngagementIdByEngagementNameOrCreate(engagementName, rawResults, defectDojoScanName, productId, lead, engagementPayload, testName, options);
     }
 
     private Optional<Long> getEngagementIdByEngagementName(String engagementName, String productName){
@@ -267,7 +396,6 @@ public class DefectDojoService {
     }
 
     private Optional<Long> getEngagementIdByEngagementName(String engagementName, long productId, long offset){
-
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/engagements")
                 .queryParam("product", Long.toString(productId))
                 .queryParam("limit", Long.toString(50L))
@@ -314,6 +442,9 @@ public class DefectDojoService {
      * Be aware that the branch tag MUST be set, otherwise all engagments will be deleted
      */
     public void deleteUnusedBranches(List<String> existingBranches, long productId) {
+        if(existingBranches == null) {
+            LOG.error("No existing branches given, this will lead to nullpointer");
+        }
         RestTemplate restTemplate = new RestTemplate();
         
         //get existing branches
@@ -321,14 +452,14 @@ public class DefectDojoService {
         for(EngagementResponse engagementPayload : engagementPayloads) {
             boolean branchExists = false;
             for(String existingBranchName : existingBranches) {
-                if(existingBranchName.equals(engagementPayload.getBanch())) {
+                if(existingBranchName.equals(engagementPayload.getBranch())) {
                     branchExists = true;
-                    break;
+                    continue;
                 }
             }
             if(!branchExists) {
                 deleteEnageament(engagementPayload.getId());
-                LOG.info("Deleted engagement with id " + engagementPayload.getId() + ", branch " + engagementPayload.getBanch());
+                LOG.info("Deleted engagement with id " + engagementPayload.getId() + ", branch " + engagementPayload.getBranch());
             }
         }
     }
@@ -361,7 +492,7 @@ public class DefectDojoService {
         String uri = defectDojoUrl + "/api/v2/engagements/" + engagementId + "/?id=" + engagementId;
         HttpEntity request = new HttpEntity(getHeaders());
         try {
-            ResponseEntity<DefectDojoResponse> response = restTemplate.exchange(uri, HttpMethod.GET, request, DefectDojoResponse.class);
+            restTemplate.exchange(uri, HttpMethod.DELETE, request, DefectDojoResponse.class);
         } catch (HttpClientErrorException e) {
             LOG.warn("Failed to delete engagment {}, engagementId: " + engagementId, e);
             LOG.warn("Failure response body. {}", e.getResponseBodyAsString());
@@ -410,15 +541,9 @@ public class DefectDojoService {
         return builder;
     }    
 
-    public List<Finding> receiveNonHandeldFindings(String productName, String engagementName, String minimumServerity, LinkedMultiValueMap<String, String> options){
+    public List<Finding> receiveNonHandledFindings(String productName, String engagementName, String minimumServerity, LinkedMultiValueMap<String, String> options){
         Long engagementId = getEngagementIdByEngagementName(engagementName, productName).orElse(0L);
-        //getCurrentFindings
-        List<Finding> findings = new LinkedList<Finding>();
-        for (String serverity : Finding.getServeritiesAndHigherServerities(minimumServerity)) {
-            LinkedMultiValueMap<String, String> optionTemp = options.clone();
-            optionTemp.add("serverity", serverity);    
-            findings.addAll(getCurrentFindings(engagementId, optionTemp));
-        }
-        return findings;
+        options.add("serverity", minimumServerity);
+        return getCurrentFindings(engagementId, options);
     }
 }

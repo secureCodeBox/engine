@@ -20,15 +20,13 @@ package io.securecodebox.persistence.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class EngagementResponse {
+public class TestResponse {
     @JsonProperty
     protected long id;
 
     @JsonProperty
-    protected String name;
+    protected String title;
 
-    @JsonProperty("branch_tag")
-    protected String branch;
 
     public long getId() {
         return id;
@@ -38,19 +36,11 @@ public class EngagementResponse {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getBranch() {
-        return branch;
-    }
-
-    public void setBranch(String branch) {
-        this.branch = branch;
+    public void setTitle(String title) {
+        this.title = title;
     }
 }
