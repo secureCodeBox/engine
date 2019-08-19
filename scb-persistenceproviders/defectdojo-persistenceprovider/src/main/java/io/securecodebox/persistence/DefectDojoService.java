@@ -492,7 +492,7 @@ public class DefectDojoService {
         String uri = defectDojoUrl + "/api/v2/engagements/" + engagementId + "/?id=" + engagementId;
         HttpEntity request = new HttpEntity(getHeaders());
         try {
-            ResponseEntity<DefectDojoResponse> response = restTemplate.exchange(uri, HttpMethod.DELETE, request, DefectDojoResponse.class);
+            restTemplate.exchange(uri, HttpMethod.DELETE, request, DefectDojoResponse.class);
         } catch (HttpClientErrorException e) {
             LOG.warn("Failed to delete engagment {}, engagementId: " + engagementId, e);
             LOG.warn("Failure response body. {}", e.getResponseBodyAsString());
