@@ -442,6 +442,9 @@ public class DefectDojoService {
      * Be aware that the branch tag MUST be set, otherwise all engagments will be deleted
      */
     public void deleteUnusedBranches(List<String> existingBranches, long productId) {
+        if(existingBranches == null) {
+            LOG.error("No existing branches given, this will lead to nullpointer");
+        }
         RestTemplate restTemplate = new RestTemplate();
         
         //get existing branches
