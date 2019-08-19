@@ -450,7 +450,7 @@ public class DefectDojoService {
         //get existing branches
         List<EngagementResponse> engagementPayloads = getEngagementsForProduct(productId, 0);
         for(EngagementResponse engagementPayload : engagementPayloads) {
-            boolean branchExists = false
+            boolean branchExists = false;
             for(String existingBranchName : existingBranches) {
                 if(existingBranchName.equals(engagementPayload.getBranch())) {
                     branchExists = true;
