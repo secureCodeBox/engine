@@ -450,16 +450,16 @@ public class DefectDojoService {
         //get existing branches
         List<EngagementResponse> engagementPayloads = getEngagementsForProduct(productId, 0);
         for(EngagementResponse engagementPayload : engagementPayloads) {
-            boolean branchExists = false;
+            boolean branchExists = false
             for(String existingBranchName : existingBranches) {
-                if(existingBranchName.equals(engagementPayload.getBanch())) {
+                if(existingBranchName.equals(engagementPayload.getBranch())) {
                     branchExists = true;
-                    break;
+                    continue;
                 }
             }
             if(!branchExists) {
                 deleteEnageament(engagementPayload.getId());
-                LOG.info("Deleted engagement with id " + engagementPayload.getId() + ", branch " + engagementPayload.getBanch());
+                LOG.info("Deleted engagement with id " + engagementPayload.getId() + ", branch " + engagementPayload.getBranch());
             }
         }
     }

@@ -46,7 +46,7 @@ public class EngagementResponse {
         this.name = name;
     }
 
-    public String getBanch() {
+    public String getBranch() {
         return branch;
     }
 
