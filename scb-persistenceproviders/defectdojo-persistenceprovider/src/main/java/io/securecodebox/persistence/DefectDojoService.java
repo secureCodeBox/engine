@@ -541,9 +541,9 @@ public class DefectDojoService {
         return builder;
     }    
 
-    public List<Finding> receiveNonHandledFindings(String productName, String engagementName, String minimumServerity, LinkedMultiValueMap<String, String> options){
+    public List<Finding> receiveNonHandledFindings(String productName, String engagementName, String minimumSeverity, LinkedMultiValueMap<String, String> options){
         Long engagementId = getEngagementIdByEngagementName(engagementName, productName).orElse(0L);
-        options.add("serverity", minimumServerity);
+        options.add("severity", minimumSeverity);
         return getCurrentFindings(engagementId, options);
     }
 }

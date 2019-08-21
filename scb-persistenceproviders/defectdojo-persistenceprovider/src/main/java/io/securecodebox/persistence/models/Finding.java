@@ -70,13 +70,13 @@ public class Finding {
         add("High");
         add("Critical");
     }};
-    public static LinkedList<String> getServeritiesAndHigherServerities(String minimumServerity){
+    public static LinkedList<String> getServeritiesAndHigherServerities(String minimumSeverity){
         LinkedList<String> severities = new LinkedList<String>();
         boolean minimumFound = false;
-        for(String serverity : findingServerities) {
-            if(minimumFound || minimumServerity.equals(serverity)) {
+        for(String severity : findingServerities) {
+            if(minimumFound || minimumSeverity.equals(severity)) {
                 minimumFound = true;
-                severities.add(serverity);
+                severities.add(severity);
             }
         }
 
