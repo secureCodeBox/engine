@@ -410,13 +410,13 @@ public class DefectDojoService {
         return builder;
     }    
 
-    public List<Finding> receiveNonHandeldFindings(String productName, String engagementName, String minimumServerity, LinkedMultiValueMap<String, String> options){
+    public List<Finding> receiveNonHandeldFindings(String productName, String engagementName, String minimumSeverity, LinkedMultiValueMap<String, String> options){
         Long engagementId = getEngagementIdByEngagementName(engagementName, productName).orElse(0L);
         //getCurrentFindings
         List<Finding> findings = new LinkedList<Finding>();
-        for (String serverity : Finding.getServeritiesAndHigherServerities(minimumServerity)) {
+        for (String severity : Finding.getServeritiesAndHigherServerities(minimumSeverity)) {
             LinkedMultiValueMap<String, String> optionTemp = options.clone();
-            optionTemp.add("serverity", serverity);    
+            optionTemp.add("severity", severity);    
             findings.addAll(getCurrentFindings(engagementId, optionTemp));
         }
         return findings;

@@ -5,7 +5,7 @@
     "description": "Port 3306 is open using tcp protocol.",
     "category": "Open Port",
     "osi_layer": "NETWORK",
-    "serverity": "INFORMATIONAL",
+    "severity": "INFORMATIONAL",
     "attributes": {
       "protocol": "tcp",
       "port": 3306,
@@ -24,7 +24,7 @@
     "description": "Port 7778 is open using tcp protocol.",
     "category": "Open Port",
     "osi_layer": "NETWORK",
-    "serverity": "INFORMATIONAL",
+    "severity": "INFORMATIONAL",
     "attributes": {
       "protocol": "tcp",
       "port": 7778,
