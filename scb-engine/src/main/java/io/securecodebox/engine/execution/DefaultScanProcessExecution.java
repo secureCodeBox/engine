@@ -21,6 +21,7 @@ package io.securecodebox.engine.execution;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.securecodebox.constants.DefaultFields;
+import io.securecodebox.engine.service.ExecutionTimeService;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.Scanner;
 import io.securecodebox.model.execution.Target;
@@ -31,6 +32,7 @@ import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.variable.value.BooleanValue;
 import org.camunda.bpm.engine.variable.value.StringValue;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.util.StringUtils;
 
@@ -51,6 +53,9 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
 
     @JsonIgnore
     protected DelegateExecution execution;
+
+    @JsonIgnore
+    public ExecutionTimeService executionTimeService;
 
     public DefaultScanProcessExecution(DelegateExecution execution) {
         this.execution = execution;
@@ -194,32 +199,14 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
         return (Map<String, String>) execution.getVariable(DefaultFields.PROCESS_META_DATA.name());
     }
 
-
-    @JsonIgnore
-    private Optional<HistoricProcessInstance> getHistoricProcessInstance(){
-        return execution.getProcessEngineServices()
-                .getHistoryService()
-                .createHistoricProcessInstanceQuery()
-                .processInstanceId(execution.getProcessInstanceId())
-                .list()
-                .stream()
-                .findFirst();
-    }
-
     @Override
     public Date getStartDate(){
-        return getHistoricProcessInstance()
-            .orElseThrow(() -> new RuntimeException("Failed to finding process"))
-            .getStartTime();
+        return executionTimeService.getStartDate();
     }
 
     @Override
     public Optional<Date> getEndDate(){
-        return Optional.ofNullable(
-            getHistoricProcessInstance()
-                .orElseThrow(() -> new RuntimeException("Failed to finding process"))
-                .getEndTime()
-        );
+        return executionTimeService.getEndDate();
     }
 
     @Override

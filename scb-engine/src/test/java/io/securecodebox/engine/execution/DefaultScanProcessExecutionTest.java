@@ -22,6 +22,7 @@ package io.securecodebox.engine.execution;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.securecodebox.TestHelper;
 import io.securecodebox.constants.DefaultFields;
+import io.securecodebox.engine.service.ExecutionTimeService;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.model.findings.OsiLayer;
@@ -35,19 +36,18 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
@@ -66,29 +66,35 @@ public class DefaultScanProcessExecutionTest {
     @Mock
     ScanProcessExecutionFactory processExecutionFactory;
     @Mock
-    DelegateExecution executionMock;
+    DelegateExecution execution;
+    @Mock
+    ExecutionTimeService executionTimeService;
 
     DefaultScanProcessExecution underTest;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        underTest = new DefaultScanProcessExecution(executionMock);
+        underTest = new DefaultScanProcessExecution(execution);
 
-        when(processExecutionFactory.get(executionMock)).thenReturn(underTest);
-        when(executionMock.hasVariable(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenReturn(true);
-        when(executionMock.getVariable(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenAnswer((answer) -> findingCache);
+        when(executionTimeService.getStartDate()).thenReturn(new Date(2019, 4, 3));
+        when(executionTimeService.getEndDate()).thenReturn(Optional.of(new Date(2019, 4, 3)));
+        underTest.executionTimeService = executionTimeService;
+
+        when(processExecutionFactory.get(execution)).thenReturn(underTest);
+        when(execution.hasVariable(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenReturn(true);
+        when(execution.getVariable(eq(DefaultFields.PROCESS_FINDINGS.name()))).thenAnswer((answer) -> findingCache);
         doAnswer((Answer) invocation -> {
             findingCache = (String) ((ObjectValueImpl)invocation.getArgument(1)).getValue();
             return Void.TYPE;
-        }).when(executionMock).setVariable(eq(DefaultFields.PROCESS_FINDINGS.name()), any());
+        }).when(execution).setVariable(eq(DefaultFields.PROCESS_FINDINGS.name()), any());
 
-        when(executionMock.hasVariable(eq(DefaultFields.PROCESS_TARGETS.name()))).thenReturn(true);
-        when(executionMock.getVariable(eq(DefaultFields.PROCESS_TARGETS.name()))).thenAnswer((answer) -> targetCache);
+        when(execution.hasVariable(eq(DefaultFields.PROCESS_TARGETS.name()))).thenReturn(true);
+        when(execution.getVariable(eq(DefaultFields.PROCESS_TARGETS.name()))).thenAnswer((answer) -> targetCache);
         doAnswer((Answer) invocation -> {
             targetCache = (String) ((ObjectValueImpl)invocation.getArgument(1)).getValue();
             return Void.TYPE;
-        }).when(executionMock).setVariable(eq(DefaultFields.PROCESS_TARGETS.name()), any());
+        }).when(execution).setVariable(eq(DefaultFields.PROCESS_TARGETS.name()), any());
     }
 
     @Test
@@ -126,9 +132,9 @@ public class DefaultScanProcessExecutionTest {
         underTest.appendFinding(TestHelper.createBasicFinding(finding1Id));
         underTest.appendFinding(TestHelper.createBasicFindingDifferent(finding2Id));
 
-        Mockito.verify(executionMock, times(2)).setVariable(eq(DefaultFields.PROCESS_FINDINGS.name()), any());
+        Mockito.verify(execution, times(2)).setVariable(eq(DefaultFields.PROCESS_FINDINGS.name()), any());
 
-        ScanProcessExecution processExecution = processExecutionFactory.get(executionMock);
+        ScanProcessExecution processExecution = processExecutionFactory.get(execution);
 
         assertEquals(2, processExecution.getFindings().size());
 
@@ -163,9 +169,9 @@ public class DefaultScanProcessExecutionTest {
         //
         underTest.clearFindings();
 
-        Mockito.verify(executionMock, atLeastOnce()).getVariable(eq(DefaultFields.PROCESS_FINDINGS.name()));
-        Mockito.verify(executionMock, times(3)).setVariable(eq(DefaultFields.PROCESS_FINDINGS.name()), any());
-        Mockito.verifyNoMoreInteractions(executionMock);
+        Mockito.verify(execution, atLeastOnce()).getVariable(eq(DefaultFields.PROCESS_FINDINGS.name()));
+        Mockito.verify(execution, times(3)).setVariable(eq(DefaultFields.PROCESS_FINDINGS.name()), any());
+        Mockito.verifyNoMoreInteractions(execution);
         assertEquals(0, processExecution.getFindings().size());
     }
 
@@ -177,9 +183,9 @@ public class DefaultScanProcessExecutionTest {
         underTest.appendTarget(TestHelper.createBaiscTarget());
         underTest.appendTarget(TestHelper.createTarget("http://w1.w2.www", "some wired"));
 
-        Mockito.verify(executionMock, times(2)).setVariable(eq(DefaultFields.PROCESS_TARGETS.name()), any());
+        Mockito.verify(execution, times(2)).setVariable(eq(DefaultFields.PROCESS_TARGETS.name()), any());
 
-        ScanProcessExecution processExecution = processExecutionFactory.get(executionMock);
+        ScanProcessExecution processExecution = processExecutionFactory.get(execution);
 
         assertEquals(2, processExecution.getTargets().size());
 
@@ -201,9 +207,9 @@ public class DefaultScanProcessExecutionTest {
         // Clear targets
         //
         underTest.clearTargets();
-        Mockito.verify(executionMock, atLeastOnce()).getVariable(eq(DefaultFields.PROCESS_TARGETS.name()));
-        Mockito.verify(executionMock, times(3)).setVariable(eq(DefaultFields.PROCESS_TARGETS.name()), any());
-        Mockito.verifyNoMoreInteractions(executionMock);
+        Mockito.verify(execution, atLeastOnce()).getVariable(eq(DefaultFields.PROCESS_TARGETS.name()));
+        Mockito.verify(execution, times(3)).setVariable(eq(DefaultFields.PROCESS_TARGETS.name()), any());
+        Mockito.verifyNoMoreInteractions(execution);
         assertEquals(0, processExecution.getTargets().size());
 
     }
