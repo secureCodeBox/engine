@@ -59,6 +59,7 @@ public class DefaultScanProcessExecution implements ScanProcessExecution {
 
     public DefaultScanProcessExecution(DelegateExecution execution) {
         this.execution = execution;
+        this.executionTimeService = new ExecutionTimeService(execution);
     }
 
     @Override
