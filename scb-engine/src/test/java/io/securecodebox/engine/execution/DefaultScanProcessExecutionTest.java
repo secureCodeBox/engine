@@ -38,6 +38,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -54,7 +57,7 @@ import static org.mockito.Mockito.*;
  */
 public class DefaultScanProcessExecutionTest {
 
-    private static final String DEFAULT_EXECUTION = "{\"id\":\"5a4e9d37-09b0-4109-badd-d79dfa8fce2a\",\"context\":\"TEST_CONTEXT\",\"automated\":false,\"scanners\":[{\"id\":\"62fa8ffb-e3bc-433e-b322-9c02108c5171\",\"type\":\"Test_SCANNER\",\"findings\":[{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"Some coder has tested this!\",\"category\":\"COOL_TEST_STUFF\",\"osi_layer\":\"NOT_APPLICABLE\",\"severity\":\"HIGH\",\"reference\":{\"id\":\"UNI_CODE_STUFF\",\"source\":\"RISCOOL\"},\"hint\":\"You might wan't to blame Rüdiger!\",\"attributes\":{\"TEST\":\"Kekse\",\"HORRIBLE\":\"Coke\"},\"location\":\"mett.brot.securecodebox.io\",\"false_positive\":false}],\"rawFindings\":\"[{\\\"pudding\\\":\\\"Bier\\\"}]\"}],\"startDate\":61514978400000,\"endDate\":61514978400000,\"durationInMilliSeconds\":0}";
+    private static final String DEFAULT_EXECUTION = "{\"id\":\"5a4e9d37-09b0-4109-badd-d79dfa8fce2a\",\"context\":\"TEST_CONTEXT\",\"automated\":false,\"scanners\":[{\"id\":\"62fa8ffb-e3bc-433e-b322-9c02108c5171\",\"type\":\"Test_SCANNER\",\"findings\":[{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"Some coder has tested this!\",\"category\":\"COOL_TEST_STUFF\",\"osi_layer\":\"NOT_APPLICABLE\",\"severity\":\"HIGH\",\"reference\":{\"id\":\"UNI_CODE_STUFF\",\"source\":\"RISCOOL\"},\"hint\":\"You might wan't to blame Rüdiger!\",\"attributes\":{\"TEST\":\"Kekse\",\"HORRIBLE\":\"Coke\"},\"location\":\"mett.brot.securecodebox.io\",\"false_positive\":false}],\"rawFindings\":\"[{\\\"pudding\\\":\\\"Bier\\\"}]\"}],\"startDate\":504295320000,\"endDate\":504295620000,\"durationInMilliSeconds\":300000}";
     public static final String SCANNER_SERIALIZE_RESULT = "{\"id\":\"62fa8ffb-e3bc-433e-b322-9c02108c5171\",\"type\":\"Test_SCANNER\",\"findings\":[{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"Some coder has tested this!\",\"category\":\"COOL_TEST_STUFF\",\"osi_layer\":\"NOT_APPLICABLE\",\"severity\":\"HIGH\",\"reference\":{\"id\":\"UNI_CODE_STUFF\",\"source\":\"RISCOOL\"},\"hint\":\"You might wan't to blame Rüdiger!\",\"attributes\":{\"TEST\":\"Kekse\",\"HORRIBLE\":\"Coke\"},\"location\":\"mett.brot.securecodebox.io\",\"false_positive\":false}],\"rawFindings\":\"[{\\\"pudding\\\":\\\"Bier\\\"}]\"}";
 
     String findingCache = "";
@@ -78,8 +81,12 @@ public class DefaultScanProcessExecutionTest {
 
         objectMapper.registerModule(new Jdk8Module());
 
-        when(executionTimeService.getStartDate()).thenReturn(new Date(2019, 4, 3));
-        when(executionTimeService.getEndDate()).thenReturn(Optional.of(new Date(2019, 4, 3)));
+        when(executionTimeService.getStartDate()).thenReturn(
+                Date.from(LocalDateTime.of(1985, 12, 24, 18, 2).toInstant(ZoneOffset.UTC))
+        );
+        when(executionTimeService.getEndDate()).thenReturn(Optional.of(
+                Date.from(LocalDateTime.of(1985, 12, 24, 18, 7).toInstant(ZoneOffset.UTC))
+        ));
         underTest.executionTimeService = executionTimeService;
 
         when(processExecutionFactory.get(execution)).thenReturn(underTest);
