@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public class ExecutionTimeService {
 
-    DelegateExecution execution;
+    private DelegateExecution execution;
 
     public ExecutionTimeService(DelegateExecution execution){
         this.execution = execution;

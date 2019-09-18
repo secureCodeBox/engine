@@ -115,7 +115,7 @@ public class SecurityTest extends AbstractSecurityTest {
             value = "Timestamp of when the security test was started.",
             example = "42"
     )
-    Date startedAt;
+    protected Date startedAt;
     public Date startedAt() {
         return startedAt;
     }
@@ -129,7 +129,7 @@ public class SecurityTest extends AbstractSecurityTest {
             value = "Timestamp of when the security test was ended. Null if still running, see finished attributes",
             example = "42"
     )
-    Optional<Date> endedAt;
+    protected Optional<Date> endedAt;
     public Optional<Date> getEndedAt() {
         return endedAt;
     }
