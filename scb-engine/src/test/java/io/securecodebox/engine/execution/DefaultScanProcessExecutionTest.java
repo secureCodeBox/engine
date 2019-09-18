@@ -20,6 +20,7 @@
 package io.securecodebox.engine.execution;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import io.securecodebox.TestHelper;
 import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.engine.service.ExecutionTimeService;
@@ -36,8 +37,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Date;
 import java.util.Optional;
@@ -55,7 +54,7 @@ import static org.mockito.Mockito.*;
  */
 public class DefaultScanProcessExecutionTest {
 
-    private static final String DEFAULT_EXECUTION = "{\"id\":\"5a4e9d37-09b0-4109-badd-d79dfa8fce2a\",\"context\":\"TEST_CONTEXT\",\"automated\":false,\"scanners\":[{\"id\":\"62fa8ffb-e3bc-433e-b322-9c02108c5171\",\"type\":\"Test_SCANNER\",\"findings\":[{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"Some coder has tested this!\",\"category\":\"COOL_TEST_STUFF\",\"osi_layer\":\"NOT_APPLICABLE\",\"severity\":\"HIGH\",\"reference\":{\"id\":\"UNI_CODE_STUFF\",\"source\":\"RISCOOL\"},\"hint\":\"You might wan't to blame Rüdiger!\",\"attributes\":{\"TEST\":\"Kekse\",\"HORRIBLE\":\"Coke\"},\"location\":\"mett.brot.securecodebox.io\",\"false_positive\":false}],\"rawFindings\":\"[{\\\"pudding\\\":\\\"Bier\\\"}]\"}]}";
+    private static final String DEFAULT_EXECUTION = "{\"id\":\"5a4e9d37-09b0-4109-badd-d79dfa8fce2a\",\"context\":\"TEST_CONTEXT\",\"automated\":false,\"scanners\":[{\"id\":\"62fa8ffb-e3bc-433e-b322-9c02108c5171\",\"type\":\"Test_SCANNER\",\"findings\":[{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"Some coder has tested this!\",\"category\":\"COOL_TEST_STUFF\",\"osi_layer\":\"NOT_APPLICABLE\",\"severity\":\"HIGH\",\"reference\":{\"id\":\"UNI_CODE_STUFF\",\"source\":\"RISCOOL\"},\"hint\":\"You might wan't to blame Rüdiger!\",\"attributes\":{\"TEST\":\"Kekse\",\"HORRIBLE\":\"Coke\"},\"location\":\"mett.brot.securecodebox.io\",\"false_positive\":false}],\"rawFindings\":\"[{\\\"pudding\\\":\\\"Bier\\\"}]\"}],\"startDate\":61514978400000,\"endDate\":61514978400000,\"durationInMilliSeconds\":0}";
     public static final String SCANNER_SERIALIZE_RESULT = "{\"id\":\"62fa8ffb-e3bc-433e-b322-9c02108c5171\",\"type\":\"Test_SCANNER\",\"findings\":[{\"id\":\"49bf7fd3-8512-4d73-a28f-608e493cd726\",\"name\":\"BAD_TEST_FINDIG\",\"description\":\"Some coder has tested this!\",\"category\":\"COOL_TEST_STUFF\",\"osi_layer\":\"NOT_APPLICABLE\",\"severity\":\"HIGH\",\"reference\":{\"id\":\"UNI_CODE_STUFF\",\"source\":\"RISCOOL\"},\"hint\":\"You might wan't to blame Rüdiger!\",\"attributes\":{\"TEST\":\"Kekse\",\"HORRIBLE\":\"Coke\"},\"location\":\"mett.brot.securecodebox.io\",\"false_positive\":false}],\"rawFindings\":\"[{\\\"pudding\\\":\\\"Bier\\\"}]\"}";
 
     String findingCache = "";
@@ -76,6 +75,8 @@ public class DefaultScanProcessExecutionTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         underTest = new DefaultScanProcessExecution(execution);
+
+        objectMapper.registerModule(new Jdk8Module());
 
         when(executionTimeService.getStartDate()).thenReturn(new Date(2019, 4, 3));
         when(executionTimeService.getEndDate()).thenReturn(Optional.of(new Date(2019, 4, 3)));
@@ -101,8 +102,10 @@ public class DefaultScanProcessExecutionTest {
     public void testSerialize() throws Exception {
         DelegateExecution process = mockDelegateExcecution();
 
-        ScanProcessExecution execution = new DefaultScanProcessExecution(process);
-        String s = objectMapper.writeValueAsString(execution);
+        DefaultScanProcessExecution execution = new DefaultScanProcessExecution(process);
+
+        execution.executionTimeService = executionTimeService;
+        String s = objectMapper.writeValueAsString((ScanProcessExecution) execution);
 
         System.out.println(s);
         assertEquals(DEFAULT_EXECUTION, s);

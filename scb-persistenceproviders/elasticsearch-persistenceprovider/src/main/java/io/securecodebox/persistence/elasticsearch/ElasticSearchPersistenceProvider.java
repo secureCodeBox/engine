@@ -22,6 +22,7 @@ package io.securecodebox.persistence.elasticsearch;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.securitytest.SecurityTest;
 import io.securecodebox.persistence.PersistenceException;
@@ -168,6 +169,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         }
 
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new Jdk8Module());
         try {
             checkForSecurityTestIdExistence(securityTest);
 
