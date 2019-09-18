@@ -338,6 +338,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     private Map<String, Object> serializeAndRemove(Object object, String... toRemove) {
 
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new Jdk8Module());
         try {
             String jsonString = objectMapper.writeValueAsString(object);
             Map<String, Object> result = objectMapper.readValue(jsonString, new TypeReference<Map<String, Object>>() {
@@ -404,6 +405,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
             // The index-pattern "securecodebox*" doesn't exist, we need to create it along with the import objects
 
             ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new Jdk8Module());
 
             String kibanaFile = readFileResource("kibana-imports.json");
             List<KibanaData> dataElements = objectMapper.readValue(kibanaFile, objectMapper.getTypeFactory().constructCollectionType(List.class, KibanaData.class));
