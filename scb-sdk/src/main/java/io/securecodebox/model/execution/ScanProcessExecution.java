@@ -25,15 +25,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.securecodebox.model.findings.Finding;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
  * @since 08.03.18
  */
-@JsonPropertyOrder({ "id", "context", "automated", "scanners", "scanner_type", "tenant_id" })
+@JsonPropertyOrder({ "id", "context", "automated", "scanners", "scanner_type", "tenant_id", "startDate", "endDate", "durationInMilliSeconds" })
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public interface ScanProcessExecution {
 
@@ -109,4 +111,13 @@ public interface ScanProcessExecution {
 
     @JsonProperty("name")
     void setName(String name);
+
+    @JsonProperty("durationInMilliSeconds")
+    Long getDurationInMilliSeconds();
+
+    @JsonProperty("startDate")
+    Date getStartDate();
+
+    @JsonProperty("endDate")
+    Optional<Date> getEndDate();
 }
