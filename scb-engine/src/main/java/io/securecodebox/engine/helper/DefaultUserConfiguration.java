@@ -46,6 +46,9 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
     @Autowired
     private PropertyValueProvider properties;
 
+    @Autowired
+    private ScannerUserConfiguration scannerUserConfiguration;
+
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserConfiguration.class);
 
     public static final String GROUP_SCANNER = "scanner";
@@ -64,6 +67,10 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
 
         createGroups(processEngine);
         setupTechnicalUserForScanner(identityService);
+
+        for(ScannerUserConfiguration.ScannerUser scannerUser : scannerUserConfiguration.getScannerUsers()){
+            LOG.info("I'd create a User for with creds '{}:{}' now", scannerUser.getUsername(), scannerUser.getPassword());
+        }
     }
 
     private void createGroups(final ProcessEngine processEngine){

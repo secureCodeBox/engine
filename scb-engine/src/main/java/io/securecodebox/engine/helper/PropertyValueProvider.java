@@ -1,6 +1,7 @@
 package io.securecodebox.engine.helper;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.DeprecatedConfigurationProperty;
 import org.springframework.stereotype.Component;
 
 /**
@@ -35,7 +36,6 @@ public class PropertyValueProvider {
     @Value("${securecodebox.rest.user.scanner-default.password}")
     private String defaultUserScannerPassword;
 
-
     /**
      * Default target access URI
      */
@@ -58,10 +58,18 @@ public class PropertyValueProvider {
         return defaultTargetUri;
     }
 
+    @DeprecatedConfigurationProperty(
+            replacement = "securecodebox.rest.user.scanner",
+            reason = "Using the new property multiple users can be configured, which is more flexible than only being able to create one."
+    )
     String getDefaultUserScannerId() {
         return defaultUserScannerId;
     }
 
+    @DeprecatedConfigurationProperty(
+            replacement = "securecodebox.rest.user.scanner",
+            reason = "Using the new property multiple users can be configured, which is more flexible than only being able to create one."
+    )
     String getDefaultUserScannerPassword() {
         return defaultUserScannerPassword;
     }

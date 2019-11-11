@@ -6,9 +6,10 @@ camunda.bpm:
 logging.level: DEBUG
 logging.level.io.securecodebox: DEBUG
 
-# Configure which persistence provider you would like to choose
-# - none
-# - elasticsearch
-securecodebox.rest.user.scanner-default:
-  user-id: defaultScanner
-  password: scan
+securecodebox.rest.user:
+  scanner:
+    - username: ' = new ArrayList<>();'
+      password: '123456'
+  scanner-default:
+    user-id: defaultScanner
+    password: scanner
