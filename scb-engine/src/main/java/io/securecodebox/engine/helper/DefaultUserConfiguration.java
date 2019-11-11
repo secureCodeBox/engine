@@ -68,6 +68,7 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
         createGroups(processEngine);
         setupTechnicalUserForScanner(identityService);
 
+        LOG.info("ScannerUsers to create {}", scannerUserConfiguration.getScannerUsers());
         for(ScannerUserConfiguration.ScannerUser scannerUser : scannerUserConfiguration.getScannerUsers()){
             LOG.info("I'd create a User for with creds '{}:{}' now", scannerUser.getUsername(), scannerUser.getPassword());
         }

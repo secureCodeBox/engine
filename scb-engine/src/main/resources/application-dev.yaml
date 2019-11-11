@@ -10,6 +10,8 @@ securecodebox.rest.user:
   scanner:
     - username: 'foobar'
       password: '123456'
+    - username: 'baarfoo'
+      password: '123456'
   scanner-default:
     user-id: defaultScanner
     password: scanner
