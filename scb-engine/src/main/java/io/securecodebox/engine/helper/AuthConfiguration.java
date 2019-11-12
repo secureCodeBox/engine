@@ -19,6 +19,8 @@ public class AuthConfiguration {
 
     private List<GroupConfiguration> groups = new ArrayList<>();
 
+    private List<TenantConfiguration> tenants = new ArrayList<>();
+
     public static class UserConfiguration {
         @NotEmpty
         // See: https://docs.camunda.org/manual/7.11/update/minor/79-to-710/#whitelist-pattern-for-user-group-and-tenant-ids
@@ -34,6 +36,7 @@ public class AuthConfiguration {
         @NotEmpty
         private String lastname = "Scanner-User";
         private List<String> groups = new ArrayList<>();
+        private List<String> tenants = new ArrayList<>();
 
         public String getId() {
             return id;
@@ -81,6 +84,14 @@ public class AuthConfiguration {
 
         public void setGroups(List<String> groups) {
             this.groups = groups;
+        }
+
+        public List<String> getTenants() {
+            return tenants;
+        }
+
+        public void setTenants(List<String> tenants) {
+            this.tenants = tenants;
         }
     }
 
@@ -144,6 +155,32 @@ public class AuthConfiguration {
         }
     }
 
+    public static class TenantConfiguration {
+        @NotEmpty
+        // See: https://docs.camunda.org/manual/7.11/update/minor/79-to-710/#whitelist-pattern-for-user-group-and-tenant-ids
+        // Minus the camunda admin part. As scanner users are never the camunda admin
+        @Pattern(regexp = "[a-zA-Z0-9]+")
+        private String id;
+        @NotEmpty
+        private String name;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
     public List<UserConfiguration> getUsers() {
         return users;
     }
@@ -162,5 +199,13 @@ public class AuthConfiguration {
 
     public void setGroups(List<GroupConfiguration> groups) {
         this.groups = groups;
+    }
+
+    public List<TenantConfiguration> getTenants() {
+        return tenants;
+    }
+
+    public void setTenants(List<TenantConfiguration> tenants) {
+        this.tenants = tenants;
     }
 }

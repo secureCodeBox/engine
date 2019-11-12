@@ -29,6 +29,7 @@ import org.camunda.bpm.engine.authorization.Permissions;
 import org.camunda.bpm.engine.authorization.Resource;
 import org.camunda.bpm.engine.authorization.Resources;
 import org.camunda.bpm.engine.identity.Group;
+import org.camunda.bpm.engine.identity.Tenant;
 import org.camunda.bpm.engine.identity.User;
 import org.camunda.bpm.spring.boot.starter.configuration.impl.AbstractCamundaConfiguration;
 import org.slf4j.Logger;
@@ -58,12 +59,24 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
         final IdentityService identityService = processEngine.getIdentityService();
 
         if (identityService.isReadOnly()) {
-            LOG.warn("Identity service provider is Read Only, not creating any users.");
+            LOG.warn("Identity service provider is ReadOnly, not creating any users.");
             return;
         }
 
         createGroups(processEngine);
+        createTenants(identityService);
         createUsers(identityService);
+    }
+
+    private void createTenants(IdentityService identityService) {
+        for(AuthConfiguration.TenantConfiguration tenant : userConfiguration.getTenants()){
+            if(identityService.createTenantQuery().tenantId(tenant.getId()).count() == 0){
+                Tenant newTenant = identityService.newTenant(tenant.getId());
+                newTenant.setName(tenant.getName());
+                identityService.saveTenant(newTenant);
+                LOG.info("Created tenant {}", tenant.getId());
+            }
+        }
     }
 
     private void createGroups(final ProcessEngine processEngine) {
@@ -122,11 +135,20 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
 
         for (String groupId : user.getGroups()){
             if(identityService.createGroupQuery().groupId(groupId).count() == 0){
-                throw new RuntimeException("Tried to add user '" + user.getId() + "' to group '" + groupId + "' but the group doesn't exist. You'll need to change group of the user to a existing group or configure the group in your config.");
+                throw new RuntimeException("Tried to add user '" + user.getId() + "' to group '" + groupId + "' but the group doesn't exist. You'll need to change group of the user to a existing group or configure the group in your config so it'll get created.");
             }
 
             identityService.createMembership(user.getId(), groupId);
             LOG.info("Added user '{}' to group '{}'", user.getId(), groupId);
+        }
+
+        for(String tenantId : user.getTenants()){
+            if(identityService.createTenantQuery().tenantId(tenantId).count() == 0){
+                throw new RuntimeException("Tried to add user '" + user.getId() + "' to tenant '" + tenantId + "' but the tenant doesn't exist. You'll need to change tenant of the user to a existing tenant or configure the tenant in your config so it'll get created.");
+            }
+
+            identityService.createTenantUserMembership(tenantId, user.getId());
+            LOG.info("Added user '{}' to tenant '{}'", user.getId(), tenantId);
         }
     }
 
@@ -141,10 +163,6 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
     }
 
     private void createAuthorizationForGroup(AuthorizationService authorizationService, String groupId, Resource resource, List<Permission> permissions) {
-        if (permissions.isEmpty()) {
-            throw new IllegalArgumentException("createAuthorizationForGroup needs at least one permission");
-        }
-
         AuthorizationQuery authorizationQuery = authorizationService
                 .createAuthorizationQuery()
                 .groupIdIn(groupId)
@@ -165,7 +183,7 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
             }
             authorizationService.saveAuthorization(auth);
 
-            LOG.info("Created Authorization for Group {}", groupId);
+            LOG.info("Created authorization for group {}", groupId);
         }
     }
 }

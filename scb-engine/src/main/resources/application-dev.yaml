@@ -8,20 +8,22 @@ logging.level.io.securecodebox: DEBUG
 
 securecodebox:
   tenants:
-    - id: iteratecInternal
-      name: 'iteratec Internal'
+    - id: companyInternal
+      name: 'company Internal'
   users:
     - id: nmapScanner
       password: 'password1'
       firstname: 'nmap'
       lastname: 'scanner'
       groups: ['scanner']
+      tenants: []
     - id: foobar
       email: foo.bar@example.com
       password: 'password1'
       firstname: 'foo'
       lastname: 'bar'
       groups: ['user']
+      tenants: ['companyInternal']
   groups:
     - id: scanner
       name: "secureCodeBox Scanner"
