@@ -53,8 +53,6 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserConfiguration.class);
 
-    public static final String GROUP_SCANNER = "scanner";
-
     @Override
     public void postProcessEngineBuild(final ProcessEngine processEngine) {
         final IdentityService identityService = processEngine.getIdentityService();
@@ -97,22 +95,13 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
             user.setPassword(scannerUserPw);
             user.setFirstname("Technical-User");
             user.setLastname("Scanner-User");
+            user.getGroups().add("scanner");
             createUser(identityService, user);
-            identityService.createMembership(scannerUserId, GROUP_SCANNER);
         }
 
         // Newer Multi User Config
         for (AuthConfiguration.UserConfiguration user : userConfiguration.getUsers()) {
             createUser(identityService, user);
-
-            for (String groupId : user.getGroups()){
-                if(identityService.createGroupQuery().groupId(groupId).count() == 0){
-                    throw new RuntimeException("Tried to add user '" + user.getId() + "' to group '" + groupId + "' but the group doesn't exist. You'll need to change group of the user to a existing group or configure the group in your config.");
-                }
-
-                identityService.createMembership(user.getId(), groupId);
-                LOG.info("Added user '{}' to group '{}'", user.getId(), groupId);
-            }
         }
     }
 
@@ -130,6 +119,15 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
         newUser.setLastName(user.getLastname());
 
         identityService.saveUser(newUser);
+
+        for (String groupId : user.getGroups()){
+            if(identityService.createGroupQuery().groupId(groupId).count() == 0){
+                throw new RuntimeException("Tried to add user '" + user.getId() + "' to group '" + groupId + "' but the group doesn't exist. You'll need to change group of the user to a existing group or configure the group in your config.");
+            }
+
+            identityService.createMembership(user.getId(), groupId);
+            LOG.info("Added user '{}' to group '{}'", user.getId(), groupId);
+        }
     }
 
     private void createGroup(IdentityService identityService, String groupId, String groupName) {
