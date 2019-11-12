@@ -50,7 +50,7 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
     private PropertyValueProvider properties;
 
     @Autowired
-    private AuthConfiguration userConfiguration;
+    private AuthConfiguration authConfiguration;
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserConfiguration.class);
 
@@ -69,7 +69,7 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
     }
 
     private void createTenants(IdentityService identityService) {
-        for(AuthConfiguration.TenantConfiguration tenant : userConfiguration.getTenants()){
+        for(AuthConfiguration.TenantConfiguration tenant : authConfiguration.getTenants()){
             if(identityService.createTenantQuery().tenantId(tenant.getId()).count() == 0){
                 Tenant newTenant = identityService.newTenant(tenant.getId());
                 newTenant.setName(tenant.getName());
@@ -81,7 +81,7 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
 
     private void createGroups(final ProcessEngine processEngine) {
 
-        for(AuthConfiguration.GroupConfiguration group : userConfiguration.getGroups()){
+        for(AuthConfiguration.GroupConfiguration group : authConfiguration.getGroups()){
             createGroup(processEngine.getIdentityService(), group.getId(), group.getName());
 
             for (AuthConfiguration.GroupConfiguration.GroupAuthorizations authorization : group.getAuthorizations()){
@@ -113,7 +113,7 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
         }
 
         // Newer Multi User Config
-        for (AuthConfiguration.UserConfiguration user : userConfiguration.getUsers()) {
+        for (AuthConfiguration.UserConfiguration user : authConfiguration.getUsers()) {
             createUser(identityService, user);
         }
     }
