@@ -6,12 +6,92 @@ camunda.bpm:
 logging.level: DEBUG
 logging.level.io.securecodebox: DEBUG
 
-securecodebox.rest.user:
-  scanner:
-    - username: 'foobar'
-      password: '123456'
-    - username: 'baarfoo'
-      password: '123456'
-  scanner-default:
-    user-id: defaultScanner
-    password: scanner
+securecodebox:
+  tenants:
+    - id: iteratecInternal
+      name: 'iteratec Internal'
+  users:
+    - id: nmapScanner
+      password: 'password1'
+      firstname: 'nmap'
+      lastname: 'scanner'
+      groups: ['scanner']
+    - id: foobar
+      email: foo.bar@example.com
+      password: 'password1'
+      firstname: 'foo'
+      lastname: 'bar'
+      groups: ['user']
+  groups:
+    - id: scanner
+      name: "secureCodeBox Scanner"
+      authorizations:
+        - resource: PROCESS_INSTANCE
+          permissions: [READ, UPDATE]
+        - resource: PROCESS_DEFINITION
+          permissions: [READ, READ_INSTANCE, UPDATE_INSTANCE]
+    - id: ci
+      name: "secureCodeBox Continuous Integration"
+      authorizations:
+        - resource: PROCESS_DEFINITION
+          permissions: [CREATE_INSTANCE, READ, READ_HISTORY]
+        - resource: PROCESS_INSTANCE
+          permissions: [READ, CREATE]
+    - id: user
+      name: "secureCodeBox User"
+      authorizations:
+        - resource: APPLICATION
+          permissions: [ACCESS]
+        - resource: DASHBOARD
+          permissions: [ALL]
+        - resource: DEPLOYMENT
+          permissions: [READ]
+        - resource: FILTER
+          permissions: [ALL]
+        - resource: PROCESS_DEFINITION
+          permissions: [CREATE_INSTANCE, READ, READ_HISTORY]
+        - resource: PROCESS_INSTANCE
+          permissions: [ALL]
+        - resource: TASK
+          permissions: [ALL]
+    - id: admin
+      name: "secureCodeBox Admin"
+      authorizations:
+        - resource: APPLICATION
+          permissions: [ALL]
+        - resource: AUTHORIZATION
+          permissions: [ALL]
+        - resource: BATCH
+          permissions: [ALL]
+        - resource: DASHBOARD
+          permissions: [ALL]
+        - resource: DECISION_DEFINITION
+          permissions: [ALL]
+        - resource: DECISION_REQUIREMENTS_DEFINITION
+          permissions: [ALL]
+        - resource: FILTER
+          permissions: [ALL]
+        - resource: GROUP
+          permissions: [ALL]
+        - resource: GROUP_MEMBERSHIP
+          permissions: [ALL]
+        - resource: PROCESS_DEFINITION
+          permissions: [ALL]
+        - resource: PROCESS_INSTANCE
+          permissions: [ALL]
+        - resource: REPORT
+          permissions: [ALL]
+        - resource: TASK
+          permissions: [ALL]
+        - resource: TENANT
+          permissions: [ALL]
+        - resource: TENANT
+          permissions: [ALL]
+        - resource: TENANT_MEMBERSHIP
+          permissions: [ALL]
+        - resource: USER
+          permissions: [ALL]
+  rest.user:
+    scanner-default:
+      user-id: defaultScanner
+      password: scanner
