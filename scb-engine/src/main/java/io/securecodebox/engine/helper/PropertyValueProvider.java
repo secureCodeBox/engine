@@ -59,7 +59,7 @@ public class PropertyValueProvider {
     }
 
     @DeprecatedConfigurationProperty(
-            replacement = "securecodebox.rest.user.scanner",
+            replacement = "securecodebox.users",
             reason = "Using the new property multiple users can be configured, which is more flexible than only being able to create one."
     )
     String getDefaultUserScannerId() {
@@ -67,7 +67,7 @@ public class PropertyValueProvider {
     }
 
     @DeprecatedConfigurationProperty(
-            replacement = "securecodebox.rest.user.scanner",
+            replacement = "securecodebox.users",
             reason = "Using the new property multiple users can be configured, which is more flexible than only being able to create one."
     )
     String getDefaultUserScannerPassword() {
