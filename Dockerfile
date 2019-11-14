@@ -52,4 +52,6 @@ LABEL org.opencontainers.image.title="secureCodeBox Engine" \
     org.opencontainers.image.revision=$COMMIT_ID \
     org.opencontainers.image.created=$BUILD_DATE
 
+VOLUME ["/scb-engine/config"]
+
 ENTRYPOINT ["./init.sh"]
