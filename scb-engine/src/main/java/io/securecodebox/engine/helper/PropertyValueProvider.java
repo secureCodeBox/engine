@@ -62,7 +62,7 @@ public class PropertyValueProvider {
             replacement = "securecodebox.users",
             reason = "Using the new property multiple users can be configured, which is more flexible than only being able to create one."
     )
-    String getDefaultUserScannerId() {
+    public String getDefaultUserScannerId() {
         return defaultUserScannerId;
     }
 
@@ -70,7 +70,7 @@ public class PropertyValueProvider {
             replacement = "securecodebox.users",
             reason = "Using the new property multiple users can be configured, which is more flexible than only being able to create one."
     )
-    String getDefaultUserScannerPassword() {
+    public String getDefaultUserScannerPassword() {
         return defaultUserScannerPassword;
     }
 }
