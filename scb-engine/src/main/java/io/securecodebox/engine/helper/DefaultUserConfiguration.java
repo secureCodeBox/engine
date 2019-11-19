@@ -135,7 +135,7 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
 
         for (String groupId : user.getGroups()){
             if(identityService.createGroupQuery().groupId(groupId).count() == 0){
-                throw new RuntimeException("Tried to add user '" + user.getId() + "' to group '" + groupId + "' but the group doesn't exist. You'll need to change group of the user to a existing group or configure the group in your config so it'll get created.");
+                throw new UserConfigurationError("Tried to add user '" + user.getId() + "' to group '" + groupId + "' but the group doesn't exist. You'll need to change group of the user to a existing group or configure the group in your config so it'll get created.");
             }
 
             identityService.createMembership(user.getId(), groupId);
@@ -144,7 +144,7 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
 
         for(String tenantId : user.getTenants()){
             if(identityService.createTenantQuery().tenantId(tenantId).count() == 0){
-                throw new RuntimeException("Tried to add user '" + user.getId() + "' to tenant '" + tenantId + "' but the tenant doesn't exist. You'll need to change tenant of the user to a existing tenant or configure the tenant in your config so it'll get created.");
+                throw new UserConfigurationError("Tried to add user '" + user.getId() + "' to tenant '" + tenantId + "' but the tenant doesn't exist. You'll need to change tenant of the user to a existing tenant or configure the tenant in your config so it'll get created.");
             }
 
             identityService.createTenantUserMembership(tenantId, user.getId());
@@ -184,6 +184,12 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
             authorizationService.saveAuthorization(auth);
 
             LOG.info("Created authorization for group {}", groupId);
+        }
+    }
+
+    private static class UserConfigurationError extends RuntimeException {
+        public UserConfigurationError(String msg){
+            super(msg);
         }
     }
 }
