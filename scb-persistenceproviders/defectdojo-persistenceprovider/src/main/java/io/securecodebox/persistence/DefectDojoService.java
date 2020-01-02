@@ -262,7 +262,12 @@ public class DefectDojoService {
                 .queryParam("engagement", Long.toString(engagementId))
                 .queryParam("limit", Long.toString(50L))
                 .queryParam("offset", Long.toString(offset));
-        if(testName!= null) builder.queryParam("testType", testName);
+        if(testName == null) {
+            LOG.warn("TestName must be set unique, e.g. with time");
+            return Optional.empty();       
+        } else {
+            builder.queryParam("testType", testName);
+        }
 
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity engagementRequest = new HttpEntity(getHeaders());
@@ -285,6 +290,51 @@ public class DefectDojoService {
         LOG.warn("Test with name '{}' not found.", testName);
         return Optional.empty();
     }
+    /*
+    * Be aware that using latest might results in "conflicting" "latest" in case a new test is added while requesting latest
+    */
+    public Optional<Long> getLatestTestIdByEngagementName(String engagementName, String productName, String testName, long offset) {
+        Optional<Long> optionalEngagementId = getEngagementIdByEngagementName(engagementName, productName);
+        if(!optionalEngagementId.isPresent()) {
+            LOG.warn("engagementName with name '{}' not found.", engagementName);
+            return Optional.empty();
+        }
+        Long engagementId = optionalEngagementId.get();
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/tests")
+                .queryParam("engagement", Long.toString(engagementId))
+                .queryParam("limit", Long.toString(50L))
+                .queryParam("offset", Long.toString(offset));
+        if(testName != null) builder.queryParam("testType", testName);
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity engagementRequest = new HttpEntity(getHeaders());
+
+        ResponseEntity<DefectDojoResponse<TestResponse>> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, engagementRequest, new ParameterizedTypeReference<DefectDojoResponse<TestResponse>>(){});
+
+        Optional<Long> testResponseId = null;
+        for(TestResponse test : response.getBody().getResults()){
+            if(testResponseId == null || test.getId() > testResponseId.get()) {
+                testResponseId = Optional.of(test.getId());
+            }
+        }
+                
+        if(response.getBody().getNext() != null){
+            Optional<Long> subOptionalTestResponseId = getTestIdByEngagementName(engagementId, testName, offset + 1);
+            if(testResponseId == null ||
+                (subOptionalTestResponseId.isPresent()) && 
+                subOptionalTestResponseId.get() > testResponseId.get() 
+            ) {
+                testResponseId = subOptionalTestResponseId;
+            }
+        }
+        if(testResponseId != null) {
+            return testResponseId;
+        }
+
+        LOG.warn("Test with name '{}' not found.", testName);
+        return Optional.empty();
+    }
+
     private EngagementResponse createTest(TestPayload testPayload) {
         RestTemplate restTemplate = new RestTemplate();
 
