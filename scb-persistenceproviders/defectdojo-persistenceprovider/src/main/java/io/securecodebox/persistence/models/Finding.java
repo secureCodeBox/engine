@@ -65,6 +65,7 @@ public class Finding {
 
     }
     public static final LinkedList<String> findingServerities = new LinkedList<String>(){{
+        add("Informational");
         add("Low");
         add("Medium");
         add("High");
