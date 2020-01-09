@@ -57,11 +57,11 @@
             please see org.camunda.bpm.springboot.project:camunda-bpm-spring-boot-starter-root
          -->
         <camunda.version>7.10.0</camunda.version>
-        <camunda.spring.boot.starter.version>3.2.7</camunda.spring.boot.starter.version>
+        <camunda.spring.boot.starter.version>3.2.8</camunda.spring.boot.starter.version>
         <!-- END IMPORTANT -->
 
-        <spring-boot.version>2.2.0.RELEASE</spring-boot.version>
-        <swagger-version>2.9.0</swagger-version>
+        <spring-boot.version>2.2.2.RELEASE</spring-boot.version>
+        <swagger-version>2.9.2</swagger-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -256,7 +256,7 @@
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
-                        <version>5.2.2</version>
+                        <version>5.2.4</version>
                         <configuration>
                             <failBuildOnCVSS>8</failBuildOnCVSS>
                             <format>ALL</format>
