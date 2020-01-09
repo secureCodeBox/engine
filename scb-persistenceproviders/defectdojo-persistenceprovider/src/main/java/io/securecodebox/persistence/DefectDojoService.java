@@ -275,13 +275,13 @@ public class DefectDojoService {
         Optional<Long> testResponseId = null;
         Optional<Long> latestTestResponseId = Optional.empty();
         for(TestResponse test : response.getBody().getResults()) {
-            if(testName == null) {
-                if(!latestTestResponseId.isPresent() || latestTestResponseId.get() < test.getId()) {
-                    latestTestResponseId = Optional.of(test.getId());
-                }                
-            } else if (test.getTitle() != null && test.getTitle().equals(testName)) {
+            if(testName == null || (test.getTitle() != null && test.getTitle().equals(testName))) {
                 testResponseId = Optional.of(test.getId());
             }
+            if(!latestTestResponseId.isPresent() || latestTestResponseId.get() < test.getId()) {
+                latestTestResponseId = Optional.of(test.getId());
+            }
+
         }
         if(testResponseId != null) {
             return testResponseId;
