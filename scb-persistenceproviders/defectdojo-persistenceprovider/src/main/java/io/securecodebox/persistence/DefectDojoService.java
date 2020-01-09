@@ -256,16 +256,14 @@ public class DefectDojoService {
     }
     /**
      * When DefectDojo >= 1.5.4 is used, testType can be given. Add testName in case DefectDojo >= 1.5.4 is used
+     * Using testName for each branch leads to multiple issues in DefectDojo, so it is not recommended
      */
     private Optional<Long> getTestIdByEngagementName(long engagementId, String testName, long offset) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(defectDojoUrl + "/api/v2/tests")
                 .queryParam("engagement", Long.toString(engagementId))
                 .queryParam("limit", Long.toString(50L))
                 .queryParam("offset", Long.toString(offset));
-        if(testName == null) {
-            LOG.warn("TestName must be set unique, e.g. with time");
-            return Optional.empty();       
-        } else {
+        if(testName != null && !testName.isEmpty()) {
             builder.queryParam("testType", testName);
         }
 
@@ -275,8 +273,13 @@ public class DefectDojoService {
         ResponseEntity<DefectDojoResponse<TestResponse>> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, engagementRequest, new ParameterizedTypeReference<DefectDojoResponse<TestResponse>>(){});
 
         Optional<Long> testResponseId = null;
-        for(TestResponse test : response.getBody().getResults()){
-            if(testName == null || test.getTitle().equals(testName)){
+        Optional<Long> latestTestResponseId = Optional.empty();
+        for(TestResponse test : response.getBody().getResults()) {
+            if(testName == null) {
+                if(!latestTestResponseId.isPresent() || latestTestResponseId.get() < test.getId()) {
+                    latestTestResponseId = Optional.of(test.getId());
+                }                
+            } else if (test.getTitle() != null && test.getTitle().equals(testName)) {
                 testResponseId = Optional.of(test.getId());
             }
         }
@@ -284,11 +287,11 @@ public class DefectDojoService {
             return testResponseId;
         }
         
-        if(response.getBody().getNext() != null){
+        if(response.getBody().getNext() != null) {
             return getTestIdByEngagementName(engagementId, testName, offset + 1);
         }
-        LOG.warn("Test with name '{}' not found.", testName);
-        return Optional.empty();
+        LOG.info("Test with name '{}' not found, using latest.", testName);
+        return latestTestResponseId;
     }
     /*
     * Be aware that using latest might results in "conflicting" "latest" in case a new test is added while requesting latest
