@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @Component
 public class NmapToSshTransformListener extends TransformFindingsToTargetsListener {
 
-    public void notify(DelegateExecution delegateExecution) throws Exception{
+    public void notify(DelegateExecution delegateExecution) throws Exception {
 
         List<Finding> findings = ProcessVariableHelper.readListFromValue(
                 (String) delegateExecution.getVariable(DefaultFields.PROCESS_FINDINGS.name()),
@@ -31,6 +31,7 @@ public class NmapToSshTransformListener extends TransformFindingsToTargetsListen
                     String port = finding.getAttribute(OpenPortAttributes.port).toString();
 
                     Target target = new Target();
+                    target.setName("SSH Scan for " + hostname);
                     target.setLocation(hostname + ":" + port);
 
                     return target;
@@ -38,9 +39,18 @@ public class NmapToSshTransformListener extends TransformFindingsToTargetsListen
 
         LOG.info("Created Targets out of Findings: " + newTargets);
 
-        delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(),
-                ProcessVariableHelper.generateObjectValue(newTargets)
-        );
+        if (!newTargets.isEmpty() && newTargets.size() > 0) {
+            // define the new SSH targets, based on the nmap port scan results
+            delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(),
+                    ProcessVariableHelper.generateObjectValue(newTargets)
+            );
+        }
+        else {
+            // if no new target had been found clear the target parameter (and skip the ssh scan)
+            delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(),
+                    ""
+            );
+        }
     }
 
 }

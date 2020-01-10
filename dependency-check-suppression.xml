@@ -45,20 +45,12 @@
         <cve>CVE-2019-0232</cve>
     </suppress>
 
-    <suppress until="2020-01-01Z">
+    <suppress>
         <!--
-        Introduced through: spring-security-core-5.2.0.RELEASE.jar
+        False Positive.
+        Does not apply to our Spring Version: https://pivotal.io/security/cve-2018-1258
         -->
         <cve>CVE-2018-1258</cve>
-
-        <!--
-        Not fixable until camunda-spin updates its jackson dependency
-        Introduced through: camunda-spin-dataformat-all-1.6.3.jar/META-INF/maven/com.fasterxml.jackson.core/jackson-databind/pom.xml
-        -->
-        <cve>CVE-2019-14379</cve>
-        <cve>CVE-2018-19362</cve>
-        <cve>CVE-2018-19361</cve>
-        <cve>CVE-2018-19360</cve>
     </suppress>
 
 </suppressions>
