@@ -63,6 +63,8 @@ securecodebox.rest.auth: basic auth
 securecodebox:
   tenants: []
   users: []
+  # Documentation on Authorization resources and permission of Camunda types are documented here:
+  # https://docs.camunda.org/manual/7.12/user-guide/process-engine/authorization-service/#basic-principles
   groups:
     - id: scanner
       name: "secureCodeBox Scanner"
