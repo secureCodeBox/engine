@@ -24,18 +24,21 @@ import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.authorization.Authorization;
 import org.camunda.bpm.engine.authorization.AuthorizationQuery;
-import org.camunda.bpm.engine.authorization.Groups;
 import org.camunda.bpm.engine.authorization.Permission;
 import org.camunda.bpm.engine.authorization.Permissions;
 import org.camunda.bpm.engine.authorization.Resource;
 import org.camunda.bpm.engine.authorization.Resources;
 import org.camunda.bpm.engine.identity.Group;
+import org.camunda.bpm.engine.identity.Tenant;
 import org.camunda.bpm.engine.identity.User;
 import org.camunda.bpm.spring.boot.starter.configuration.impl.AbstractCamundaConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This configuration file adds a default user for scanner services
@@ -46,124 +49,147 @@ public class DefaultUserConfiguration extends AbstractCamundaConfiguration {
     @Autowired
     private PropertyValueProvider properties;
 
+    @Autowired
+    private AuthConfiguration authConfiguration;
+
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserConfiguration.class);
-
-    public static final String GROUP_SCANNER = "scanner";
-    public static final String GROUP_APPROVER = "approver";
-    public static final String GROUP_CI = "continuousIntegration";
-
 
     @Override
     public void postProcessEngineBuild(final ProcessEngine processEngine) {
         final IdentityService identityService = processEngine.getIdentityService();
 
-        if(identityService.isReadOnly()) {
-            LOG.warn("Identity service provider is Read Only, not creating any users.");
+        if (identityService.isReadOnly()) {
+            LOG.warn("Identity service provider is ReadOnly, not creating any users.");
             return;
         }
 
         createGroups(processEngine);
-        setupTechnicalUserForScanner(identityService);
+        createTenants(identityService);
+        createUsers(identityService);
     }
 
-    private void createGroups(final ProcessEngine processEngine){
-        createGroup(processEngine.getIdentityService(), GROUP_APPROVER);
-
-        createGroup(processEngine.getIdentityService(), GROUP_SCANNER);
-        createAuthorizationForGroup(
-                processEngine.getAuthorizationService(),
-                GROUP_SCANNER,
-                Resources.PROCESS_INSTANCE,
-                Permissions.READ, Permissions.UPDATE
-        );
-        createAuthorizationForGroup(
-                processEngine.getAuthorizationService(),
-                GROUP_SCANNER,
-                Resources.PROCESS_DEFINITION,
-                Permissions.READ, Permissions.READ_INSTANCE, Permissions.UPDATE_INSTANCE
-        );
-
-        createGroup(processEngine.getIdentityService(), GROUP_CI);
-        createAuthorizationForGroup(
-                processEngine.getAuthorizationService(),
-                GROUP_CI,
-                Resources.PROCESS_DEFINITION,
-                Permissions.CREATE_INSTANCE, Permissions.READ, Permissions.READ_HISTORY
-        );
-        createAuthorizationForGroup(
-                processEngine.getAuthorizationService(),
-                GROUP_CI,
-                Resources.PROCESS_INSTANCE,
-                Permissions.READ, Permissions.CREATE
-        );
+    private void createTenants(IdentityService identityService) {
+        for(AuthConfiguration.TenantConfiguration tenant : authConfiguration.getTenants()){
+            if(identityService.createTenantQuery().tenantId(tenant.getId()).count() == 0){
+                Tenant newTenant = identityService.newTenant(tenant.getId());
+                newTenant.setName(tenant.getName());
+                identityService.saveTenant(newTenant);
+                LOG.info("Created tenant {}", tenant.getId());
+            }
+        }
     }
 
-    private void setupTechnicalUserForScanner(final IdentityService identityService) {
+    private void createGroups(final ProcessEngine processEngine) {
+
+        for(AuthConfiguration.GroupConfiguration group : authConfiguration.getGroups()){
+            createGroup(processEngine.getIdentityService(), group.getId(), group.getName());
+
+            for (AuthConfiguration.GroupConfiguration.GroupAuthorizations authorization : group.getAuthorizations()){
+                createAuthorizationForGroup(
+                        processEngine.getAuthorizationService(),
+                        group.getId(),
+                        Resources.valueOf(authorization.getResource()),
+                        authorization.getPermissions().stream().map(Permissions::forName).collect(Collectors.toList())
+                );
+            }
+        }
+    }
+
+    private void createUsers(final IdentityService identityService) {
+        // Deprecated single User Config
         final String scannerUserId = properties.getDefaultUserScannerId();
         final String scannerUserPw = properties.getDefaultUserScannerPassword();
 
-        if(scannerUserId == null || scannerUserId.isEmpty() || scannerUserPw == null || scannerUserPw.isEmpty()) {
+        if (scannerUserId == null || scannerUserId.isEmpty() || scannerUserPw == null || scannerUserPw.isEmpty()) {
             LOG.info("No environment variables provided to create technical user for scanners");
+        } else {
+            AuthConfiguration.UserConfiguration user = new AuthConfiguration.UserConfiguration();
+            user.setId(scannerUserId);
+            user.setPassword(scannerUserPw);
+            user.setFirstname("Technical-User");
+            user.setLastname("Scanner-User");
+            user.getGroups().add("scanner");
+            createUser(identityService, user);
+        }
+
+        // Newer Multi User Config
+        for (AuthConfiguration.UserConfiguration user : authConfiguration.getUsers()) {
+            createUser(identityService, user);
+        }
+    }
+
+    private void createUser(final IdentityService identityService, AuthConfiguration.UserConfiguration user) {
+        boolean userForScannersAlreadyExists = identityService.createUserQuery().userId(user.getId()).count() > 0;
+        if (userForScannersAlreadyExists) {
+            LOG.info("User '{}' already exists", user.getId());
             return;
         }
 
-        boolean userForScannersAlreadyExists = identityService.createUserQuery().userId(scannerUserId).count() > 0;
-        if(userForScannersAlreadyExists){
-            LOG.info("Technical user for scanners already exists");
-        } else {
-            LOG.info("Creating technical user for scanners");
-            LOG.info("User: {}, Password: {}", scannerUserId, scannerUserPw);
-            createTechnicalUserForScanner(identityService, scannerUserId, scannerUserPw);
-            identityService.createMembership(scannerUserId, GROUP_SCANNER);
+        User newUser = identityService.newUser(user.getId());
+        newUser.setEmail(user.getEmail());
+        newUser.setPassword(user.getPassword());
+        newUser.setFirstName(user.getFirstname());
+        newUser.setLastName(user.getLastname());
+
+        identityService.saveUser(newUser);
+
+        for (String groupId : user.getGroups()){
+            if(identityService.createGroupQuery().groupId(groupId).count() == 0){
+                throw new UserConfigurationError("Tried to add user '" + user.getId() + "' to group '" + groupId + "' but the group doesn't exist. You'll need to change group of the user to a existing group or configure the group in your config so it'll get created.");
+            }
+
+            identityService.createMembership(user.getId(), groupId);
+            LOG.info("Added user '{}' to group '{}'", user.getId(), groupId);
+        }
+
+        for(String tenantId : user.getTenants()){
+            if(identityService.createTenantQuery().tenantId(tenantId).count() == 0){
+                throw new UserConfigurationError("Tried to add user '" + user.getId() + "' to tenant '" + tenantId + "' but the tenant doesn't exist. You'll need to change tenant of the user to a existing tenant or configure the tenant in your config so it'll get created.");
+            }
+
+            identityService.createTenantUserMembership(tenantId, user.getId());
+            LOG.info("Added user '{}' to tenant '{}'", user.getId(), tenantId);
         }
     }
 
-    private void createTechnicalUserForScanner(final IdentityService identityService, final String scannerUserId, final String scannerUserPw) {
-        User technicalUserForScanner = identityService.newUser(scannerUserId);
-        technicalUserForScanner.setPassword(scannerUserPw);
-        technicalUserForScanner.setFirstName("Technical-User");
-        technicalUserForScanner.setLastName("Default-Scanner");
-
-        identityService.saveUser(technicalUserForScanner);
-    }
-
-    private void createGroup(IdentityService identityService, String groupId) {
-        // create group
+    private void createGroup(IdentityService identityService, String groupId, String groupName) {
         if (identityService.createGroupQuery().groupId(groupId).count() == 0) {
             Group group = identityService.newGroup(groupId);
-            group.setName("SecureCodeBox " + groupId);
-            group.setType(Groups.GROUP_TYPE_SYSTEM);
+            group.setName(groupName);
+            group.setType("secureCodeBox");
             identityService.saveGroup(group);
-            LOG.info("Created default secureCodeBox group: {}", group.getName());
+            LOG.info("Created group: {}", group.getName());
         }
     }
 
-    private void createAuthorizationForGroup(AuthorizationService authorizationService, String groupId, Resource resource, Permission... permissions){
-        if(permissions.length == 0){
-            throw new IllegalArgumentException("createAuthorizationForGroup needs at least one permission");
-        }
-
+    private void createAuthorizationForGroup(AuthorizationService authorizationService, String groupId, Resource resource, List<Permission> permissions) {
         AuthorizationQuery authorizationQuery = authorizationService
                 .createAuthorizationQuery()
                 .groupIdIn(groupId)
                 .resourceType(resource)
                 .resourceId("*");
-        for (Permission permission: permissions) {
+        for (Permission permission : permissions) {
             authorizationQuery.hasPermission(permission);
         }
         long authCounts = authorizationQuery.count();
 
-        if(authCounts == 0){
+        if (authCounts == 0) {
             Authorization auth = authorizationService.createNewAuthorization(Authorization.AUTH_TYPE_GRANT);
             auth.setGroupId(groupId);
             auth.setResource(resource);
             auth.setResourceId("*");
-            for (Permission permission: permissions) {
+            for (Permission permission : permissions) {
                 auth.addPermission(permission);
             }
             authorizationService.saveAuthorization(auth);
 
-            LOG.info("Created Authorization for Group {}", groupId);
+            LOG.info("Created authorization for group {}", groupId);
+        }
+    }
+
+    private static class UserConfigurationError extends RuntimeException {
+        public UserConfigurationError(String msg){
+            super(msg);
         }
     }
 }

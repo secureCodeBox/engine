@@ -60,8 +60,81 @@ securecodebox.default.context: BodgeIT
 # - none
 securecodebox.rest.auth: basic auth
 
-# Configure a technical user for the scanner services. This user allows the scanner services to authenticate on the engines rest api.
-# (If not set as environment variable, a user has to be added manually in the camunda ui.)
-securecodebox.rest.user.scanner-default:
-  user-id: ${SECURECODEBOX_USER_SCANNER:}
-  password: ${SECURECODEBOX_USER_SCANNER_PW:}
+securecodebox:
+  tenants: []
+  users: []
+  # Documentation on Authorization resources and permission of Camunda types are documented here:
+  # https://docs.camunda.org/manual/7.12/user-guide/process-engine/authorization-service/#basic-principles
+  groups:
+    - id: scanner
+      name: "secureCodeBox Scanner"
+      authorizations:
+        - resource: PROCESS_INSTANCE
+          permissions: [READ, UPDATE]
+        - resource: PROCESS_DEFINITION
+          permissions: [READ, READ_INSTANCE, UPDATE_INSTANCE]
+    - id: ci
+      name: "secureCodeBox Continuous Integration"
+      authorizations:
+        - resource: PROCESS_DEFINITION
+          permissions: [CREATE_INSTANCE, READ, READ_HISTORY]
+        - resource: PROCESS_INSTANCE
+          permissions: [READ, CREATE]
+    - id: user
+      name: "secureCodeBox User"
+      authorizations:
+        - resource: APPLICATION
+          permissions: [ACCESS]
+        - resource: DASHBOARD
+          permissions: [ALL]
+        - resource: DEPLOYMENT
+          permissions: [READ]
+        - resource: FILTER
+          permissions: [ALL]
+        - resource: PROCESS_DEFINITION
+          permissions: [CREATE_INSTANCE, READ, READ_HISTORY]
+        - resource: PROCESS_INSTANCE
+          permissions: [ALL]
+        - resource: TASK
+          permissions: [ALL]
+    - id: admin
+      name: "secureCodeBox Admin"
+      authorizations:
+        - resource: APPLICATION
+          permissions: [ALL]
+        - resource: AUTHORIZATION
+          permissions: [ALL]
+        - resource: BATCH
+          permissions: [ALL]
+        - resource: DASHBOARD
+          permissions: [ALL]
+        - resource: DECISION_DEFINITION
+          permissions: [ALL]
+        - resource: DECISION_REQUIREMENTS_DEFINITION
+          permissions: [ALL]
+        - resource: FILTER
+          permissions: [ALL]
+        - resource: GROUP
+          permissions: [ALL]
+        - resource: GROUP_MEMBERSHIP
+          permissions: [ALL]
+        - resource: PROCESS_DEFINITION
+          permissions: [ALL]
+        - resource: PROCESS_INSTANCE
+          permissions: [ALL]
+        - resource: REPORT
+          permissions: [ALL]
+        - resource: TASK
+          permissions: [ALL]
+        - resource: TENANT
+          permissions: [ALL]
+        - resource: TENANT
+          permissions: [ALL]
+        - resource: TENANT_MEMBERSHIP
+          permissions: [ALL]
+        - resource: USER
+          permissions: [ALL]
+  rest.user:
+    scanner-default:
+      user-id: ${SECURECODEBOX_USER_SCANNER:}
+      password: ${SECURECODEBOX_USER_SCANNER_PW:}
