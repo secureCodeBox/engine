@@ -32,30 +32,20 @@
         camForm.on('variables-fetched', function () {
             $scope.context = camForm.variableManager.variableValue('DEFAULT_CONTEXT');
 
-            $scope.targetList = [{
+            $scope.target = {
                 name: camForm.variableManager.variableValue('DEFAULT_TARGET_NAME'),
-                location: camForm.variableManager.variableValue('DEFAULT_TARGET_LOCATION')
-            }];
-
-            $scope.addTarget = function () {
-                $scope.targetList.push({'name':'', 'location': ''});
-            };
-
-            $scope.checkForEnter = function ($event) {
-                if ($event.key === 'Enter') {
-                    $scope.addTarget();
-                    $event.stopPropagation();
-                    $event.preventDefault();
+                location: camForm.variableManager.variableValue('DEFAULT_TARGET_LOCATION'),
+                attributes: { 
+                    NCRACK_PARAMETER: ''
                 }
             };
         });
 
         camForm.on('submit', function () {
-            camForm.variableManager.destroyVariable('PROCESS_TARGETS');
             camForm.variableManager.createVariable({
                 name: 'PROCESS_TARGETS',
                 type: 'Object',
-                value: JSON.stringify($scope.targetList),
+                value: JSON.stringify([ $scope.target ]),
                 valueInfo: {
                     serializationDataFormat: 'application/json',
                     objectTypeName: 'java.lang.String'
@@ -68,11 +58,11 @@
     <div class="row">
 
         <div class="col-xs-12">
-            <h3>Scan Target</h3>
+            <h3>Ncrack Target</h3>
 
             <!-- Target Hosts -->
             <div class="form-group">
-                <div class="controls row form-group" ng-repeat="target in targetList track by $index">
+                <div class="controls row form-group">
                     <div class="col-xs-5">
                         <label>Target Name</label>
                         <input required class="form-control"
@@ -83,27 +73,27 @@
                                ng-model="target.name"/>
                     </div>
                     <div class="col-xs-6">
-                        <label>Target Hosts</label>
+                        <label>Target URL</label>
                         <input required class="form-control"
                                type="text"
-                               placeholder="Hostname/IP address"
+                               placeholder="ssh://example.com:22"
                                ng-minlength="3"
                                ng-maxlength="100"
                                ng-model="target.location"
-                               ng-keydown="checkForEnter($event)"
                         />
                     </div>
-                    <div class="col-xs-1">
-                        <button class="btn btn-danger btn-lg"
-                                ng-click="targetList.splice($index, 1)"
-                                ng-disabled="targetList.length === 1"
-                                style="position: absolute; right: 15px; top: 0;">
-                            <span class="glyphicon glyphicon-trash"></span>
-                        </button>
+                    <div class="col-xs-12">
+                        <label>Ncrack Parameters</label>
+                        <input required class="form-control"
+                               type="text"
+                               placeholder="--user admin --pass 123456"
+                               ng-minlength="3"
+                               ng-maxlength="100"
+                               ng-model="target.attributes.NCRACK_PARAMETER"
+                        />
                     </div>
                 </div>
-                <button class="btn btn-primary" ng-click="addTarget()">Add Host</button>
-                <code class="hidden">{{ targetList }}</code>
+                <code class="">{{ target }}</code>
             </div>
 
             <!-- Context (Project/Team/System...) -->
