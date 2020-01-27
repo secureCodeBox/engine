@@ -17,6 +17,8 @@ categories:
       label: 'defectdojo'
     - title: '🕷 Security Scanner'
       label: 'security scanner'
+    - title: '🎛 Elasticsearch'
+      label: 'elasticsearch'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 exclude-labels:
     - 'skip-changelog'
