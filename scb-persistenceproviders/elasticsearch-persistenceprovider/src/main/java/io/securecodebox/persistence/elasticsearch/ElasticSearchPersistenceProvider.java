@@ -172,7 +172,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new Jdk8Module());
         try {
-            Optional<Integer> securityTestDocumentId = checkForSecurityTestIdExistence(securityTest);
+            Optional<String> securityTestDocumentId = checkForSecurityTestIdExistence(securityTest);
 
             String dateTimeFormatToPersist = "yyyy-MM-dd'T'HH:mm:ss";
             BulkRequest bulkRequest = new BulkRequest();
@@ -187,7 +187,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
             if(securityTestDocumentId.isPresent()){
                 // Update the securityTest document in elasticsearch as the same uuid already exists
-                UpdateRequest securityTestUpdateRequest = new UpdateRequest(getElasticIndexName(), "_doc", securityTestDocumentId.get().toString());
+                UpdateRequest securityTestUpdateRequest = new UpdateRequest(getElasticIndexName(), "_doc", securityTestDocumentId.get());
                 securityTestUpdateRequest.doc(objectMapper.writeValueAsString(securityTestAsMap), XContentType.JSON);
                 bulkRequest.add(securityTestUpdateRequest);
             } else {
@@ -246,7 +246,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
      *
      * @param securityTest
      */
-    private Optional<Integer> checkForSecurityTestIdExistence(SecurityTest securityTest) throws ElasticsearchPersistenceException, IOException {
+    private Optional<String> checkForSecurityTestIdExistence(SecurityTest securityTest) throws ElasticsearchPersistenceException, IOException {
         SearchRequest searchRequest = new SearchRequest();
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchQuery("id.keyword", securityTest.getId().toString()));
@@ -262,7 +262,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
         LOG.debug("SearchResponse from UUID Search: {}", searchResponse);
         if (searchResponse.getHits().totalHits > 0) {
-            return Optional.of(searchResponse.getHits().getAt(0).docId());
+            return Optional.of(searchResponse.getHits().getAt(0).getId());
         }
         return Optional.empty();
     }
