@@ -36,6 +36,7 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -171,7 +172,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new Jdk8Module());
         try {
-            checkForSecurityTestIdExistence(securityTest);
+            Optional<Integer> securityTestDocumentId = checkForSecurityTestIdExistence(securityTest);
 
             String dateTimeFormatToPersist = "yyyy-MM-dd'T'HH:mm:ss";
             BulkRequest bulkRequest = new BulkRequest();
@@ -184,11 +185,17 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
             securityTestAsMap.put("@timestamp", timestamp);
             LOG.debug("Timestamp: {}", timestamp);
 
-            IndexRequest securityTestIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
-            securityTestIndexRequest.source(objectMapper.writeValueAsString(securityTestAsMap), XContentType.JSON);
-
-            // Persist the execution as securityTest document in elasticsearch
-            bulkRequest.add(securityTestIndexRequest);
+            if(securityTestDocumentId.isPresent()){
+                // Update the securityTest document in elasticsearch as the same uuid already exists
+                UpdateRequest securityTestUpdateRequest = new UpdateRequest(getElasticIndexName(), "_doc", securityTestDocumentId.get().toString());
+                securityTestUpdateRequest.doc(objectMapper.writeValueAsString(securityTestAsMap), XContentType.JSON);
+                bulkRequest.add(securityTestUpdateRequest);
+            } else {
+                // Persist the execution as securityTest document in elasticsearch
+                IndexRequest securityTestIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
+                securityTestIndexRequest.source(objectMapper.writeValueAsString(securityTestAsMap), XContentType.JSON);
+                bulkRequest.add(securityTestIndexRequest);
+            }
 
             // Persist each finding as a separate document in elasticsearch (with a lightweight object)
             for (Finding f : securityTest.getReport().getFindings()) {
@@ -239,7 +246,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
      *
      * @param securityTest
      */
-    private void checkForSecurityTestIdExistence(SecurityTest securityTest) throws ElasticsearchPersistenceException, DuplicateUuidException, IOException {
+    private Optional<Integer> checkForSecurityTestIdExistence(SecurityTest securityTest) throws ElasticsearchPersistenceException, IOException {
         SearchRequest searchRequest = new SearchRequest();
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchQuery("id.keyword", securityTest.getId().toString()));
@@ -255,9 +262,9 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
         LOG.debug("SearchResponse from UUID Search: {}", searchResponse);
         if (searchResponse.getHits().totalHits > 0) {
-            LOG.error("Tried persisting securityTest '{}' but there is already a securityTest saved for that id.", securityTest.getId());
-            throw new DuplicateUuidException("There already exists a persisted securityTest for id: '"  + securityTest.getId() + "'. Cannot persist a new one under the same id.");
+            return Optional.of(searchResponse.getHits().getAt(0).docId());
         }
+        return Optional.empty();
     }
 
     private String transformContextForElasticsearchIndexCompatibility() {
