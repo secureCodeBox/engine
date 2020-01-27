@@ -143,15 +143,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
     @Override
     public void persist(SecurityTest securityTest) throws PersistenceException{
-        persistToElasticsearch(securityTest, false);
-    }
 
-    @Override
-    public void persist(SecurityTest securityTest, boolean partialPersistence) throws PersistenceException{
-        persistToElasticsearch(securityTest, partialPersistence);
-    }
-
-    private void persistToElasticsearch(SecurityTest securityTest, boolean partialPersistence) {
         if (securityTest == null) {
             LOG.warn("The given SecurityTest is null, nothing to persist.");
             return;
@@ -184,21 +176,19 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
             String dateTimeFormatToPersist = "yyyy-MM-dd'T'HH:mm:ss";
             BulkRequest bulkRequest = new BulkRequest();
 
-            if(!partialPersistence){
-                Map<String, Object> securityTestAsMap = serializeAndRemove(securityTest, "report");
-                securityTestAsMap.put("id", securityTest.getId().toString());
-                securityTestAsMap.put("type", indexTypeNameForSecurityTests);
+            Map<String, Object> securityTestAsMap = serializeAndRemove(securityTest, "report");
+            securityTestAsMap.put("id", securityTest.getId().toString());
+            securityTestAsMap.put("type", indexTypeNameForSecurityTests);
 
-                String timestamp = new SimpleDateFormat(dateTimeFormatToPersist).format(new Date());
-                securityTestAsMap.put("@timestamp", timestamp);
-                LOG.debug("Timestamp: {}", timestamp);
+            String timestamp = new SimpleDateFormat(dateTimeFormatToPersist).format(new Date());
+            securityTestAsMap.put("@timestamp", timestamp);
+            LOG.debug("Timestamp: {}", timestamp);
 
-                IndexRequest securityTestIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
-                securityTestIndexRequest.source(objectMapper.writeValueAsString(securityTestAsMap), XContentType.JSON);
+            IndexRequest securityTestIndexRequest = new IndexRequest(getElasticIndexName(), "_doc");
+            securityTestIndexRequest.source(objectMapper.writeValueAsString(securityTestAsMap), XContentType.JSON);
 
-                // Persist the execution as securityTest document in elasticsearch
-                bulkRequest.add(securityTestIndexRequest);
-            }
+            // Persist the execution as securityTest document in elasticsearch
+            bulkRequest.add(securityTestIndexRequest);
 
             // Persist each finding as a separate document in elasticsearch (with a lightweight object)
             for (Finding f : securityTest.getReport().getFindings()) {

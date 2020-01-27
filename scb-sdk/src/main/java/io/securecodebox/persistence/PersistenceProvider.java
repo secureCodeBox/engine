@@ -27,16 +27,4 @@ import io.securecodebox.model.securitytest.SecurityTest;
 public interface PersistenceProvider {
 
     void persist(SecurityTest securityTest) throws PersistenceException;
-
-    /**
-     * PersistenceProvider can choose to have a different behaviour when only a subresult of the scan get persisted.
-     * If so they can choose to override this method.
-     *
-     * @param securityTest
-     * @param partialPersistence
-     * @throws PersistenceException
-     */
-    default void persist(SecurityTest securityTest, boolean partialPersistence) throws PersistenceException {
-        persist(securityTest);
-    }
 }

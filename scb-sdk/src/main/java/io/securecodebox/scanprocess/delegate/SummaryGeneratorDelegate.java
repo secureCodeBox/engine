@@ -28,7 +28,6 @@ import io.securecodebox.persistence.PersistenceException;
 import io.securecodebox.persistence.PersistenceProvider;
 import io.securecodebox.scanprocess.ProcessVariableHelper;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +48,6 @@ public class SummaryGeneratorDelegate implements JavaDelegate {
 
     @Autowired(required = false)
     List<PersistenceProvider> persistenceProviders;
-
-    private Expression partialPersistence;
 
     @Autowired
     ScanProcessExecutionFactory executionFactory;
@@ -84,12 +81,7 @@ public class SummaryGeneratorDelegate implements JavaDelegate {
             }
 
             for (PersistenceProvider persistenceProvider: persistenceProviders) {
-                if(partialPersistence != null && "true".equals(partialPersistence.getExpressionText())){
-                    persistenceProvider.persist(securityTest, true);
-                } else {
-                    persistenceProvider.persist(securityTest);
-                }
-
+                persistenceProvider.persist(securityTest);
             }
         } catch (PersistenceException e) {
             LOG.error("Persistence provider errored while trying to save report. Going to create incident.", e);
