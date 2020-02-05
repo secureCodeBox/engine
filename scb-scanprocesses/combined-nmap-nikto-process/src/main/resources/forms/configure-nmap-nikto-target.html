@@ -33,7 +33,10 @@
 
             $scope.targetList = [{
                 name: camForm.variableManager.variableValue('DEFAULT_TARGET_NAME'),
-                location: camForm.variableManager.variableValue('DEFAULT_TARGET_LOCATION')
+                location: camForm.variableManager.variableValue('DEFAULT_TARGET_LOCATION'),
+                attributes: {
+                    COMBINED_NMAP_NIKTO_PORTS: ''
+                }
             }];
 
             $scope.attributeMapping = [];
@@ -114,6 +117,16 @@
                                 style="position: absolute; right: 15px; top: 0;">
                             <span class="glyphicon glyphicon-trash"></span>
                         </button>
+                    </div>
+                    <div class="col-xs-12">
+                        <label>Nikto Ports</label>
+                        <input required class="form-control"
+                               type="text"
+                               placeholder="80,443,3000,8080,8443"
+                               ng-minlength="3"
+                               ng-maxlength="100"
+                               ng-model="target.attributes.COMBINED_NMAP_NIKTO_PORTS"
+                        />
                     </div>
                 </div>
                 <button class="btn btn-primary" ng-click="addTarget()">Add Host</button>
