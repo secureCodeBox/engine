@@ -61,6 +61,12 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
         );
     }
 
+    /**
+     * Removes all closed ports from specified COMBINED_NMAP_NIKTO_PORTS
+     * @param portsToScanByNikto specified COMBINED_NMAP_NIKTO_PORTS
+     * @param openPorts Open ports found by nmap
+     * @return
+     */
     private Set<String> filterIrrelevantPorts(Set<String> portsToScanByNikto, Set<String> openPorts) {
         if (openPorts.equals(portsToScanByNikto))
             return portsToScanByNikto;
@@ -69,6 +75,11 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
         return portSet;
     }
 
+    /**
+     * Extracts the value for the COMBINED_NMAP_NIKTO_PORTS attribute and removes invalid input
+     * @param target Target
+     * @return Set with validated Ports
+     */
     private Set<String> getSanitizedPortSet(Target target) {
         // Create a Set to ensure every port is only scanned once per host
         Set<String> portsToScanByNikto = new HashSet<>();
