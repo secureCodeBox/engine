@@ -6,9 +6,9 @@ import io.securecodebox.model.findings.Finding;
 import io.securecodebox.scanprocess.ProcessVariableHelper;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
-import sun.rmi.runtime.Log;
 
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
@@ -38,11 +38,12 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
 
                 });
 
-        List<Target> targets = ProcessVariableHelper.readListFromValue((String) delegateExecution.getVariable(DefaultFields.PROCESS_TARGETS.name()),
+        Set<Target> targets = ProcessVariableHelper.readListFromValue((String) delegateExecution.getVariable(DefaultFields.PROCESS_TARGETS.name()),
                 Target.class
         ).stream()
+                // remove targets with no open ports
                 .filter(target -> openPortsForTarget.containsKey(target.getLocation()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
         targets.forEach(target -> {
             Set<String> portsToScanByNikto = this.getSanitizedPortSet(target);
@@ -50,8 +51,8 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
             target.appendOrUpdateAttribute("NIKTO_PORTS", String.join(",", filteredPorts));
         });
 
-        targets.stream().filter(target -> !this.hasEmptyNiktoPortList(target));
-
+        // remove targets with no ports to scan by nikto
+        targets = targets.stream().filter(target -> !this.hasEmptyNiktoPortList(target)).collect(Collectors.toSet());
 
         LOG.info("Created Targets out of Findings: " + targets);
 
@@ -82,7 +83,12 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
 
         // Move portArray into a Set to ensure every Port is only scanned once for each  host
         Collections.addAll(portsToScanByNikto, portArray);
-        return portsToScanByNikto;
+        return portsToScanByNikto.stream()
+                // remove empty entries
+                .filter(port -> !port.isEmpty())
+                // remove entries that have to long ports or letters or start with zero
+                .filter(port -> Pattern.matches("[1-9]+[0-9]{0,4}", port))
+                .collect(Collectors.toSet());
     }
 
     private boolean hasEmptyNiktoPortList(Target target) {
