@@ -20,6 +20,7 @@
 package io.securecodebox.scanprocess.delegate;
 
 import io.securecodebox.constants.DefaultFields;
+import io.securecodebox.metadata.MetadataProvider;
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.model.findings.Finding;
@@ -36,6 +37,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Rüdiger Heins - iteratec GmbH
@@ -48,6 +50,9 @@ public class SummaryGeneratorDelegate implements JavaDelegate {
 
     @Autowired(required = false)
     List<PersistenceProvider> persistenceProviders;
+
+    @Autowired(required = false)
+    List<MetadataProvider> metadataProviders;
 
     @Autowired
     ScanProcessExecutionFactory executionFactory;
@@ -63,6 +68,7 @@ public class SummaryGeneratorDelegate implements JavaDelegate {
         ScanProcessExecution scanProcessExecution = executionFactory.get(delegateExecution);
         SecurityTest securityTest = new SecurityTest(scanProcessExecution);
 
+        extendFindings(securityTest);
         persist(securityTest);
     }
 
@@ -90,6 +96,26 @@ public class SummaryGeneratorDelegate implements JavaDelegate {
             LOG.error("Unexpected Error while trying to init a persistence provider!", e);
         }
     }
+
+    /**
+     * Eventually consistent: try to extend findings if the metadata provider is currently available.
+     *
+     * @param securityTest The securityTest to extend.
+     */
+    private void extendFindings (SecurityTest securityTest) {
+        LOG.info("starting securityTest metadata extension. {}", securityTest);
+
+        if (metadataProviders == null || metadataProviders.isEmpty()) {
+            LOG.info("No metadata providers were enabled.");
+            return;
+        }
+
+        for (MetadataProvider metadataProvider: metadataProviders) {
+            List<Finding> extendedFindings = securityTest.getReport().getFindings().stream().map(finding -> metadataProvider.extend(finding)).collect(Collectors.toList());
+            securityTest.getReport().setFindings(extendedFindings);
+        }
+    }
+
 
     private static void removeDuplicates(List<Finding> findings){
 
