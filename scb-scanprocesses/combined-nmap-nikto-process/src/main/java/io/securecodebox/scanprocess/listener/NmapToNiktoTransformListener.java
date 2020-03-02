@@ -20,34 +20,19 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
                 Finding.class
         );
 
-        Map<String, Set<String>> openPortsForTarget = new HashMap<>();
+        Map<String, Set<String>> openPortsPerTarget = this.findOpenPortsPerTarget(findings);
 
-        findings.stream()
-                .filter(finding -> finding.getCategory().equals("Open Port"))
-                .forEach(finding -> {
-                    String hostname = (String) finding.getAttribute(OpenPortAttributes.hostname);
-                    String port = finding.getAttribute(OpenPortAttributes.port).toString();
-
-                    if (openPortsForTarget.containsKey(hostname)) {
-                        openPortsForTarget.get(hostname).add(port);
-                    } else {
-                        Set<String> portSet = new HashSet<>();
-                        portSet.add(port);
-                        openPortsForTarget.put(hostname, portSet);
-                    }
-
-                });
 
         Set<Target> targets = ProcessVariableHelper.readListFromValue((String) delegateExecution.getVariable(DefaultFields.PROCESS_TARGETS.name()),
                 Target.class
         ).stream()
                 // remove targets with no open ports
-                .filter(target -> openPortsForTarget.containsKey(target.getLocation()))
+                .filter(target -> openPortsPerTarget.containsKey(target.getLocation()))
                 .collect(Collectors.toSet());
 
         targets.forEach(target -> {
             Set<String> portsToScanByNikto = this.getSanitizedPortSet(target);
-            Set<String> filteredPorts = this.filterIrrelevantPorts(portsToScanByNikto, openPortsForTarget.get(target.getLocation()));
+            Set<String> filteredPorts = this.filterIrrelevantPorts(portsToScanByNikto, openPortsPerTarget.get(target.getLocation()));
             target.appendOrUpdateAttribute("NIKTO_PORTS", String.join(",", filteredPorts));
         });
 
@@ -63,11 +48,12 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
 
     /**
      * Removes all closed ports from specified COMBINED_NMAP_NIKTO_PORTS
+     *
      * @param portsToScanByNikto specified COMBINED_NMAP_NIKTO_PORTS
-     * @param openPorts Open ports found by nmap
+     * @param openPorts          Open ports found by nmap
      * @return
      */
-    private Set<String> filterIrrelevantPorts(Set<String> portsToScanByNikto, Set<String> openPorts) {
+    protected Set<String> filterIrrelevantPorts(Set<String> portsToScanByNikto, Set<String> openPorts) {
         if (openPorts.equals(portsToScanByNikto))
             return portsToScanByNikto;
 
@@ -77,10 +63,11 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
 
     /**
      * Extracts the value for the COMBINED_NMAP_NIKTO_PORTS attribute and removes invalid input
+     *
      * @param target Target
      * @return Set with validated Ports
      */
-    private Set<String> getSanitizedPortSet(Target target) {
+    protected Set<String> getSanitizedPortSet(Target target) {
         // Create a Set to ensure every port is only scanned once per host
         Set<String> portsToScanByNikto = new HashSet<>();
 
@@ -107,4 +94,23 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
         return niktoPortList.isEmpty();
     }
 
+    protected Map<String, Set<String>> findOpenPortsPerTarget(List<Finding> findings) {
+        Map<String, Set<String>> openPortsPerTarget = new HashMap<>();
+        findings.stream()
+                .filter(finding -> finding.getCategory().equals("Open Port"))
+                .forEach(finding -> {
+                    String hostname = (String) finding.getAttribute(OpenPortAttributes.hostname);
+                    String port = finding.getAttribute(OpenPortAttributes.port).toString();
+
+                    if (openPortsPerTarget.containsKey(hostname)) {
+                        openPortsPerTarget.get(hostname).add(port);
+                    } else {
+                        Set<String> portSet = new HashSet<>();
+                        portSet.add(port);
+                        openPortsPerTarget.put(hostname, portSet);
+                    }
+
+                });
+        return openPortsPerTarget;
+    }
 }
