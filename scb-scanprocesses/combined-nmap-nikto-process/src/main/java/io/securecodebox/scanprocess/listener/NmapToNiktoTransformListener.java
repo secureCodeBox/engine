@@ -15,26 +15,15 @@ import java.util.stream.Collectors;
 public class NmapToNiktoTransformListener extends TransformFindingsToTargetsListener {
 
     public void notify(DelegateExecution delegateExecution) throws Exception {
-        List<Finding> findings = ProcessVariableHelper.readListFromValue(
-                (String) delegateExecution.getVariable(DefaultFields.PROCESS_FINDINGS.name()),
-                Finding.class
-        );
+        List<Finding> findings = ProcessVariableHelper.readListFromValue((String) delegateExecution.getVariable(DefaultFields.PROCESS_FINDINGS.name()), Finding.class);
 
         Map<String, Set<String>> openPortsPerTarget = this.findOpenPortsPerTarget(findings);
 
+        List<Target> oldTargets = ProcessVariableHelper.readListFromValue((String) delegateExecution.getVariable(DefaultFields.PROCESS_TARGETS.name()), Target.class);
 
-        Set<Target> targets = ProcessVariableHelper.readListFromValue((String) delegateExecution.getVariable(DefaultFields.PROCESS_TARGETS.name()),
-                Target.class
-        ).stream()
-                // remove targets with no open ports
-                .filter(target -> openPortsPerTarget.containsKey(target.getLocation()))
-                .collect(Collectors.toSet());
+        Set<Target> targets = this.collectTargetsWithOpenPorts(oldTargets, openPortsPerTarget);
 
-        targets.forEach(target -> {
-            Set<String> portsToScanByNikto = this.getSanitizedPortSet(target);
-            Set<String> filteredPorts = this.filterIrrelevantPorts(portsToScanByNikto, openPortsPerTarget.get(target.getLocation()));
-            target.appendOrUpdateAttribute("NIKTO_PORTS", String.join(",", filteredPorts));
-        });
+        this.transformFindingsIntoNewTargets(targets, openPortsPerTarget);
 
         // remove targets with no ports to scan by nikto
         targets = targets.stream().filter(target -> !this.hasEmptyNiktoPortList(target)).collect(Collectors.toSet());
@@ -112,5 +101,20 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
 
                 });
         return openPortsPerTarget;
+    }
+
+    protected Set<Target> collectTargetsWithOpenPorts(List<Target> targets, Map<String, Set<String>> openPortsPerTarget) {
+        return targets.stream()
+                // remove targets with no open ports
+                .filter(target -> openPortsPerTarget.containsKey(target.getLocation()))
+                .collect(Collectors.toSet());
+    }
+
+    protected void transformFindingsIntoNewTargets(Set<Target> targets, Map<String, Set<String>> openPortsPerTarget) {
+        targets.forEach(target -> {
+            Set<String> portsToScanByNikto = this.getSanitizedPortSet(target);
+            Set<String> filteredPorts = this.filterIrrelevantPorts(portsToScanByNikto, openPortsPerTarget.get(target.getLocation()));
+            target.appendOrUpdateAttribute("NIKTO_PORTS", String.join(",", filteredPorts));
+        });
     }
 }
