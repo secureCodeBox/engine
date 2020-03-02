@@ -5,12 +5,9 @@ import io.securecodebox.model.findings.Finding;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
 import java.util.*;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
 public class NmapToNiktoTransformListenerTest {
 
     private static Set<String> portsToScanByNikto;
@@ -41,7 +38,7 @@ public class NmapToNiktoTransformListenerTest {
         Set<String> openPorts = new HashSet<>();
         openPorts.add("80");
         openPorts.add("443");
-        assertTrue(listener.filterIrrelevantPorts(portsToScanByNikto, openPorts).equals(openPorts), "relevant Ports are equal to open ports");
+        assertEquals(listener.filterIrrelevantPorts(portsToScanByNikto, openPorts), openPorts, "relevant Ports are equal to open ports");
     }
 
     @Test
