@@ -1,19 +1,23 @@
 package io.securecodebox.scanprocess.listener;
 
+import io.securecodebox.model.execution.Target;
+import io.securecodebox.model.findings.Finding;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
-import static junit.framework.TestCase.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class NmapToNiktoTransformListenerTest {
+public class NmapToNiktoTransformListenerTest {
 
     private static Set<String> portsToScanByNikto;
     private static NmapToNiktoTransformListener listener;
     private static Set<String> openPorts;
+    private final String TARGET_HOST = "test-host";
+    private final String TARGET_LOCATION = "test-location";
 
     @BeforeAll
     private static void setUp() {
@@ -23,7 +27,6 @@ class NmapToNiktoTransformListenerTest {
         portsToScanByNikto.add("3000");
         portsToScanByNikto.add("8080");
         portsToScanByNikto.add("8443");
-
         listener = new NmapToNiktoTransformListener();
         openPorts = new HashSet<>();
     }
@@ -38,14 +41,13 @@ class NmapToNiktoTransformListenerTest {
         Set<String> openPorts = new HashSet<>();
         openPorts.add("80");
         openPorts.add("443");
-
-        assertTrue("relevant Ports are equal to open ports", listener.filterIrrelevantPorts(portsToScanByNikto, openPorts).equals(openPorts));
+        assertTrue(listener.filterIrrelevantPorts(portsToScanByNikto, openPorts).equals(openPorts), "relevant Ports are equal to open ports");
     }
 
     @Test
-    protected void relevantPortsShouldBeEmpty() {
+    protected void shouldFilterIrrelevantPort() {
         openPorts.add("999999");
-        assertTrue("relevant ports are empty", listener.filterIrrelevantPorts(portsToScanByNikto, openPorts).isEmpty());
+        assertTrue(listener.filterIrrelevantPorts(portsToScanByNikto, openPorts).isEmpty(), "relevant ports are empty");
     }
 
     @Test
@@ -53,12 +55,31 @@ class NmapToNiktoTransformListenerTest {
         openPorts.add("80");
         openPorts.add("3000");
         openPorts.add("9999");
-
         Set<String> intersection = new HashSet<>();
         intersection.add("80");
         intersection.add("3000");
+        assertEquals(intersection, listener.filterIrrelevantPorts(portsToScanByNikto, openPorts), "intersection should be equal to relevant ports");
+    }
 
-        assertEquals("intersection should be equal to relevant ports", intersection, listener.filterIrrelevantPorts(portsToScanByNikto, openPorts));
+    @Test
+    protected void shouldFilterNonNumericChars() {
+        Target target = new Target();
+        target.setName("Test Case");
+        target.setLocation(TARGET_LOCATION);
+        target.appendOrUpdateAttribute("COMBINED_NMAP_NIKTO_PORTS", "80, shouldBeGone, 3000");
+        assertFalse(listener.getSanitizedPortSet(target).contains("shouldBeGone"));
+    }
+
+    @Test
+    protected void shouldFindOpenPort() {
+        Finding finding = new Finding();
+        finding.setCategory("Open Port");
+        finding.addAttribute(OpenPortAttributes.port, "3000");
+        finding.addAttribute(OpenPortAttributes.hostname, TARGET_HOST);
+        List<Finding> findings = new LinkedList<>();
+        findings.add(finding);
+        Map<String, Set<String>> openPortsPerTarget = listener.findOpenPortsPerTarget(findings);
+        assertTrue(openPortsPerTarget.get(TARGET_HOST).contains("3000"), "should contain open port 3000");
     }
 
 }
