@@ -24,7 +24,7 @@ public class NmapToSslyzeTransformListener extends TransformFindingsToTargetsLis
                 .filter(finding -> finding.getCategory().equals("Open Port"))
                 .filter(finding -> {
                     String service = (String) finding.getAttribute(OpenPortAttributes.service);
-                    return service.contains("https");
+                    return service.contains("https") || service.contains("ssl") || service.contains("tls");
                 })
                 .map(finding -> {
                     String hostname = (String) finding.getAttribute(OpenPortAttributes.hostname);
