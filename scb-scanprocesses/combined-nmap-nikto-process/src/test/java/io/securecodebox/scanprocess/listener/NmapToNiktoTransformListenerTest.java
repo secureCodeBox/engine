@@ -82,4 +82,15 @@ public class NmapToNiktoTransformListenerTest {
         assertTrue(openPortsPerTarget.get(TARGET_HOST).contains("3000"), "should contain open port 3000");
     }
 
+    @Test
+    protected void shouldNotFindOpenPorts() {
+        Finding finding = new Finding();
+        finding.addAttribute(OpenPortAttributes.hostname, TARGET_HOST);
+        finding.setCategory("Version Issue");
+        finding.addAttribute(OpenPortAttributes.port, "3000");
+        List<Finding> findings = new LinkedList<>();
+        findings.add(finding);
+        Map<String, Set<String>> openPortsPerTarget = listener.findOpenPortsPerTarget(findings);
+        assertTrue(openPortsPerTarget.isEmpty());
+    }
 }
