@@ -17,9 +17,9 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
     public void notify(DelegateExecution delegateExecution) throws Exception {
         List<Finding> findings = ProcessVariableHelper.readListFromValue((String) delegateExecution.getVariable(DefaultFields.PROCESS_FINDINGS.name()), Finding.class);
 
-        Map<String, Set<String>> openPortsPerTarget = this.findOpenPortsPerTarget(findings);
-
         List<Target> oldTargets = ProcessVariableHelper.readListFromValue((String) delegateExecution.getVariable(DefaultFields.PROCESS_TARGETS.name()), Target.class);
+
+        Map<String, Set<String>> openPortsPerTarget = this.findOpenPortsPerTarget(findings);
 
         Set<Target> targets = this.collectTargetsWithOpenPorts(oldTargets, openPortsPerTarget);
 
