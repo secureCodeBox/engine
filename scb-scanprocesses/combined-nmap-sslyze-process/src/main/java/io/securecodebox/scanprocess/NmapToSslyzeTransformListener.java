@@ -20,22 +20,7 @@ public class NmapToSslyzeTransformListener extends TransformFindingsToTargetsLis
                 Finding.class
         );
 
-        List<Target> newTargets = findings.stream()
-                .filter(finding -> finding.getCategory().equals("Open Port"))
-                .filter(finding -> {
-                    String service = (String) finding.getAttribute(OpenPortAttributes.service);
-                    return service.contains("https") || service.contains("ssl") || service.contains("tls");
-                })
-                .map(finding -> {
-                    String hostname = (String) finding.getAttribute(OpenPortAttributes.hostname);
-                    String port = finding.getAttribute(OpenPortAttributes.port).toString();
-
-                    Target target = new Target();
-                    target.setName("SSLyze Scan for " + hostname);
-                    target.setLocation(hostname + ":" + port);
-
-                    return target;
-                }).collect(Collectors.toList());
+        List<Target> newTargets = createTargetsFromFindings(findings);
 
         LOG.info("Created Targets out of Findings: " + newTargets);
 
@@ -51,6 +36,25 @@ public class NmapToSslyzeTransformListener extends TransformFindingsToTargetsLis
                     ""
             );
         }
+    }
+
+    protected List<Target> createTargetsFromFindings(List<Finding> findings) {
+        return findings.stream()
+        .filter(finding -> finding.getCategory().equals("Open Port"))
+        .filter(finding -> {
+            String service = (String) finding.getAttribute(OpenPortAttributes.service);
+            return service.contains("https") || service.contains("ssl") || service.contains("tls");
+        })
+        .map(finding -> {
+            String hostname = (String) finding.getAttribute(OpenPortAttributes.hostname);
+            String port = finding.getAttribute(OpenPortAttributes.port).toString();
+
+            Target target = new Target();
+            target.setName("SSLyze Scan for " + hostname);
+            target.setLocation(hostname + ":" + port);
+
+            return target;
+        }).collect(Collectors.toList());
     }
 
 }

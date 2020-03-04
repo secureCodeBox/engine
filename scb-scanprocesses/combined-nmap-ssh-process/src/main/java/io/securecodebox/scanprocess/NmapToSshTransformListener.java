@@ -20,22 +20,7 @@ public class NmapToSshTransformListener extends TransformFindingsToTargetsListen
                 Finding.class
         );
 
-        List<Target> newTargets = findings.stream()
-                .filter(finding -> finding.getCategory().equals("Open Port"))
-                .filter(finding -> {
-                    String service = (String) finding.getAttribute(OpenPortAttributes.service);
-                    return "ssh".equals(service);
-                })
-                .map(finding -> {
-                    String hostname = (String) finding.getAttribute(OpenPortAttributes.hostname);
-                    String port = finding.getAttribute(OpenPortAttributes.port).toString();
-
-                    Target target = new Target();
-                    target.setName("SSH Scan for " + hostname);
-                    target.setLocation(hostname + ":" + port);
-
-                    return target;
-                }).collect(Collectors.toList());
+        List<Target> newTargets = createTargetsFromFindings(findings);
 
         LOG.info("Created Targets out of Findings: " + newTargets);
 
@@ -53,4 +38,22 @@ public class NmapToSshTransformListener extends TransformFindingsToTargetsListen
         }
     }
 
+    protected List<Target> createTargetsFromFindings(List<Finding> findings) {
+        return findings.stream()
+        .filter(finding -> finding.getCategory().equals("Open Port"))
+        .filter(finding -> {
+            String service = (String) finding.getAttribute(OpenPortAttributes.service);
+            return "ssh".equals(service);
+        })
+        .map(finding -> {
+            String hostname = (String) finding.getAttribute(OpenPortAttributes.hostname);
+            String port = finding.getAttribute(OpenPortAttributes.port).toString();
+
+            Target target = new Target();
+            target.setName("SSH Scan for " + hostname);
+            target.setLocation(hostname + ":" + port);
+
+            return target;
+        }).collect(Collectors.toList());
+    }
 }
