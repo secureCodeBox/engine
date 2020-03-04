@@ -2,20 +2,18 @@ package io.securecodebox.scanprocess.listener;
 
 import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.findings.Finding;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NmapToNiktoTransformListenerTest {
 
     private static Set<String> portsToScanByNikto;
     private static NmapToNiktoTransformListener listener;
-    private static Set<String> openPorts;
+    
     private final String TARGET_HOST = "test-host";
     private final String TARGET_LOCATION = "test-location";
 
@@ -27,13 +25,8 @@ public class NmapToNiktoTransformListenerTest {
         portsToScanByNikto.add("3000");
         portsToScanByNikto.add("8080");
         portsToScanByNikto.add("8443");
-        listener = new NmapToNiktoTransformListener();
-        openPorts = new HashSet<>();
-    }
 
-    @AfterEach
-    private void clearOpenPorts() {
-        openPorts.clear();
+        listener = new NmapToNiktoTransformListener();
     }
 
     @Test
@@ -46,12 +39,14 @@ public class NmapToNiktoTransformListenerTest {
 
     @Test
     protected void shouldFilterIrrelevantPort() {
+        Set<String> openPorts = new HashSet<>();
         openPorts.add("999999");
         assertTrue(listener.filterIrrelevantPorts(portsToScanByNikto, openPorts).isEmpty(), "relevant ports are empty");
     }
 
     @Test
     protected void relevantPortsShouldBeIntersection() {
+        Set<String> openPorts = new HashSet<>();
         openPorts.add("80");
         openPorts.add("3000");
         openPorts.add("9999");
@@ -67,7 +62,7 @@ public class NmapToNiktoTransformListenerTest {
         target.setName("Test Case");
         target.setLocation(TARGET_LOCATION);
         target.appendOrUpdateAttribute("COMBINED_NMAP_NIKTO_PORTS", "80, shouldBeGone, 3000");
-        assertFalse(listener.getSanitizedPortSet(target).contains("shouldBeGone"));
+        assertFalse(listener.getRelevantPorts(target).contains("shouldBeGone"));
     }
 
     @Test
@@ -78,7 +73,7 @@ public class NmapToNiktoTransformListenerTest {
         finding.addAttribute(OpenPortAttributes.hostname, TARGET_HOST);
         List<Finding> findings = new LinkedList<>();
         findings.add(finding);
-        Map<String, Set<String>> openPortsPerTarget = listener.findOpenPortsPerTarget(findings);
+        Map<String, Set<String>> openPortsPerTarget = listener.getOpenPortsPerTarget(findings);
         assertTrue(openPortsPerTarget.get(TARGET_HOST).contains("3000"), "should contain open port 3000");
     }
 
@@ -90,7 +85,60 @@ public class NmapToNiktoTransformListenerTest {
         finding.addAttribute(OpenPortAttributes.port, "3000");
         List<Finding> findings = new LinkedList<>();
         findings.add(finding);
-        Map<String, Set<String>> openPortsPerTarget = listener.findOpenPortsPerTarget(findings);
+        Map<String, Set<String>> openPortsPerTarget = listener.getOpenPortsPerTarget(findings);
         assertTrue(openPortsPerTarget.isEmpty());
     }
+
+    @Test
+    protected void shouldIgnoreEmptyFindingsList() {
+        List<Finding> findings = new LinkedList<>();
+        Map<String, Set<String>> openPortsPerTarget = listener.getOpenPortsPerTarget(findings);
+        assertTrue(openPortsPerTarget.isEmpty());
+    }
+
+    @Test
+    protected void shouldIgnoreDuplicateFindings() {
+        Finding finding = new Finding();
+        finding.addAttribute(OpenPortAttributes.hostname, TARGET_HOST);
+        finding.setCategory("Open Port");
+        finding.addAttribute(OpenPortAttributes.port, "3000");
+
+        Finding finding2 = new Finding();
+        finding2.addAttribute(OpenPortAttributes.hostname, TARGET_HOST);
+        finding2.setCategory("Open Port");
+        finding2.addAttribute(OpenPortAttributes.port, "3000");
+
+        List<Finding> findings = new LinkedList<>();
+
+        findings.add(finding);
+        findings.add(finding2);
+
+        Map<String, Set<String>> openPortsPerTarget = listener.getOpenPortsPerTarget(findings);
+        assertTrue(openPortsPerTarget.size() == 1);
+    }
+
+    @Test
+    protected void shouldHandleEmptyFindingsList() {
+        List<Finding> findings = new LinkedList<>();
+        Map<String, Set<String>> openPortsPerTarget = listener.getOpenPortsPerTarget(findings);
+        assertTrue(openPortsPerTarget.isEmpty());
+    }
+
+    @Test
+    protected void shouldTransformTargetsToEmptyTargetList() {
+        Finding finding = new Finding();
+        finding.addAttribute(OpenPortAttributes.hostname, TARGET_HOST);
+        finding.addAttribute(OpenPortAttributes.port, "3000");
+        finding.setCategory("Open Port");
+
+        List<Finding> findings = new LinkedList<>();
+        findings.add(finding);
+
+        Set<Target> newTargets = new HashSet<>();
+        List<Target> oldTargets = new LinkedList<>();
+        newTargets = listener.nmapToNiktoTransformAction(findings, oldTargets);
+
+        assertTrue(newTargets.isEmpty());
+    }
+
 }
