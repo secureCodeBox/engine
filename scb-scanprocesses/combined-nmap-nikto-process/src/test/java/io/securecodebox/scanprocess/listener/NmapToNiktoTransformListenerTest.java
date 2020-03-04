@@ -5,9 +5,12 @@ import io.securecodebox.model.findings.Finding;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
 import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class NmapToNiktoTransformListenerTest {
 
     private static Set<String> portsToScanByNikto;
