@@ -13,7 +13,7 @@ public class NmapToNiktoTransformListenerTest {
 
     private static Set<String> portsToScanByNikto;
     private static NmapToNiktoTransformListener listener;
-    
+
     private final String TARGET_HOST = "test-host";
     private final String TARGET_LOCATION = "test-location";
 
@@ -67,10 +67,7 @@ public class NmapToNiktoTransformListenerTest {
 
     @Test
     protected void shouldFindOpenPort() {
-        Finding finding = new Finding();
-        finding.setCategory("Open Port");
-        finding.addAttribute(OpenPortAttributes.port, "3000");
-        finding.addAttribute(OpenPortAttributes.hostname, TARGET_HOST);
+        Finding finding = createFinding(TARGET_HOST, "3000", "Open Port");
         List<Finding> findings = new LinkedList<>();
         findings.add(finding);
         Map<String, Set<String>> openPortsPerTarget = listener.getOpenPortsPerTarget(findings);
@@ -79,10 +76,7 @@ public class NmapToNiktoTransformListenerTest {
 
     @Test
     protected void shouldNotFindOpenPorts() {
-        Finding finding = new Finding();
-        finding.addAttribute(OpenPortAttributes.hostname, TARGET_HOST);
-        finding.setCategory("Version Issue");
-        finding.addAttribute(OpenPortAttributes.port, "3000");
+        Finding finding = createFinding(TARGET_HOST, "3000", "Version Issue");
         List<Finding> findings = new LinkedList<>();
         findings.add(finding);
         Map<String, Set<String>> openPortsPerTarget = listener.getOpenPortsPerTarget(findings);
@@ -98,15 +92,8 @@ public class NmapToNiktoTransformListenerTest {
 
     @Test
     protected void shouldIgnoreDuplicateFindings() {
-        Finding finding = new Finding();
-        finding.addAttribute(OpenPortAttributes.hostname, TARGET_HOST);
-        finding.setCategory("Open Port");
-        finding.addAttribute(OpenPortAttributes.port, "3000");
-
-        Finding finding2 = new Finding();
-        finding2.addAttribute(OpenPortAttributes.hostname, TARGET_HOST);
-        finding2.setCategory("Open Port");
-        finding2.addAttribute(OpenPortAttributes.port, "3000");
+        Finding finding = createFinding(TARGET_HOST, "3000", "Open Port");
+        Finding finding2 = createFinding(TARGET_HOST, "3000", "Open Port");
 
         List<Finding> findings = new LinkedList<>();
 
@@ -126,10 +113,7 @@ public class NmapToNiktoTransformListenerTest {
 
     @Test
     protected void shouldTransformTargetsToEmptyTargetList() {
-        Finding finding = new Finding();
-        finding.addAttribute(OpenPortAttributes.hostname, TARGET_HOST);
-        finding.addAttribute(OpenPortAttributes.port, "3000");
-        finding.setCategory("Open Port");
+        Finding finding = createFinding(TARGET_HOST, "3000", "Open Port");
 
         List<Finding> findings = new LinkedList<>();
         findings.add(finding);
@@ -141,4 +125,11 @@ public class NmapToNiktoTransformListenerTest {
         assertTrue(newTargets.isEmpty());
     }
 
+    private Finding createFinding(String hostname, String port, String category) {
+        Finding finding = new Finding();
+        finding.addAttribute(OpenPortAttributes.hostname, hostname);
+        finding.addAttribute(OpenPortAttributes.port, port);
+        finding.setCategory(category);
+        return finding;
+    }
 }
