@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 public class NmapToNiktoTransformListener extends TransformFindingsToTargetsListener {
 
     public void notify(DelegateExecution delegateExecution) throws Exception {
-
         List<Finding> findings = ProcessVariableHelper.readListFromValue((String) delegateExecution.getVariable(DefaultFields.PROCESS_FINDINGS.name()), Finding.class);
         List<Target> oldTargets = ProcessVariableHelper.readListFromValue((String) delegateExecution.getVariable(DefaultFields.PROCESS_TARGETS.name()), Target.class);
         Set<Target> newTargets = this.nmapToNiktoTransformAction(findings, oldTargets);
