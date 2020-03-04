@@ -15,24 +15,14 @@ import java.util.stream.Collectors;
 public class NmapToNiktoTransformListener extends TransformFindingsToTargetsListener {
 
     public void notify(DelegateExecution delegateExecution) throws Exception {
+
         List<Finding> findings = ProcessVariableHelper.readListFromValue((String) delegateExecution.getVariable(DefaultFields.PROCESS_FINDINGS.name()), Finding.class);
 
         List<Target> oldTargets = ProcessVariableHelper.readListFromValue((String) delegateExecution.getVariable(DefaultFields.PROCESS_TARGETS.name()), Target.class);
 
-        Map<String, Set<String>> openPortsPerTarget = this.findOpenPortsPerTarget(findings);
+        Set<Target> newTargets = this.nmapToNiktoTransformAction(findings, oldTargets);
 
-        Set<Target> targets = this.collectTargetsWithOpenPorts(oldTargets, openPortsPerTarget);
-
-        this.transformFindingsIntoNewTargets(targets, openPortsPerTarget);
-
-        // remove targets with no ports to scan by nikto
-        targets = targets.stream().filter(target -> !this.hasEmptyNiktoPortList(target)).collect(Collectors.toSet());
-
-        LOG.info("Created Targets out of Findings: " + targets);
-
-        delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(),
-                ProcessVariableHelper.generateObjectValue(targets)
-        );
+        delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(), ProcessVariableHelper.generateObjectValue(newTargets));
     }
 
     /**
@@ -116,5 +106,21 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
             Set<String> filteredPorts = this.filterIrrelevantPorts(portsToScanByNikto, openPortsPerTarget.get(target.getLocation()));
             target.appendOrUpdateAttribute("NIKTO_PORTS", String.join(",", filteredPorts));
         });
+    }
+
+    protected Set<Target> nmapToNiktoTransformAction(List<Finding> findings, List<Target> oldTargets) {
+        Map<String, Set<String>> openPortsPerTarget = this.findOpenPortsPerTarget(findings);
+
+        Set<Target> targets = this.collectTargetsWithOpenPorts(oldTargets, openPortsPerTarget);
+
+        this.transformFindingsIntoNewTargets(targets, openPortsPerTarget);
+
+        // remove targets with no ports to scan by nikto
+        targets = targets.stream().filter(target -> !this.hasEmptyNiktoPortList(target)).collect(Collectors.toSet());
+
+        LOG.info("Created Targets out of Findings: " + targets);
+
+        return targets;
+
     }
 }
