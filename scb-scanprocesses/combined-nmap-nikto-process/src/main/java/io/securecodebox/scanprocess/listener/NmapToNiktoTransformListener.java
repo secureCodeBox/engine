@@ -17,12 +17,9 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
     public void notify(DelegateExecution delegateExecution) throws Exception {
 
         List<Finding> findings = ProcessVariableHelper.readListFromValue((String) delegateExecution.getVariable(DefaultFields.PROCESS_FINDINGS.name()), Finding.class);
-
         List<Target> oldTargets = ProcessVariableHelper.readListFromValue((String) delegateExecution.getVariable(DefaultFields.PROCESS_TARGETS.name()), Target.class);
-
         Set<Target> newTargets = this.nmapToNiktoTransformAction(findings, oldTargets);
-
-        delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(), ProcessVariableHelper.generateObjectValue(newTargets));
+        this.startNitktoScan(newTargets, delegateExecution);
     }
 
     /**
@@ -122,5 +119,9 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
 
         return targets;
 
+    }
+
+    private void startNitktoScan(Set<Target> targets, DelegateExecution delegateExecution) {
+        delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(), ProcessVariableHelper.generateObjectValue(targets));
     }
 }
