@@ -10,11 +10,9 @@ then
     # Also tagging master branch name to keep backwards compat
     echo $(docker tag $REPO:$TAG $REPO:master)
     echo $(docker tag $REPO:$TAG $REPO:unstable)
-    echo $(docker tag $REPO:$TAG $REPO:unstable-$TRAVIS_BUILD_NUMBER)
     echo "Develop Build: Pushing unstable image"
     echo $(docker push $REPO:master)
     echo $(docker push $REPO:unstable)
-    echo $(docker push $REPO:unstable-$TRAVIS_BUILD_NUMBER)
 elif [ "$TRAVIS_BRANCH" = "$TRAVIS_TAG" ]
 then
     echo "Tagged Release: Pushing versioned docker image." 
