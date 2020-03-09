@@ -53,12 +53,10 @@ public class NmapToNiktoTransformListenerTest {
         findings.add(finding);
         findings.add(finding2);
         Set<Target> newTargets = listener.nmapToNiktoTransformAction(findings, oldTargets);
-
-        assertEquals(1, newTargets.size());
-        List<String> nmapPorts = new LinkedList<>();
-        newTargets.forEach(target1 -> nmapPorts.add((String) target.getAttributes().get("NIKTO_PORTS")));
-
-        assertEquals("3000, 80", nmapPorts.get(0), "should contain 3000 and 80 as Ports for Nikto");
+        assertEquals(1, newTargets.size(), "should create only one Target");
+        String niktoPorts = (String) newTargets.iterator().next().getAttributes().get("NIKTO_PORTS");
+        assertTrue(niktoPorts.contains("80" ), "should contain port 80");
+        assertTrue(niktoPorts.contains("3000"), "should contain port 3000");
     }
 
     @Test
@@ -67,7 +65,7 @@ public class NmapToNiktoTransformListenerTest {
         Finding finding1 = createFinding(TARGET_LOCATION, "80", "Open Port");
         Finding finding2 = createFinding(TARGET_LOCATION, "443", "Open Port");
         Finding finding3 = createFinding(TARGET_LOCATION, "3000", "Open Port");
-        Finding finding4 = createFinding(TARGET_LOCATION, "8080", "OpenPort");
+        Finding finding4 = createFinding(TARGET_LOCATION, "8080", "Open Port");
         Finding finding5 = createFinding(TARGET_LOCATION, "8443", "Open Port");
         List<Target> oldTargets = new LinkedList<>();
         List<Finding> findings = new LinkedList<>();
@@ -79,13 +77,13 @@ public class NmapToNiktoTransformListenerTest {
         findings.add(finding5);
 
         Set<Target> newTargets = listener.nmapToNiktoTransformAction(findings, oldTargets);
-        assertEquals(1, newTargets.size());
+        assertEquals(1, newTargets.size(), "should create only one target");
         String niktoPorts = (String) newTargets.iterator().next().getAttributes().get("NIKTO_PORTS");
-        assertTrue(niktoPorts.contains("80"));
-        assertTrue(niktoPorts.contains("443"));
-        assertTrue(niktoPorts.contains("3000"));
-        assertTrue(niktoPorts.contains("8080"));
-        assertTrue(niktoPorts.contains("8443"));
+        assertTrue(niktoPorts.contains("80"), "should contain Port 80");
+        assertTrue(niktoPorts.contains("443"),  "should contain Port 443");
+        assertTrue(niktoPorts.contains("3000"), "should contain port 3000");
+        assertTrue(niktoPorts.contains("8080"), "should contain port 8080");
+        assertTrue(niktoPorts.contains("8443"), "should contain port 8443");
     }
 
     @Test
