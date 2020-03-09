@@ -50,13 +50,12 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
         // Transform Comma separated ports into an Array
         String[] portArray = ((String) target.getAttributes().get("COMBINED_NMAP_NIKTO_PORTS")).split(",");
 
-        // Remove whitespaces before and after port
+        // Remove whitespaces before and after port and add to Collection
         for (String port : portArray) {
-            port = port.trim();
+            portsToScanByNikto.add(port.trim());
         }
 
         // Move portArray into a Set to ensure every Port is only scanned once for each  host
-        Collections.addAll(portsToScanByNikto, portArray);
         return portsToScanByNikto.stream()
                 // remove empty entries
                 .filter(port -> !port.isEmpty())
@@ -101,7 +100,7 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
         targets.forEach(target -> {
             Set<String> portsToScanByNikto = this.getRelevantPorts(target);
             Set<String> filteredPorts = this.filterIrrelevantPorts(portsToScanByNikto, openPortsPerTarget.get(target.getLocation()));
-            target.appendOrUpdateAttribute("NIKTO_PORTS", String.join(",", filteredPorts));
+            target.appendOrUpdateAttribute("NIKTO_PORTS", String.join(", ", filteredPorts));
         });
     }
 
