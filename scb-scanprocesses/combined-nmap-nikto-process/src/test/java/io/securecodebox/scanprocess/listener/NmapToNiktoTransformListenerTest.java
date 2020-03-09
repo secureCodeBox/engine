@@ -13,14 +13,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class NmapToNiktoTransformListenerTest {
 
-    private static Set<String> portsToScanByNikto;
     private static NmapToNiktoTransformListener listener;
 
     private final String TARGET_NAME = "test-host";
     private final String TARGET_LOCATION = "test-location";
 
     @BeforeAll
-    private static void setUp() {
+    protected static void setUp() {
         listener = new NmapToNiktoTransformListener();
     }
 
