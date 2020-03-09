@@ -28,7 +28,7 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
      * @param openPorts          Open ports found by nmap
      * @return
      */
-    protected Set<String> filterIrrelevantPorts(Set<String> portsToScanByNikto, Set<String> openPorts) {
+    private Set<String> filterIrrelevantPorts(Set<String> portsToScanByNikto, Set<String> openPorts) {
         if (openPorts.equals(portsToScanByNikto))
             return portsToScanByNikto;
 
@@ -42,7 +42,7 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
      * @param target Target
      * @return Set with validated Ports
      */
-    protected Set<String> getRelevantPorts(Target target) {
+    private Set<String> getRelevantPorts(Target target) {
         // Create a Set to ensure every port is only scanned once per host
         Set<String> portsToScanByNikto = new HashSet<>();
 
@@ -68,7 +68,7 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
         return niktoPortList.isEmpty();
     }
 
-    protected Map<String, Set<String>> getOpenPortsPerTarget(List<Finding> findings) {
+    private Map<String, Set<String>> getOpenPortsPerTarget(List<Finding> findings) {
         Map<String, Set<String>> openPortsPerTarget = new HashMap<>();
         findings.stream()
                 .filter(finding -> finding.getCategory().equals("Open Port"))
@@ -88,14 +88,14 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
         return openPortsPerTarget;
     }
 
-    protected Set<Target> collectTargetsWithOpenPorts(List<Target> targets, Map<String, Set<String>> openPortsPerTarget) {
+    private Set<Target> collectTargetsWithOpenPorts(List<Target> targets, Map<String, Set<String>> openPortsPerTarget) {
         return targets.stream()
                 // remove targets with no open ports
                 .filter(target -> openPortsPerTarget.containsKey(target.getLocation()))
                 .collect(Collectors.toSet());
     }
 
-    protected void updateTargetsWithNiktoPorts(Set<Target> targets, Map<String, Set<String>> openPortsPerTarget) {
+    private void updateTargetsWithNiktoPorts(Set<Target> targets, Map<String, Set<String>> openPortsPerTarget) {
         targets.forEach(target -> {
             Set<String> portsToScanByNikto = this.getRelevantPorts(target);
             Set<String> filteredPorts = this.filterIrrelevantPorts(portsToScanByNikto, openPortsPerTarget.get(target.getLocation()));
