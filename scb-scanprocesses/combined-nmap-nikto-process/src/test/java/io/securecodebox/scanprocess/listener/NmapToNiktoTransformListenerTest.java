@@ -5,10 +5,11 @@ import io.securecodebox.model.findings.Finding;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NmapToNiktoTransformListenerTest {
 
@@ -20,26 +21,28 @@ public class NmapToNiktoTransformListenerTest {
 
     @BeforeAll
     private static void setUp() {
-        portsToScanByNikto = new HashSet<>();
-        portsToScanByNikto.add("80");
-        portsToScanByNikto.add("443");
-        portsToScanByNikto.add("3000");
-        portsToScanByNikto.add("8080");
-        portsToScanByNikto.add("8443");
-
         listener = new NmapToNiktoTransformListener();
     }
 
     @Test
     protected void relevantPortsShouldBeIntersection() {
-        Set<String> openPorts = new HashSet<>();
-        openPorts.add("80");
-        openPorts.add("3000");
-        openPorts.add("9999");
-        Set<String> intersection = new HashSet<>();
-        intersection.add("80");
-        intersection.add("3000");
-        assertEquals(intersection, listener.filterIrrelevantPorts(portsToScanByNikto, openPorts), "intersection should be equal to relevant ports");
+        Target target = createTarget(TARGET_NAME, TARGET_LOCATION, "80, 443, 3000, 8080, 8443");
+        Finding finding1 = createFinding(TARGET_LOCATION, "3000", "Open Port");
+        Finding finding2 = createFinding(TARGET_LOCATION, "8080", "Open Port");
+        Finding finding3 = createFinding(TARGET_LOCATION, "8443", "Open Port");
+        List<Target> oldTargets = new LinkedList<>();
+        List<Finding> findings = new LinkedList<>();
+        oldTargets.add(target);
+        findings.add(finding1);
+        findings.add(finding2);
+        findings.add(finding3);
+
+        Set<Target> newTargets = listener.nmapToNiktoTransformAction(findings, oldTargets);
+        assertEquals(1, newTargets.size(), "should create only one target");
+        String niktoPorts = (String) newTargets.iterator().next().getAttributes().get("NIKTO_PORTS");
+        assertTrue(niktoPorts.contains("3000"), "should contain port 3000");
+        assertTrue(niktoPorts.contains("8080"), "should contain port 8080");
+        assertTrue(niktoPorts.contains("8443"), "should contain port 8443");
     }
 
     @Test
@@ -55,7 +58,7 @@ public class NmapToNiktoTransformListenerTest {
         Set<Target> newTargets = listener.nmapToNiktoTransformAction(findings, oldTargets);
         assertEquals(1, newTargets.size(), "should create only one Target");
         String niktoPorts = (String) newTargets.iterator().next().getAttributes().get("NIKTO_PORTS");
-        assertTrue(niktoPorts.contains("80" ), "should contain port 80");
+        assertTrue(niktoPorts.contains("80"), "should contain port 80");
         assertTrue(niktoPorts.contains("3000"), "should contain port 3000");
     }
 
@@ -80,69 +83,51 @@ public class NmapToNiktoTransformListenerTest {
         assertEquals(1, newTargets.size(), "should create only one target");
         String niktoPorts = (String) newTargets.iterator().next().getAttributes().get("NIKTO_PORTS");
         assertTrue(niktoPorts.contains("80"), "should contain Port 80");
-        assertTrue(niktoPorts.contains("443"),  "should contain Port 443");
+        assertTrue(niktoPorts.contains("443"), "should contain Port 443");
         assertTrue(niktoPorts.contains("3000"), "should contain port 3000");
         assertTrue(niktoPorts.contains("8080"), "should contain port 8080");
         assertTrue(niktoPorts.contains("8443"), "should contain port 8443");
     }
 
     @Test
-    protected void shouldFindOpenPort() {
-        Finding finding = createFinding(TARGET_NAME, "3000", "Open Port");
-        List<Finding> findings = new LinkedList<>();
-        findings.add(finding);
-        Map<String, Set<String>> openPortsPerTarget = listener.getOpenPortsPerTarget(findings);
-        assertTrue(openPortsPerTarget.get(TARGET_NAME).contains("3000"), "should contain open port 3000");
-    }
-
-    @Test
-    protected void shouldNotFindOpenPorts() {
+    protected void shouldHandleEmptyTargetsList() {
         Finding finding = createFinding(TARGET_NAME, "3000", "Version Issue");
         List<Finding> findings = new LinkedList<>();
         findings.add(finding);
-        Map<String, Set<String>> openPortsPerTarget = listener.getOpenPortsPerTarget(findings);
-        assertTrue(openPortsPerTarget.isEmpty());
-    }
-
-    @Test
-    protected void shouldIgnoreEmptyFindingsList() {
-        List<Finding> findings = new LinkedList<>();
-        Map<String, Set<String>> openPortsPerTarget = listener.getOpenPortsPerTarget(findings);
-        assertTrue(openPortsPerTarget.isEmpty());
-    }
-
-    @Test
-    protected void shouldIgnoreDuplicateFindings() {
-        Finding finding = createFinding(TARGET_NAME, "3000", "Open Port");
-        Finding finding2 = createFinding(TARGET_NAME, "3000", "Open Port");
-
-        List<Finding> findings = new LinkedList<>();
-
-        findings.add(finding);
-        findings.add(finding2);
-
-        Map<String, Set<String>> openPortsPerTarget = listener.getOpenPortsPerTarget(findings);
-        assertEquals(1, openPortsPerTarget.size());
+        List<Target> oldTargets = new LinkedList<>();
+        assertTrue(listener.nmapToNiktoTransformAction(findings, oldTargets).isEmpty(), "no new targets should be created");
     }
 
     @Test
     protected void shouldHandleEmptyFindingsList() {
         List<Finding> findings = new LinkedList<>();
-        Map<String, Set<String>> openPortsPerTarget = listener.getOpenPortsPerTarget(findings);
-        assertTrue(openPortsPerTarget.isEmpty());
+        List<Target> oldTargets = new LinkedList<>();
+        Target target = createTarget(TARGET_NAME, TARGET_LOCATION, "80");
+        oldTargets.add(target);
+        assertTrue(listener.nmapToNiktoTransformAction(findings, oldTargets).isEmpty(), "no new targets should be created");
     }
 
     @Test
-    protected void shouldTransformTargetsToEmptyTargetList() {
-        Finding finding = createFinding(TARGET_NAME, "3000", "Open Port");
-
+    protected void shouldHandleEmptyTargetAndFindingList() {
         List<Finding> findings = new LinkedList<>();
-        findings.add(finding);
-
         List<Target> oldTargets = new LinkedList<>();
-        Set<Target> newTargets = listener.nmapToNiktoTransformAction(findings, oldTargets);
+        assertTrue(listener.nmapToNiktoTransformAction(findings, oldTargets).isEmpty());
+    }
 
-        assertTrue(newTargets.isEmpty());
+    @Test
+    protected void shouldIgnoreDuplicateFindings() {
+        Target target = createTarget(TARGET_NAME, TARGET_LOCATION, "80, shouldBeGone, 3000");
+        Finding finding = createFinding(TARGET_LOCATION, "3000", "Open Port");
+        Finding finding2 = createFinding(TARGET_LOCATION, "3000", "Open Port");
+        List<Target> oldTargets = new LinkedList<>();
+        List<Finding> findings = new LinkedList<>();
+        oldTargets.add(target);
+        findings.add(finding);
+        findings.add(finding2);
+        Set<Target> newTargets = listener.nmapToNiktoTransformAction(findings, oldTargets);
+        assertEquals(1, newTargets.size(), "should create only one Target");
+        String niktoPorts = (String) newTargets.iterator().next().getAttributes().get("NIKTO_PORTS");
+        assertEquals("3000", niktoPorts, "should be port 3000");
     }
 
     @Test
@@ -159,10 +144,9 @@ public class NmapToNiktoTransformListenerTest {
         oldTargets.add(target1);
 
         Set<Target> newTargets = listener.nmapToNiktoTransformAction(findings, oldTargets);
+        String niktoPorts = (String) newTargets.iterator().next().getAttributes().get("NIKTO_PORTS");
 
-        List<String> nmapPorts = new LinkedList<>();
-        newTargets.forEach(target -> nmapPorts.add((String) target.getAttributes().get("NIKTO_PORTS")));
-        assertEquals("3000", nmapPorts.get(0));
+        assertFalse(niktoPorts.contains("5555"), "should not contain 5555");
     }
 
     @Test
