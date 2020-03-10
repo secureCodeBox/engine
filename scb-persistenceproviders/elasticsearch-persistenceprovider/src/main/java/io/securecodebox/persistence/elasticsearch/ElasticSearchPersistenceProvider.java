@@ -57,7 +57,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * This component is responsible for persisting the scan-process results in elasticsearch (ES).
@@ -143,7 +148,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     }
 
     @Override
-    public void persist(SecurityTest securityTest) throws PersistenceException{
+    public void persist(SecurityTest securityTest) throws PersistenceException {
 
         if (securityTest == null) {
             LOG.warn("The given SecurityTest is null, nothing to persist.");
@@ -164,7 +169,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         }
 
         //Second check because, if the initialization wasn't successful, it's still false
-        if(!initialized || !connected){
+        if (!initialized || !connected) {
             LOG.error("Could not persist data. It seems like ElasticSearch is not reachable.");
             throw new ElasticsearchPersistenceException("Could not persist data. It seems like ElasticSearch is not reachable.");
         }
@@ -185,7 +190,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
             securityTestAsMap.put("@timestamp", timestamp);
             LOG.debug("Timestamp: {}", timestamp);
 
-            if(securityTestDocumentId.isPresent()){
+            if (securityTestDocumentId.isPresent()) {
                 // Update the securityTest document in elasticsearch as the same uuid already exists
                 UpdateRequest securityTestUpdateRequest = new UpdateRequest(getElasticIndexName(), "_doc", securityTestDocumentId.get());
                 securityTestUpdateRequest.doc(objectMapper.writeValueAsString(securityTestAsMap), XContentType.JSON);
