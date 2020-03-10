@@ -42,16 +42,16 @@ public class NmapToSshTransformListener extends TransformFindingsToTargetsListen
         return findings.stream()
         .filter(finding -> finding.getCategory().equals("Open Port"))
         .filter(finding -> {
-            String service = (String) finding.getAttribute(OpenPortAttributes.service);
+            String service = (String) finding.getAttributes().get("service");
             return "ssh".equals(service);
         })
         .map(finding -> {
-            String hostname = (String) finding.getAttribute(OpenPortAttributes.hostname);
-            String port = finding.getAttribute(OpenPortAttributes.port).toString();
+            String ip_address = (String) finding.getAttributes().get("ip_address");
+            String port = finding.getAttributes().get("port").toString();
 
             Target target = new Target();
-            target.setName("SSH Scan for " + hostname);
-            target.setLocation(hostname + ":" + port);
+            target.setName("SSH Scan for " + ip_address);
+            target.setLocation(ip_address + ":" + port);
 
             return target;
         }).collect(Collectors.toList());
