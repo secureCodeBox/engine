@@ -62,7 +62,7 @@ public class NmapToSslyzeTransformListenerTest {
         finding.setSeverity(Severity.HIGH);
         finding.setOsiLayer(OsiLayer.NOT_APPLICABLE);
         finding.setLocation("mett.brot.securecodebox.io"); 
-        finding.addAttribute(OpenPortAttributes.hostname, TARGET_HOST);
+        finding.addAttribute(OpenPortAttributes.ip_address, TARGET_HOST);
         finding.addAttribute(OpenPortAttributes.service, service);
         finding.addAttribute(OpenPortAttributes.port, 80);
         return finding;

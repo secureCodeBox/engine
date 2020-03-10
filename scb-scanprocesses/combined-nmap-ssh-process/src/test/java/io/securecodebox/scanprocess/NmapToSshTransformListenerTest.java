@@ -33,7 +33,7 @@ public class NmapToSshTransformListenerTest {
         findings.add(finding1);
         findings.add(finding2);
         findings.add(finding3);
-        findings.add(finding4);
+        findings.add(finding4);        
     }
 
     @Test
