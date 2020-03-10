@@ -15,6 +15,7 @@
 package io.securecodebox.persistence.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.LinkedList;
 
 import java.util.List;
 import lombok.Data;
@@ -27,8 +28,17 @@ public class ProductPayload {
     @JsonProperty
     String description;
 
+
+    @JsonProperty
+    protected List<String> tags = new LinkedList<>();    
+
     public ProductPayload(String productName, String productDescription) {
         name = productName;
         description = productDescription;
+    }
+    public ProductPayload(String productName, String productDescription, List<String> productTags) {
+        name = productName;
+        description = productDescription;
+        tags = productTags;
     }
 }

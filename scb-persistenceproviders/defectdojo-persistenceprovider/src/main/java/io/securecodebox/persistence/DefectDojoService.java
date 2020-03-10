@@ -133,7 +133,7 @@ public class DefectDojoService {
             throw new DefectDojoProductNotFound(MessageFormat.format("Could not find product: \"{0}\" in DefectDojo", product));
         }
     }
-    private long retrieveOrCreateProduct(String productName) {
+    private long retrieveOrCreateProduct(String productName, String productDescription, List<String> productTags) {
         long productId = 0;
         try {
             productId = retrieveProductId(productName);
@@ -141,7 +141,7 @@ public class DefectDojoService {
             LOG.debug("Given product does not exists");
         }
         if(productId == 0) {
-            ProductResponse productResponse = createProduct(productName);
+            ProductResponse productResponse = createProduct(productName, productDescription, productTags);
             productId = productResponse.getId();
         }
         return productId;
@@ -363,8 +363,15 @@ public class DefectDojoService {
         return testId.longValue();
     }
   
+    /**
+     * @deprecated
+     */
     public ImportScanResponse createFindingsReImport(String rawResult, String productName, String engagementName, long lead, String currentDate, String defectDojoScanName, EngagementPayload engagementPayload, TestPayload testPayload, MultiValueMap<String, Object> options) {
-        long productId = retrieveOrCreateProduct(productName);
+        return createFindingsReImport(rawResult, productName, engagementName, lead, currentDate, defectDojoScanName, engagementPayload, testPayload, options, "no Description", java.util.Collections.emptyList());
+    }
+
+    public ImportScanResponse createFindingsReImport(String rawResult, String productName, String engagementName, long lead, String currentDate, String defectDojoScanName, EngagementPayload engagementPayload, TestPayload testPayload, MultiValueMap<String, Object> options, String productDescription, List<String> productTags)  {
+        long productId = retrieveOrCreateProduct(productName, productDescription, productTags);
         long engagementId = getEngagementIdByEngagementNameOrCreate(productId, engagementName, engagementPayload, lead);
         long testId = getTestIdOrCreate(engagementId, testPayload, defectDojoScanName);
         return createFindingsReImport(rawResult, testId, lead, currentDate, defectDojoScanName, options);
@@ -434,8 +441,11 @@ public class DefectDojoService {
         });
         return engagementId.longValue();
     }
-    public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, String productName, long lead, EngagementPayload engagementPayload, String testName, MultiValueMap<String, Object> options){
-        long productId = retrieveOrCreateProduct(productName);
+    public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, String productName, long lead, EngagementPayload engagementPayload, String testName, MultiValueMap<String, Object> options) {
+        return  createFindingsForEngagementName(engagementName, rawResults, defectDojoScanName, productName, lead, engagementPayload, testName,options, "Description missing", java.util.Collections.emptyList());
+    }
+    public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, String productName, long lead, EngagementPayload engagementPayload, String testName, MultiValueMap<String, Object> options, String productDescription, List<String> productTags) {
+        long productId = retrieveOrCreateProduct(productName, productDescription, productTags);
         
         return getEngagementIdByEngagementNameOrCreate(engagementName, rawResults, defectDojoScanName, productId, lead, engagementPayload, testName, options);
     }
@@ -470,9 +480,15 @@ public class DefectDojoService {
         LOG.warn("Engagement with name '{}' not found.", engagementName);
         return Optional.empty();
     }
+    /**
+     * @deprecated
+     */
     public ProductResponse createProduct(String productName) {
+        return createProduct(productName, "Description missing", java.util.Collections.emptyList());
+    }
+    public ProductResponse createProduct(String productName, String description, List<String> productTags) {
         RestTemplate restTemplate = new RestTemplate();
-        ProductPayload productPayload = new ProductPayload(productName, "Description missing");
+        ProductPayload productPayload = new ProductPayload(productName, description, productTags);
         HttpEntity<ProductPayload> payload = new HttpEntity<>(productPayload, getHeaders());
 
         try {
