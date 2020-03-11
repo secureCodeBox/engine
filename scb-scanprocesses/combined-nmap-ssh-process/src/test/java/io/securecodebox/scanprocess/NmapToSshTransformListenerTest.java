@@ -1,13 +1,9 @@
 package io.securecodebox.scanprocess;
 
-import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.findings.OsiLayer;
 import io.securecodebox.model.findings.Reference;
 import io.securecodebox.model.findings.Severity;
-import io.securecodebox.scanprocess.OpenPortAttributes;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -17,33 +13,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NmapToSshTransformListenerTest {
 
-    private static NmapToSshTransformListener listener;
-    private static List<Finding> findings;
+    private static NmapToSshTransformListener listener = new NmapToSshTransformListener();
     private static final String TARGET_HOST = "test-host";
-    private static final String TARGET_LOCATION = "test-location";
 
-    @BeforeAll
-    private static void setUp() {
-        listener = new NmapToSshTransformListener();
+    @Test
+    protected void filteredServiceShouldBecomeNewTargets() {
         Finding finding1 = createFindingWithService("https");
         Finding finding2 = createFindingWithService("ssl");
         Finding finding3 = createFindingWithService("tls");
         Finding finding4 = createFindingWithService("ssh");
-        findings = new ArrayList<Finding>();
+        List<Finding> findings = new ArrayList<Finding>();
         findings.add(finding1);
         findings.add(finding2);
         findings.add(finding3);
-        findings.add(finding4);        
-    }
-
-    @Test
-    protected void filteredServiceShouldBecomeNewTargets() {
+        findings.add(finding4);      
         assertEquals(1, listener.createTargetsFromFindings(findings).size(), "services are detected correctly");
     }
 
     @Test
     protected void noFilteredServiceFoundReturnEmptyTargets() {
-        findings.remove(3);
+        Finding finding1 = createFindingWithService("https");
+        Finding finding2 = createFindingWithService("ssl");
+        Finding finding3 = createFindingWithService("tls");
+        List<Finding> findings = new ArrayList<Finding>();
+        findings.add(finding1);
+        findings.add(finding2);
+        findings.add(finding3);
         assertEquals(0, listener.createTargetsFromFindings(findings).size(), "irrelevant services are not transformed into new targets");
     }
 
