@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 @Component
 public class NmapToNiktoTransformListener extends TransformFindingsToTargetsListener {
 
+    private final String DEFAULT_COMBINED_NMAP_NIKTO_PORTS = "80, 443, 8080, 8443";
+
     public void notify(DelegateExecution delegateExecution) throws Exception {
 
         List<Finding> findings = ProcessVariableHelper.readListFromValue((String) delegateExecution.getVariable(DefaultFields.PROCESS_FINDINGS.name()), Finding.class);
@@ -47,11 +49,17 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
         // Create a Set to ensure every port is only scanned once per host
         Set<String> portsToScanByNikto = new HashSet<>();
 
+        String combinedNmapNiktoPortsAsString = (String) target.getAttributes().get("COMBINED_NMAP_NIKTO_PORTS");
+
+        //Use default ports if no ports are specified
+        if (combinedNmapNiktoPortsAsString.isEmpty())
+            combinedNmapNiktoPortsAsString = this.DEFAULT_COMBINED_NMAP_NIKTO_PORTS;
+
         // Transform Comma separated ports into an Array
-        String[] portArray = ((String) target.getAttributes().get("COMBINED_NMAP_NIKTO_PORTS")).split(",");
+        String[] combinedNmapNiktoPortsAsArray = combinedNmapNiktoPortsAsString.split(",");
 
         // Remove whitespaces before and after port and add to Collection
-        for (String port : portArray) {
+        for (String port : combinedNmapNiktoPortsAsArray) {
             portsToScanByNikto.add(port.trim());
         }
 
