@@ -136,6 +136,17 @@ public class NmapToNiktoTransformListenerTest {
         assertTrue(newTargets.isEmpty());
     }
 
+    @Test
+    protected void shouldUseDefaultPorts() {
+        Finding finding = createFinding(TARGET_LOCATION, "80", "Open Port");
+        findings.add(finding);
+        Target target = createTarget(TARGET_NAME, TARGET_LOCATION, "");
+        oldTargets.add(target);
+        this.transform();
+        assertEquals(1, newTargets.size(), "should have exactly one target");
+        assertTrue(niktoPorts.equals("80"), "should be equal to 3000 as result of using default ports");
+    }
+
     private Finding createFinding(String hostname, String port, String category) {
         Finding finding = new Finding();
         finding.addAttribute(OpenPortAttributes.hostname, hostname);
