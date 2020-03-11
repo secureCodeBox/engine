@@ -1,6 +1,7 @@
 package io.securecodebox.scanprocess;
 
 import io.securecodebox.model.findings.Finding;
+import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.findings.OsiLayer;
 import io.securecodebox.model.findings.Reference;
 import io.securecodebox.model.findings.Severity;
@@ -14,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class NmapToSslyzeTransformListenerTest {
 
     private static NmapToSslyzeTransformListener listener = new NmapToSslyzeTransformListener();
-    private static final String TARGET_HOST = "test-host";
 
     @Test
     protected void filteredServicesShouldBecomeNewTargets() {
@@ -27,7 +27,11 @@ public class NmapToSslyzeTransformListenerTest {
         findings.add(finding2);
         findings.add(finding3);
         findings.add(finding4);
-        assertEquals(3, listener.createTargetsFromFindings(findings).size(), "services are detected correctly");
+        List<Target> targets = listener.createTargetsFromFindings(findings);  
+        assertEquals(3, targets.size(), "services are detected correctly");
+        assertTrue(targets.get(0).getLocation().contains("https"), "https service detected");
+        assertTrue(targets.get(1).getLocation().contains("ssl"), "ssl service detected");
+        assertTrue(targets.get(2).getLocation().contains("tls"), "tls service detected");
     }
 
     @Test
@@ -52,7 +56,7 @@ public class NmapToSslyzeTransformListenerTest {
         finding.setSeverity(Severity.HIGH);
         finding.setOsiLayer(OsiLayer.NOT_APPLICABLE);
         finding.setLocation("mett.brot.securecodebox.io"); 
-        finding.addAttribute(OpenPortAttributes.ip_address, TARGET_HOST);
+        finding.addAttribute(OpenPortAttributes.ip_address, service);
         finding.addAttribute(OpenPortAttributes.service, service);
         finding.addAttribute(OpenPortAttributes.port, 80);
         return finding;
