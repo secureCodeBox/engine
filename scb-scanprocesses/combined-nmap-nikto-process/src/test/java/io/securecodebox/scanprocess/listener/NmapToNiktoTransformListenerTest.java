@@ -9,7 +9,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NmapToNiktoTransformListenerTest {
 
@@ -144,7 +146,7 @@ public class NmapToNiktoTransformListenerTest {
         oldTargets.add(target);
         this.transform();
         assertEquals(1, newTargets.size(), "should have exactly one target");
-        assertTrue(niktoPorts.equals("80"), "should be equal to 3000 as result of using default ports");
+        assertEquals("80", niktoPorts, "should be equal to 3000 as result of using default ports");
     }
 
     private Finding createFinding(String hostname, String port, String category) {
