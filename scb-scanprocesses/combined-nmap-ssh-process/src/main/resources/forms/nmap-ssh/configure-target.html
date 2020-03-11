@@ -30,7 +30,7 @@
     camForm.on('variables-fetched', function () {
         $scope.context = camForm.variableManager.variableValue('DEFAULT_CONTEXT');
 
-        <!-- ? What minimal --version-intensity includes ssh services? --version-all is not needed if it's known -->
+        // What minimal --version-intensity includes ssh services? --version-all is not needed if it's known
         $scope.targetList = [{
             name: camForm.variableManager.variableValue('DEFAULT_TARGET_NAME'),
             location: camForm.variableManager.variableValue('DEFAULT_TARGET_LOCATION'),
