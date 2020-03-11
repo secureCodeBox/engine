@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 @Component
 public class NmapToNiktoTransformListener extends TransformFindingsToTargetsListener {
 
+    private final String PORT_DELIMITER = ",";
     private final String DEFAULT_COMBINED_NMAP_NIKTO_PORTS = "80, 443, 8080, 8443";
 
     public void notify(DelegateExecution delegateExecution) throws Exception {
@@ -49,14 +50,8 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
         // Create a Set to ensure every port is only scanned once per host
         Set<String> portsToScanByNikto = new HashSet<>();
 
-        String combinedNmapNiktoPortsAsString = (String) target.getAttributes().get("COMBINED_NMAP_NIKTO_PORTS");
-
-        //Use default ports if no ports are specified
-        if (combinedNmapNiktoPortsAsString.isEmpty())
-            combinedNmapNiktoPortsAsString = this.DEFAULT_COMBINED_NMAP_NIKTO_PORTS;
-
         // Transform Comma separated ports into an Array
-        String[] combinedNmapNiktoPortsAsArray = combinedNmapNiktoPortsAsString.split(",");
+        String[] combinedNmapNiktoPortsAsArray = this.getCombinedNmapNiktoPorts(target).split(this.PORT_DELIMITER);
 
         // Remove whitespaces before and after port and add to Collection
         for (String port : combinedNmapNiktoPortsAsArray) {
@@ -64,12 +59,18 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
         }
 
         // Move portArray into a Set to ensure every Port is only scanned once for each  host
-        return portsToScanByNikto.stream()
+        portsToScanByNikto = portsToScanByNikto.stream()
                 // remove empty entries
                 .filter(port -> !port.isEmpty())
                 // remove entries that have to long ports or letters or start with zero
                 .filter(port -> Pattern.matches("[1-9]+[0-9]{0,4}", port))
                 .collect(Collectors.toSet());
+
+        // Use default ports if not specified otherwise
+        if (portsToScanByNikto.isEmpty())
+            return this.getDefaultPorts();
+
+        return portsToScanByNikto;
     }
 
     private boolean hasEmptyNiktoPortList(Target target) {
@@ -108,7 +109,7 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
         targets.forEach(target -> {
             Set<String> portsToScanByNikto = this.getRelevantPorts(target);
             Set<String> filteredPorts = this.filterIrrelevantPorts(portsToScanByNikto, openPortsPerTarget.get(target.getLocation()));
-            target.appendOrUpdateAttribute("NIKTO_PORTS", String.join(", ", filteredPorts));
+            target.appendOrUpdateAttribute("NIKTO_PORTS", String.join(this.PORT_DELIMITER, filteredPorts));
         });
     }
 
@@ -130,5 +131,30 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
 
     private void startNitktoScan(Set<Target> targets, DelegateExecution delegateExecution) {
         delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(), ProcessVariableHelper.generateObjectValue(targets));
+    }
+
+    private String getCombinedNmapNiktoPorts(Target target) {
+        String combinedNmapNiktoPortsAsString = (String) target.getAttributes().get("COMBINED_NMAP_NIKTO_PORTS");
+
+        // Check if COMBINED_NMAP_NIKTO_PORTS are set at all
+        if (combinedNmapNiktoPortsAsString == null)
+            return this.DEFAULT_COMBINED_NMAP_NIKTO_PORTS;
+
+        //Use default ports if no ports are specified
+        if (combinedNmapNiktoPortsAsString.isEmpty())
+            return this.DEFAULT_COMBINED_NMAP_NIKTO_PORTS;
+
+        return combinedNmapNiktoPortsAsString;
+    }
+
+    private Set<String> getDefaultPorts() {
+        Set<String> portsToScanByNikto = new HashSet<>();
+        String[] combinedNmapNiktoPortsAsArray = this.DEFAULT_COMBINED_NMAP_NIKTO_PORTS.split(this.PORT_DELIMITER);
+
+        // Remove whitespaces before and after port and add to Collection
+        for (String port : combinedNmapNiktoPortsAsArray) {
+            portsToScanByNikto.add(port.trim());
+        }
+        return portsToScanByNikto;
     }
 }
