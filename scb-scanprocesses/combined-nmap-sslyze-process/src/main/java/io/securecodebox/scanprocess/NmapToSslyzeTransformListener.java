@@ -46,12 +46,12 @@ public class NmapToSslyzeTransformListener extends TransformFindingsToTargetsLis
             return service.contains("https") || service.contains("ssl") || service.contains("tls");
         })
         .map(finding -> {
-            String ip_address = (String) finding.getAttributes().get("ip_address");
+            String ipAddress = (String) finding.getAttributes().get("ip_address");
             String port = finding.getAttributes().get("port").toString();
 
             Target target = new Target();
-            target.setName("SSLyze Scan for " + ip_address);
-            target.setLocation(ip_address + ":" + port);
+            target.setName("SSLyze Scan for " + ipAddress);
+            target.setLocation(ipAddress + ":" + port);
 
             return target;
         }).collect(Collectors.toList());

@@ -50,7 +50,7 @@ public class NmapToSshTransformListener extends TransformFindingsToTargetsListen
             String port = finding.getAttributes().get("port").toString();
 
             Target target = new Target();
-            target.setName("SSH Scan for " + ip_address);
+            target.setName("SSH Scan for " + ipAddress);
             target.setLocation(ipAddress + ":" + port);
 
             return target;
