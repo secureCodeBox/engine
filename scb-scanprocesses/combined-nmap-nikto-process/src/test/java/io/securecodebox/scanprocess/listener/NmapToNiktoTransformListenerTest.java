@@ -149,6 +149,35 @@ public class NmapToNiktoTransformListenerTest {
         assertEquals("80", niktoPorts, "should be equal to 3000 as result of using default ports");
     }
 
+    @Test
+    protected void shouldPerformBlackBoxScan() {
+        Finding finding = createFinding(TARGET_LOCATION, "80", "Open Port");
+        finding.addAttribute(OpenPortAttributes.service, "http");
+        findings.add(finding);
+        Target target = new Target();
+        target.setName(TARGET_NAME);
+        target.setLocation(TARGET_LOCATION);
+        target.appendOrUpdateAttribute("COMBINED_NMAP_NIKTO_PORTS", "3000");
+        target.appendOrUpdateAttribute("blackbox", "true");
+        oldTargets.add(target);
+        this.transform();
+        assertEquals("80", niktoPorts, "should be equal to 80 as result of blackbox test" );
+    }
+
+    @Test
+    protected void shouldNotPerformBlackBoxScan() {
+        Finding finding = createFinding(TARGET_LOCATION, "80", "Open Port");
+        findings.add(finding);
+        Target target = new Target();
+        target.setLocation(TARGET_LOCATION);
+        target.setName(TARGET_NAME);
+        target.appendOrUpdateAttribute("blackbox", "false");
+        target.appendOrUpdateAttribute("COMBINED_NMAP_NIKTO_PORTS", "3000");
+        oldTargets.add(target);
+        this.transform();
+        assertTrue(newTargets.isEmpty());
+    }
+
     private Finding createFinding(String hostname, String port, String category) {
         Finding finding = new Finding();
         finding.addAttribute(OpenPortAttributes.hostname, hostname);

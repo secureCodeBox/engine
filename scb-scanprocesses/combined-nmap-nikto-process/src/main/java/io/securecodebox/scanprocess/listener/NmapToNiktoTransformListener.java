@@ -31,11 +31,13 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
      * @param openPorts          Open ports found by nmap
      * @return
      */
-    private Set<String> filterIrrelevantPorts(Set<String> portsToScanByNikto, Set<String> openPorts) {
-        if (openPorts.equals(portsToScanByNikto))
-            return portsToScanByNikto;
-
-        Set<String> portSet = portsToScanByNikto.stream().filter(openPorts::contains).collect(Collectors.toSet());
+    private Set<String> filterIrrelevantPorts(Set<String> portsToScanByNikto, Set<Finding> openPorts) {
+        Set<String> portSet = new HashSet<>();
+        openPorts.forEach(finding -> {
+            String port = (String) finding.getAttribute(OpenPortAttributes.port);
+            if (portsToScanByNikto.contains(port))
+                portSet.add(port);
+        });
         return portSet;
     }
 
@@ -77,8 +79,8 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
         return niktoPortList.isEmpty();
     }
 
-    private Map<String, Set<String>> getOpenPortsPerTarget(List<Finding> findings) {
-        Map<String, Set<String>> openPortsPerTarget = new HashMap<>();
+    private Map<String, Set<Finding>> getOpenPortsPerTarget(List<Finding> findings) {
+        Map<String, Set<Finding>> openPortsPerTarget = new HashMap<>();
         findings.stream()
                 .filter(finding -> finding.getCategory().equals("Open Port"))
                 .forEach(finding -> {
@@ -86,10 +88,10 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
                     String port = finding.getAttribute(OpenPortAttributes.port).toString();
 
                     if (openPortsPerTarget.containsKey(hostname)) {
-                        openPortsPerTarget.get(hostname).add(port);
+                        openPortsPerTarget.get(hostname).add(finding);
                     } else {
-                        Set<String> portSet = new HashSet<>();
-                        portSet.add(port);
+                        Set<Finding> portSet = new HashSet<>();
+                        portSet.add(finding);
                         openPortsPerTarget.put(hostname, portSet);
                     }
 
@@ -97,23 +99,32 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
         return openPortsPerTarget;
     }
 
-    private Set<Target> collectTargetsWithOpenPorts(List<Target> targets, Map<String, Set<String>> openPortsPerTarget) {
+    private Set<Target> collectTargetsWithOpenPorts(List<Target> targets, Map<String, Set<Finding>> openPortsPerTarget) {
         return targets.stream()
                 // remove targets with no open ports
                 .filter(target -> openPortsPerTarget.containsKey(target.getLocation()))
                 .collect(Collectors.toSet());
     }
 
-    private void updateTargetsWithNiktoPorts(Set<Target> targets, Map<String, Set<String>> openPortsPerTarget) {
+    private void updateTargetsWithNiktoPorts(Set<Target> targets, Map<String, Set<Finding>> openPortsPerTarget) {
         targets.forEach(target -> {
-            Set<String> portsToScanByNikto = this.getRelevantPorts(target);
-            Set<String> filteredPorts = this.filterIrrelevantPorts(portsToScanByNikto, openPortsPerTarget.get(target.getLocation()));
-            target.appendOrUpdateAttribute("NIKTO_PORTS", String.join(this.PORT_DELIMITER, filteredPorts));
+            StringJoiner niktoPorts = new StringJoiner(this.PORT_DELIMITER);
+            if (this.isBlackBoxScan(target)) {
+                openPortsPerTarget.get(target.getLocation()).forEach(finding -> {
+                    if (finding.getAttribute(OpenPortAttributes.service).equals("http"))
+                        niktoPorts.add((String) finding.getAttribute(OpenPortAttributes.port));
+                });
+            } else {
+                Set<String> portsToScanByNikto = this.getRelevantPorts(target);
+                Set<String> filteredPorts = this.filterIrrelevantPorts(portsToScanByNikto, openPortsPerTarget.get(target.getLocation()));
+                filteredPorts.forEach(niktoPorts::add);
+            }
+            target.appendOrUpdateAttribute("NIKTO_PORTS", niktoPorts.toString());
         });
     }
 
     protected Set<Target> nmapToNiktoTransformAction(List<Finding> findings, List<Target> oldTargets) {
-        Map<String, Set<String>> openPortsPerTarget = this.getOpenPortsPerTarget(findings);
+        Map<String, Set<Finding>> openPortsPerTarget = this.getOpenPortsPerTarget(findings);
 
         Set<Target> targets = this.collectTargetsWithOpenPorts(oldTargets, openPortsPerTarget);
 
@@ -155,5 +166,12 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
             portsToScanByNikto.add(port.trim());
         }
         return portsToScanByNikto;
+    }
+
+    private boolean isBlackBoxScan(Target target) {
+        if (!target.getAttributes().containsKey("blackbox"))
+            return false;
+
+        return ((String) target.getAttributes().get("blackbox")).toLowerCase().equals("true");
     }
 }
