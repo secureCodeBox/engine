@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.0">
-  <bpmn:process id="combined-nmap-ssh-process" name="NMAP-SSH Scan" isExecutable="true" camunda:versionTag="4" camunda:historyTimeToLive="1">
-    <bpmn:startEvent id="StartEvent_Configure" name="target configured" camunda:formKey="embedded:app:forms/nmap-ssh/configure-target.html">
+  <bpmn:process id="combined-nmap-sslyze-process" name="NMAP-SSLYZE Scan" isExecutable="true" camunda:versionTag="4" camunda:historyTimeToLive="1">
+    <bpmn:startEvent id="StartEvent_Configure" name="target configured" camunda:formKey="embedded:app:forms/nmap-sslyze/configure-target.html">
       <bpmn:extensionElements>
         <camunda:executionListener delegateExpression="${checkForAutomatedRunListener}" event="start" />
         <camunda:formData>
@@ -14,12 +14,12 @@
       <bpmn:outgoing>SequenceFlow_TargetConfigured</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="SequenceFlow_TargetConfigured" sourceRef="StartEvent_Configure" targetRef="ServiceTask_DoPortScan" />
-    <bpmn:endEvent id="EndEvent_FinishedPortscan" name="SSH Scan finished">
+    <bpmn:endEvent id="EndEvent_FinishedPortscan" name="SSLyze Scan finished">
       <bpmn:incoming>SequenceFlow_SummaryCreated</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_PortscanFinished" name="finished&#10;&#10;" sourceRef="ServiceTask_DoPortScan" targetRef="ServiceTask_CreateSummary" />
     <bpmn:sequenceFlow id="SequenceFlow_ResultReviewed" name="result reviewed" sourceRef="UserTask_ApproveResults" targetRef="ExclusiveGateway_ResultApproved" />
-    <bpmn:userTask id="UserTask_ApproveResults" name="Review scan results" camunda:formKey="embedded:app:forms/nmap-ssh/approve-scanner-results.html" camunda:candidateGroups="_securebox_admin, _securebox_productowner, _securebox_developer, approver">
+    <bpmn:userTask id="UserTask_ApproveResults" name="Review scan results" camunda:formKey="embedded:app:forms/nmap-sslyze/approve-scanner-results.html" camunda:candidateGroups="_securebox_admin, _securebox_productowner, _securebox_developer, approver">
       <bpmn:extensionElements>
         <camunda:formData />
       </bpmn:extensionElements>
@@ -69,28 +69,28 @@
       <bpmn:outgoing>SequenceFlow_1i44eck</bpmn:outgoing>
     </bpmn:task>
     <bpmn:sequenceFlow id="SequenceFlow_1i44eck" sourceRef="DoesNothingTask" targetRef="ServiceTask_CreateSummary2" />
-    <bpmn:sequenceFlow id="SequenceFlow_189n3gl" sourceRef="ServiceTask_DoSshScan" targetRef="ExclusiveGateway_AutomatedFinish" />
+    <bpmn:sequenceFlow id="SequenceFlow_189n3gl" sourceRef="ServiceTask_DoSslyzeScan" targetRef="ExclusiveGateway_AutomatedFinish" />
     <bpmn:sequenceFlow id="SequenceFlow_1jd7u0j" sourceRef="ServiceTask_CreateSummary" targetRef="ExclusiveGateway_1p6rwgs" />
     <bpmn:serviceTask id="ServiceTask_CreateSummary" name="Create Report Summary" camunda:asyncBefore="true" camunda:delegateExpression="${summaryGeneratorDelegate}">
       <bpmn:extensionElements>
-        <camunda:executionListener delegateExpression="${nmapToSshTransformListener}" event="end" />
+        <camunda:executionListener delegateExpression="${nmapToSslyzeTransformListener}" event="end" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_PortscanFinished</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1jd7u0j</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="ServiceTask_DoSshScan" name="Run the SSH scan" camunda:asyncBefore="true" camunda:type="external" camunda:topic="ssh_webserverscan">
+    <bpmn:serviceTask id="ServiceTask_DoSslyzeScan" name="Run the SSLyze Scan" camunda:asyncBefore="true" camunda:type="external" camunda:topic="sslyze_scan">
       <bpmn:incoming>SequenceFlow_1p0owpd</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_189n3gl</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:exclusiveGateway id="ExclusiveGateway_1p6rwgs" name="SSH Ports found?">
+    <bpmn:exclusiveGateway id="ExclusiveGateway_1p6rwgs" name="SSL Prtocol found?">
       <bpmn:incoming>SequenceFlow_1jd7u0j</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1p0owpd</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0mor6jt</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_1p0owpd" name="SSH Port found&#10;&#10;" sourceRef="ExclusiveGateway_1p6rwgs" targetRef="ServiceTask_DoSshScan">
+    <bpmn:sequenceFlow id="SequenceFlow_1p0owpd" name="SSL Protocol found" sourceRef="ExclusiveGateway_1p6rwgs" targetRef="ServiceTask_DoSslyzeScan">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_TARGETS != ""}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0mor6jt" name="No SSH Port&#10;&#10;" sourceRef="ExclusiveGateway_1p6rwgs" targetRef="ExclusiveGateway_AutomatedFinish">
+    <bpmn:sequenceFlow id="SequenceFlow_0mor6jt" name="No SSL Protocol" sourceRef="ExclusiveGateway_1p6rwgs" targetRef="ExclusiveGateway_AutomatedFinish">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PROCESS_TARGETS == ""}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:textAnnotation id="TextAnnotation_0lm3esn">
@@ -99,7 +99,7 @@
     <bpmn:association id="Association_16qrr9w" sourceRef="DataObjectReference_0vhjx0n" targetRef="TextAnnotation_0lm3esn" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="combined-nmap-ssh-process">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="combined-nmap-sslyze-process">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_Configure">
         <dc:Bounds x="178" y="370" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -116,7 +116,7 @@
       <bpmndi:BPMNShape id="EndEvent_07weexy_di" bpmnElement="EndEvent_FinishedPortscan">
         <dc:Bounds x="1860" y="246" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1928" y="257" width="51" height="27" />
+          <dc:Bounds x="1921" y="257" width="66" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0kjlgbs_di" bpmnElement="SequenceFlow_PortscanFinished">
@@ -231,20 +231,20 @@
       <bpmndi:BPMNShape id="ServiceTask_0li6e0b_di" bpmnElement="ServiceTask_CreateSummary">
         <dc:Bounds x="478" y="348" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_16sga74_di" bpmnElement="ServiceTask_DoSshScan">
+      <bpmndi:BPMNShape id="ServiceTask_16sga74_di" bpmnElement="ServiceTask_DoSslyzeScan">
         <dc:Bounds x="781" y="348" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_1p6rwgs_di" bpmnElement="ExclusiveGateway_1p6rwgs" isMarkerVisible="true">
         <dc:Bounds x="627" y="363" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="608" y="416" width="89" height="14" />
+          <dc:Bounds x="623" y="416" width="59" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_1p0owpd_di" bpmnElement="SequenceFlow_1p0owpd">
         <di:waypoint x="677" y="388" />
         <di:waypoint x="781" y="388" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="692" y="366" width="77" height="40" />
+          <dc:Bounds x="698" y="366" width="65" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0mor6jt_di" bpmnElement="SequenceFlow_0mor6jt">
@@ -253,7 +253,7 @@
         <di:waypoint x="863" y="279" />
         <di:waypoint x="999" y="377" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="728" y="258" width="64" height="40" />
+          <dc:Bounds x="719" y="258" width="82" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>

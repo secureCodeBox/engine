@@ -10,7 +10,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>combined-nmap-ssh-process</artifactId>
+    <artifactId>combined-nmap-sslyze-process</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <dependencies>
@@ -18,7 +18,7 @@
             <groupId>io.securecodebox.core</groupId>
             <artifactId>sdk</artifactId>
         </dependency>
-         <dependency>
+     <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.4.2</version>

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class NmapToSshTransformListener extends TransformFindingsToTargetsListener {
+public class NmapToSslyzeTransformListener extends TransformFindingsToTargetsListener {
 
     public void notify(DelegateExecution delegateExecution) throws Exception {
 
@@ -25,13 +25,13 @@ public class NmapToSshTransformListener extends TransformFindingsToTargetsListen
         LOG.info("Created Targets out of Findings: " + newTargets);
 
         if (!newTargets.isEmpty() && newTargets.size() > 0) {
-            // define the new SSH targets, based on the nmap port scan results
+            // define the new SSLyze targets, based on the nmap port scan results
             delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(),
                     ProcessVariableHelper.generateObjectValue(newTargets)
             );
         }
         else {
-            // if no new target had been found clear the target parameter (and skip the ssh scan)
+            // if no new target had been found clear the target parameter (and skip the SSLyze scan)
             delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(),
                     ""
             );
@@ -43,17 +43,18 @@ public class NmapToSshTransformListener extends TransformFindingsToTargetsListen
         .filter(finding -> finding.getCategory().equals("Open Port"))
         .filter(finding -> {
             String service = (String) finding.getAttributes().get("service");
-            return "ssh".equals(service);
+            return service.contains("https") || service.contains("ssl") || service.contains("tls");
         })
         .map(finding -> {
             String ipAddress = (String) finding.getAttributes().get("ip_address");
             String port = finding.getAttributes().get("port").toString();
 
             Target target = new Target();
-            target.setName("SSH Scan for " + ipAddress);
+            target.setName("SSLyze Scan for " + ipAddress);
             target.setLocation(ipAddress + ":" + port);
 
             return target;
         }).collect(Collectors.toList());
     }
+
 }
