@@ -87,16 +87,6 @@
               ng-model="target.location"
             />
           </div>
-          <div class="col-xs-1">
-            <button
-              class="btn btn-danger btn-lg"
-              ng-click="targetList.splice($index, 1)"
-              ng-disabled="targetList.length === 1"
-              style="position: absolute; right: 15px; top: 0;"
-            >
-              <span class="glyphicon glyphicon-trash"></span>
-            </button>
-          </div>
         </div>
         <code class="hidden2">{{ targetList }}</code>
       </div>
