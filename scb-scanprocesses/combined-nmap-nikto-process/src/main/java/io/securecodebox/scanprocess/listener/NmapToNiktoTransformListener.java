@@ -173,6 +173,6 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
         if (!target.getAttributes().containsKey(ATTRIBUTE_BLACKBOX))
             return false;
 
-        return target.getAttributes().get(ATTRIBUTE_BLACKBOX).toString().toLowerCase().equals("true");
+        return target.getAttributes().get(ATTRIBUTE_BLACKBOX).toString().equalsIgnoreCase("true");
     }
 }
