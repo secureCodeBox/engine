@@ -16,8 +16,10 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
 
     private final String PORT_DELIMITER = ",";
     private final String DEFAULT_COMBINED_NMAP_NIKTO_PORTS = "80, 443, 8080, 8443";
+    protected static final String ATTRIBUTE_BLACKBOX = "BLACKBOX";
+    protected static  final String ATTRIBUTE_COMBINED_NMAP_NIKTO_PORTS = "COMBINED_NMAP_NIKTO_PORTS";
 
-    public void notify(DelegateExecution delegateExecution) throws Exception {
+    public void notify(DelegateExecution delegateExecution) {
         List<Finding> findings = ProcessVariableHelper.readListFromValue((String) delegateExecution.getVariable(DefaultFields.PROCESS_FINDINGS.name()), Finding.class);
         List<Target> oldTargets = ProcessVariableHelper.readListFromValue((String) delegateExecution.getVariable(DefaultFields.PROCESS_TARGETS.name()), Target.class);
         Set<Target> newTargets = this.nmapToNiktoTransformAction(findings, oldTargets);
@@ -29,7 +31,7 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
      *
      * @param portsToScanByNikto specified COMBINED_NMAP_NIKTO_PORTS
      * @param openPorts          Open ports found by nmap
-     * @return
+     * @return portSet
      */
     private Set<String> filterIrrelevantPorts(Set<String> portsToScanByNikto, Set<Finding> openPorts) {
         Set<String> portSet = new HashSet<>();
@@ -85,7 +87,6 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
                 .filter(finding -> finding.getCategory().equals("Open Port"))
                 .forEach(finding -> {
                     String hostname = (String) finding.getAttribute(OpenPortAttributes.hostname);
-                    String port = finding.getAttribute(OpenPortAttributes.port).toString();
 
                     if (openPortsPerTarget.containsKey(hostname)) {
                         openPortsPerTarget.get(hostname).add(finding);
@@ -144,7 +145,7 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
     }
 
     private String getCombinedNmapNiktoPorts(Target target) {
-        String combinedNmapNiktoPortsAsString = (String) target.getAttributes().get("COMBINED_NMAP_NIKTO_PORTS");
+        String combinedNmapNiktoPortsAsString = (String) target.getAttributes().get(ATTRIBUTE_COMBINED_NMAP_NIKTO_PORTS);
 
         // Check if COMBINED_NMAP_NIKTO_PORTS are set at all
         if (combinedNmapNiktoPortsAsString == null)
@@ -169,9 +170,9 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
     }
 
     private boolean isBlackBoxScan(Target target) {
-        if (!target.getAttributes().containsKey("blackbox"))
+        if (!target.getAttributes().containsKey(ATTRIBUTE_BLACKBOX))
             return false;
 
-        return ((String) target.getAttributes().get("blackbox")).toLowerCase().equals("true");
+        return target.getAttributes().get(ATTRIBUTE_BLACKBOX).toString().toLowerCase().equals("true");
     }
 }

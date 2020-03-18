@@ -157,8 +157,8 @@ public class NmapToNiktoTransformListenerTest {
         Target target = new Target();
         target.setName(TARGET_NAME);
         target.setLocation(TARGET_LOCATION);
-        target.appendOrUpdateAttribute("COMBINED_NMAP_NIKTO_PORTS", "3000");
-        target.appendOrUpdateAttribute("blackbox", "true");
+        target.appendOrUpdateAttribute(NmapToNiktoTransformListener.ATTRIBUTE_COMBINED_NMAP_NIKTO_PORTS, "3000");
+        target.appendOrUpdateAttribute(NmapToNiktoTransformListener.ATTRIBUTE_BLACKBOX, "true");
         oldTargets.add(target);
         this.transform();
         assertEquals("80", niktoPorts, "should be equal to 80 as result of blackbox test" );
@@ -171,8 +171,8 @@ public class NmapToNiktoTransformListenerTest {
         Target target = new Target();
         target.setLocation(TARGET_LOCATION);
         target.setName(TARGET_NAME);
-        target.appendOrUpdateAttribute("blackbox", "false");
-        target.appendOrUpdateAttribute("COMBINED_NMAP_NIKTO_PORTS", "3000");
+        target.appendOrUpdateAttribute(NmapToNiktoTransformListener.ATTRIBUTE_BLACKBOX, "false");
+        target.appendOrUpdateAttribute(NmapToNiktoTransformListener.ATTRIBUTE_COMBINED_NMAP_NIKTO_PORTS, "3000");
         oldTargets.add(target);
         this.transform();
         assertTrue(newTargets.isEmpty());
@@ -190,7 +190,7 @@ public class NmapToNiktoTransformListenerTest {
         Target target = new Target();
         target.setLocation(location);
         target.setName(name);
-        target.appendOrUpdateAttribute("COMBINED_NMAP_NIKTO_PORTS", combinedNmapNiktoPorts);
+        target.appendOrUpdateAttribute(NmapToNiktoTransformListener.ATTRIBUTE_COMBINED_NMAP_NIKTO_PORTS, combinedNmapNiktoPorts);
         return target;
     }
 

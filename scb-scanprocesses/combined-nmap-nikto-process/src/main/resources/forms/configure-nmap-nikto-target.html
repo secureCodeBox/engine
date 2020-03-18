@@ -36,7 +36,7 @@
                 location: camForm.variableManager.variableValue('DEFAULT_TARGET_LOCATION'),
                 attributes: {
                     COMBINED_NMAP_NIKTO_PORTS: '',
-                    blackbox: ''
+                    BLACKBOX: ''
                 }
             }];
 
@@ -133,7 +133,7 @@
                     </div>
                     <div class="col-xs-12">
                         <label>
-                            <input type="checkbox" ng-model="target.attributes.blackbox" class="ng-pristine ng-valid">
+                            <input type="checkbox" ng-model="target.attributes.BLACKBOX" class="ng-pristine ng-valid">
                             Scan all http(s) Services discovered by nmap (blackbox scan)
                         </label>
                     </div>
