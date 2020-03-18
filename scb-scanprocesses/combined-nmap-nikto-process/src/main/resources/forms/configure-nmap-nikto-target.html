@@ -35,7 +35,8 @@
                 name: camForm.variableManager.variableValue('DEFAULT_TARGET_NAME'),
                 location: camForm.variableManager.variableValue('DEFAULT_TARGET_LOCATION'),
                 attributes: {
-                    COMBINED_NMAP_NIKTO_PORTS: ''
+                    COMBINED_NMAP_NIKTO_PORTS: '',
+                    blackbox: ''
                 }
             }];
 
@@ -80,6 +81,8 @@
             });
         });
 
+
+
     </script>
 
     <div class="row">
@@ -120,13 +123,19 @@
                     </div>
                     <div class="col-xs-12">
                         <label>Nikto Ports</label>
-                        <input required class="form-control"
+                        <input class="form-control"
                                type="text"
                                placeholder="e.g. 80,443,8080,8443"
                                ng-minlength="2"
                                ng-maxlength="100"
                                ng-model="target.attributes.COMBINED_NMAP_NIKTO_PORTS"
                         />
+                    </div>
+                    <div class="col-xs-12">
+                        <label>
+                            <input type="checkbox" ng-model="target.attributes.blackbox" class="ng-pristine ng-valid">
+                            Scan all http(s) Services discovered by nmap (blackbox scan)
+                        </label>
                     </div>
                 </div>
                 <button class="btn btn-primary" ng-click="addTarget()">Add Host</button>
@@ -146,7 +155,7 @@
                            ng-required="false"
                            ng-maxlength="50"
                            ng-model="context"
-                           name="context" />
+                           name="context"/>
                 </div>
             </div>
 
