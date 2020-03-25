@@ -36,7 +36,7 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
     private Set<String> filterIrrelevantPorts(Set<String> portsToScanByNikto, Set<Finding> openPorts) {
         Set<String> portSet = new HashSet<>();
         openPorts.forEach(finding -> {
-            String port = (String) finding.getAttribute(OpenPortAttributes.port);
+            String port = String.valueOf(finding.getAttribute(OpenPortAttributes.port));
             if (portsToScanByNikto.contains(port))
                 portSet.add(port);
         });
