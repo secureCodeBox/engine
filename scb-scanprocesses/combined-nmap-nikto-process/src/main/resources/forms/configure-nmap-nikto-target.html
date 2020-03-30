@@ -33,7 +33,11 @@
 
             $scope.targetList = [{
                 name: camForm.variableManager.variableValue('DEFAULT_TARGET_NAME'),
-                location: camForm.variableManager.variableValue('DEFAULT_TARGET_LOCATION')
+                location: camForm.variableManager.variableValue('DEFAULT_TARGET_LOCATION'),
+                attributes: {
+                    COMBINED_NMAP_NIKTO_PORTS: '',
+                    BLACKBOX: ''
+                }
             }];
 
             $scope.attributeMapping = [];
@@ -77,6 +81,8 @@
             });
         });
 
+
+
     </script>
 
     <div class="row">
@@ -115,6 +121,22 @@
                             <span class="glyphicon glyphicon-trash"></span>
                         </button>
                     </div>
+                    <div class="col-xs-12">
+                        <label>Nikto Ports</label>
+                        <input class="form-control"
+                               type="text"
+                               placeholder="e.g. 80,443,8080,8443"
+                               ng-minlength="2"
+                               ng-maxlength="100"
+                               ng-model="target.attributes.COMBINED_NMAP_NIKTO_PORTS"
+                        />
+                    </div>
+                    <div class="col-xs-12">
+                        <label>
+                            <input type="checkbox" ng-model="target.attributes.BLACKBOX" class="ng-pristine ng-valid">
+                            Scan all http(s) Services discovered by nmap (blackbox scan)
+                        </label>
+                    </div>
                 </div>
                 <button class="btn btn-primary" ng-click="addTarget()">Add Host</button>
                 <code class="hidden2">{{ targetList }}</code>
@@ -133,7 +155,7 @@
                            ng-required="false"
                            ng-maxlength="50"
                            ng-model="context"
-                           name="context" />
+                           name="context"/>
                 </div>
             </div>
 
