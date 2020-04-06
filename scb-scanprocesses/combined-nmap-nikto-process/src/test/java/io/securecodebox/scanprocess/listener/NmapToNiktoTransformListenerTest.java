@@ -26,9 +26,9 @@ public class NmapToNiktoTransformListenerTest {
     @Test
     protected void relevantPortsShouldBeIntersection() {
         Target target = createTarget(TARGET_NAME, TARGET_LOCATION, "80, 443, 3000, 8080, 8443");
-        Finding finding1 = createFinding(TARGET_LOCATION, "3000", "Open Port");
-        Finding finding2 = createFinding(TARGET_LOCATION, "8080", "Open Port");
-        Finding finding3 = createFinding(TARGET_LOCATION, "8443", "Open Port");
+        Finding finding1 = createFinding(TARGET_LOCATION, 3000, "Open Port");
+        Finding finding2 = createFinding(TARGET_LOCATION, 8080, "Open Port");
+        Finding finding3 = createFinding(TARGET_LOCATION, 8443, "Open Port");
         oldTargets.add(target);
         findings.add(finding1);
         findings.add(finding2);
@@ -43,8 +43,8 @@ public class NmapToNiktoTransformListenerTest {
     @Test
     protected void shouldFilterNonNumericPorts() {
         Target target = createTarget(TARGET_NAME, TARGET_LOCATION, "80, shouldBeGone, 3000");
-        Finding finding = createFinding(TARGET_LOCATION, "3000", "Open Port");
-        Finding finding2 = createFinding(TARGET_LOCATION, "80", "Open Port");
+        Finding finding = createFinding(TARGET_LOCATION, 3000, "Open Port");
+        Finding finding2 = createFinding(TARGET_LOCATION, 80, "Open Port");
         oldTargets.add(target);
         findings.add(finding);
         findings.add(finding2);
@@ -57,11 +57,11 @@ public class NmapToNiktoTransformListenerTest {
     @Test
     protected void shouldContainAllOpenPorts() {
         Target target = createTarget(TARGET_NAME, TARGET_LOCATION, "80, 443, 3000, 8080, 8443");
-        Finding finding1 = createFinding(TARGET_LOCATION, "80", "Open Port");
-        Finding finding2 = createFinding(TARGET_LOCATION, "443", "Open Port");
-        Finding finding3 = createFinding(TARGET_LOCATION, "3000", "Open Port");
-        Finding finding4 = createFinding(TARGET_LOCATION, "8080", "Open Port");
-        Finding finding5 = createFinding(TARGET_LOCATION, "8443", "Open Port");
+        Finding finding1 = createFinding(TARGET_LOCATION, 80, "Open Port");
+        Finding finding2 = createFinding(TARGET_LOCATION, 443, "Open Port");
+        Finding finding3 = createFinding(TARGET_LOCATION, 3000, "Open Port");
+        Finding finding4 = createFinding(TARGET_LOCATION, 8080, "Open Port");
+        Finding finding5 = createFinding(TARGET_LOCATION, 8443, "Open Port");
         oldTargets.add(target);
         findings.add(finding1);
         findings.add(finding2);
@@ -79,7 +79,7 @@ public class NmapToNiktoTransformListenerTest {
 
     @Test
     protected void shouldHandleEmptyTargetsList() {
-        Finding finding = createFinding(TARGET_NAME, "3000", "Version Issue");
+        Finding finding = createFinding(TARGET_NAME, 3000, "Version Issue");
         findings.add(finding);
         transform();
         assertTrue(newTargets.isEmpty(), "no new targets should be created");
@@ -102,8 +102,8 @@ public class NmapToNiktoTransformListenerTest {
     @Test
     protected void shouldIgnoreDuplicateFindings() {
         Target target = createTarget(TARGET_NAME, TARGET_LOCATION, "80, shouldBeGone, 3000");
-        Finding finding = createFinding(TARGET_LOCATION, "3000", "Open Port");
-        Finding finding2 = createFinding(TARGET_LOCATION, "3000", "Open Port");
+        Finding finding = createFinding(TARGET_LOCATION, 3000, "Open Port");
+        Finding finding2 = createFinding(TARGET_LOCATION, 3000, "Open Port");
         oldTargets.add(target);
         findings.add(finding);
         findings.add(finding2);
@@ -114,8 +114,8 @@ public class NmapToNiktoTransformListenerTest {
 
     @Test
     protected void shouldIgnoreIrrelevantPorts() {
-        Finding finding1 = createFinding(TARGET_LOCATION, "5555", "Open Port");
-        Finding finding2 = createFinding(TARGET_LOCATION, "3000", "Open Port");
+        Finding finding1 = createFinding(TARGET_LOCATION, 5555, "Open Port");
+        Finding finding2 = createFinding(TARGET_LOCATION, 3000, "Open Port");
 
         findings.add(finding1);
         findings.add(finding2);
@@ -128,8 +128,8 @@ public class NmapToNiktoTransformListenerTest {
 
     @Test
     protected void shouldIgnoreClosedPorts() {
-        Finding finding1 = createFinding(TARGET_LOCATION, "9999", "Open Port");
-        Finding finding2 = createFinding(TARGET_LOCATION, "88888", "Open Port");
+        Finding finding1 = createFinding(TARGET_LOCATION, 9999, "Open Port");
+        Finding finding2 = createFinding(TARGET_LOCATION, 88888, "Open Port");
         findings.add(finding1);
         findings.add(finding2);
         Target target = createTarget(TARGET_NAME, TARGET_LOCATION, "3000, 8080");
@@ -140,7 +140,7 @@ public class NmapToNiktoTransformListenerTest {
 
     @Test
     protected void shouldUseDefaultPorts() {
-        Finding finding = createFinding(TARGET_LOCATION, "80", "Open Port");
+        Finding finding = createFinding(TARGET_LOCATION, 80, "Open Port");
         findings.add(finding);
         Target target = createTarget(TARGET_NAME, TARGET_LOCATION, "");
         oldTargets.add(target);
@@ -151,7 +151,7 @@ public class NmapToNiktoTransformListenerTest {
 
     @Test
     protected void shouldPerformBlackBoxScan() {
-        Finding finding = createFinding(TARGET_LOCATION, "80", "Open Port");
+        Finding finding = createFinding(TARGET_LOCATION, 80, "Open Port");
         finding.addAttribute(OpenPortAttributes.service, "http");
         findings.add(finding);
         Target target = new Target();
@@ -166,7 +166,7 @@ public class NmapToNiktoTransformListenerTest {
 
     @Test
     protected void shouldNotPerformBlackBoxScan() {
-        Finding finding = createFinding(TARGET_LOCATION, "80", "Open Port");
+        Finding finding = createFinding(TARGET_LOCATION, 80, "Open Port");
         findings.add(finding);
         Target target = new Target();
         target.setLocation(TARGET_LOCATION);
@@ -178,7 +178,7 @@ public class NmapToNiktoTransformListenerTest {
         assertTrue(newTargets.isEmpty());
     }
 
-    private Finding createFinding(String hostname, String port, String category) {
+    private Finding createFinding(String hostname, int port, String category) {
         Finding finding = new Finding();
         finding.addAttribute(OpenPortAttributes.hostname, hostname);
         finding.addAttribute(OpenPortAttributes.port, port);

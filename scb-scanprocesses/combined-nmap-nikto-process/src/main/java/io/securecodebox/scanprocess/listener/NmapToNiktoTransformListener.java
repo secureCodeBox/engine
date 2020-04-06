@@ -78,7 +78,7 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
     }
 
     private boolean hasEmptyNiktoPortList(Target target) {
-        String niktoPortList = (String) target.getAttributes().get("NIKTO_PORTS");
+        String niktoPortList = String.valueOf(target.getAttributes().get("NIKTO_PORTS"));
         return niktoPortList.isEmpty();
     }
 
@@ -87,7 +87,7 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
         findings.stream()
                 .filter(finding -> finding.getCategory().equals("Open Port"))
                 .forEach(finding -> {
-                    String hostname = (String) finding.getAttribute(OpenPortAttributes.hostname);
+                    String hostname = String.valueOf(finding.getAttribute(OpenPortAttributes.hostname));
 
                     if (openPortsPerTarget.containsKey(hostname)) {
                         openPortsPerTarget.get(hostname).add(finding);
@@ -114,7 +114,7 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
             if (this.isBlackBoxScan(target)) {
                 openPortsPerTarget.get(target.getLocation()).forEach(finding -> {
                     if (finding.getAttribute(OpenPortAttributes.service).equals("http"))
-                        niktoPorts.add((String) finding.getAttribute(OpenPortAttributes.port));
+                        niktoPorts.add(String.valueOf(finding.getAttribute(OpenPortAttributes.port)));
                 });
             } else {
                 Set<String> portsToScanByNikto = this.getRelevantPorts(target);
@@ -146,7 +146,7 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
     }
 
     private String getCombinedNmapNiktoPorts(Target target) {
-        String combinedNmapNiktoPortsAsString = (String) target.getAttributes().get(ATTRIBUTE_COMBINED_NMAP_NIKTO_PORTS);
+        String combinedNmapNiktoPortsAsString = String.valueOf(target.getAttributes().get(ATTRIBUTE_COMBINED_NMAP_NIKTO_PORTS));
 
         // Check if COMBINED_NMAP_NIKTO_PORTS are set at all
         if (combinedNmapNiktoPortsAsString == null)
