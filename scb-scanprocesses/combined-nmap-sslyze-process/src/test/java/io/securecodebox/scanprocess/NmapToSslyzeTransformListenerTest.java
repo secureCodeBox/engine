@@ -42,6 +42,37 @@ public class NmapToSslyzeTransformListenerTest {
         assertEquals(0, listener.createTargetsFromFindings(findings).size(), "irrelevant services are not transformed into new targets");
     }
 
+    @Test
+    protected void shouldUseFindingsHostnameForTargetIfSet() {
+        Finding finding = createFindingWithService("https");
+        finding.addAttribute("hostname", "foo.example.com");
+        finding.addAttribute(OpenPortAttributes.port, 443);
+        List<Finding> findings = new ArrayList<Finding>();
+        findings.add(finding);
+
+        List<Target> targets = listener.createTargetsFromFindings(findings);
+
+
+        assertEquals(1, targets.size());
+        assertEquals("foo.example.com:443", targets.get(0).getLocation());
+    }
+
+    @Test
+    protected void shouldNotCrashAndUseTheIPWhenTheHostnameIsNull() {
+        Finding finding = createFindingWithService("https");
+        finding.addAttribute("hostname", null);
+        finding.addAttribute(OpenPortAttributes.ip_address, "192.168.42.42");
+        finding.addAttribute(OpenPortAttributes.port, 443);
+        List<Finding> findings = new ArrayList<Finding>();
+        findings.add(finding);
+
+        List<Target> targets = listener.createTargetsFromFindings(findings);
+
+
+        assertEquals(1, targets.size());
+        assertEquals("192.168.42.42:443", targets.get(0).getLocation());
+    }
+
     public static Finding createFindingWithService(String service) {
         Finding finding = new Finding();
         finding.setId(UUID.fromString("49bf7fd3-8512-4d73-a28f-608e493cd726"));

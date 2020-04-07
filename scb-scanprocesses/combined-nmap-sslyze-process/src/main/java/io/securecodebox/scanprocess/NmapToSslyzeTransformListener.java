@@ -4,6 +4,7 @@ import io.securecodebox.constants.DefaultFields;
 import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.scanprocess.listener.TransformFindingsToTargetsListener;
+import org.apache.logging.log4j.util.Strings;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
 
@@ -29,8 +30,7 @@ public class NmapToSslyzeTransformListener extends TransformFindingsToTargetsLis
             delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(),
                     ProcessVariableHelper.generateObjectValue(newTargets)
             );
-        }
-        else {
+        } else {
             // if no new target had been found clear the target parameter (and skip the SSLyze scan)
             delegateExecution.setVariable(DefaultFields.PROCESS_TARGETS.name(),
                     ""
@@ -40,29 +40,28 @@ public class NmapToSslyzeTransformListener extends TransformFindingsToTargetsLis
 
     protected List<Target> createTargetsFromFindings(List<Finding> findings) {
         return findings.stream()
-        .filter(finding -> finding.getCategory().equals("Open Port"))
-        .filter(finding -> {
-            String service = (String) finding.getAttributes().get("service");
-            return service.contains("https") || service.contains("ssl") || service.contains("tls");
-        })
-        .map(finding -> {
-            String ipAddress = (String) finding.getAttributes().get("ip_address");
-            String hostname = finding.getAttributes().get("hostname").toString();
+                .filter(finding -> finding.getCategory().equals("Open Port"))
+                .filter(finding -> {
+                    String service = (String) finding.getAttributes().get("service");
+                    return service.contains("https") || service.contains("ssl") || service.contains("tls");
+                })
+                .map(finding -> {
+                    String ipAddress = (String) finding.getAttributes().get("ip_address");
+                    String port = String.valueOf(finding.getAttributes().get("port"));
+                    String hostname = (String) finding.getAttributes().get("hostname");
 
-            String port = finding.getAttributes().get("port").toString();
+                    Target target = new Target();
 
-            Target target = new Target();
+                    if (Strings.isNotEmpty(hostname)) {
+                        target.setLocation(hostname + ":" + port);
+                        target.setName("SSLyze Scan for " + hostname);
+                    } else {
+                        target.setLocation(ipAddress + ":" + port);
+                        target.setName("SSLyze Scan for " + ipAddress);
+                    }
 
-            if (hostname == null || "".equals(hostname)){
-                target.setLocation(hostname + ":" + port);
-            } else {
-                target.setLocation(ipAddress + ":" + port);
-            }
-            target.setName("SSLyze Scan for " + ipAddress);
-
-
-            return target;
-        }).collect(Collectors.toList());
+                    return target;
+                }).collect(Collectors.toList());
     }
 
 }
