@@ -47,11 +47,19 @@ public class NmapToSslyzeTransformListener extends TransformFindingsToTargetsLis
         })
         .map(finding -> {
             String ipAddress = (String) finding.getAttributes().get("ip_address");
+            String hostname = finding.getAttributes().get("hostname").toString();
+
             String port = finding.getAttributes().get("port").toString();
 
             Target target = new Target();
+
+            if (hostname == null || "".equals(hostname)){
+                target.setLocation(hostname + ":" + port);
+            } else {
+                target.setLocation(ipAddress + ":" + port);
+            }
             target.setName("SSLyze Scan for " + ipAddress);
-            target.setLocation(ipAddress + ":" + port);
+
 
             return target;
         }).collect(Collectors.toList());
