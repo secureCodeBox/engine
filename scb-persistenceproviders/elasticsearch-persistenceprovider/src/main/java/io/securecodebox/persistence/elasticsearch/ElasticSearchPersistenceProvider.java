@@ -37,9 +37,11 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.cluster.metadata.MetaDataCreateIndexService;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -89,7 +91,6 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     @Value("${securecodebox.persistence.elasticsearch.scheme:http}")
     private String elasticsearchScheme;
 
-
     /**
      * For developing convenience
      * If this is true then the index where findings
@@ -116,21 +117,21 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
         try {
 
-            connected = highLevelClient.ping();
+            connected = highLevelClient.ping(RequestOptions.DEFAULT);
 
             LOG.debug("ElasticSearch connected?: " + connected);
             if (connected) {
                 if (indexExists(indexName) && deleteOnInit) {
                     LOG.debug("Deleting Index " + indexName);
                     DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(indexName);
-                    highLevelClient.indices().delete(deleteIndexRequest);
+                    highLevelClient.indices().delete(deleteIndexRequest, RequestOptions.DEFAULT);
                 }
                 if (!indexExists(indexName)) {
 
                     // The index doesn't exist until now, so we create it
                     LOG.debug("Index " + indexName + " doesn't exist. Creating it...");
                     CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
-                    highLevelClient.indices().create(createIndexRequest);
+                    highLevelClient.indices().create(createIndexRequest, RequestOptions.DEFAULT);
                 }
 
                 // Checking once more, in case anything went wrong during index creation
@@ -162,7 +163,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         }
 
         try {
-            connected = highLevelClient.ping();
+            connected = highLevelClient.ping(RequestOptions.DEFAULT);
         } catch (IOException ioe) {
             LOG.error("Error pinging ElasticSearch: " + ioe.getMessage());
             connected = false;
@@ -220,8 +221,8 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                 bulkRequest.add(findingIndexRequest);
             }
 
-            LOG.info("Persisting SecurityTest and Findings...");
-            highLevelClient.bulkAsync(bulkRequest, new ActionListener<BulkResponse>() {
+            LOG.debug("Persisting SecurityTest and Findings...");
+            highLevelClient.bulkAsync(bulkRequest, RequestOptions.DEFAULT, new ActionListener<BulkResponse>() {
                 @Override
                 public void onResponse(BulkResponse bulkItemResponses) {
                     if (bulkItemResponses.hasFailures()) {
@@ -234,14 +235,14 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
                 @Override
                 public void onFailure(Exception e) {
-                    LOG.error("Error persisting findings. Reason: {}", e);
+                    LOG.error("Error persisting findings.", e);
                     throw new ElasticsearchPersistenceException("Request to persist findings to elasticsearch failed.", e);
                 }
             });
         } catch (JsonProcessingException e) {
             LOG.error(e.getMessage());
         } catch (IOException e) {
-            throw new ElasticsearchPersistenceException("Error while persisting securityTest into elasticsearch. Is elasticsearch available?.", e);
+            throw new ElasticsearchPersistenceException("Error while persisting securityTest into elasticsearch. Is elasticsearch available?", e);
         }
     }
 
@@ -249,14 +250,14 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
      * Check if there already is a securityTest persisted under the same uuid.
      * This is extremely unlikely but theoretically possible.
      *
-     * @param securityTest
+     * @param securityTest The securityTest to check the existence for.
      */
     private Optional<String> checkForSecurityTestIdExistence(SecurityTest securityTest) throws ElasticsearchPersistenceException, IOException {
         SearchRequest searchRequest = new SearchRequest();
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchQuery("id.keyword", securityTest.getId().toString()));
         searchRequest.source(searchSourceBuilder);
-        SearchResponse searchResponse = highLevelClient.search(searchRequest);
+        SearchResponse searchResponse = highLevelClient.search(searchRequest, RequestOptions.DEFAULT);
         LOG.debug("Search Response Status: {}", searchResponse.status());
         boolean searchFailure = searchResponse.isTimedOut() || (searchResponse.status() != RestStatus.OK);
 
@@ -266,7 +267,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         }
 
         LOG.debug("SearchResponse from UUID Search: {}", searchResponse);
-        if (searchResponse.getHits().totalHits > 0) {
+        if (searchResponse.getHits().getTotalHits().value > 0) {
             return Optional.of(searchResponse.getHits().getAt(0).getId());
         }
         return Optional.empty();
@@ -291,7 +292,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     /**
      * Returns the elasticsearch indexName, based on the current dateTime and configuration.
      *
-     * @return
+     * @return the elasticsearch indexName
      */
     private String getElasticIndexName() {
         Date date = Date.from(Instant.now());
@@ -309,10 +310,9 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
      */
     private boolean indexExists(String indexName) {
 
+        GetIndexRequest request = new GetIndexRequest(indexName);
         try {
-            //Indices Exist API is currently not supported in the high level client
-            highLevelClient.getLowLevelClient().performRequest("GET", "/" + indexName);
-            return true;
+            return this.highLevelClient.indices().exists(request, RequestOptions.DEFAULT);
         } catch (ResponseException e) {
             if (e.getResponse().getStatusLine().getStatusCode() == 404) {
                 return false;
@@ -378,7 +378,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     /**
      * A prerequisite for calling this method is that there exists at least one index in ES with the name "securecodebox..."
      *
-     * @throws IOException
+     * @throws IOException In the case of a missing kibana configuration file
      */
     private void initializeKibana() throws IOException {
 
@@ -386,13 +386,13 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
             LOG.info(".kibana index doesn't exist. Creating it...");
 
-            //Create Kibana Index
+            // Create a new Kibana Index
             CreateIndexRequest createIndexRequest = new CreateIndexRequest(".kibana");
             String mapping = readFileResource("kibana-mapping.json");
             if (mapping != null) {
                 createIndexRequest.mapping("doc", mapping, XContentType.JSON);
             }
-            highLevelClient.indices().create(createIndexRequest);
+            highLevelClient.indices().create(createIndexRequest, RequestOptions.DEFAULT);
         }
 
         SearchRequest searchRequest = new SearchRequest(".kibana");
@@ -402,7 +402,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                         .must(QueryBuilders.matchQuery("type", "index-pattern"))
                         .must(QueryBuilders.matchQuery("index-pattern.title", "securecodebox*")));
         searchRequest.source(searchSourceBuilder);
-        SearchResponse searchResponse = highLevelClient.search(searchRequest);
+        SearchResponse searchResponse = highLevelClient.search(searchRequest, RequestOptions.DEFAULT);
         boolean searchFailure = searchResponse.isTimedOut() || (searchResponse.status() != RestStatus.OK);
         if (searchFailure) {
             LOG.error("Searching the index failed. Skipping kibana initialization...");
@@ -411,7 +411,7 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
 
         LOG.debug("SearchResponse from .kibana index-pattern Search: " + searchResponse);
 
-        if (searchResponse.getHits().totalHits == 0) {
+        if (searchResponse.getHits().getTotalHits().value == 0) {
 
             LOG.info("Index Pattern securecodebox* doesn't exist. Creating it...");
 
@@ -429,14 +429,14 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                 indexRequest.source(objectMapper.writeValueAsString(data.getSource()), XContentType.JSON);
                 bulkRequest.add(indexRequest);
             }
-            highLevelClient.bulkAsync(bulkRequest, new ActionListener<BulkResponse>() {
+            highLevelClient.bulkAsync(bulkRequest, RequestOptions.DEFAULT, new ActionListener<BulkResponse>() {
                 @Override
                 public void onResponse(BulkResponse bulkItemResponses) {
                     if (bulkItemResponses.hasFailures()) {
                         LOG.error("There were failures in creating the kibana data. Kibana index may be corrupted. Deleting..");
                         DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(".kibana");
                         try {
-                            highLevelClient.indices().delete(deleteIndexRequest);
+                            highLevelClient.indices().delete(deleteIndexRequest, RequestOptions.DEFAULT);
                         } catch (IOException e) {
                             LOG.error("Kibana index could not be successfully deleted and might be corrupted. Delete it manually!");
                             throw new ElasticsearchPersistenceException("Kibana index could not be successfully deleted and might be corrupted. Delete it manually!", e);
