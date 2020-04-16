@@ -27,7 +27,13 @@ import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.securitytest.SecurityTest;
 import io.securecodebox.persistence.PersistenceException;
 import io.securecodebox.persistence.PersistenceProvider;
+import org.apache.http.Header;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.message.BasicHeader;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -37,10 +43,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.ResponseException;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.*;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.cluster.metadata.MetaDataCreateIndexService;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -57,14 +60,10 @@ import org.springframework.stereotype.Component;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * This component is responsible for persisting the scan-process results in elasticsearch (ES).
@@ -90,14 +89,17 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     private int elasticsearchPort;
     @Value("${securecodebox.persistence.elasticsearch.scheme:http}")
     private String elasticsearchScheme;
-    
-    @Value("${securecodebox.persistence.elasticsearch.auth.basic.username}")
-    private int elasticsearchAuthBasicUsername;
-    @Value("${securecodebox.persistence.elasticsearch.auth.basic.password}")
-    private int elasticsearchAuthBasicPassword;
-    @Value("${securecodebox.persistence.elasticsearch.auth.api.token}")
-    private int elasticsearchAuthApiToken;
 
+    @Value("${securecodebox.persistence.elasticsearch.auth}")
+    private String elasticsearchAuth;
+    @Value("${securecodebox.persistence.elasticsearch.auth.basic.username}")
+    private String elasticsearchAuthBasicUsername;
+    @Value("${securecodebox.persistence.elasticsearch.auth.basic.password}")
+    private String elasticsearchAuthBasicPassword;
+    @Value("${securecodebox.persistence.elasticsearch.auth.apikey.id}")
+    private String elasticsearchAuthApiKeyId;
+    @Value("${securecodebox.persistence.elasticsearch.auth.apikey.secret}")
+    private String elasticsearchAuthApiKeySecret;
 
     /**
      * For developing convenience
@@ -120,7 +122,11 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     private void init() {
 
         LOG.info("Initializing ElasticSearchPersistenceProvider");
+
         highLevelClient = new RestHighLevelClient(RestClient.builder(new HttpHost(elasticsearchHost, elasticsearchPort, elasticsearchScheme)));
+
+        this.handleElasticsearchAuthentication();
+
         String indexName = getElasticIndexName();
 
         try {
@@ -153,6 +159,43 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         } catch (IOException e) {
             LOG.error(e.getMessage());
             initialized = false;
+        }
+    }
+
+    private void handleElasticsearchAuthentication() {
+        if(this.elasticsearchAuth.equals("basic")) {
+            if(!this.elasticsearchAuthBasicUsername.isEmpty() && !this.elasticsearchAuthBasicPassword.isEmpty()) {
+                final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(this.elasticsearchAuthBasicUsername, this.elasticsearchAuthBasicPassword));
+
+                RestClientBuilder builder = RestClient.builder(
+                        new HttpHost(this.elasticsearchHost, this.elasticsearchPort))
+                        .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
+                                .setDefaultCredentialsProvider(credentialsProvider));
+                highLevelClient = new RestHighLevelClient(builder);
+            }
+            else {
+                LOG.warn("You need to provide a username and password for the elastic basic auth");
+            }
+        }
+        else if (this.elasticsearchAuth.equals("token")) {
+            if(!this.elasticsearchAuthApiKeyId.isEmpty() && this.elasticsearchAuthApiKeySecret.isEmpty()) {
+                String apiKeyAuth =
+                        Base64.getEncoder().encodeToString(
+                                (this.elasticsearchAuthApiKeyId + ":" + this.elasticsearchAuthApiKeySecret)
+                                        .getBytes(StandardCharsets.UTF_8));
+                RestClientBuilder builder = RestClient.builder(
+                        new HttpHost("localhost", 9200, "http"));
+                Header[] defaultHeaders =
+                        new Header[]{new BasicHeader("Authorization",
+                                "ApiKey " + apiKeyAuth)};
+                builder.setDefaultHeaders(defaultHeaders);
+
+                highLevelClient = new RestHighLevelClient(builder);
+            }
+            else {
+                LOG.warn("You need to provide an api token for the elastic token based auth");
+            }
         }
     }
 
