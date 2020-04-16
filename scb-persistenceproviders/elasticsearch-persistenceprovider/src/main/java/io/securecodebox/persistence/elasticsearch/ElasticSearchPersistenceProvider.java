@@ -90,6 +90,14 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     private int elasticsearchPort;
     @Value("${securecodebox.persistence.elasticsearch.scheme:http}")
     private String elasticsearchScheme;
+    
+    @Value("${securecodebox.persistence.elasticsearch.auth.basic.username}")
+    private int elasticsearchAuthBasicUsername;
+    @Value("${securecodebox.persistence.elasticsearch.auth.basic.password}")
+    private int elasticsearchAuthBasicPassword;
+    @Value("${securecodebox.persistence.elasticsearch.auth.api.token}")
+    private int elasticsearchAuthApiToken;
+
 
     /**
      * For developing convenience
