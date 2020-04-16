@@ -162,6 +162,9 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
         }
     }
 
+    /**
+     * Handles an authenticated request if authentication parameters are configured.
+     */
     private void handleElasticsearchAuthentication() {
         if(this.elasticsearchAuth.equals("basic")) {
             if(!this.elasticsearchAuthBasicUsername.isEmpty() && !this.elasticsearchAuthBasicPassword.isEmpty()) {
