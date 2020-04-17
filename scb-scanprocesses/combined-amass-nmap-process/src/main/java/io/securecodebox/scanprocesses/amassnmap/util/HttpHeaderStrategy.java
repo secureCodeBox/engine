@@ -26,7 +26,7 @@ public final class HttpHeaderStrategy {
 
     /**
      * Creates a finding if the header is present
-     * @return
+     * @return a finding if the header is present
      */
     public HttpHeaderStrategyExpression ifPresent () {
         final HttpHeaderStrategyExpression expression = new HttpHeaderStrategyExpression(this, value -> value != null);
@@ -36,7 +36,7 @@ public final class HttpHeaderStrategy {
 
     /**
      * Creates a finding if the header is missing
-     * @return
+     * @return a finding if the header is present
      */
     public HttpHeaderStrategyExpression ifMissing () {
         final HttpHeaderStrategyExpression expression = new HttpHeaderStrategyExpression(this, value -> value == null);
@@ -46,8 +46,8 @@ public final class HttpHeaderStrategy {
 
     /**
      * Convenience method, chaining {@link #ifMissing()} and {@link HttpHeaderStrategyExpression#createFinding(Severity, String)}
-     * @param severity
-     * @return
+     * @param severity The severity to add
+     * @return a finding if the header is present
      */
     public HttpHeaderStrategy ifMissingCreateFinding (Severity severity) {
         return this.ifMissing().createFinding(severity, this.header + " header missing");
@@ -55,8 +55,8 @@ public final class HttpHeaderStrategy {
 
     /**
      * Performs a lambda-based check; will not execute if header not present
-     * @param test lambda expression function(String headerValue) -> Boolean
-     * @return
+     * @param test lambda expression function(String headerValue) - Boolean
+     * @return a finding if the header is present
      */
     public HttpHeaderStrategyExpression ifTrue (Function<String, Boolean> test) {
         final HttpHeaderStrategyExpression expression = new HttpHeaderStrategyExpression(this, value -> value != null && test.apply(value));
@@ -66,10 +66,10 @@ public final class HttpHeaderStrategy {
 
 
     /**
-     * Apply strategy to a finding
-     * @param headers
-     * @param finding
-     * @return
+     * Apply strategy to a finding.
+     * @param headers The header
+     * @param finding The finding to add
+     * @return An array of findings
      */
     public ArrayList<Finding> apply (HttpHeaders headers, Finding finding) {
         final ArrayList<Finding> additionalFindings = new ArrayList<>();
@@ -101,8 +101,8 @@ public final class HttpHeaderStrategy {
 
         /**
          * Private constructor only to be called from class HttpHeaderStrategy
-         * @param strategy
-         * @param test
+         * @param strategy The strategy
+         * @param test The test
          */
         private HttpHeaderStrategyExpression (HttpHeaderStrategy strategy, Function<String, Boolean> test) {
             this.strategy = strategy;
@@ -113,7 +113,7 @@ public final class HttpHeaderStrategy {
          * Shortcut for {@link #createFinding(Severity, String, String)}; name is also used as description
          * @param severity severity of the created finding
          * @param name name and Description of the created finding
-         * @return
+         * @return a finding if the header is present
          */
         public HttpHeaderStrategy createFinding (Severity severity, String name) {
             return this.createFinding(severity, name, name);
@@ -122,10 +122,10 @@ public final class HttpHeaderStrategy {
         /**
          * Creates a finding with static name / description. If description depends on the value of the header's value
          * please use {@link #createFinding(Severity, String, BiConsumer)}
-         * @param severity
-         * @param name
-         * @param description
-         * @return
+         * @param severity severity of the finding
+         * @param name name of the finding
+         * @param description description of the finding
+         * @return a finding if the header is present
          */
         public HttpHeaderStrategy createFinding (Severity severity, String name, String description) {
             this.severity = severity;
@@ -138,8 +138,8 @@ public final class HttpHeaderStrategy {
          * consumer function and can depend on the value of the header.
          * @param severity severity of the finding
          * @param name name of the finding
-         * @param consumer function(String headerValue, function(String findingDescription) -> void) -> void
-         * @return
+         * @param consumer function(String headerValue, function(String findingDescription) - void) - void
+         * @return a finding if the header is present
          */
         public HttpHeaderStrategy createFinding (Severity severity, String name, BiConsumer<String, Consumer<String>> consumer) {
             this.severity = severity;
@@ -153,10 +153,10 @@ public final class HttpHeaderStrategy {
 
         /**
          * See {@link #createFinding(Severity, String, BiConsumer)}
-         * @param severity
-         * @param name
-         * @param consumer
-         * @return
+         * @param severity severity of the finding
+         * @param name name of the finding
+         * @param consumer function(String headerValue, function(String findingDescription) - void
+         * @return a finding if the header is present
          */
         public HttpHeaderStrategy createFinding (Severity severity, String name, Function<String, String> consumer) {
             this.severity = severity;
@@ -170,8 +170,8 @@ public final class HttpHeaderStrategy {
          * Similar to {@link #createFinding(Severity, String, BiConsumer)}, but the consumer generates both the name and
          * the description for the finding.
          * @param severity severity of the finding
-         * @param consumer function(String headerValue, function(String findingName, String findingDescription) -> void) -> void
-         * @return
+         * @param consumer function(String headerValue, function(String findingName, String findingDescription) - void) - void
+         * @return a finding if the header is present
          */
         public HttpHeaderStrategy createFinding (Severity severity, BiConsumer<String, BiConsumer<String, String>> consumer) {
             this.severity = severity;
@@ -189,11 +189,11 @@ public final class HttpHeaderStrategy {
 
     /**
      * Creates a finding on OsiLayer.APPLICATION, copying most values (all attributes) from a given, existing finding
-     * @param copyDetails
-     * @param name
-     * @param severity
-     * @param description
-     * @return
+     * @param copyDetails The finding to copy
+     * @param name name of the finding
+     * @param severity severity of the finding
+     * @param description description of the finding
+     * @return a finding if the header is present
      */
     private Finding createApplicationLevelFinding (final Finding copyDetails, final String name, final Severity severity, final String description) {
         final Finding fnd = createCopyOfFinding(copyDetails);
@@ -208,8 +208,8 @@ public final class HttpHeaderStrategy {
 
     /**
      * Creates a copy of a finding, omitting name, category, description, osi-layer and severity
-     * @param copyDetails
-     * @return
+     * @param copyDetails The finding to copy
+     * @return a finding if the header is present
      */
     private Finding createCopyOfFinding (final Finding copyDetails) {
         final Finding fnd = new Finding();

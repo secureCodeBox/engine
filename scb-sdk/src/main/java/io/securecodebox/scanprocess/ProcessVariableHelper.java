@@ -81,6 +81,7 @@ public class ProcessVariableHelper {
      * Wraps the given Object as camunda spin {@link ObjectValue}.
      * <i>Important:</i> Uses {@link Variables.SerializationDataFormats#JSON} as serialization type!
      *
+     * @param value The object to wrap
      * @return value wrapped as camunda spin {@link ObjectValue}
      */
     public static ObjectValue generateObjectValue(Object value) {
