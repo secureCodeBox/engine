@@ -37,7 +37,7 @@ This allows you to e.g. enable https using:
 | SERVER_SSL_KEY_STORE_PASSWORD         | Password to the java keystore         | AStrongPassword-NotThisOne! |
 
 ## Persistence Provider Configuration
-A more detailed description of all persistence specific integration configuration options can be fund here: https://www.securecodebox.io/integrations
+A more detailed description of all persistence specific integration configuration options can be fund here: [secureCodeBox Integration Documentation][scb-integration]
 
 ### Enabling Elasticsearch as Persistence Provider
 All properties defined in scb-engine/src/main/resources/application.yaml can be overwritten via environment variables.
@@ -75,7 +75,7 @@ All properties defined in scb-engine/src/main/resources/application.yaml can be 
 | Property                                       | Example Value                            |
 | ---------------------------------------------- | ---------------------------------------- |
 | SECURECODEBOX_PERSISTENCE_DEFECTDOJO_ENABLED   | true                                     |
-| SECURECODEBOX_PERSISTENCE_DEFECTDOJO_URL       | http://localhost:8000                    |
+| SECURECODEBOX_PERSISTENCE_DEFECTDOJO_URL       | [http://localhost:8000]()                  |
 | SECURECODEBOX_PERSISTENCE_DEFECTDOJO_AUTH_KEY  | 7fd7eac6fed567b19928f7928a7ddb86f0497e4e |
 | SECURECODEBOX_PERSISTENCE_DEFECTDOJO_AUTH_NAME | admin                                    |
 
@@ -123,4 +123,5 @@ Well boring yes - but please read our [guidelines and naming standards][scb-deve
 
 [docker]:                   https://www.docker.com/
 [beta-testers]:             https://www.securecodebox.io/
+[scb-integration]:          https://www.securecodebox.io/integrations
 [owasp]:                    https://www.owasp.org/index.php/Main_Page
