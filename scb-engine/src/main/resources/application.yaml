@@ -48,6 +48,12 @@ securecodebox.persistence.elasticsearch.host: persistence-elasticsearch
 securecodebox.persistence.elasticsearch.port: 9200
 securecodebox.persistence.elasticsearch.index.prefix: securecodebox
 securecodebox.persistence.elasticsearch.index.delete_on_init: false
+# Must be 'basic' for basic authentication or 'token' for a api token based authentication
+securecodebox.persistence.elasticsearch.auth: ""
+securecodebox.persistence.elasticsearch.auth.basic.username: ""
+securecodebox.persistence.elasticsearch.auth.basic.password: ""
+securecodebox.persistence.elasticsearch.auth.apikey.id: ""
+securecodebox.persistence.elasticsearch.auth.apikey.secret: ""
 
 
 securecodebox.default.target.name: BodgeIT Public Host
