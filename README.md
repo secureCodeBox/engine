@@ -75,7 +75,7 @@ All properties defined in scb-engine/src/main/resources/application.yaml can be 
 | Property                                       | Example Value                            |
 | ---------------------------------------------- | ---------------------------------------- |
 | SECURECODEBOX_PERSISTENCE_DEFECTDOJO_ENABLED   | true                                     |
-| SECURECODEBOX_PERSISTENCE_DEFECTDOJO_URL       | [http://localhost:8000]()                  |
+| SECURECODEBOX_PERSISTENCE_DEFECTDOJO_URL       | [http://localhost:8000]()                |
 | SECURECODEBOX_PERSISTENCE_DEFECTDOJO_AUTH_KEY  | 7fd7eac6fed567b19928f7928a7ddb86f0497e4e |
 | SECURECODEBOX_PERSISTENCE_DEFECTDOJO_AUTH_NAME | admin                                    |
 
