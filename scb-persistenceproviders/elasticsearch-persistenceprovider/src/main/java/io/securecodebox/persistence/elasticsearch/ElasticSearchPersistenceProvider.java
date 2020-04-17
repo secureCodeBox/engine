@@ -170,38 +170,45 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
      * Handles an authenticated request if authentication parameters are configured.
      */
     private void handleElasticsearchAuthentication() {
-        if(this.elasticsearchAuth.equals("basic")) {
-            if(!this.elasticsearchAuthBasicUsername.isEmpty() && !this.elasticsearchAuthBasicPassword.isEmpty()) {
-                final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(this.elasticsearchAuthBasicUsername, this.elasticsearchAuthBasicPassword));
 
-                RestClientBuilder builder = RestClient.builder(
-                        new HttpHost(this.elasticsearchHost, this.elasticsearchPort))
-                        .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
-                                .setDefaultCredentialsProvider(credentialsProvider));
-                highLevelClient = new RestHighLevelClient(builder);
-            }
-            else {
-                LOG.warn("You need to provide a username and password for the elastic basic auth");
-            }
+        if(this.elasticsearchAuth.isEmpty()) {
+            LOG.info("No elasticsearch authentication configured. Trying to connect without authentication");
         }
-        else if (this.elasticsearchAuth.equals("token")) {
-            if(!this.elasticsearchAuthApiKeyId.isEmpty() && this.elasticsearchAuthApiKeySecret.isEmpty()) {
-                String apiKeyAuth =
-                        Base64.getEncoder().encodeToString(
-                                (this.elasticsearchAuthApiKeyId + ":" + this.elasticsearchAuthApiKeySecret)
-                                        .getBytes(StandardCharsets.UTF_8));
-                RestClientBuilder builder = RestClient.builder(
-                        new HttpHost("localhost", 9200, "http"));
-                Header[] defaultHeaders =
-                        new Header[]{new BasicHeader("Authorization",
-                                "ApiKey " + apiKeyAuth)};
-                builder.setDefaultHeaders(defaultHeaders);
+        else {
+            LOG.info("Handling elasticsearch connection authentication for the method: {}", this.elasticsearchAuth);
 
-                highLevelClient = new RestHighLevelClient(builder);
+            if(this.elasticsearchAuth.equals("basic")) {
+                if(!this.elasticsearchAuthBasicUsername.isEmpty() && !this.elasticsearchAuthBasicPassword.isEmpty()) {
+                    final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+                    credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(this.elasticsearchAuthBasicUsername, this.elasticsearchAuthBasicPassword));
+
+                    RestClientBuilder builder = RestClient.builder(
+                            new HttpHost(this.elasticsearchHost, this.elasticsearchPort))
+                            .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
+                                    .setDefaultCredentialsProvider(credentialsProvider));
+                    highLevelClient = new RestHighLevelClient(builder);
+                }
+                else {
+                    LOG.warn("You need to provide a username and password for the elastic basic auth");
+                }
             }
-            else {
-                LOG.warn("You need to provide an api token for the elastic token based auth");
+            else if (this.elasticsearchAuth.equals("token")) {
+                if (!this.elasticsearchAuthApiKeyId.isEmpty() && this.elasticsearchAuthApiKeySecret.isEmpty()) {
+                    String apiKeyAuth =
+                            Base64.getEncoder().encodeToString(
+                                    (this.elasticsearchAuthApiKeyId + ":" + this.elasticsearchAuthApiKeySecret)
+                                            .getBytes(StandardCharsets.UTF_8));
+                    RestClientBuilder builder = RestClient.builder(
+                            new HttpHost("localhost", 9200, "http"));
+                    Header[] defaultHeaders =
+                            new Header[]{new BasicHeader("Authorization",
+                                    "ApiKey " + apiKeyAuth)};
+                    builder.setDefaultHeaders(defaultHeaders);
+
+                    highLevelClient = new RestHighLevelClient(builder);
+                } else {
+                    LOG.warn("You need to provide an api token for the elastic token based auth");
+                }
             }
         }
     }
