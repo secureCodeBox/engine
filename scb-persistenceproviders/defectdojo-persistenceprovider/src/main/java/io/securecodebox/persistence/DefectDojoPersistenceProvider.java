@@ -48,28 +48,32 @@ import java.util.stream.Stream;
 @Component
 @ConditionalOnProperty(name = "securecodebox.persistence.defectdojo.enabled", havingValue = "true")
 public class DefectDojoPersistenceProvider implements PersistenceProvider {
+
     private static final Logger LOG = LoggerFactory.getLogger(DefectDojoPersistenceProvider.class);
+    private static final String GIT_SERVER_NAME = "Git Server";
+    private static final String BUILD_SERVER_NAME = "Build Server";
+    private static final String SECURITY_TEST_SERVER_NAME = "Security Test Orchestration Engine";
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     @Value("${securecodebox.persistence.defectdojo.optional:false}")
     protected boolean isOptional;
 
     @Autowired
-    DefectDojoService defectDojoService;
+    private DefectDojoService defectDojoService;
 
     @Autowired
-    DescriptionGenerator descriptionGenerator;
+    private DescriptionGenerator descriptionGenerator;
 
-    protected static final String DATE_FORMAT = "yyyy-MM-dd";
+    private Clock clock = Clock.systemDefaultZone();
 
-    Clock clock = Clock.systemDefaultZone();
-
-    public void setClock(Clock clock){
-        this.clock = clock;
-    }
-
+    /**
+     * Persists the given securityTest within DefectDojo.
+     * @param securityTest The securitTest to persist.
+     * @throws PersistenceException If any persistence error occurs.
+     */
     @Override
     public void persist(SecurityTest securityTest) throws PersistenceException {
-        LOG.debug("Starting defectdojo persistence provider");
+        LOG.debug("Starting DefectDojo persistence provider");
         LOG.debug("RawFindings: {}", securityTest.getReport().getRawFindings());
 
         try {
@@ -83,9 +87,14 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         }
     }
 
+    /**
+     * Persists a given securityTest within DefectDojo.
+     * @param securityTest The securitTest to persist.
+     * @throws PersistenceException If any persistence error occurs.
+     */
     private void persistInDefectDojo(SecurityTest securityTest) throws PersistenceException {
         checkConnection();
-        checkToolTypes();
+        ensureToolTypesExistence();
 
         EngagementResponse res = createEngagement(securityTest);
         long engagementId = res.getId();
@@ -106,11 +115,25 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         }
     }
 
-    static final String GIT_SERVER_NAME = "Git Server";
-    static final String BUILD_SERVER_NAME = "Build Server";
-    static final String SECURITY_TEST_SERVER_NAME = "Security Test Orchestration Engine";
+    /**
+     * Checks if DefectDojo is available and reachable.
+     * @throws DefectDojoUnreachableException If DefectDojo is not reachable
+     */
+    protected void checkConnection() throws DefectDojoUnreachableException {
+        try {
+            final URLConnection connection = new URL(defectDojoService.defectDojoUrl).openConnection();
+            connection.connect();
+        } catch (final MalformedURLException e){
+            throw new DefectDojoUnreachableException("Could not reach defectdojo at '" + defectDojoService.defectDojoUrl + "'!");
+        } catch (final IOException e){
+            throw new DefectDojoUnreachableException("Could not reach defectdojo at '" + defectDojoService.defectDojoUrl + "'!");
+        }
+    }
 
-    private void checkToolTypes() {
+    /**
+     * Creates Tool Types for GIT_SERVER_NAME, BUILD_SERVER_NAME, SECURITY_TEST_SERVER_NAME if they are not existing.
+     */
+    private void ensureToolTypesExistence() {
         DefectDojoResponse<ToolType> toolTypeGitResponse = defectDojoService.getToolTypeByName(GIT_SERVER_NAME);
         if(toolTypeGitResponse.getCount() == 0){
             defectDojoService.createToolType(GIT_SERVER_NAME, "Source Code Management Server");
@@ -127,17 +150,12 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         }
     }
 
-    void checkConnection() throws DefectDojoUnreachableException {
-        try {
-            final URLConnection connection = new URL(defectDojoService.defectDojoUrl).openConnection();
-            connection.connect();
-        }catch (final MalformedURLException e){
-            throw new DefectDojoUnreachableException("Could not reach defectdojo at '" + defectDojoService.defectDojoUrl + "'!");
-        }catch (final IOException e){
-            throw new DefectDojoUnreachableException("Could not reach defectdojo at '" + defectDojoService.defectDojoUrl + "'!");
-        }
-    }
-
+    /**
+     * Returns the rawResults (original security scanner results) of the given securityTests.
+     * @param securityTest The securityTest to return the rawResults for.
+     * @return the rawResults (original security scanner results) of the given securityTests.
+     * @throws DefectDojoPersistenceException
+     */
     private List<String> getRawResults(SecurityTest securityTest) throws DefectDojoPersistenceException {
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -151,16 +169,20 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         }
     }
 
+    /**
+     * Returns a list of generic finding results as string.
+     * @param securityTest
+     * @return
+     */
     private List<String> getGenericResults(SecurityTest securityTest) {
-        final String CSV_HEADER = "date,title,cweid,url,severity,description,mitigation,impact,references,active," +
-                "verified,falsepositive,duplicate";
+        final String GENERIC_RESULT_CSV_HEADER = "date,title,cweid,url,severity,description,mitigation,impact,references,active,verified,falsepositive,duplicate";
 
         List<Finding> findings = securityTest.getReport().getFindings();
 
         String genericFindingsCsv = Stream.concat(
-                Stream.of(CSV_HEADER),
+                Stream.of(GENERIC_RESULT_CSV_HEADER),
                 findings.stream()
-                        .map(finding -> checkIfNameOrDescriptionIsNotNull(finding))
+                        .map(finding -> ensureNameOrDescriptionIsNotNull(finding))
                         .map(finding -> MessageFormat.format(
                                 "{0},{1},,{2},{3},{4},,,,,,{5},{6}",
                                 currentDate(),
@@ -176,7 +198,13 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         return Collections.singletonList(genericFindingsCsv);
     }
 
-    private Finding checkIfNameOrDescriptionIsNotNull(Finding finding) {
+    /**
+     * Ensures that the name and description property of the given finding is not null.
+     * If the property is null it will be set to an empty string.
+     * @param finding The finding to ensure the not null conditions for.
+     * @return The given finding without null properties.
+     */
+    private Finding ensureNameOrDescriptionIsNotNull(Finding finding) {
         if (null == finding.getName()) {
             finding.setName("");
         } else if (null == finding.getDescription()) {
@@ -185,6 +213,11 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         return finding;
     }
 
+    /**
+     * Creates a new DefectDojo engagement for the given securityTest.
+     * @param securityTest The securityTest to crete an DefectDojo engagement for.
+     * @return The newly created engagement.
+     */
     private EngagementResponse createEngagement(SecurityTest securityTest) {
         EngagementPayload engagementPayload = new EngagementPayload();
         engagementPayload.setProduct(defectDojoService.retrieveProductId(securityTest.getContext()));
@@ -217,11 +250,24 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         return defectDojoService.createEngagement(engagementPayload);
     }
 
+    /**
+     * Returns the current date as string based on the DATE_FORMAT.
+     * @return the current date as string based on the DATE_FORMAT.
+     */
     private String currentDate() {
         return LocalDate.now(clock).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
     }
 
-    protected static String getDefectDojoScanName(String securityTestName) {
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    /**
+     * Returns the DefectDojo specific scanName for the given scb scbSecurityTestName.
+     * @param scbSecurityTestName The scb scbSecurityTestName to return the corresponding DefectDojo scanName for.
+     * @return The DefectDojo specific scanName for the given scb scbSecurityTestName.
+     */
+    protected static String getDefectDojoScanName(String scbSecurityTestName) {
         Map<String, String> scannerDefectDojoMapping = new HashMap<>();
 
         // Officially supported by secureCodeBox
@@ -257,9 +303,9 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         scannerDefectDojoMapping.put("vgg", "VCG Scan");
         scannerDefectDojoMapping.put("veracode", "Veracode Scan");
 
-        if (scannerDefectDojoMapping.containsKey(securityTestName)) {
-            return scannerDefectDojoMapping.get(securityTestName);
-        }else{
+        if (scannerDefectDojoMapping.containsKey(scbSecurityTestName)) {
+            return scannerDefectDojoMapping.get(scbSecurityTestName);
+        } else {
             return "Generic Findings Import";
         }
     }
