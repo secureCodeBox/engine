@@ -105,6 +105,10 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
     @Value("${securecodebox.persistence.elasticsearch.auth.apikey.secret}")
     private String elasticsearchAuthApiKeySecret;
 
+    // Initialize Kibana with some basic Security Dashboards and Visualisations if no .kibana index will be found on startup
+    @Value("${securecodebox.persistence.elasticsearch.kibana.initialize:true}")
+    private boolean initializeKibana;
+
     /**
      * For developing convenience
      * If this is true then the index where findings
@@ -155,7 +159,10 @@ public class ElasticSearchPersistenceProvider implements PersistenceProvider {
                 // Checking once more, in case anything went wrong during index creation
                 if (indexExists(indexName)) {
                     initialized = true;
-                    initializeKibana();
+                    // Check if Kibana should be initialized with some default default security dashboards
+                    if(initializeKibana) {
+                        initializeKibana();
+                    }
                 }
             } else {
                 LOG.error("ElasticSearch Host doesn't respond. Please check if it is up and running");
