@@ -23,6 +23,8 @@ import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.securitytest.CommonMetaFields;
 import io.securecodebox.model.securitytest.SecurityTest;
 
+import io.securecodebox.persistence.exceptions.DefectDojoPersistenceException;
+import io.securecodebox.persistence.exceptions.DefectDojoUnreachableException;
 import io.securecodebox.persistence.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

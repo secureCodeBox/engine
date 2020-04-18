@@ -18,6 +18,10 @@
  */
 package io.securecodebox.persistence;
 
+import io.securecodebox.persistence.exceptions.DefectDojoLoopException;
+import io.securecodebox.persistence.exceptions.DefectDojoPersistenceException;
+import io.securecodebox.persistence.exceptions.DefectDojoProductNotFound;
+import io.securecodebox.persistence.exceptions.DefectDojoUserNotFound;
 import io.securecodebox.persistence.models.*;
 
 import org.slf4j.Logger;
@@ -533,7 +537,7 @@ public class DefectDojoService {
         }
     }
 
-    private List<EngagementResponse> getEngagementsForProduct(long productId, long offset) throws DefectDojoLoopException{
+    private List<EngagementResponse> getEngagementsForProduct(long productId, long offset) throws DefectDojoLoopException {
         if(offset > 9999) {
             throw new DefectDojoLoopException("offset engagement products too much!");
         }

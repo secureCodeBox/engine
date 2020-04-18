@@ -16,14 +16,17 @@
  *  limitations under the License.
  * /
  */
-package io.securecodebox.persistence;
+package io.securecodebox.persistence.exceptions;
 
-public class DefectDojoUserNotFound extends DefectDojoPersistenceException {
-    public DefectDojoUserNotFound(String message) {
+import io.securecodebox.persistence.PersistenceException;
+
+public class DefectDojoUnreachableException extends PersistenceException {
+
+    public DefectDojoUnreachableException(String message) {
         super(message);
     }
 
-    public DefectDojoUserNotFound(String message, Throwable cause) {
+    public DefectDojoUnreachableException(String message, Throwable cause) {
         super(message, cause);
     }
 }

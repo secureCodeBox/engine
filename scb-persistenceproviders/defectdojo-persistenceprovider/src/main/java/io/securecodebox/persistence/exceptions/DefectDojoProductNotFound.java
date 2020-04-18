@@ -16,14 +16,14 @@
  *  limitations under the License.
  * /
  */
-package io.securecodebox.persistence;
+package io.securecodebox.persistence.exceptions;
 
-public class DefectDojoLoopException extends RuntimeException{
-    public DefectDojoLoopException(String message) {
+public class DefectDojoProductNotFound extends DefectDojoPersistenceException {
+    public DefectDojoProductNotFound(String message) {
         super(message);
     }
 
-    public DefectDojoLoopException(String message, Throwable cause) {
+    public DefectDojoProductNotFound(String message, Throwable cause) {
         super(message, cause);
     }
 }
