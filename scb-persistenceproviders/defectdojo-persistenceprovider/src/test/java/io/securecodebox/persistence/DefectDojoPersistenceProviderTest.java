@@ -6,6 +6,8 @@ import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.rest.Report;
 import io.securecodebox.model.securitytest.CommonMetaFields;
 import io.securecodebox.model.securitytest.SecurityTest;
+import io.securecodebox.persistence.exceptions.DefectDojoProductNotFound;
+import io.securecodebox.persistence.exceptions.DefectDojoUserNotFound;
 import io.securecodebox.persistence.models.*;
 import org.junit.Before;
 import org.junit.Test;

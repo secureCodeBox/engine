@@ -16,15 +16,14 @@
  *  limitations under the License.
  * /
  */
-package io.securecodebox.persistence;
+package io.securecodebox.persistence.exceptions;
 
-public class DefectDojoUnreachableException extends PersistenceException {
-
-    public DefectDojoUnreachableException(String message) {
+public class DefectDojoLoopException extends RuntimeException{
+    public DefectDojoLoopException(String message) {
         super(message);
     }
 
-    public DefectDojoUnreachableException(String message, Throwable cause) {
+    public DefectDojoLoopException(String message, Throwable cause) {
         super(message, cause);
     }
 }

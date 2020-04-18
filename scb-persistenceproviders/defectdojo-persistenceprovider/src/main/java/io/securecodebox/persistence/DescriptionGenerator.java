@@ -19,6 +19,7 @@
 package io.securecodebox.persistence;
 
 import io.securecodebox.model.securitytest.SecurityTest;
+import io.securecodebox.persistence.exceptions.DefectDojoPersistenceException;
 import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
