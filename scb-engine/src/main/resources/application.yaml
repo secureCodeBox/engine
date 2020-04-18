@@ -55,6 +55,9 @@ securecodebox.persistence.elasticsearch.auth.basic.password: ""
 securecodebox.persistence.elasticsearch.auth.apikey.id: ""
 securecodebox.persistence.elasticsearch.auth.apikey.secret: ""
 
+# Initialize Kibana with some basic Security Dashboards and Visualisations if no .kibana index will be found on startup
+securecodebox.persistence.elasticsearch.kibana.initialize: true
+
 
 securecodebox.default.target.name: BodgeIT Public Host
 securecodebox.default.target.location: bodgeit
