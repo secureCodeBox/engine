@@ -101,7 +101,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
         LOG.debug("Created engagement: '{}'", engagementId);
 
         String username = securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_USER.name());
-        long userUrl = defectDojoService.retrieveUserId(username);
+        long userUrl = defectDojoService.getUserId(username);
 
         List<String> results = getDefectDojoScanName(securityTest.getName()).equals("Generic Findings Import") ? getGenericResults(securityTest) : getRawResults(securityTest);
         for (String result : results) {
@@ -220,7 +220,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
      */
     private EngagementResponse createEngagement(SecurityTest securityTest) {
         EngagementPayload engagementPayload = new EngagementPayload();
-        engagementPayload.setProduct(defectDojoService.retrieveProductId(securityTest.getContext()));
+        engagementPayload.setProduct(defectDojoService.getProductId(securityTest.getContext()));
 
         if(securityTest.getMetaData() == null){
             securityTest.setMetaData(new HashMap<>());
@@ -228,7 +228,7 @@ public class DefectDojoPersistenceProvider implements PersistenceProvider {
 
         engagementPayload.setName(securityTest.getMetaData().get(CommonMetaFields.SCB_ENGAGEMENT_TITLE.name()) != null ?
                 securityTest.getMetaData().get(CommonMetaFields.SCB_ENGAGEMENT_TITLE.name()) : getDefectDojoScanName(securityTest.getName()));
-        engagementPayload.setLead(defectDojoService.retrieveUserId(securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_USER.name())));
+        engagementPayload.setLead(defectDojoService.getUserId(securityTest.getMetaData().get(DefectDojoMetaFields.DEFECT_DOJO_USER.name())));
         engagementPayload.setDescription(descriptionGenerator.generate(securityTest));
         engagementPayload.setBranch(securityTest.getMetaData().get(CommonMetaFields.SCB_BRANCH.name()));
         engagementPayload.setBuildID(securityTest.getMetaData().get(CommonMetaFields.SCB_BUILD_ID.name()));

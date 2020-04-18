@@ -59,13 +59,13 @@ public class DefectDojoPersistenceProviderTest {
         EngagementResponse engagementResponse = new EngagementResponse();
         engagementResponse.setId(2);
         when(defectDojoService.createEngagement(any())).thenReturn(engagementResponse);
-        when(defectDojoService.retrieveProductId("Nmap Scan 11")).thenReturn(1l);
-        when(defectDojoService.retrieveProductId("Nonexisting")).thenThrow(DefectDojoProductNotFound.class);
+        when(defectDojoService.getProductId("Nmap Scan 11")).thenReturn(1l);
+        when(defectDojoService.getProductId("Nonexisting")).thenThrow(DefectDojoProductNotFound.class);
 
 
         metaData = new HashMap<>();
         metaData.put(DefectDojoMetaFields.DEFECT_DOJO_USER.name(), "John Doe");
-        when(defectDojoService.retrieveUserId(eq("John Doe"))).thenReturn(5l);
+        when(defectDojoService.getUserId(eq("John Doe"))).thenReturn(5l);
 
         report = new Report();
         report.setRawFindings("\"[]\"");
@@ -154,7 +154,7 @@ public class DefectDojoPersistenceProviderTest {
 
     @Test(expected = DefectDojoUserNotFound.class)
     public void failsIfUserCouldNotBeFound(){
-        when(defectDojoService.retrieveUserId(any())).thenThrow(new DefectDojoUserNotFound(""));
+        when(defectDojoService.getUserId(any())).thenThrow(new DefectDojoUserNotFound(""));
 
         SecurityTest securityTest = new SecurityTest();
         securityTest.setContext("Nmap Scan 11");

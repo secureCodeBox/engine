@@ -56,6 +56,7 @@ import java.util.Iterator;
 @Component
 @ConditionalOnProperty(name = "securecodebox.persistence.defectdojo.enabled", havingValue = "true")
 public class DefectDojoService {
+
     @Value("${securecodebox.persistence.defectdojo.url}")
     protected String defectDojoUrl;
 
@@ -73,21 +74,27 @@ public class DefectDojoService {
     private String currentDate() {
         return LocalDate.now(clock).format(DateTimeFormatter.ofPattern(DATE_FORMAT));
     }
+
     private String currentDateTime() {
         return LocalDateTime.now(clock).format(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT));
     }    
 
     private static final Logger LOG = LoggerFactory.getLogger(DefectDojoService.class);
 
-    private HttpHeaders getHeaders(){
+    private HttpHeaders getDefectDojoAuthorizationHeaders(){
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Token " + defectDojoApiKey);
         return headers;
     }
 
+    /**
+     * Returns a DefectDojo ToolType based on the given ToolType name.
+     * @param name The name to return the ToolType for.
+     * @return a DefectDojo ToolType based on the given ToolType name.
+     */
     public DefectDojoResponse<ToolType> getToolTypeByName(String name){
         RestTemplate restTemplate = new RestTemplate();
-        HttpEntity toolTypeRequest = new HttpEntity(getHeaders());
+        HttpEntity toolTypeRequest = new HttpEntity(getDefectDojoAuthorizationHeaders());
 
         String uri = defectDojoUrl + "/api/v2/tool_types/?name=" + name;
         ResponseEntity<DefectDojoResponse<ToolType>> toolTypeResponse = restTemplate.exchange(uri, HttpMethod.GET, toolTypeRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolType>>(){});
@@ -95,18 +102,29 @@ public class DefectDojoService {
         return toolTypeResponse.getBody();
     }
 
+    /**
+     * Creates a new DefectDojo ToolType based on he given name and description.
+     * @param name The name of the new DefectDojo ToolTyp to create.
+     * @param description The description of the new DefectDojo ToolTyp to create.
+     */
     public void createToolType(String name, String description){
         RestTemplate restTemplate = new RestTemplate();
 
         ToolType toolType = new ToolType();
         toolType.setName(name);
         toolType.setDescription(description);
-        HttpEntity<ToolType> toolPayload = new HttpEntity<>(toolType, getHeaders());
+        HttpEntity<ToolType> toolPayload = new HttpEntity<>(toolType, getDefectDojoAuthorizationHeaders());
 
         restTemplate.exchange(defectDojoUrl + "/api/v2/tool_types/", HttpMethod.POST, toolPayload, ToolType.class);
     }
 
-    public Long retrieveUserId(String username){
+    /**
+     * Returns the DefectDojo UserId for the given Username if found, otherwise throws an DefectDojoUserNotFound exception.
+     * @param username The username to return the username for.
+     * @return The DefectDojo UserId for the given Username if found.
+     * @throws DefectDojoUserNotFound If the username wasn't found or is not existing in DefectDojo.
+     */
+    public Long getUserId(String username) throws DefectDojoUserNotFound {
         RestTemplate restTemplate = new RestTemplate();
 
         if(username == null){
@@ -114,7 +132,7 @@ public class DefectDojoService {
         }
 
         String uri = defectDojoUrl + "/api/v2/users/?username=" + username;
-        HttpEntity userRequest = new HttpEntity(getHeaders());
+        HttpEntity userRequest = new HttpEntity(getDefectDojoAuthorizationHeaders());
         ResponseEntity<DefectDojoResponse<DefectDojoUser>> userResponse = restTemplate.exchange(uri, HttpMethod.GET, userRequest, new ParameterizedTypeReference<DefectDojoResponse<DefectDojoUser>>(){});
         if(userResponse.getBody().getCount() == 1){
             return userResponse.getBody().getResults().get(0).getId();
@@ -124,23 +142,39 @@ public class DefectDojoService {
         }
     }
 
-    public long retrieveProductId(String product){
+    /**
+     * Returns the DefectDojo productId for the given productName, otherwise throws an DefectDojoProductNotFound exception.
+     * @param productName The productName to return the productId for.
+     * @return The DefectDojo productId for the given productName.
+     * @throws DefectDojoProductNotFound If the productName wasn't found or is not existing in DefectDojo.
+     */
+    public long getProductId(String productName) throws DefectDojoProductNotFound {
         RestTemplate restTemplate = new RestTemplate();
 
-        String uri = defectDojoUrl + "/api/v2/products/?name=" + product;
-        HttpEntity productRequest = new HttpEntity(getHeaders());
+        String uri = defectDojoUrl + "/api/v2/products/?name=" + productName;
+        HttpEntity productRequest = new HttpEntity(getDefectDojoAuthorizationHeaders());
         ResponseEntity<DefectDojoResponse<DefectDojoProduct>> productResponse = restTemplate.exchange(uri, HttpMethod.GET, productRequest, new ParameterizedTypeReference<DefectDojoResponse<DefectDojoProduct>>(){});
         if(productResponse.getBody().getCount() == 1){
             return productResponse.getBody().getResults().get(0).getId();
         }
         else {
-            throw new DefectDojoProductNotFound(MessageFormat.format("Could not find product: \"{0}\" in DefectDojo", product));
+            throw new DefectDojoProductNotFound(MessageFormat.format("Could not find productName: \"{0}\" in DefectDojo", productName));
         }
     }
+
+    /**
+     * Returns the corresponding productId for the given product details.
+     * It will be created automatically if not already existing.
+     *
+     * @param productName The name of the DefectDojo product.
+     * @param productDescription The description of the DefectDojo product.
+     * @param productTags A list of tags of the DefectDojo product.
+     * @return The productId for the given product details.
+     */
     private long retrieveOrCreateProduct(String productName, String productDescription, List<String> productTags) {
         long productId = 0;
         try {
-            productId = retrieveProductId(productName);
+            productId = getProductId(productName);
         } catch(DefectDojoProductNotFound e) {
             LOG.debug("Given product does not exists");
         }
@@ -149,9 +183,17 @@ public class DefectDojoService {
             productId = productResponse.getId();
         }
         return productId;
-    }    
+    }
 
-    public Long retrieveOrCreateToolConfiguration(String toolUrl, String toolType){
+    /**
+     * Returns the corresponding toolConfigId for the given ToolConfig details.
+     * It will be created automatically if not already existing.
+     *
+     * @param toolUrl The URL of the tool to return the id for.
+     * @param toolType The type to the tool to return the id for.
+     * @return The corresponding toolConfigId for the given ToolConfig details.
+     */
+    public Long retrieveOrCreateToolConfiguration(String toolUrl, String toolType) {
         if (toolUrl == null){
             return null;
         }
@@ -171,12 +213,13 @@ public class DefectDojoService {
     private ResponseEntity<DefectDojoResponse<ToolConfig>> retrieveToolConfiguration(String toolUrl) {
         RestTemplate restTemplate = new RestTemplate();
         String uri = defectDojoUrl + "/api/v2/tool_configurations/?name=" + toolUrl;
-        HttpEntity toolRequest = new HttpEntity(getHeaders());
+        HttpEntity toolRequest = new HttpEntity(getDefectDojoAuthorizationHeaders());
+
         return restTemplate.exchange(uri, HttpMethod.GET, toolRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolConfig>>(){});
     }
 
     private void createToolConfiguration(String toolUrl, String toolType) {
-        HttpEntity toolTypeRequest = new HttpEntity(getHeaders());
+        HttpEntity toolTypeRequest = new HttpEntity(getDefectDojoAuthorizationHeaders());
         String toolTypeRequestUri = defectDojoUrl + "/api/v2/tool_types/?name=" + toolType;
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<DefectDojoResponse<ToolType>> toolTypeResponse = restTemplate.exchange(toolTypeRequestUri, HttpMethod.GET, toolTypeRequest, new ParameterizedTypeReference<DefectDojoResponse<ToolType>>(){});
@@ -188,14 +231,19 @@ public class DefectDojoService {
         toolConfig.setConfigUrl(toolUrl);
         toolConfig.setDescription(toolType);
 
-        HttpEntity<ToolConfig> toolPayload = new HttpEntity<>(toolConfig, getHeaders());
+        HttpEntity<ToolConfig> toolPayload = new HttpEntity<>(toolConfig, getDefectDojoAuthorizationHeaders());
         restTemplate.exchange(defectDojoUrl + "/api/v2/tool_configurations/", HttpMethod.POST, toolPayload, ToolConfig.class);
     }
 
+    /**
+     * Creates a new DefectDojo Engagement for the given engagement details.
+     * @param engagementPayload The engangement to create
+     * @return The created Engagement for the given engagement details.
+     */
     public EngagementResponse createEngagement(EngagementPayload engagementPayload) {
         RestTemplate restTemplate = new RestTemplate();
 
-        HttpEntity<EngagementPayload> payload = new HttpEntity<>(engagementPayload, getHeaders());
+        HttpEntity<EngagementPayload> payload = new HttpEntity<>(engagementPayload, getDefectDojoAuthorizationHeaders());
 
         try {
             ResponseEntity<EngagementResponse> response = restTemplate.exchange(defectDojoUrl + "/api/v2/engagements/", HttpMethod.POST, payload, EngagementResponse.class);
@@ -206,16 +254,26 @@ public class DefectDojoService {
             throw new DefectDojoPersistenceException("Failed to create Engagement for SecurityTest", e);
         }
     }
-    
+
+    /**
+     * Creates a new DefectDojo Finding based on the given findings details.
+     * @param rawResult The security scanner rawResult to create in DefectDojo.
+     * @param engagementId The corresponding engagementId this finding belongs to.
+     * @param lead The lead
+     * @param currentDate The current date
+     * @param defectDojoScanName The defectDojo scanName which represents the scanner which produced the finding.
+     * @return The DefectDojo response of the import process.
+     */
     public ImportScanResponse createFindings(String rawResult, long engagementId, long lead, String currentDate, String defectDojoScanName) {
-        return createFindings(rawResult, engagementId, lead, currentDate,defectDojoScanName, "", new LinkedMultiValueMap<>());
+        return createFindings(rawResult, engagementId, lead, currentDate, defectDojoScanName, "", new LinkedMultiValueMap<>());
     }
+
     /**
      * Before version 1.5.4. testName (in DefectDojo _test_type_) must be defectDojoScanName, afterwards, you can have somethings else
      */
     public ImportScanResponse createFindings(String rawResult, long engagementId, long lead, String currentDate,String defectDojoScanName, String testName, MultiValueMap<String, Object> options) {
         RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = getHeaders();
+        HttpHeaders headers = getDefectDojoAuthorizationHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         restTemplate.setMessageConverters(Arrays.asList(new FormHttpMessageConverter(), new ResourceHttpMessageConverter(), new MappingJackson2HttpMessageConverter()));
 
@@ -258,6 +316,7 @@ public class DefectDojoService {
             throw new DefectDojoPersistenceException("Failed to attach findings to engagement.");
         }
     }
+
     /**
      * When DefectDojo >= 1.5.4 is used, testType can be given. Add testName in case DefectDojo >= 1.5.4 is used
      * Using testName for each branch leads to multiple issues in DefectDojo, so it is not recommended
@@ -272,7 +331,7 @@ public class DefectDojoService {
         }
 
         RestTemplate restTemplate = new RestTemplate();
-        HttpEntity engagementRequest = new HttpEntity(getHeaders());
+        HttpEntity engagementRequest = new HttpEntity(getDefectDojoAuthorizationHeaders());
 
         ResponseEntity<DefectDojoResponse<TestResponse>> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, engagementRequest, new ParameterizedTypeReference<DefectDojoResponse<TestResponse>>(){});
 
@@ -297,6 +356,7 @@ public class DefectDojoService {
         LOG.info("Test with name '{}' not found, using latest.", testName);
         return latestTestResponseId;
     }
+
     /*
     * Be aware that using latest might results in "conflicting" "latest" in case a new test is added while requesting latest
     */
@@ -314,7 +374,7 @@ public class DefectDojoService {
         if(testName != null) builder.queryParam("testType", testName);
 
         RestTemplate restTemplate = new RestTemplate();
-        HttpEntity engagementRequest = new HttpEntity(getHeaders());
+        HttpEntity engagementRequest = new HttpEntity(getDefectDojoAuthorizationHeaders());
 
         ResponseEntity<DefectDojoResponse<TestResponse>> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, engagementRequest, new ParameterizedTypeReference<DefectDojoResponse<TestResponse>>(){});
 
@@ -345,7 +405,7 @@ public class DefectDojoService {
     private EngagementResponse createTest(TestPayload testPayload) {
         RestTemplate restTemplate = new RestTemplate();
 
-        HttpEntity<TestPayload> payload = new HttpEntity<>(testPayload, getHeaders());
+        HttpEntity<TestPayload> payload = new HttpEntity<>(testPayload, getDefectDojoAuthorizationHeaders());
 
         try {
             ResponseEntity<EngagementResponse> response = restTemplate.exchange(defectDojoUrl + "/api/v2/tests/", HttpMethod.POST, payload, EngagementResponse.class);
@@ -355,7 +415,8 @@ public class DefectDojoService {
             LOG.warn("Failure response body. {}", e.getResponseBodyAsString());
             throw new DefectDojoPersistenceException("Failed to create Test for SecurityTest", e);
         }
-    }    
+    }
+
     private long getTestIdOrCreate(long engagementId, TestPayload testPayload, String testType) {
         Long testId = getTestIdByEngagementName(engagementId, testPayload.getTitle(), 0).orElseGet(() -> {
             testPayload.setEngagement(Long.toString(engagementId));
@@ -383,7 +444,7 @@ public class DefectDojoService {
     
     public ImportScanResponse createFindingsReImport(String rawResult, long testId, long lead, String currentDate,String defectDojoScanName, MultiValueMap<String, Object> options) {
         RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = getHeaders();
+        HttpHeaders headers = getDefectDojoAuthorizationHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         restTemplate.setMessageConverters(Arrays.asList(new FormHttpMessageConverter(), new ResourceHttpMessageConverter(), new MappingJackson2HttpMessageConverter()));
 
@@ -455,7 +516,7 @@ public class DefectDojoService {
     }
 
     private Optional<Long> getEngagementIdByEngagementName(String engagementName, String productName){
-        long productId = retrieveProductId(productName);
+        long productId = getProductId(productName);
         return getEngagementIdByEngagementName(engagementName, productId, 0L);
     }
     private Optional<Long> getEngagementIdByEngagementName(String engagementName, long productId){
@@ -469,7 +530,7 @@ public class DefectDojoService {
                 .queryParam("offset", Long.toString(offset));
 
         RestTemplate restTemplate = new RestTemplate();
-        HttpEntity engagementRequest = new HttpEntity(getHeaders());
+        HttpEntity engagementRequest = new HttpEntity(getDefectDojoAuthorizationHeaders());
 
         ResponseEntity<DefectDojoResponse<EngagementResponse>> engagementResponse = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, engagementRequest, new ParameterizedTypeReference<DefectDojoResponse<EngagementResponse>>(){});
 
@@ -493,7 +554,7 @@ public class DefectDojoService {
     public ProductResponse createProduct(String productName, String description, List<String> productTags) {
         RestTemplate restTemplate = new RestTemplate();
         ProductPayload productPayload = new ProductPayload(productName, description, productTags);
-        HttpEntity<ProductPayload> payload = new HttpEntity<>(productPayload, getHeaders());
+        HttpEntity<ProductPayload> payload = new HttpEntity<>(productPayload, getDefectDojoAuthorizationHeaders());
 
         try {
             ResponseEntity<ProductResponse> response = restTemplate.exchange(defectDojoUrl + "/api/v2/products/", HttpMethod.POST, payload, ProductResponse.class);
@@ -506,7 +567,7 @@ public class DefectDojoService {
     }
 
     public void deleteUnusedBranches(List<String> existingBranches, String producName) {
-        long productId = retrieveProductId(producName);
+        long productId = getProductId(producName);
         deleteUnusedBranches(existingBranches, productId);
     } 
 
@@ -547,7 +608,7 @@ public class DefectDojoService {
                 .queryParam("offset", Long.toString(offset));
 
         RestTemplate restTemplate = new RestTemplate();
-        HttpEntity engagementRequest = new HttpEntity(getHeaders());
+        HttpEntity engagementRequest = new HttpEntity(getDefectDojoAuthorizationHeaders());
 
         ResponseEntity<DefectDojoResponse<EngagementResponse>> engagementResponse = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, engagementRequest, new ParameterizedTypeReference<DefectDojoResponse<EngagementResponse>>(){});
         List<EngagementResponse> engagementPayloads = new LinkedList<EngagementResponse>();
@@ -563,7 +624,7 @@ public class DefectDojoService {
         RestTemplate restTemplate = new RestTemplate();
 
         String uri = defectDojoUrl + "/api/v2/engagements/" + engagementId + "/?id=" + engagementId;
-        HttpEntity request = new HttpEntity(getHeaders());
+        HttpEntity request = new HttpEntity(getDefectDojoAuthorizationHeaders());
         try {
             restTemplate.exchange(uri, HttpMethod.DELETE, request, DefectDojoResponse.class);
         } catch (HttpClientErrorException e) {
@@ -590,7 +651,7 @@ public class DefectDojoService {
             builder = prepareParameters(options, builder);
         }
 
-        HttpEntity request = new HttpEntity(getHeaders());
+        HttpEntity request = new HttpEntity(getDefectDojoAuthorizationHeaders());
         try {
             ResponseEntity<DefectDojoResponse<Finding>> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, request, new ParameterizedTypeReference<DefectDojoResponse<Finding>>(){});
             List<Finding> findings = new LinkedList<Finding>();

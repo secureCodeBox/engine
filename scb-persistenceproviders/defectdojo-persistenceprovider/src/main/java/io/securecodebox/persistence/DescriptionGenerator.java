@@ -29,6 +29,7 @@ import java.time.format.DateTimeFormatter;
 
 @Component
 public class DescriptionGenerator {
+
     public String generate(SecurityTest securityTest){
         return MessageFormat.format("#{0}  \nTime: {1}  \nTarget: {2} \"{3}\"",
                 getDefectDojoScanName(securityTest),
