@@ -1,7 +1,8 @@
-package io.securecodebox.persistence;
+package io.securecodebox.persistence.util;
 
 import io.securecodebox.model.execution.Target;
 import io.securecodebox.model.securitytest.SecurityTest;
+import io.securecodebox.persistence.util.DescriptionGenerator;
 import org.junit.Before;
 import org.junit.Test;
 
