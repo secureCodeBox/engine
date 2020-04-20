@@ -62,12 +62,14 @@ public interface ScanProcessExecution {
     /**
      * Returns the Findings directly attached to the process. Mostly it's the result of the last step.
      * If the process has multiple scanners you might want to have a look into getScanners().
+     * @return the Findings directly attached to the process
      */
     @JsonProperty("findings")
     List<Finding> getFindings();
 
     /**
      * Returns the RawFindings directly attached to the process. Mostly it's the result of the last step.
+     * @return the RawFindings directly attached to the process
      */
     @JsonIgnore
     String getRawFindings();
@@ -86,7 +88,7 @@ public interface ScanProcessExecution {
      * Attaches Findings directly to the process instance.
      * If the process has multiple scanners you might want to have a look into getScanners().
      *
-     * @param finding
+     * @param finding The finding to attach
      */
     @JsonIgnore
     void appendFinding(Finding finding);

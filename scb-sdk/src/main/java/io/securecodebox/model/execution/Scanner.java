@@ -146,7 +146,7 @@ public class Scanner {
     /**
      * Appends a finding to the finding list.
      *
-     * @param finding
+     * @param finding  a finding to add to the finding list
      *
      * @throws IllegalStateException if something goes wrong writing the finding to the process
      */
