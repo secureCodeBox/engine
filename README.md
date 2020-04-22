@@ -36,6 +36,51 @@ This allows you to e.g. enable https using:
 | SERVER_SSL_ENABLED                    | Enables http over ssl                 | true                        |
 | SERVER_SSL_KEY_STORE_PASSWORD         | Password to the java keystore         | AStrongPassword-NotThisOne! |
 
+## Persistence Provider Configuration
+A more detailed description of all persistence specific integration configuration options can be fund here: [secureCodeBox Integration Documentation][scb-integration]
+
+### Enabling Elasticsearch as Persistence Provider
+All properties defined in scb-engine/src/main/resources/application.yaml can be overwritten via environment variables.
+
+| Property                                             | Example Value              |
+| ---------------------------------------------------- | -------------------------- |
+| SECURECODEBOX_PERSISTENCE_ELASTICSEARCH_ENABLED      | true                       |
+| SECURECODEBOX_PERSISTENCE_ELASTICSEARCH_HOST         | elasticsearch.example.com  |
+| SECURECODEBOX_PERSISTENCE_ELASTICSEARCH_PORT         | 9200                       |
+| SECURECODEBOX_PERSISTENCE_ELASTICSEARCH_INDEX_PREFIX | securecodebox              |
+
+### Configure Elasticsearch Basic Authentication
+If your elasticsearch service enforces authentication your can configure basic authentication:
+
+| Property                                                    | Example Value               |
+| ----------------------------------------------------------- | --------------------------- |
+| SECURECODEBOX_PERSISTENCE_ELASTICSEARCH_AUTH                | basic                       |
+| SECURECODEBOX_PERSISTENCE_ELASTICSEARCH_AUTH_BASIC_USERNAME | elastic                     |
+| SECURECODEBOX_PERSISTENCE_ELASTICSEARCH_AUTH_BASIC_PASSWORD | AStrongPassword-NotThisOne! |
+
+### Configure Elasticsearch API Token Authentication
+If your elasticsearch service enforces authentication your can configure api token based authentication:
+
+| Property                                                    | Example Value               |
+| ----------------------------------------------------------- | --------------------------- |
+| SECURECODEBOX_PERSISTENCE_ELASTICSEARCH_AUTH                | token                       |
+| SECURECODEBOX_PERSISTENCE_ELASTICSEARCH_AUTH_APIKEY_ID      | yourToken                   |
+| SECURECODEBOX_PERSISTENCE_ELASTICSEARCH_AUTH_APIKEY_SECRET  | 7fd7eac6fed567b19932492347  |
+
+### Enabling DefectDojo as Persistence Provider
+All properties defined in scb-engine/src/main/resources/application.yaml can be overwritten via environment variables.
+
+#### Properties / Environment Variables
+
+| Property                                       | Example Value                            |
+| ---------------------------------------------- | ---------------------------------------- |
+| SECURECODEBOX_PERSISTENCE_DEFECTDOJO_ENABLED   | true                                     |
+| SECURECODEBOX_PERSISTENCE_DEFECTDOJO_URL       | [http://localhost:8000]()                |
+| SECURECODEBOX_PERSISTENCE_DEFECTDOJO_AUTH_KEY  | 7fd7eac6fed567b19928f7928a7ddb86f0497e4e |
+| SECURECODEBOX_PERSISTENCE_DEFECTDOJO_AUTH_NAME | admin                                    |
+
+Alternatively the corresponding environment variables, e.g. `SECURECODEBOX_PERSISTENCE_DEFECTDOJO_URL` can be used.
+
 # Development
 
 ## Local setup
@@ -78,4 +123,5 @@ Well boring yes - but please read our [guidelines and naming standards][scb-deve
 
 [docker]:                   https://www.docker.com/
 [beta-testers]:             https://www.securecodebox.io/
+[scb-integration]:          https://www.securecodebox.io/integrations
 [owasp]:                    https://www.owasp.org/index.php/Main_Page
