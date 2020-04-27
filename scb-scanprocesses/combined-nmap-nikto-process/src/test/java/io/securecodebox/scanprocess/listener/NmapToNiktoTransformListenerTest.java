@@ -161,7 +161,7 @@ public class NmapToNiktoTransformListenerTest {
         target.appendOrUpdateAttribute(NmapToNiktoTransformListener.ATTRIBUTE_BLACKBOX, "true");
         oldTargets.add(target);
         this.transform();
-        assertEquals("80", niktoPorts, "should be equal to 80 as result of blackbox test" );
+        assertEquals("80", niktoPorts, "should be equal to 80 as result of blackbox test");
     }
 
     @Test
@@ -176,6 +176,16 @@ public class NmapToNiktoTransformListenerTest {
         oldTargets.add(target);
         this.transform();
         assertTrue(newTargets.isEmpty());
+    }
+
+    @Test
+    protected void testForCidrNotation() {
+        Finding finding = createFinding("192.168.178.2", 443, "Open Port");
+        findings.add(finding);
+        Target target = createTarget(TARGET_NAME, "192.168.178.2/32", "80, 443");
+        oldTargets.add(target);
+        this.transform();
+        assertFalse(newTargets.isEmpty());
     }
 
     private Finding createFinding(String hostname, int port, String category) {
