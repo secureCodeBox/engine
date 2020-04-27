@@ -26,7 +26,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.*;
+
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -206,7 +211,7 @@ public class DefectDojoService {
     public ImportScanResponse createFindings(String rawResult, long engagementId, long lead, String currentDate, String defectDojoScanName) {
         return createFindings(rawResult, engagementId, lead, currentDate,defectDojoScanName, "", new LinkedMultiValueMap<>());
     }
-    /**
+    /*
      * Before version 1.5.4. testName (in DefectDojo _test_type_) must be defectDojoScanName, afterwards, you can have somethings else
      */
     public ImportScanResponse createFindings(String rawResult, long engagementId, long lead, String currentDate,String defectDojoScanName, String testName, MultiValueMap<String, Object> options) {
@@ -254,7 +259,7 @@ public class DefectDojoService {
             throw new DefectDojoPersistenceException("Failed to attach findings to engagement.");
         }
     }
-    /**
+    /*
      * When DefectDojo >= 1.5.4 is used, testType can be given. Add testName in case DefectDojo >= 1.5.4 is used
      * Using testName for each branch leads to multiple issues in DefectDojo, so it is not recommended
      */
@@ -363,7 +368,7 @@ public class DefectDojoService {
         return testId.longValue();
     }
   
-    /**
+    /*
      * @deprecated
      */
     public ImportScanResponse createFindingsReImport(String rawResult, String productName, String engagementName, long lead, String currentDate, String defectDojoScanName, EngagementPayload engagementPayload, TestPayload testPayload, MultiValueMap<String, Object> options) {
@@ -480,7 +485,7 @@ public class DefectDojoService {
         LOG.warn("Engagement with name '{}' not found.", engagementName);
         return Optional.empty();
     }
-    /**
+    /*
      * @deprecated
      */
     public ProductResponse createProduct(String productName) {
@@ -508,7 +513,9 @@ public class DefectDojoService {
 
     /**
      * Deletes engagements based on branch tag
-     * Be aware that the branch tag MUST be set, otherwise all engagments will be deleted
+     * Be aware that the branch tag MUST be set, otherwise all engagements will be deleted
+     * @param existingBranches The list of existing branches
+     * @param productId The productId to find engagements for
      */
     public void deleteUnusedBranches(List<String> existingBranches, long productId) {
         if(existingBranches == null) {

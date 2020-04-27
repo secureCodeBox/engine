@@ -52,7 +52,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Extraports }
-     * 
+     * @return an instance of {@link Extraports }
      */
     public Extraports createExtraports() {
         return new Extraports();
@@ -60,7 +60,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Extrareasons }
-     * 
+     * @return an instance of {@link Extrareasons }
      */
     public Extrareasons createExtrareasons() {
         return new Extrareasons();
@@ -68,7 +68,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Distance }
-     * 
+     * @return an instance of {@link Distance }
      */
     public Distance createDistance() {
         return new Distance();
@@ -76,7 +76,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Postscript }
-     * 
+     * @return an instance of {@link Postscript }
      */
     public Postscript createPostscript() {
         return new Postscript();
@@ -84,7 +84,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Script }
-     * 
+     * @return an instance of {@link Script }
      */
     public Script createScript() {
         return new Script();
@@ -92,7 +92,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Portused }
-     * 
+     * @return an instance of {@link Portused }
      */
     public Portused createPortused() {
         return new Portused();
@@ -100,7 +100,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Smurf }
-     * 
+     * @return an instance of {@link Smurf }
      */
     public Smurf createSmurf() {
         return new Smurf();
@@ -108,7 +108,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Hop }
-     * 
+     * @return an instance of {@link Hop }
      */
     public Hop createHop() {
         return new Hop();
@@ -116,7 +116,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Runstats }
-     * 
+     * @return an instance of {@link Runstats }
      */
     public Runstats createRunstats() {
         return new Runstats();
@@ -124,7 +124,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Finished }
-     * 
+     * @return an instance of {@link Finished }
      */
     public Finished createFinished() {
         return new Finished();
@@ -132,7 +132,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Hosts }
-     * 
+     * @return an instance of {@link Hosts }
      */
     public Hosts createHosts() {
         return new Hosts();
@@ -140,7 +140,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Tcpsequence }
-     * 
+     * @return  an instance of {@link Tcpsequence }
      */
     public Tcpsequence createTcpsequence() {
         return new Tcpsequence();
@@ -148,7 +148,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Ports }
-     * 
+     * @return an instance of {@link Ports }
      */
     public Ports createPorts() {
         return new Ports();
@@ -156,7 +156,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Port }
-     * 
+     * @return an instance of {@link Port }
      */
     public Port createPort() {
         return new Port();
@@ -164,7 +164,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Output }
-     * 
+     * @return an instance of {@link Output }
      */
     public Output createOutput() {
         return new Output();
@@ -172,7 +172,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Hostscript }
-     * 
+     * @return an instance of {@link Hostscript }
      */
     public Hostscript createHostscript() {
         return new Hostscript();
@@ -180,7 +180,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Trace }
-     * 
+     * @return an instance of {@link Trace }
      */
     public Trace createTrace() {
         return new Trace();
@@ -188,7 +188,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Times }
-     * 
+     * @return an instance of {@link Times }
      */
     public Times createTimes() {
         return new Times();
@@ -196,7 +196,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Hostname }
-     * 
+     * @return an instance of {@link Hostname }
      */
     public Hostname createHostname() {
         return new Hostname();
@@ -204,7 +204,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Host }
-     * 
+     * @return an instance of {@link Host }
      */
     public Host createHost() {
         return new Host();
@@ -212,7 +212,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Status }
-     * 
+     * @return an instance of {@link Status }
      */
     public Status createStatus() {
         return new Status();
@@ -220,7 +220,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Address }
-     * 
+     * @return an instance of {@link Address }
      */
     public Address createAddress() {
         return new Address();
@@ -228,7 +228,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Hostnames }
-     * 
+     * @return an instance of {@link Hostnames }
      */
     public Hostnames createHostnames() {
         return new Hostnames();
@@ -236,7 +236,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Os }
-     * 
+     * @return an instance of {@link Os }
      */
     public Os createOs() {
         return new Os();
@@ -244,7 +244,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Uptime }
-     * 
+     * @return an instance of {@link Uptime }
      */
     public Uptime createUptime() {
         return new Uptime();
@@ -252,7 +252,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Ipidsequence }
-     * 
+     * @return an instance of {@link Ipidsequence }
      */
     public Ipidsequence createIpidsequence() {
         return new Ipidsequence();
@@ -260,7 +260,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Tcptssequence }
-     * 
+     * @return an instance of {@link Tcptssequence }
      */
     public Tcptssequence createTcptssequence() {
         return new Tcptssequence();
@@ -268,7 +268,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Debugging }
-     * 
+     * @return an instance of {@link Debugging }
      */
     public Debugging createDebugging() {
         return new Debugging();
@@ -276,7 +276,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Cpe }
-     * 
+     * @return an instance of {@link Cpe }
      */
     public Cpe createCpe() {
         return new Cpe();
@@ -284,7 +284,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Osfingerprint }
-     * 
+     * @return an instance of {@link Osfingerprint }
      */
     public Osfingerprint createOsfingerprint() {
         return new Osfingerprint();
@@ -292,7 +292,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link State }
-     * 
+     * @return an instance of {@link State }
      */
     public State createState() {
         return new State();
@@ -300,7 +300,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Scaninfo }
-     * 
+     * @return an instance of {@link Scaninfo }
      */
     public Scaninfo createScaninfo() {
         return new Scaninfo();
@@ -308,7 +308,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Table }
-     * 
+     * @return an instance of {@link Table }
      */
     public Table createTable() {
         return new Table();
@@ -316,7 +316,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Elem }
-     * 
+     * @return an instance of {@link Elem }
      */
     public Elem createElem() {
         return new Elem();
@@ -324,7 +324,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Prescript }
-     * 
+     * @return an instance of {@link Prescript }
      */
     public Prescript createPrescript() {
         return new Prescript();
@@ -332,7 +332,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Osmatch }
-     * 
+     * @return an instance of {@link Osmatch }
      */
     public Osmatch createOsmatch() {
         return new Osmatch();
@@ -348,7 +348,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Owner }
-     * 
+     * @return an instance of {@link Owner }
      */
     public Owner createOwner() {
         return new Owner();
@@ -356,7 +356,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Taskprogress }
-     * 
+     * @return an instance of {@link Taskprogress }
      */
     public Taskprogress createTaskprogress() {
         return new Taskprogress();
@@ -364,7 +364,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link NmapRawResult }
-     * 
+     * @return an instance of {@link NmapRawResult }
      */
     public NmapRawResult createNmaprun() {
         return new NmapRawResult();
@@ -372,7 +372,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Verbose }
-     * 
+     * @return an instance of {@link Verbose }
      */
     public Verbose createVerbose() {
         return new Verbose();
@@ -380,7 +380,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Target }
-     * 
+     * @return an instance of {@link Target }
      */
     public Target createTarget() {
         return new Target();
@@ -388,7 +388,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Taskbegin }
-     * 
+     * @return an instance of {@link Taskbegin }
      */
     public Taskbegin createTaskbegin() {
         return new Taskbegin();
@@ -396,7 +396,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Taskend }
-     * 
+     * @return an instance of {@link Taskend }
      */
     public Taskend createTaskend() {
         return new Taskend();
@@ -404,7 +404,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Service }
-     * 
+     * @return an instance of {@link Service }
      */
     public Service createService() {
         return new Service();
