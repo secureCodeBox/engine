@@ -14,10 +14,21 @@ import java.util.stream.Collectors;
 @Component
 public class NmapToNiktoTransformListener extends TransformFindingsToTargetsListener {
 
-    private final String PORT_DELIMITER = ",";
-    private final String DEFAULT_COMBINED_NMAP_NIKTO_PORTS = "80, 443, 8080, 8443";
+    private final Set<String> DEFAULT_PORTS_TO_SCAN_BY_NIKTO = new HashSet<>();
     protected static final String ATTRIBUTE_BLACKBOX = "BLACKBOX";
     protected static final String ATTRIBUTE_COMBINED_NMAP_NIKTO_PORTS = "COMBINED_NMAP_NIKTO_PORTS";
+    protected static final String ATTRIBUTE_NIKTO_PARAMETER = "NIKTO_PARAMETER";
+
+    public NmapToNiktoTransformListener() {
+        this.initDefaultPortsToScanByNikto();
+    }
+
+    private void initDefaultPortsToScanByNikto() {
+        this.DEFAULT_PORTS_TO_SCAN_BY_NIKTO.add("80");
+        this.DEFAULT_PORTS_TO_SCAN_BY_NIKTO.add("443");
+        this.DEFAULT_PORTS_TO_SCAN_BY_NIKTO.add("8080");
+        this.DEFAULT_PORTS_TO_SCAN_BY_NIKTO.add("8443");
+    }
 
     public void notify(DelegateExecution delegateExecution) {
         List<Finding> findings = ProcessVariableHelper.readListFromValue((String) delegateExecution.getVariable(DefaultFields.PROCESS_FINDINGS.name()), Finding.class);
@@ -26,35 +37,41 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
         this.startNitktoScan(newTargets, delegateExecution);
     }
 
-    /**
-     * Removes all closed ports from specified COMBINED_NMAP_NIKTO_PORTS
-     *
-     * @param portsToScanByNikto specified COMBINED_NMAP_NIKTO_PORTS
-     * @param openPorts          Open ports found by nmap
-     * @return portSet
-     */
-    private Set<String> filterIrrelevantPorts(Set<String> portsToScanByNikto, Set<Finding> openPorts) {
-        Set<String> portSet = new HashSet<>();
-        openPorts.forEach(finding -> {
-            String port = String.valueOf(finding.getAttribute(OpenPortAttributes.port));
-            if (portsToScanByNikto.contains(port))
-                portSet.add(port);
+    protected Set<Target> nmapToNiktoTransformAction(List<Finding> findings, List<Target> oldTargets) {
+        Set<Target> newTargets = new HashSet<>();
+        oldTargets.forEach(oldTarget -> {
+            String scantype = this.getScanType(oldTarget);
+
+            switch (scantype) {
+                case "BLACKBOX":
+                    this.transformToBlackBoxScan(oldTarget, findings, newTargets);
+                    break;
+                case "COMBINED_NMAP_NIKTO_PORTLIST":
+                default:
+                    this.transformWithPortlist(oldTarget, findings, newTargets);
+                    break;
+            }
         });
-        return portSet;
+
+        LOG.info("Created Targets out of Findings: " + newTargets);
+        return newTargets;
+
     }
 
-    /**
-     * Extracts the value for the COMBINED_NMAP_NIKTO_PORTS attribute and removes invalid input
-     *
-     * @param target Target
-     * @return Set with validated Ports
-     */
-    private Set<String> getRelevantPorts(Target target) {
-        // Create a Set to ensure every port is only scanned once per host
-        Set<String> portsToScanByNikto = new HashSet<>();
+    private void transformWithPortlist(Target oldTarget, List<Finding> findings, Set<Target> newTargets) {
+        Set<String> portsToScanByNikto = this.getPortsToScanByNikto(oldTarget);
+        String niktoParameter = String.valueOf(oldTarget.getAttributes().get(ATTRIBUTE_NIKTO_PARAMETER));
+        portsToScanByNikto.forEach(niktoPort -> this.createTarget(oldTarget.getLocation(), niktoPort, niktoParameter));
+    }
 
-        // Transform Comma separated ports into an Array
-        String[] combinedNmapNiktoPortsAsArray = this.getCombinedNmapNiktoPorts(target).split(this.PORT_DELIMITER);
+    private Set<String> getPortsToScanByNikto(Target oldTarget) {
+        String combinedNmapNiktoPorts = this.getCombinedNmapNiktoPorts(oldTarget);
+        if ("".equals(combinedNmapNiktoPorts))
+            return DEFAULT_PORTS_TO_SCAN_BY_NIKTO;
+
+        Set<String> portsToScanByNikto = new HashSet<>();
+        String PORT_DELIMITER = ",";
+        String[] combinedNmapNiktoPortsAsArray = combinedNmapNiktoPorts.split(PORT_DELIMITER);
 
         // Remove whitespaces before and after port and add to Collection
         for (String port : combinedNmapNiktoPortsAsArray) {
@@ -62,81 +79,28 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
         }
 
         // Move portArray into a Set to ensure every Port is only scanned once for each  host
-        portsToScanByNikto = portsToScanByNikto.stream()
-                // remove empty entries
-                .filter(port -> !port.isEmpty())
-                // remove entries that have to long ports or letters or start with zero
-                // Regex from: https://www.regextester.com/104146
+        return portsToScanByNikto.stream()
+                // Regex from: https://www.regextester.com/104146 to validate Ports
                 .filter(port -> Pattern.matches("^()([1-9]|[1-5]?[0-9]{2,4}|6[1-4][0-9]{3}|65[1-4][0-9]{2}|655[1-2][0-9]|6553[1-5])$", port))
                 .collect(Collectors.toSet());
-
-        // Use default ports if not specified otherwise
-        if (portsToScanByNikto.isEmpty())
-            return this.getDefaultPorts();
-
-        return portsToScanByNikto;
     }
 
-    private boolean hasEmptyNiktoPortList(Target target) {
-        String niktoPortList = String.valueOf(target.getAttributes().get("NIKTO_PORTS"));
-        return niktoPortList.isEmpty();
-    }
-
-    private Map<String, Set<Finding>> getOpenPortsPerTarget(List<Finding> findings) {
-        Map<String, Set<Finding>> openPortsPerTarget = new HashMap<>();
-        findings.stream()
-                .filter(finding -> finding.getCategory().equals("Open Port"))
-                .forEach(finding -> {
-                    String hostname = String.valueOf(finding.getAttribute(OpenPortAttributes.hostname));
-                    if (openPortsPerTarget.containsKey(hostname)) {
-                        openPortsPerTarget.get(hostname).add(finding);
-                    } else {
-                        Set<Finding> portSet = new HashSet<>();
-                        portSet.add(finding);
-                        openPortsPerTarget.put(hostname, portSet);
-                    }
-
-                });
-        return openPortsPerTarget;
-    }
-
-    private Set<Target> collectTargetsWithOpenPorts(List<Target> targets, Map<String, Set<Finding>> openPortsPerTarget) {
-        return targets.stream()
-                // remove targets with no open ports
-                .filter(target -> openPortsPerTarget.containsKey(target.getLocation()))
-                .collect(Collectors.toSet());
-    }
-
-    private void updateTargetsWithNiktoPorts(Set<Target> targets, Map<String, Set<Finding>> openPortsPerTarget) {
-        targets.forEach(target -> {
-            StringJoiner niktoPorts = new StringJoiner(this.PORT_DELIMITER);
-            if (this.isBlackBoxScan(target)) {
-                openPortsPerTarget.get(target.getLocation()).forEach(finding -> {
-                    if (this.isHttpOrHttpsService(finding))
-                        niktoPorts.add(String.valueOf(finding.getAttribute(OpenPortAttributes.port)));
-                });
-            } else {
-                Set<String> portsToScanByNikto = this.getRelevantPorts(target);
-                Set<String> filteredPorts = this.filterIrrelevantPorts(portsToScanByNikto, openPortsPerTarget.get(target.getLocation()));
-                filteredPorts.forEach(niktoPorts::add);
-            }
-            target.appendOrUpdateAttribute("NIKTO_PORTS", niktoPorts.toString());
+    private void transformToBlackBoxScan(Target oldTarget, List<Finding> findings, Set<Target> newTargets) {
+        findings.stream().filter(this::isHttpOrHttpsService).forEach(finding -> {
+            String niktoParameter = String.valueOf(oldTarget.getAttributes().get(ATTRIBUTE_NIKTO_PARAMETER));
+            String niktoPort = String.valueOf(finding.getAttribute(OpenPortAttributes.port));
+            Target newTarget = this.createTarget(finding.getLocation(), niktoPort, niktoParameter);
+            newTargets.add(newTarget);
         });
     }
 
-    protected Set<Target> nmapToNiktoTransformAction(List<Finding> findings, List<Target> oldTargets) {
-        Map<String, Set<Finding>> openPortsPerTarget = this.getOpenPortsPerTarget(findings);
-
-        Set<Target> targets = this.collectTargetsWithOpenPorts(oldTargets, openPortsPerTarget);
-
-        this.updateTargetsWithNiktoPorts(targets, openPortsPerTarget);
-
-        // remove targets with no ports to scan by nikto
-        targets = targets.stream().filter(target -> !this.hasEmptyNiktoPortList(target)).collect(Collectors.toSet());
-        LOG.info("Created Targets out of Findings: " + targets);
-
-        return targets;
-
+    private Target createTarget(String location, String niktoPort, String niktoParameter) {
+        Target target = new Target();
+        target.setName("Nikto Scan for: " + location);
+        target.setLocation(location);
+        target.appendOrUpdateAttribute(ATTRIBUTE_COMBINED_NMAP_NIKTO_PORTS, niktoPort);
+        target.appendOrUpdateAttribute(ATTRIBUTE_NIKTO_PARAMETER, niktoParameter);
+        return target;
     }
 
     private void startNitktoScan(Set<Target> targets, DelegateExecution delegateExecution) {
@@ -144,35 +108,7 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
     }
 
     private String getCombinedNmapNiktoPorts(Target target) {
-        String combinedNmapNiktoPortsAsString = String.valueOf(target.getAttributes().get(ATTRIBUTE_COMBINED_NMAP_NIKTO_PORTS));
-
-        // Check if COMBINED_NMAP_NIKTO_PORTS are set at all
-        if (combinedNmapNiktoPortsAsString == null)
-            return this.DEFAULT_COMBINED_NMAP_NIKTO_PORTS;
-
-        //Use default ports if no ports are specified
-        if (combinedNmapNiktoPortsAsString.isEmpty())
-            return this.DEFAULT_COMBINED_NMAP_NIKTO_PORTS;
-
-        return combinedNmapNiktoPortsAsString;
-    }
-
-    private Set<String> getDefaultPorts() {
-        Set<String> portsToScanByNikto = new HashSet<>();
-        String[] combinedNmapNiktoPortsAsArray = this.DEFAULT_COMBINED_NMAP_NIKTO_PORTS.split(this.PORT_DELIMITER);
-
-        // Remove whitespaces before and after port and add to Collection
-        for (String port : combinedNmapNiktoPortsAsArray) {
-            portsToScanByNikto.add(port.trim());
-        }
-        return portsToScanByNikto;
-    }
-
-    private boolean isBlackBoxScan(Target target) {
-        if (!target.getAttributes().containsKey(ATTRIBUTE_BLACKBOX))
-            return false;
-
-        return target.getAttributes().get(ATTRIBUTE_BLACKBOX).toString().equalsIgnoreCase("true");
+        return String.valueOf(target.getAttributes().get(ATTRIBUTE_COMBINED_NMAP_NIKTO_PORTS));
     }
 
     private boolean isHttpOrHttpsService(Finding finding) {
@@ -184,5 +120,13 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
             default:
                 return false;
         }
+    }
+
+    private String getScanType(Target target) {
+        if (target.getAttributes().containsKey(ATTRIBUTE_BLACKBOX))
+            return ATTRIBUTE_BLACKBOX;
+        if (!String.valueOf(target.getAttributes().get(ATTRIBUTE_COMBINED_NMAP_NIKTO_PORTS)).equals(""))
+            return ATTRIBUTE_COMBINED_NMAP_NIKTO_PORTS;
+        return "default";
     }
 }

@@ -120,8 +120,8 @@ public class NmapToNiktoTransformListenerTest {
         findings.add(finding1);
         findings.add(finding2);
 
-        Target target1 = createTarget(TARGET_NAME, TARGET_LOCATION, "3000, 8080");
-        oldTargets.add(target1);
+        Target target = createTarget(TARGET_NAME, TARGET_LOCATION, "3000, 8080");
+        oldTargets.add(target);
         transform();
         assertFalse(niktoPorts.contains("5555"), "should not contain 5555");
     }
