@@ -17,7 +17,7 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
     private final String PORT_DELIMITER = ",";
     private final String DEFAULT_COMBINED_NMAP_NIKTO_PORTS = "80, 443, 8080, 8443";
     protected static final String ATTRIBUTE_BLACKBOX = "BLACKBOX";
-    protected static  final String ATTRIBUTE_COMBINED_NMAP_NIKTO_PORTS = "COMBINED_NMAP_NIKTO_PORTS";
+    protected static final String ATTRIBUTE_COMBINED_NMAP_NIKTO_PORTS = "COMBINED_NMAP_NIKTO_PORTS";
 
     public void notify(DelegateExecution delegateExecution) {
         List<Finding> findings = ProcessVariableHelper.readListFromValue((String) delegateExecution.getVariable(DefaultFields.PROCESS_FINDINGS.name()), Finding.class);
@@ -88,7 +88,6 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
                 .filter(finding -> finding.getCategory().equals("Open Port"))
                 .forEach(finding -> {
                     String hostname = String.valueOf(finding.getAttribute(OpenPortAttributes.hostname));
-
                     if (openPortsPerTarget.containsKey(hostname)) {
                         openPortsPerTarget.get(hostname).add(finding);
                     } else {
@@ -113,7 +112,7 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
             StringJoiner niktoPorts = new StringJoiner(this.PORT_DELIMITER);
             if (this.isBlackBoxScan(target)) {
                 openPortsPerTarget.get(target.getLocation()).forEach(finding -> {
-                    if (finding.getAttribute(OpenPortAttributes.service).equals("http"))
+                    if (this.isHttpOrHttpsService(finding))
                         niktoPorts.add(String.valueOf(finding.getAttribute(OpenPortAttributes.port)));
                 });
             } else {
@@ -134,7 +133,6 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
 
         // remove targets with no ports to scan by nikto
         targets = targets.stream().filter(target -> !this.hasEmptyNiktoPortList(target)).collect(Collectors.toSet());
-
         LOG.info("Created Targets out of Findings: " + targets);
 
         return targets;
@@ -175,5 +173,16 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
             return false;
 
         return target.getAttributes().get(ATTRIBUTE_BLACKBOX).toString().equalsIgnoreCase("true");
+    }
+
+    private boolean isHttpOrHttpsService(Finding finding) {
+        String service = String.valueOf(finding.getAttribute(OpenPortAttributes.service));
+        switch (service) {
+            case "http":
+            case "https":
+                return true;
+            default:
+                return false;
+        }
     }
 }
