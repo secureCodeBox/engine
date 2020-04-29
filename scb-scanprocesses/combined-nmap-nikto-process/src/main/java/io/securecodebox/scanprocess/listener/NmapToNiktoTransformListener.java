@@ -18,6 +18,7 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
     protected static final String ATTRIBUTE_BLACKBOX = "BLACKBOX";
     protected static final String ATTRIBUTE_COMBINED_NMAP_NIKTO_PORTS = "COMBINED_NMAP_NIKTO_PORTS";
     protected static final String ATTRIBUTE_NIKTO_PARAMETER = "NIKTO_PARAMETER";
+    protected static final String ATTRIBUTE_NIKTO_PORTS = "NIKTO_PORTS";
 
     public NmapToNiktoTransformListener() {
         this.initDefaultPortsToScanByNikto();
@@ -61,7 +62,26 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
     private void transformWithPortlist(Target oldTarget, List<Finding> findings, Set<Target> newTargets) {
         Set<String> portsToScanByNikto = this.getPortsToScanByNikto(oldTarget);
         String niktoParameter = String.valueOf(oldTarget.getAttributes().get(ATTRIBUTE_NIKTO_PARAMETER));
-        portsToScanByNikto.forEach(niktoPort -> this.createTarget(oldTarget.getLocation(), niktoPort, niktoParameter));
+        Map<String, Set<String>> relevantPorts = new HashMap<>();
+        findings.forEach(finding -> {
+            String location = String.valueOf(finding.getAttribute(OpenPortAttributes.hostname));
+            String port = String.valueOf(finding.getAttribute(OpenPortAttributes.port));
+            if (portsToScanByNikto.contains(port)) {
+                if (relevantPorts.containsKey(location)) {
+                    relevantPorts.get(location).add(port);
+                } else {
+                    Set<String> portSet = new HashSet<>();
+                    portSet.add(port);
+                    relevantPorts.put(location, portSet);
+                }
+            }
+        });
+        relevantPorts.forEach((location, portSet) -> {
+            StringJoiner joiner = new StringJoiner(" ");
+            portSet.forEach(joiner::add);
+            Target target = this.createTarget(location, joiner.toString(), niktoParameter);
+            newTargets.add(target);
+        });
     }
 
     private Set<String> getPortsToScanByNikto(Target oldTarget) {
@@ -98,7 +118,7 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
         Target target = new Target();
         target.setName("Nikto Scan for: " + location);
         target.setLocation(location);
-        target.appendOrUpdateAttribute(ATTRIBUTE_COMBINED_NMAP_NIKTO_PORTS, niktoPort);
+        target.appendOrUpdateAttribute(ATTRIBUTE_NIKTO_PORTS, niktoPort);
         target.appendOrUpdateAttribute(ATTRIBUTE_NIKTO_PARAMETER, niktoParameter);
         return target;
     }

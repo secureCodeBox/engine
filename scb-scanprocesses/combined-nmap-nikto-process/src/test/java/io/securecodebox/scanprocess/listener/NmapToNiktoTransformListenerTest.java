@@ -207,6 +207,6 @@ public class NmapToNiktoTransformListenerTest {
     private void transform() {
         this.newTargets = this.listener.nmapToNiktoTransformAction(this.findings, this.oldTargets);
         if (newTargets.iterator().hasNext())
-            this.niktoPorts = (String) newTargets.iterator().next().getAttributes().get("NIKTO_PORTS");
+            this.niktoPorts = (String) newTargets.iterator().next().getAttributes().get(NmapToNiktoTransformListener.ATTRIBUTE_NIKTO_PORTS);
     }
 }
