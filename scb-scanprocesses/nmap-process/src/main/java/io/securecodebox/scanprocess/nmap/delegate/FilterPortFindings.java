@@ -73,35 +73,40 @@ public class FilterPortFindings implements JavaDelegate {
     private void applyNewSeverity(Finding finding) {
         String openPort = finding.getAttribute(NmapFindingAttributes.PORT).toString();
         // SSH
-        if(openPort == "22") {
-            LOG.info("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.MEDIUM);
+        if(openPort.equals("22")) {
+            LOG.info("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.HIGH);
             finding.setSeverity(Severity.HIGH);
-
+            LOG.info("Applying a new severity {} to finding with port {}", Severity.HIGH, openPort);
         }
         // HTTP
-        if(openPort == "80") {
+        if(openPort.equals("80")) {
             LOG.info("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.MEDIUM);
             finding.setSeverity(Severity.MEDIUM);
+            LOG.info("Applying a new severity {} to finding with port {}", Severity.MEDIUM, openPort);
         }
         // HTTP
-        if(openPort == "8080") {
+        if(openPort.equals("8080")) {
             LOG.info("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.MEDIUM);
             finding.setSeverity(Severity.MEDIUM);
+            LOG.info("Applying a new severity {} to finding with port {}", Severity.MEDIUM, openPort);
         }
         // LDAP
-        if(openPort == "389") {
-            LOG.info("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.MEDIUM);
+        if(openPort.equals("389")) {
+            LOG.info("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.HIGH);
             finding.setSeverity(Severity.HIGH);
+            LOG.info("Applying a new severity {} to finding with port {}", Severity.HIGH, openPort);
         }
         // RPC
-        if(openPort == "135") {
-            LOG.info("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.MEDIUM);
+        if(openPort.equals("135")) {
+            LOG.info("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.LOW);
             finding.setSeverity(Severity.LOW);
+            LOG.info("Applying a new severity {} to finding with port {}", Severity.LOW, openPort);
         }
         // Remote Desktop Protocol (RDP)
-        if(openPort == "3389") {
-            LOG.info("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.MEDIUM);
+        if(openPort.equals("3389")) {
+            LOG.info("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.HIGH);
             finding.setSeverity(Severity.HIGH);
+            LOG.info("Applying a new severity {} to finding with port {}", Severity.HIGH, openPort);
         }
 
     }
