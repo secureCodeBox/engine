@@ -34,17 +34,23 @@ public class FilterPortFindings implements JavaDelegate {
             LOG.info("nmap-port filter is enabled!");
 
             final ScanProcessExecution process = processExecutionFactory.get(delegateExecution);
-            final ArrayList<Finding> findings = new ArrayList<>();
+            final ArrayList<Finding> newFindings = new ArrayList<>();
 
             final long tStart = System.currentTimeMillis();
 
             for(Finding finding : process.getFindings()) {
                 if (isPortFound(finding)) {
-                    finding = applyNewSeverity(finding);
-                    LOG.info("Changed port severity to {} ", finding.getSeverity());
+                    newFindings.add(applyNewSeverity(finding));
+                }
+                else {
+                    newFindings.add(finding);
                 }
             }
             final long tStrategiesApplied = System.currentTimeMillis();
+
+            // Resetting the findings with the new one:
+            process.clearFindings();
+            process.appendFindings(newFindings);
 
             LOG.debug("nmap-port filter yielded {} took {}ms, storing them {}ms", tStrategiesApplied - tStart, System.currentTimeMillis() - tStrategiesApplied);
 
