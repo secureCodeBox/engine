@@ -23,7 +23,13 @@ public enum NmapConfigProfile {
     HTTP_PORTS("-Pn -p 80,8080,443,8443"),
     HTTP_PORTS_WITH_HTTP_HEADERS("-Pn -p 80,8080,443,8443 --script=http-headers"),
     TOP_100_PORTS("-Pn --top-ports 100"),
-    TOP_100_PORTS_WITH_HTTP_HEADERS("-Pn --top-ports 100 --script=http-headers");
+    TOP_100_PORTS_WITH_HTTP_HEADERS("-Pn --top-ports 100 --script=http-headers"),
+    TOP_250_PORTS("-Pn --top-ports 250"),
+    TOP_250_PORTS_WITH_HTTP_HEADERS("-Pn --top-ports 250 --script=http-headers"),
+    TOP_500_PORTS("-Pn --top-ports 500"),
+    TOP_500_PORTS_WITH_HTTP_HEADERS("-Pn --top-ports 500 --script=http-headers"),
+    TOP_1000_PORTS("-Pn --top-ports 1000"),
+    TOP_1000_PORTS_WITH_HTTP_HEADERS("-Pn --top-ports 1000 --script=http-headers");
     private final String parameter;
 
     NmapConfigProfile(final String parameter) {

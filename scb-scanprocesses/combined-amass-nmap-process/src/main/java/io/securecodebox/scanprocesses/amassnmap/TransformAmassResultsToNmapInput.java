@@ -116,6 +116,24 @@ public class TransformAmassResultsToNmapInput implements JavaDelegate {
                 } else {
                     return NmapConfigProfile.TOP_100_PORTS.getParameter();
                 }
+            case TOP_250_PORTS:
+                if (withHttpHeaders) {
+                    return NmapConfigProfile.TOP_250_PORTS_WITH_HTTP_HEADERS.getParameter();
+                } else {
+                    return NmapConfigProfile.TOP_250_PORTS.getParameter();
+                }
+            case TOP_500_PORTS:
+                if (withHttpHeaders) {
+                    return NmapConfigProfile.TOP_500_PORTS_WITH_HTTP_HEADERS.getParameter();
+                } else {
+                    return NmapConfigProfile.TOP_500_PORTS.getParameter();
+                }
+            case TOP_1000_PORTS:
+                if (withHttpHeaders) {
+                    return NmapConfigProfile.TOP_1000_PORTS_WITH_HTTP_HEADERS.getParameter();
+                } else {
+                    return NmapConfigProfile.TOP_1000_PORTS.getParameter();
+                }
             default:
                 LOG.info("Invalid nmap profile set for combined amass-nmap test. Use http ports as default");
                 return defaultNmapParameters;
