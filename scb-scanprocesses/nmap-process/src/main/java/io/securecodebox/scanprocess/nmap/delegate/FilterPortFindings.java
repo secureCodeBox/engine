@@ -59,7 +59,7 @@ public class FilterPortFindings implements JavaDelegate {
      */
     private boolean isPortFound(Finding finding) {
         boolean result = false;
-        if(finding.getAttributes().containsKey(NmapFindingAttributes.PORT)) {
+        if(finding.getAttribute(NmapFindingAttributes.PORT) != null && !finding.getAttribute(NmapFindingAttributes.PORT).toString().isEmpty()) {
             result = true;
         }
         else
@@ -75,13 +75,13 @@ public class FilterPortFindings implements JavaDelegate {
         // SSH
         if(openPort == "22") {
             LOG.info("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.MEDIUM);
-            finding.setSeverity(Severity.MEDIUM);
+            finding.setSeverity(Severity.HIGH);
 
         }
         // HTTP
         if(openPort == "80") {
             LOG.info("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.MEDIUM);
-            finding.setSeverity(Severity.HIGH);
+            finding.setSeverity(Severity.MEDIUM);
         }
         // HTTP
         if(openPort == "8080") {
