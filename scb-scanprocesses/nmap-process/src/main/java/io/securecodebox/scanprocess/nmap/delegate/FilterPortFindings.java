@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 
 @Component
@@ -23,7 +24,8 @@ public class FilterPortFindings implements JavaDelegate {
 
     @Value("${securecodebox.process.nmap.filter.portFindingsSeverity:false}")
     private boolean isFilterEnabled;
-
+    @Value("${securecodebox.nmap.severity}")
+    private Map<String, String> severityMapping;
 
     @Autowired
     ScanProcessExecutionFactory processExecutionFactory;
@@ -59,8 +61,10 @@ public class FilterPortFindings implements JavaDelegate {
         }
     }
 
-    /*
+    /**
      * Checks if the current finding is an nmap finding which contains a open port.
+     * @param finding The finding to check
+     * @return True if the findings contains a port, false otherwise.
      */
     private boolean isPortFound(Finding finding) {
         boolean result = false;
@@ -70,11 +74,23 @@ public class FilterPortFindings implements JavaDelegate {
         return result;
     }
 
+    /**
+     * Applies a new severity based on the configured severity mapping.
+     * @param finding The finding to apply a new severity to.
+     * @return The finding with a new severity.
+     */
     private Finding applyNewSeverity(Finding finding) {
 
         Finding result = finding;
 
         String openPort = finding.getAttribute(NmapFindingAttributes.PORT).toString();
+
+        if(severityMapping.containsKey(openPort)) {
+            LOG.info("Port {} found in severityMapping with severity {}", openPort, severityMapping.get(openPort));
+        } else {
+            LOG.info("Port {} not found in severityMapping.", openPort);
+        }
+
         // SSH
         if(openPort.equals("22")) {
             LOG.debug("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.HIGH);
@@ -114,7 +130,7 @@ public class FilterPortFindings implements JavaDelegate {
         // RPC
         if(openPort.equals("135")) {
             LOG.debug("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.LOW);
-            result.setSeverity(Severity.LOW);
+            result.setSeverity(Severity.MEDIUM);
             LOG.debug("Applying a new severity {} to finding with port {}", Severity.LOW, openPort);
         }
         // Remote Desktop Protocol (RDP)
