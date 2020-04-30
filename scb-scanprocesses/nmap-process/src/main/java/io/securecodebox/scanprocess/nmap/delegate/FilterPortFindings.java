@@ -37,16 +37,15 @@ public class FilterPortFindings implements JavaDelegate {
             final ArrayList<Finding> findings = new ArrayList<>();
 
             final long tStart = System.currentTimeMillis();
-            process.getFindings().stream()
-                    .forEach(finding -> {
-                        if (isPortFound(finding)) {
-                            LOG.info("Found port to filter: {} ", finding.getDescription());
-                            applyNewSeverity(finding);
-                        }
-                    });
+
+            for(Finding finding : process.getFindings()) {
+                if (isPortFound(finding)) {
+                    applyNewSeverity(finding);
+                    LOG.info("Changed port severity to {} ", finding.getSeverity());
+                }
+            }
             final long tStrategiesApplied = System.currentTimeMillis();
 
-            process.appendFindings(findings);
             LOG.debug("nmap-port filter yielded {} took {}ms, storing them {}ms", tStrategiesApplied - tStart, System.currentTimeMillis() - tStrategiesApplied);
 
         } else {
