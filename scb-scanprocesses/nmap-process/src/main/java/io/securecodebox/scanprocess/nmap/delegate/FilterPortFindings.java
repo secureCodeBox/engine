@@ -62,6 +62,11 @@ public class FilterPortFindings implements JavaDelegate {
         if(finding.getAttributes().containsKey(NmapFindingAttributes.PORT)) {
             result = true;
         }
+        else
+        {
+            LOG.info("No port found at finding {}", finding.toString());
+            LOG.info("No port found at: {}", finding.getAttribute(NmapFindingAttributes.PORT));
+        }
         return result;
     }
 
