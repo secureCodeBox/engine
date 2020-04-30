@@ -35,7 +35,7 @@ public class FilterPortFindings implements JavaDelegate {
         put("3389", Severity.HIGH);
         put("135", Severity.MEDIUM);
         put("22", Severity.MEDIUM);
-        put("80", Severity.MEDIUM);
+        put("80", Severity.LOW);
         put("8080", Severity.MEDIUM);
         put("8009", Severity.LOW);
         put("9200", Severity.LOW);
