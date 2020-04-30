@@ -63,35 +63,35 @@ securecodebox.rest.auth: basic auth
 
 # NMAP Severity Mapping
 # Service Port: FTP
-securecodebox.nmap.severity.21: "HIGH"
+securecodebox.nmap.severity["21"]: "HIGH"
 # Service Port: SSH
-securecodebox.nmap.severity.22: "HIGH"
+securecodebox.nmap.severity["22"]: "HIGH"
 # Service Port: SMTP
-securecodebox.nmap.severity.25: "LOW"
+securecodebox.nmap.severity["25"]: "LOW"
 # Service Port: ELASTICSEARCH
-securecodebox.nmap.severity.9200: "LOW"
+securecodebox.nmap.severity["9200"]: "LOW"
 # Service Port: KIBANA
-securecodebox.nmap.severity.5601: "LOW"
+securecodebox.nmap.severity["5601"]: "LOW"
 # HTTP
-securecodebox.nmap.severity.80: "MEDIUM"
-securecodebox.nmap.severity.8080: "MEDIUM"
+securecodebox.nmap.severity["80"]: "MEDIUM"
+securecodebox.nmap.severity["8080"]: "MEDIUM"
 # AJP
-securecodebox.nmap.severity.8009: "LOW"
+securecodebox.nmap.severity["8009"]: "LOW"
 
 # LDAP
-securecodebox.nmap.severity.389: "HIGH"
+securecodebox.nmap.severity["389"]: "HIGH"
 # RPC
-securecodebox.nmap.severity.135: "HIGH"
+securecodebox.nmap.severity["135"]: "HIGH"
 # RDP
-securecodebox.nmap.severity.3389: "HIGH"
+securecodebox.nmap.severity["3389"]: "HIGH"
 # TELNET
-securecodebox.nmap.severity.23: "HIGH"
+securecodebox.nmap.severity["23"]: "HIGH"
 # postgres
-securecodebox.nmap.severity.5432: "LOW"
+securecodebox.nmap.severity["5432"]: "LOW"
 # oracle
-securecodebox.nmap.severity.1521: "LOW"
+securecodebox.nmap.severity["1521"]: "LOW"
 # mysql
-securecodebox.nmap.severity.3306: "LOW"
+securecodebox.nmap.severity["3306"]: "LOW"
 
 
 
