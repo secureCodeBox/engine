@@ -104,62 +104,12 @@ public class FilterPortFindings implements JavaDelegate {
         String openPort = finding.getAttribute(NmapFindingAttributes.PORT).toString();
 
         if(severityMapping.containsKey(openPort)) {
-            LOG.info("Port {} found in severityMapping with new severity {}", openPort, severityMapping.get(openPort));
-            LOG.info("Changing port finding severity from {} to {}", finding.getSeverity(), severityMapping.get(openPort));
+            LOG.debug("Port {} found in severityMapping with new severity {}", openPort, severityMapping.get(openPort));
+            LOG.debug("Changing port finding severity from {} to {}", finding.getSeverity(), severityMapping.get(openPort));
             result.setSeverity(severityMapping.get(openPort));
         } else {
-            LOG.info("Port {} not found in severityMapping.", openPort);
+            LOG.debug("Port {} not found in severityMapping.", openPort);
         }
-//
-//        // SSH
-//        if(openPort.equals("22")) {
-//            LOG.debug("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.HIGH);
-//            result.setSeverity(Severity.HIGH);
-//            LOG.debug("Applying a new severity {} to finding with port {}", Severity.HIGH, openPort);
-//        }
-//        // ELASTICSEARCH
-//        if(openPort.equals("9200")) {
-//            LOG.debug("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.MEDIUM);
-//            result.setSeverity(Severity.LOW);
-//            LOG.debug("Applying a new severity {} to finding with port {}", Severity.MEDIUM, openPort);
-//        }
-//        // KIBANA
-//        if(openPort.equals("5601")) {
-//            LOG.debug("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.MEDIUM);
-//            result.setSeverity(Severity.LOW);
-//            LOG.debug("Applying a new severity {} to finding with port {}", Severity.MEDIUM, openPort);
-//        }
-//        // HTTP
-//        if(openPort.equals("80")) {
-//            LOG.debug("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.MEDIUM);
-//            result.setSeverity(Severity.LOW);
-//            LOG.debug("Applying a new severity {} to finding with port {}", Severity.MEDIUM, openPort);
-//        }
-//        // HTTP
-//        if(openPort.equals("8080")) {
-//            LOG.debug("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.MEDIUM);
-//            result.setSeverity(Severity.MEDIUM);
-//            LOG.debug("Applying a new severity {} to finding with port {}", Severity.MEDIUM, openPort);
-//        }
-//        // LDAP
-//        if(openPort.equals("389")) {
-//            LOG.debug("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.HIGH);
-//            result.setSeverity(Severity.HIGH);
-//            LOG.debug("Applying a new severity {} to finding with port {}", Severity.HIGH, openPort);
-//        }
-//        // RPC
-//        if(openPort.equals("135")) {
-//            LOG.debug("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.LOW);
-//            result.setSeverity(Severity.MEDIUM);
-//            LOG.debug("Applying a new severity {} to finding with port {}", Severity.LOW, openPort);
-//        }
-//        // Remote Desktop Protocol (RDP)
-//        if(openPort.equals("3389")) {
-//            LOG.debug("Changing port finding severity from {} to {}", finding.getSeverity(), Severity.HIGH);
-//            result.setSeverity(Severity.HIGH);
-//            LOG.debug("Applying a new severity {} to finding with port {}", Severity.HIGH, openPort);
-//        }
-
         return result;
     }
 }
