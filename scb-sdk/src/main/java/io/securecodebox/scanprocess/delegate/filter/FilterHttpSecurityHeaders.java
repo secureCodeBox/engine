@@ -1,11 +1,11 @@
-package io.securecodebox.scanprocesses.amassnmap;
+package io.securecodebox.scanprocess.delegate.filter;
 
 import io.securecodebox.model.execution.ScanProcessExecution;
 import io.securecodebox.model.execution.ScanProcessExecutionFactory;
 import io.securecodebox.model.findings.Finding;
 import io.securecodebox.model.findings.Severity;
-import io.securecodebox.scanprocesses.amassnmap.util.HttpHeaderStrategy;
-import io.securecodebox.scanprocesses.amassnmap.util.HttpHeaders;
+import io.securecodebox.scanprocess.delegate.filter.util.HttpHeaderStrategy;
+import io.securecodebox.scanprocess.delegate.filter.util.HttpHeaders;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;

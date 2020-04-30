@@ -80,7 +80,7 @@
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="ServiceTask_DoPortscan" name="Run the portscan" camunda:asyncBefore="true" camunda:type="external" camunda:topic="nmap_portscan">
       <bpmn:extensionElements>
-        <camunda:executionListener delegateExpression="${filterHttpSecurityHeaders}" event="end" />
+        <camunda:executionListener delegateExpression="${filterPortFindings}" event="end" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_PortscanConfigured</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_DefaultConfig</bpmn:incoming>

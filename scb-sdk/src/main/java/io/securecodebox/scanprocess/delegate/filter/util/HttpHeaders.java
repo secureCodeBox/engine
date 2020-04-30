@@ -1,4 +1,4 @@
-package io.securecodebox.scanprocesses.amassnmap.util;
+package io.securecodebox.scanprocess.delegate.filter.util;
 
 import io.securecodebox.model.findings.Finding;
 
