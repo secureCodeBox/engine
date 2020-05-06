@@ -110,9 +110,10 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
 
     private void transformToBlackBoxScan(Target oldTarget, List<Finding> findings, Set<Target> newTargets) {
         findings.stream().filter(this::isHttpOrHttpsService).forEach(finding -> {
+            String location = String.valueOf(finding.getAttribute(OpenPortAttributes.hostname));
             String niktoParameter = String.valueOf(oldTarget.getAttributes().get(ATTRIBUTE_NIKTO_PARAMETER));
             String niktoPort = String.valueOf(finding.getAttribute(OpenPortAttributes.port));
-            Target newTarget = this.createTarget(finding.getLocation(), niktoPort, niktoParameter);
+            Target newTarget = this.createTarget(location, niktoPort, niktoParameter);
             newTargets.add(newTarget);
         });
     }
@@ -146,7 +147,8 @@ public class NmapToNiktoTransformListener extends TransformFindingsToTargetsList
     }
 
     private String getScanType(Target target) {
-        if (target.getAttributes().containsKey(ATTRIBUTE_BLACKBOX))
+        boolean blackbox = Boolean.parseBoolean(String.valueOf(target.getAttributes().get(ATTRIBUTE_BLACKBOX)));
+        if (blackbox)
             return ATTRIBUTE_BLACKBOX;
 
         if (!String.valueOf(target.getAttributes().get(ATTRIBUTE_COMBINED_NMAP_NIKTO_PORTS)).isEmpty())
