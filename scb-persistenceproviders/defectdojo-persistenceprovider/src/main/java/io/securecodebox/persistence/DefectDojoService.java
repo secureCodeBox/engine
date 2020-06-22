@@ -521,7 +521,6 @@ public class DefectDojoService {
         if(existingBranches == null) {
             LOG.error("No existing branches given, this will lead to nullpointer");
         }
-        RestTemplate restTemplate = new RestTemplate();
         
         //get existing branches
         List<EngagementResponse> engagementPayloads = getEngagementsForProduct(productId, 0);
@@ -627,4 +626,20 @@ public class DefectDojoService {
         }
         return findings;
     }
+    public List<Finding> receiveNonHandledProductFindings(String productName, String minimumSeverity, LinkedMultiValueMap<String, String> options){
+        List<Finding> findings = new LinkedList<>();
+        long productId = retrieveProductId(productName);
+
+        List<EngagementResponse> engagementPayloads = getEngagementsForProduct(productId, 0);
+        for(EngagementResponse engagementPayload : engagementPayloads) {
+            long engagementId = engagementPayload.getId();
+            for(String severity : Finding.getServeritiesAndHigherServerities(minimumSeverity)) {
+                options.remove("severity");
+                options.add("severity", severity);
+                findings.addAll(getCurrentFindings(engagementId, options));
+            }
+        }
+
+        return findings;
+    }    
 }
