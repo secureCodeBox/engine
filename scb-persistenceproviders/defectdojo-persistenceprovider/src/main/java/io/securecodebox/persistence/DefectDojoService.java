@@ -377,7 +377,7 @@ public class DefectDojoService {
 
     public ImportScanResponse createFindingsReImport(String rawResult, String productName, String engagementName, long lead, String currentDate, String defectDojoScanName, EngagementPayload engagementPayload, TestPayload testPayload, MultiValueMap<String, Object> options, String productDescription, List<String> productTags, int productType)  {
         long productId = retrieveOrCreateProduct(productName, productDescription, productTags, productType);
-        long engagementId = getEngagementIdByEngagementNameOrCreate(productId, engagementName, engagementPayload, lead);
+        long engagementId = getEngagementIdByEngagementNameOrCreate(productId, engagementName, engagementPayload, lead, productType);
         long testId = getTestIdOrCreate(engagementId, testPayload, defectDojoScanName);
         return createFindingsReImport(rawResult, testId, lead, currentDate, defectDojoScanName, options);
     }
@@ -427,15 +427,15 @@ public class DefectDojoService {
 
 
     public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, long productId, long lead){
-        return getEngagementIdByEngagementNameOrCreate(engagementName, rawResults, defectDojoScanName, productId, lead, new EngagementPayload(), "", new LinkedMultiValueMap<>());
+        return getEngagementIdByEngagementNameOrCreate(engagementName, rawResults, defectDojoScanName, productId, lead, new EngagementPayload(), "", new LinkedMultiValueMap<>(), 1);
     }
 
-    public ImportScanResponse getEngagementIdByEngagementNameOrCreate(String engagementName, String rawResults, String defectDojoScanName, long productId, long lead, EngagementPayload engagementPayload, String testName, MultiValueMap<String, Object> options){
-        long engagementId = getEngagementIdByEngagementNameOrCreate(productId, engagementName, engagementPayload, lead);
+    public ImportScanResponse getEngagementIdByEngagementNameOrCreate(String engagementName, String rawResults, String defectDojoScanName, long productId, long lead, EngagementPayload engagementPayload, String testName, MultiValueMap<String, Object> options, int productType){
+        long engagementId = getEngagementIdByEngagementNameOrCreate(productId, engagementName, engagementPayload, lead, productType);
 
         return createFindings(rawResults, engagementId, lead, currentDate(), defectDojoScanName, testName, options);
     }
-    private long getEngagementIdByEngagementNameOrCreate(long productId, String engagementName, EngagementPayload engagementPayload, long lead) {
+    private long getEngagementIdByEngagementNameOrCreate(long productId, String engagementName, EngagementPayload engagementPayload, long lead, int productType) {
         Long engagementId = getEngagementIdByEngagementName(engagementName, productId).orElseGet(() -> {
             engagementPayload.setName(engagementName);
             engagementPayload.setProduct(productId);
@@ -452,7 +452,7 @@ public class DefectDojoService {
     public ImportScanResponse createFindingsForEngagementName(String engagementName, String rawResults, String defectDojoScanName, String productName, long lead, EngagementPayload engagementPayload, String testName, MultiValueMap<String, Object> options, String productDescription, List<String> productTags, int productType) {
         long productId = retrieveOrCreateProduct(productName, productDescription, productTags, productType);
         
-        return getEngagementIdByEngagementNameOrCreate(engagementName, rawResults, defectDojoScanName, productId, lead, engagementPayload, testName, options);
+        return getEngagementIdByEngagementNameOrCreate(engagementName, rawResults, defectDojoScanName, productId, lead, engagementPayload, testName, options, productType);
     }
 
     private Optional<Long> getEngagementIdByEngagementName(String engagementName, String productName){
