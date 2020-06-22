@@ -489,11 +489,11 @@ public class DefectDojoService {
      * @deprecated
      */
     public ProductResponse createProduct(String productName) {
-        return createProduct(productName, "Description missing", java.util.Collections.emptyList());
+        return createProduct(productName, "Description missing", java.util.Collections.emptyList(), 1);
     }
-    public ProductResponse createProduct(String productName, String description, List<String> productTags) {
+    public ProductResponse createProduct(String productName, String description, List<String> productTags, int productType) {
         RestTemplate restTemplate = new RestTemplate();
-        ProductPayload productPayload = new ProductPayload(productName, description, productTags);
+        ProductPayload productPayload = new ProductPayload(productName, description, productTags, productType);
         HttpEntity<ProductPayload> payload = new HttpEntity<>(productPayload, getHeaders());
 
         try {
