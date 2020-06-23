@@ -28,17 +28,20 @@ public class ProductPayload {
     @JsonProperty
     String description;
 
-
     @JsonProperty
     protected List<String> tags = new LinkedList<>();    
+
+    @JsonProperty
+    int prod_type = 1;
 
     public ProductPayload(String productName, String productDescription) {
         name = productName;
         description = productDescription;
     }
-    public ProductPayload(String productName, String productDescription, List<String> productTags) {
+    public ProductPayload(String productName, String productDescription, List<String> productTags, int productType) {
         name = productName;
         description = productDescription;
         tags = productTags;
+        prod_type = productType;
     }
 }
