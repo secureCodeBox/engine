@@ -221,4 +221,57 @@ public class SecurityTestResource {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @ApiOperation(
+            value = "Returns the number of active security test instances for which the definition has the name " +
+                    "provided as path variable",
+            response = long.class,
+            authorizations = {
+                    @Authorization(value = "basicAuth")
+            }
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    code = 200,
+                    message = "Successful fetched the number of active security tests with the specified definition " +
+                            "name",
+                    response = long.class
+            ),
+            @ApiResponse(
+                    code = 401,
+                    message = "Unauthenticated",
+                    response = void.class
+            ),
+            @ApiResponse(
+                    code = 403,
+                    message = "Unauthorized, the user is missing the required rights to perform this action.",
+                    response = void.class
+            ),
+            @ApiResponse(
+                    code = 500,
+                    message = "Unknown technical error occurred."
+            )
+    })
+    @RequestMapping(method = RequestMethod.GET, value = "/{testDefinitionName}/countActiveTests")
+    public ResponseEntity<Long> getCountOfActiveSecurityTestsFilteredByDefinitionName(
+            @PathVariable
+            @ApiParam(
+                    value = "The number of active security test instances for which the definition has this name " +
+                            "shall be counted.",
+                    required = true
+            )
+                    String testDefinitionName
+    ) {
+        try {
+            authService.checkAuthorizedFor(ResourceType.SECURITY_TEST, PermissionType.READ);
+        } catch (InsufficientAuthorizationException e){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        long countOfActiveTestsFilteredByDefinitionName = securityTestService.countActiveTestsFilteredByDefinitionName(
+                testDefinitionName
+        );
+
+        return ResponseEntity.ok(countOfActiveTestsFilteredByDefinitionName);
+    }
 }
