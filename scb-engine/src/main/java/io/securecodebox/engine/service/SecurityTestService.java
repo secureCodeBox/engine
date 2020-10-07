@@ -35,12 +35,7 @@ import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -150,6 +145,25 @@ public class SecurityTestService {
     private <T> List<T> getListValue(Map<String, HistoricVariableInstance> variables, DefaultFields name, Class<T> type) {
         String serializedValue = (String) variables.get(name.name()).getValue();
         return ProcessVariableHelper.readListFromValue(serializedValue, type);
+    }
+
+    /**
+     * This method counts the number process instances (security tests) which match the following two conditions.
+     * Firstly, a process instance is only counted if it is active.
+     * Secondly, a process instance is only counted if the name of its process definition is equal to the given
+     * argument 'definitionName'.
+     *
+     * @param definitionName A security tests is only included into the counting if the name of its process definition
+     *                       is equal to this string
+     * @return the number of security tests that are active and whose process definition has the given name
+     */
+    public long countActiveTestsFilteredByDefinitionName(String definitionName){
+        return engine
+                .getHistoryService()
+                .createHistoricProcessInstanceQuery()
+                .active()
+                .processDefinitionName(definitionName)
+                .count();
     }
 
     public static class SecurityTestNotFoundException extends Exception { }
