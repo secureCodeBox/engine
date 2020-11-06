@@ -125,18 +125,27 @@ public class DefectDojoService {
         }
     }
 
-    public long retrieveProductId(String product){
+    public long retrieveProductId(String productName) {
+        return retrieveProductId(productName, 0L);
+    }
+    public long retrieveProductId(String productName, long offset) {
         RestTemplate restTemplate = new RestTemplate();
 
-        String uri = defectDojoUrl + "/api/v2/products/?name=" + product;
+        String uri = defectDojoUrl + "/api/v2/products/?limit=50&offset=" + offset + "&name=" + productName;
         HttpEntity productRequest = new HttpEntity(getHeaders());
         ResponseEntity<DefectDojoResponse<DefectDojoProduct>> productResponse = restTemplate.exchange(uri, HttpMethod.GET, productRequest, new ParameterizedTypeReference<DefectDojoResponse<DefectDojoProduct>>(){});
-        if(productResponse.getBody().getCount() == 1){
-            return productResponse.getBody().getResults().get(0).getId();
+        if(productResponse.getBody().getCount() >= 1) {
+            // Since DefectDojo 1.8/1.9 name searches for inclusion and not match
+            for(DefectDojoProduct product : productResponse.getBody().getResults()) {
+                if(product.getName() != null && product.getName().equals(productName)) {
+                    return product.getId();
+                }
+            }
         }
-        else {
-            throw new DefectDojoProductNotFound(MessageFormat.format("Could not find product: \"{0}\" in DefectDojo", product));
+        if(productResponse.getBody().getNext() != null) {
+            return retrieveProductId(productName, offset+1);
         }
+        throw new DefectDojoProductNotFound(MessageFormat.format("Could not find product: \"{0}\" in DefectDojo", productName));
     }
     private long retrieveOrCreateProduct(String productName, String productDescription, List<String> productTags, int productType) {
         long productId = 0;
