@@ -129,9 +129,10 @@ public class DefectDojoService {
         return retrieveProductId(productName, 0L);
     }
     public long retrieveProductId(String productName, long offset) {
+        final long PAGE_SIZE = 50;
         RestTemplate restTemplate = new RestTemplate();
 
-        String uri = defectDojoUrl + "/api/v2/products/?limit=50&offset=" + offset + "&name=" + productName;
+        String uri = defectDojoUrl + "/api/v2/products/?limit=" + String.valueOf(PAGE_SIZE) + "&offset=" + offset + "&name=" + productName;
         HttpEntity productRequest = new HttpEntity(getHeaders());
         ResponseEntity<DefectDojoResponse<DefectDojoProduct>> productResponse = restTemplate.exchange(uri, HttpMethod.GET, productRequest, new ParameterizedTypeReference<DefectDojoResponse<DefectDojoProduct>>(){});
         if(productResponse.getBody().getCount() >= 1) {
@@ -143,7 +144,7 @@ public class DefectDojoService {
             }
         }
         if(productResponse.getBody().getNext() != null) {
-            return retrieveProductId(productName, offset+1);
+            return retrieveProductId(productName, offset + PAGE_SIZE);
         }
         throw new DefectDojoProductNotFound(MessageFormat.format("Could not find product: \"{0}\" in DefectDojo", productName));
     }
